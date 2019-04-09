@@ -5,10 +5,10 @@ import com.acel.livela.BaseView
 
 interface MainConstract {
     interface Presenter : BasePresenter {
-
+        fun getAnchorsStatus()
     }
 
-    interface View : BaseView<Presenter> {
-
+    interface View : BaseView<Presenter>{
+        fun refreshAnchorStatus()
     }
 }
