@@ -1,5 +1,5 @@
 package com.acel.livela
 
-interface BasePresenter{
-
+interface BasePresenter {
+    fun onDestroy()
 }

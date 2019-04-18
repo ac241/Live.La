@@ -1,14 +1,13 @@
+apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.acel.livela"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -20,10 +19,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    greendao {
+        schemaVersion 1
+        daoPackage 'com.acel.livela.db'
+        targetGenDir 'src/main/java'
+    }
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include 'x86', 'x86_64', 'armeabi-v7a', 'armeabi'
+//            universalApk false
+//        }
+//    }
 }
 
+
+
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
@@ -32,9 +47,22 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation "org.jetbrains.anko:anko:0.10.8"
+    implementation 'org.jetbrains.anko:anko:0.10.8'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+    implementation 'org.greenrobot:greendao:3.2.2'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
+//    implementation project(path: ':ijkplayer-java')
+//    implementation project(path: ':ijkplayer-example', configuration:'default')
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
 }
