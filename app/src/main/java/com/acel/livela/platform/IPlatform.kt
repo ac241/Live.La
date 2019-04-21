@@ -1,9 +1,13 @@
 package com.acel.livela.platform
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import com.acel.livela.bean.Anchor
 import com.acel.livela.bean.AnchorStatus
 import com.acel.livela.net.RetrofitUtils
+import org.jetbrains.anko.runOnUiThread
+import org.jetbrains.anko.toast
 import org.jetbrains.annotations.Nullable
 import retrofit2.Retrofit
 
@@ -53,6 +57,23 @@ interface IPlatform {
     @Nullable
     fun searchAnchor() {
 
+    }
+
+    /**
+     * 调用第三方播放器
+     */
+    fun callOuterPlayer(context: Context, anchor: Anchor) {
+        val url = getStreamingLiveUrl(anchor)
+        if (url != null) {
+            val uri = Uri.parse(url)
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "video/*")
+            context.startActivity(intent)
+        } else {
+            context.runOnUiThread {
+                toast("获取直播流失败")
+            }
+        }
     }
 
 

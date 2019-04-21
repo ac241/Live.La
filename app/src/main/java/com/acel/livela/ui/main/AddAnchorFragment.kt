@@ -75,7 +75,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
 
     fun onGetAnchorInfoSuccess(anchor: Anchor) {
         runOnUiThread {
-            toast("添加成功" + anchor.nickname + anchor.platform + anchor.roomId)
+            toast("添加成功" + anchor.nickname)
         }
     }
 

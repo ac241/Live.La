@@ -33,7 +33,7 @@ object HuyaImpl : IPlatform {
             if (showId != null && !showId.isEmpty()) {
                 val nickname =
                     TextUtil.subString(it, "\"nick\":\"", "\",")?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
-                val uid = TextUtil.subString(it, "\"uid\":\"", "\",")?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
+                val uid = TextUtil.subString(it, "\"lp\":", ",")?.replace("\"", "")
                 return Anchor(platform, nickname, showId, uid)
             }
         }

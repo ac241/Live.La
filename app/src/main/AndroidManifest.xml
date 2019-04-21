@@ -15,23 +15,28 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.player.PlayerActivity"
-                  android:configChanges="orientation|screenSize|keyboardHidden"
-                  android:screenOrientation="portrait"/>
-        <activity
-                android:name=".SettingActivity"
-                android:label="@string/title_activity_setting"
-                android:theme="@style/AppTheme.NoActionBar">
-        </activity>
         <activity
                 android:name=".ui.main.MainActivity"
-                android:windowSoftInputMode="adjustPan|stateHidden">
+                android:windowSoftInputMode="adjustPan|stateHidden"
+                android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+                android:label="@string/title_activity_player"
+                android:name=".ui.player.PlayerActivity"
+                android:configChanges="orientation|screenSize|keyboardHidden"
+                android:screenOrientation="portrait"/>
+        <activity
+                android:theme="@style/AppTheme"
+                android:name=".ui.settings.SettingsActivity"
+                android:label="@string/title_activity_setting">
+        </activity>
+
     </application>
 
 </manifest>

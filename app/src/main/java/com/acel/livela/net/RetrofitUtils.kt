@@ -20,6 +20,7 @@ class RetrofitUtils {
                 Log.d("retrofit请求链接：", oldUrl.toString())
                 val builder = Request.Builder()
                 val changeBaseUrlList = originalRequest.headers("changeBaseUrl")
+//                builder.addHeader("Content-Type", "application/x-www-form-urlencoded");
                 if (changeBaseUrlList.size > 0) {
                     builder.removeHeader("changeBaseUrl")
                     val changeBaseUrl = changeBaseUrlList.get(0)
@@ -45,7 +46,6 @@ class RetrofitUtils {
 
         val retrofit = Retrofit.Builder()
             .client(okHttpClient)
-
             .baseUrl("https://www.baidu.com")
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())

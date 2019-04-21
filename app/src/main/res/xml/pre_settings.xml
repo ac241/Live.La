@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+            android:key="@string/pref_key_item_click_action"
+            android:title="@string/item_click_action_name"
+            android:defaultValue="inner_player"
+            android:entries="@array/pref_click_action_entries"
+            app:iconSpaceReserved="false"
+            android:entryValues="@array/pref_click_action_entry_values"/>
+    <ListPreference
+            android:key="@string/pref_key_second_button_click_action"
+            android:title="@string/second_button_action_name"
+            android:defaultValue="open_app"
+            android:entries="@array/pref_click_action_entries"
+            app:iconSpaceReserved="false"
+            android:entryValues="@array/pref_click_action_entry_values"/>
+    <Preference
+            app:iconSpaceReserved="false"
+            android:title="开源相关"/>
+</PreferenceScreen>

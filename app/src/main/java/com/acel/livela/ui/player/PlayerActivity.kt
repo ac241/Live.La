@@ -1,11 +1,8 @@
 package com.acel.livela.ui.player
 
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.text.TextUtils
-import android.widget.Toast
+import android.net.ConnectivityManager
 import com.acel.livela.R
 import com.acel.livela.base.BaseActivity
 import com.acel.livela.bean.Anchor
@@ -21,14 +18,31 @@ class PlayerActivity : BaseActivity() {
         return R.layout.activity_player
     }
 
-    lateinit var anchor: Anchor
-
     override fun init() {
-        anchor = intent.getParcelableExtra<Anchor>("anchor")
+        checkNetwork()
         startPlay()
     }
 
+    //网络提示
+    private fun checkNetwork() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+//        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+//        Log.d("ACEL_LOG1", activityNetworkInfo.toString())
+//        val
+        if (activeNetworkInfo == null) {
+            toast("没有网络")
+            return
+        }
+        if (activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI)
+            toast("Wifi网络")
+        if (activeNetworkInfo.type == ConnectivityManager.TYPE_MOBILE)
+            toast("您正在使用移动数据流量！")
+//        Log.d("ACEL_LOG2", "z" + activityNetworkInfo.subtypeName)
+    }
+
     private fun startPlay() {
+        val anchor = intent.getParcelableExtra<Anchor>("anchor")
         val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
         val title = platformImpl?.platformShowNameRes?.let { getString(it) } + " " + anchor.nickname
         doAsync {

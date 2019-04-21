@@ -3,12 +3,17 @@ package com.acel.livela.platform.douyu
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import com.acel.livela.MyApplication
 import com.acel.livela.R
 import com.acel.livela.bean.Anchor
 import com.acel.livela.bean.AnchorStatus
 import com.acel.livela.platform.IPlatform
 import com.acel.livela.platform.douyu.bean.RoomInfo
 import com.acel.livela.util.TextUtil
+import org.mozilla.javascript.Function
+import java.util.*
+
 
 object DouyuImpl : IPlatform {
     override val platform: String = "douyu"
@@ -43,6 +48,15 @@ object DouyuImpl : IPlatform {
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
+        val h5Enc = douyuService.getH5Enc(queryAnchor.roomId).execute().body()
+        if (h5Enc?.error == 0) {
+            val enc = h5Enc.data.get("room" + queryAnchor.roomId).toString()
+            val paramsMap = getRequestParams(enc, queryAnchor)
+            paramsMap?.let {
+                val liveInfo = douyuService.getLiveInfo(queryAnchor.roomId, it).execute().body()
+                return liveInfo?.data?.rtmpUrl + "/" + liveInfo?.data?.rtmpLive
+            }
+        }
         return null
     }
 
@@ -63,4 +77,49 @@ object DouyuImpl : IPlatform {
         else
             return null
     }
+
+    fun getRequestParams(enc: String, anchor: Anchor): MutableMap<String, String>? {
+        val context = org.mozilla.javascript.Context.enter()
+        val uuid = UUID.randomUUID().toString().replace("-", "")
+//        val uuid = "07095540bc131c2cc23726a200021501"
+        val time = (Date().time / 1000).toString()
+        val inputStream = MyApplication.instance.resources.openRawResource(R.raw.douyu_crypto_js)
+        val cryptoJs = inputStream.bufferedReader().use {
+            it.readText()
+        }
+        inputStream.close()
+        try {
+            val scope = context.initStandardObjects()
+            context.setOptimizationLevel(-1);
+            context.evaluateString(scope, cryptoJs, null, 1, null)
+            context.evaluateString(scope, enc, null, 1, null)
+            val result =
+                context.evaluateString(
+                    scope,
+                    "ub98484234(${anchor.roomId},\"${uuid}\",${time})",
+                    "douyu",
+                    1,
+                    null
+                )
+            val params = org.mozilla.javascript.Context.toString(result)
+            val list = params.split("&")
+            val map = mutableMapOf<String, String>()
+            list.forEach {
+                val paramList = it.split("=")
+                map.put(paramList[0], paramList[1])
+            }
+            map.put("ver", "Douyu_219041925")
+            map.put("rate", "0")
+            map.put("iar", "1")
+            map.put("ive", "0")
+            map.put("cdn", "")
+            return map
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            org.mozilla.javascript.Context.exit()
+        }
+        return null
+    }
+
 }

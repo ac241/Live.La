@@ -7,5 +7,22 @@
     <string name="anchor_id">直播间号码</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
-
+    <string name="setting">设置</string>
+    <string name="title_activity_player">player</string>
+    <string name="second_button">第二按钮</string>
+    <string name="pref_key_item_click_action">pref_key_item_click_action</string>
+    <string name="item_click_action_name">点击条目时</string>
+    <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
+    <string name="second_button_action_name">点击侧边键时</string>
+    <string name="click">点击</string>
+    <array name="pref_click_action_entries">
+        <item>内置播放器</item>
+        <item>打开app</item>
+        <item>外置播放器</item>
+    </array>
+    <array name="pref_click_action_entry_values">
+        <item name="value_inner_player">inner_player</item>
+        <item name="value_open_app">open_app</item>
+        <item name="value_outer_player">outer_player</item>
+    </array>
 </resources>

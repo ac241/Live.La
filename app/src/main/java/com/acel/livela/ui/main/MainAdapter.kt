@@ -1,6 +1,5 @@
 package com.acel.livela.ui.main
 
-import android.app.Activity
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.ContextMenu
@@ -10,8 +9,7 @@ import android.view.ViewGroup
 import com.acel.livela.R
 import com.acel.livela.bean.Anchor
 import com.acel.livela.platform.PlatformPitcher
-import kotlinx.android.synthetic.main.main_anchor_item.view.*
-import org.jetbrains.anko.textColor
+import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
 class MainAdapter(
@@ -25,15 +23,15 @@ class MainAdapter(
     var mPosition: Int = -1
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
-        val view = LayoutInflater.from(p0.context).inflate(R.layout.main_anchor_item, p0, false)
+        val view = LayoutInflater.from(p0.context).inflate(R.layout.item_main_anchor, p0, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         val anchor: Anchor = anchorList[p1]
-        p0.let { it ->
+        p0.let { viewholder ->
             //主播名
-            it.anchorName.text = anchor.nickname
+            viewholder.anchorName.text = anchor.nickname
             //平台名
             var platformName: String? =
                 platformNameMap.get(anchor.getPlatform())
@@ -43,28 +41,33 @@ class MainAdapter(
                     platformName = mainActivity.getString(resInt)
             }
             platformNameMap.put(anchor.platform, if (platformName != null) platformName else "未知平台")
-            it.platform.text = platformName
+            viewholder.platform.text = platformName
             //直播间Id
-            it.roomId.text = anchor.showId
+            viewholder.roomId.text = anchor.showId
             //直播状态
             if (anchorStatusMap.get(anchor.anchorKey) != null)
                 if (anchorStatusMap.get(anchor.anchorKey)!!) {
-                    it.status.text = "直播中"
-                    it.status.setTextColor(Color.GREEN)
+                    viewholder.status.text = "直播中"
+                    viewholder.status.setTextColor(Color.GREEN)
                 } else {
-                    it.status.text = "未直播"
-                    it.status.setTextColor(Color.GRAY)
+                    viewholder.status.text = "未直播"
+                    viewholder.status.setTextColor(Color.GRAY)
                 }
 
-            it.itemView.setOnClickListener {
-                //打开应用
-//                PlatformPitcher.getPlatformImpl(anchor.platform)?.startApp(mainActivity, anchor)
-                //打开播放器
-                mainActivity.presenter.startPlay(anchor)
+            //item click
+            viewholder.itemView.setOnClickListener {
+                mainActivity.presenter.itemClick(anchor)
             }
-            it.itemView.setOnLongClickListener { view ->
-                mPosition = it.adapterPosition
+
+            //长按菜单
+            viewholder.itemView.setOnLongClickListener {
+                mPosition = viewholder.adapterPosition
                 return@setOnLongClickListener false
+            }
+
+            //设置第二按钮
+            viewholder.secondBtn.setOnClickListener {
+                mainActivity.presenter.secondBtnClick(anchor)
             }
         }
     }
@@ -84,6 +87,7 @@ class MainAdapter(
         val platform = itemView.main_anchor_platform
         val roomId = itemView.main_anchor_roomId
         val status = itemView.main_anchor_status
+        val secondBtn = itemView.main_second_btn
 
     }
 

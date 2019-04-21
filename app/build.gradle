@@ -19,6 +19,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
 
     greendao {
         schemaVersion 1
@@ -36,12 +40,12 @@ android {
 }
 
 
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:preference-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
@@ -54,15 +58,14 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
     implementation 'org.greenrobot:greendao:3.2.2'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-//    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
-//    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
-//    implementation project(path: ':ijkplayer-java')
-//    implementation project(path: ':ijkplayer-example', configuration:'default')
     implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5.7'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
+    implementation files('libs/rhino-1.7.9.jar')
+//    implementation 'androidx.preference:preference:1.1.0-alpha04'
+//    implementation files('C:/Program Files/Java/jre1.8.0_201/lib/rt.jar')
 }

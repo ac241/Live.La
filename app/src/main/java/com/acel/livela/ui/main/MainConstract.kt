@@ -7,8 +7,10 @@ import com.acel.livela.bean.Anchor
 interface MainConstract {
     interface Presenter : BasePresenter {
         fun addAnchor(queryAnchor: Anchor)
-        fun getAnchorsStatus()
-        fun startPlay(anchor: Anchor)
+        fun getAnchorsStatus(anchor: Anchor)
+        fun getAllAnchorsStatus()
+        fun itemClick(anchor: Anchor)
+        fun secondBtnClick(anchor: Anchor)
         fun deleteAnchor(queryAnchor: Anchor)
     }
 
