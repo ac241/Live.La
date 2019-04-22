@@ -16,7 +16,6 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
     val anchorStatusMap = mutableMapOf<String, Boolean>()
     val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
 
-
     override fun addAnchor(queryAnchor: Anchor) {
         doAsync {
             val platformImpl = PlatformPitcher.getPlatformImpl(queryAnchor.platform)
@@ -45,6 +44,28 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
         getAllAnchorsStatus()
     }
 
+    @Synchronized
+    fun sortAnchorListByStatus() {
+        anchorList.sortWith(Comparator { o1, o2 ->
+            if (anchorStatusMap.get(o2.anchorKey) == null)
+                return@Comparator 1
+            if (anchorStatusMap.get(o1.anchorKey) == null)
+                return@Comparator -1
+            if (anchorStatusMap.get(o1.anchorKey) == anchorStatusMap.get(o2.anchorKey))
+                return@Comparator 0
+            if (anchorStatusMap.get(o2.anchorKey) == true) {
+                return@Comparator 1
+            } else
+                return@Comparator -1
+//            if (anchorStatusMap.get(o2.anchorKey) == null)
+//
+//            anchorStatusMap.get(o1.anchorKey) == anchorStatusMap.get(o2.anchorKey)
+        })
+
+
+        view?.refreshAnchorList()
+    }
+
     private fun initAnchorList() {
         //get anchors from database
         val dataAnchorList = anchorDao?.loadAll() as ArrayList
@@ -64,7 +85,8 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
             if (anchorStatus != null) {
                 anchorStatusMap.put(anchorStatus.getAnchorKey(), anchorStatus.living)
                 uiThread {
-                    view?.refreshAnchorStatus(anchor)
+                    //                    view?.refreshAnchorStatus(anchor)
+                    sortAnchorListByStatus()
                 }
             }
         }

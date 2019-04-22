@@ -13,9 +13,14 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -60,12 +65,12 @@ dependencies {
     implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5.7'
     implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5~.7'
 //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
 //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
     implementation files('libs/rhino-1.7.9.jar')
-//    implementation 'androidx.preference:preference:1.1.0-alpha04'
-//    implementation files('C:/Program Files/Java/jre1.8.0_201/lib/rt.jar')
+    //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
+
 }

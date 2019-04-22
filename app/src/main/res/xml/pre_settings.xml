@@ -17,6 +17,7 @@
             app:iconSpaceReserved="false"
             android:entryValues="@array/pref_click_action_entry_values"/>
     <Preference
+            android:key="@string/pref_key_about_open_source"
             app:iconSpaceReserved="false"
-            android:title="开源相关"/>
+            android:title="@array/open_source_licensed"/>
 </PreferenceScreen>

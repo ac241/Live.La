@@ -65,7 +65,7 @@ class MainAdapter(
                 return@setOnLongClickListener false
             }
 
-            //设置第二按钮
+            //侧键点击
             viewholder.secondBtn.setOnClickListener {
                 mainActivity.presenter.secondBtnClick(anchor)
             }

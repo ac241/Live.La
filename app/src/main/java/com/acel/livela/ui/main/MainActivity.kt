@@ -3,6 +3,7 @@ package com.acel.livela.ui.main
 import android.support.v4.app.FragmentManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.acel.livela.R
@@ -53,6 +54,7 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
     }
 
 
+    @Synchronized
     override fun refreshAnchorStatus(anchor: Anchor) {
         recyclerView.adapter?.notifyItemChanged(presenter.anchorList.indexOf(anchor))
         hideSwipeRefreshBtn()
@@ -69,8 +71,11 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
         addAnchorFragment.onGetAnchorInfoFailed(reason)
     }
 
+    @Synchronized
     override fun refreshAnchorList() {
+        Log.d("ACEL_LOG", "refreshAnchorList")
         recyclerView.adapter?.notifyDataSetChanged()
+        hideSwipeRefreshBtn()
     }
 
     override fun onDestroy() {

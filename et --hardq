@@ -1,0 +1,56 @@
+[33mcommit bf346dd3bea8753437e3f91dffecd2e3879df5cc[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Merge: 408c25b e52ac12
+Author: acel <clanvick@gmail.com>
+Date:   Mon Apr 22 18:19:58 2019 +0800
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 408c25bfacb8b72cb198c7a566eb6982230b73ab[m
+Author: acel <clanvick@gmail.com>
+Date:   Mon Apr 22 18:17:28 2019 +0800
+
+    Revert "排序,开源列表"
+    
+    This reverts commit 2dc8a33c
+
+[33mcommit e52ac12d36ee8a36e822f2f715acbb3e4fa71b5b[m
+Author: Acel <clanvick@gmail.com>
+Date:   Mon Apr 22 18:12:08 2019 +0800
+
+    Update build.gradle
+
+[33mcommit 2dc8a33c5c001be6cf859b9fc77d1ab9d8ea45d0[m
+Author: acel <clanvick@gmail.com>
+Date:   Mon Apr 22 18:07:22 2019 +0800
+
+    排序,开源列表
+
+[33mcommit 5053699f45cc478ae6ec7683c7d4f1a97c2fb5aa[m
+Author: acel <clanvick@gmail.com>
+Date:   Mon Apr 22 17:59:28 2019 +0800
+
+    排序,开源列表
+
+[33mcommit 5e3342ab1dfd96fed2d958b153b1d0d22b7796ae[m
+Author: acel <clanvick@gmail.com>
+Date:   Sun Apr 21 23:29:23 2019 +0800
+
+    斗鱼直播流,settings activity
+
+[33mcommit 3dcdedff7521fd1836881a9ecb658a4a64e24a95[m
+Author: acel <clanvick@gmail.com>
+Date:   Thu Apr 18 22:09:28 2019 +0800
+
+    斗鱼、bilibili、虎牙
+
+[33mcommit 2fd8052cb1894e4ed8eb0358078b14a053c22bda[m
+Author: acel <clanvick@gmail.com>
+Date:   Tue Apr 9 12:40:16 2019 +0800
+
+    基础框架
+
+[33mcommit 3345c4706466b023072c5ce09e297c900ac366a9[m
+Author: acel <clanvick@gmail.com>
+Date:   Tue Apr 2 15:30:44 2019 +0800
+
+    初始化项目

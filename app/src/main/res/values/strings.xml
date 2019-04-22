@@ -15,6 +15,7 @@
     <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
     <string name="second_button_action_name">点击侧边键时</string>
     <string name="click">点击</string>
+    <string name="pref_key_about_open_source">pref_key_about_open_source</string>
     <array name="pref_click_action_entries">
         <item>内置播放器</item>
         <item>打开app</item>

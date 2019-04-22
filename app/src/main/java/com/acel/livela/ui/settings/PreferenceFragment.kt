@@ -2,12 +2,16 @@ package com.acel.livela.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import android.util.Log
 import com.acel.livela.R
+import com.acel.livela.ui.open_source.OpenSourceActivity
 import org.jetbrains.anko.support.v4.defaultSharedPreferences
+import org.jetbrains.anko.support.v4.startActivity
 
-class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener,
+    Preference.OnPreferenceClickListener {
 
     lateinit var entries: Array<String>
     lateinit var entryValues: Array<String>
@@ -21,12 +25,17 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onCreatePreferences(p0: Bundle?, p1: String?) {
         addPreferencesFromResource(R.xml.pre_settings)
         initPreferencesSummary()
-
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.setOnPreferenceClickListener(this)
+        findPreference(getString(R.string.pref_key_about_open_source)).setOnPreferenceClickListener {
+            Log.d("ACEL_LOG", "zzz")
+            startActivity<OpenSourceActivity>()
+            false
+        }
     }
 
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.d("ACEL_LOG", "key:" + key)
         if (isAdded) {
             when (key) {
                 //改变ListPreference值时设置summary
@@ -36,6 +45,15 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     setListPreferenceSummary(key)
             }
         }
+    }
+
+    override fun onPreferenceClick(p0: Preference?): Boolean {
+        Log.d("ACEL_LOG", "click")
+        when (p0?.key) {
+            getString(R.string.pref_key_about_open_source) ->
+                startActivity<OpenSourceActivity>()
+        }
+        return true
     }
 
     private fun initPreferencesSummary() {
