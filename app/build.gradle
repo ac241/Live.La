@@ -6,17 +6,17 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.acel.livela"
+        applicationId "com.acel.streamlivetool"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 200
+        versionName "2.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
@@ -24,26 +24,28 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-//    compileOptions {
-//        sourceCompatibility JavaVersion.VERSION_1_8
-//        targetCompatibility JavaVersion.VERSION_1_8
-//    }
 
     greendao {
         schemaVersion 1
-        daoPackage 'com.acel.livela.db'
+        daoPackage 'com.acel.streamlivetool.db'
         targetGenDir 'src/main/java'
     }
-//    splits {
-//        abi {
-//            enable true
-//            reset()
-//            include 'x86', 'x86_64', 'armeabi-v7a', 'armeabi'
-//            universalApk false
-//        }
-//    }
-}
 
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def fileName
+            def date = new Date()
+            def formattedDate = date.format('yyyyMMdd')
+            if (variant.buildType.name.equals('release')) {
+                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_release_${formattedDate}.apk"
+            } else if (variant.buildType.name.equals('debug')) {
+                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_debug_${formattedDate}.apk"
+            }
+            outputFileName = fileName;
+        }
+    }
+
+}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -62,15 +64,14 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
     implementation 'org.greenrobot:greendao:3.2.2'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
-    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
+//    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
+//    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
 //    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5~.7'
 //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
 //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
     implementation files('libs/rhino-1.7.9.jar')
     //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
-
 }
