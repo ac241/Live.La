@@ -26,10 +26,12 @@
 -keep class com.google.gson.stream.** { *; }
 # 使用Gson时需要配置Gson的解析对象及变量都不混淆。不然Gson会找不到变量。
 # 将下面替换成自己的实体类
--keep class com.acel.livela.bean.** { *; }
--keep class com.acel.livela.platform.bilibili.bean.** { *; }
--keep class com.acel.livela.platform.douyu.bean.** { *; }
--keep class com.acel.livela.platform.huya.bean.** { *; }
+-keep class com.acel.streamlivetool.bean.** { *; }
+-keep class com.acel.streamlivetool.platform.bilibili.bean.** { *; }
+-keep class com.acel.streamlivetool.platform.douyu.bean.** { *; }
+-keep class com.acel.streamlivetool.platform.huya.bean.** { *; }
+#-keep class com.acel.streamlivetool.platform.douyu.** { *; }
+-keep class com.acel.streamlivetool.platform.huomao.bean.** { *; }
 
 
 # Retrofit
@@ -49,4 +51,13 @@ public static java.lang.String TABLENAME;
 -dontwarn org.greenrobot.greendao.database.**
 # If you do not use RxJava:
 -dontwarn rx.**
--keep class com.acel.livela.db.** { *; }
+-keep class com.acel.streamlivetool.db.** { *; }
+
+#ijkplayer  dkplayer
+-keep class tv.danmaku.ijk.** { *; }
+-dontwarn tv.danmaku.ijk.**
+-keep class com.dueeeke.videoplayer.** { *; }
+
+#rhino
+-dontwarn org.mozilla.**
+-keep class org.mozilla.** { *; }

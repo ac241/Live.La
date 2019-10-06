@@ -1,9 +1,0 @@
-package com.acel.livela.ui.open_source
-
-data class Module(
-    val name: String,
-    val `package`: String,
-    val path: String,
-    val author: String,
-    val licensed: String
-)

@@ -5,19 +5,19 @@
     <ListPreference
             android:key="@string/pref_key_item_click_action"
             android:title="@string/item_click_action_name"
-            android:defaultValue="inner_player"
+            android:defaultValue="open_app"
             android:entries="@array/pref_click_action_entries"
             app:iconSpaceReserved="false"
             android:entryValues="@array/pref_click_action_entry_values"/>
     <ListPreference
             android:key="@string/pref_key_second_button_click_action"
             android:title="@string/second_button_action_name"
-            android:defaultValue="open_app"
+            android:defaultValue="outer_player"
             android:entries="@array/pref_click_action_entries"
             app:iconSpaceReserved="false"
             android:entryValues="@array/pref_click_action_entry_values"/>
     <Preference
             android:key="@string/pref_key_about_open_source"
             app:iconSpaceReserved="false"
-            android:title="@array/open_source_licensed"/>
+            android:title="@string/open_source_licensed"/>
 </PreferenceScreen>

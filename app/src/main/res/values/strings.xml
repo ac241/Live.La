@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Live.la</string>
+    <string name="app_name">直播啦</string>
     <string name="title_activity_setting">SettingActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -17,13 +17,15 @@
     <string name="click">点击</string>
     <string name="pref_key_about_open_source">pref_key_about_open_source</string>
     <array name="pref_click_action_entries">
-        <item>内置播放器</item>
+        <!--<item>内置播放器</item>-->
         <item>打开app</item>
         <item>外置播放器</item>
     </array>
     <array name="pref_click_action_entry_values">
-        <item name="value_inner_player">inner_player</item>
+        <!--<item name="value_inner_player">inner_player</item>-->
         <item name="value_open_app">open_app</item>
         <item name="value_outer_player">outer_player</item>
     </array>
+    <string name="open_source_licensed">开放源代码许可</string>
+
 </resources>

@@ -1,0 +1,23 @@
+package com.acel.streamlivetool.ui.main
+
+import com.acel.streamlivetool.BasePresenter
+import com.acel.streamlivetool.BaseView
+import com.acel.streamlivetool.bean.Anchor
+
+interface MainConstract {
+    interface Presenter : BasePresenter {
+        fun addAnchor(queryAnchor: Anchor)
+        fun getAnchorsStatus(anchor: Anchor)
+        fun getAllAnchorsStatus()
+        fun itemClick(anchor: Anchor)
+        fun secondBtnClick(anchor: Anchor)
+        fun deleteAnchor(queryAnchor: Anchor)
+    }
+
+    interface View : BaseView<Presenter> {
+        fun addAnchorSuccess(anchor: Anchor)
+        fun addAnchorFail(reason: String)
+        fun refreshAnchorList()
+        fun refreshAnchorStatus(anchor: Anchor)
+    }
+}
