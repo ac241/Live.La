@@ -1,12 +1,15 @@
 package com.acel.streamlivetool.ui.main
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
 import com.acel.streamlivetool.platform.PlatformPitcher
 import com.acel.streamlivetool.ui.player.PlayerActivity
 import org.jetbrains.anko.*
+import java.lang.Exception
 
 
 class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
@@ -148,7 +151,22 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
             "open_app" -> {
                 doAsync {
                     val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
-                    platformImpl?.startApp(context, anchor)
+                    try {
+                        platformImpl?.startApp(context, anchor)
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+                        uiThread {
+                            context.toast(
+                                "没有找到" +
+                                        platformImpl?.platformShowNameRes?.let { it1 ->
+                                            context.resources.getString(
+                                                it1
+                                            )
+                                        }
+                                        + " app..."
+                            )
+                        }
+                    }
                 }
             }
             "outer_player" -> {

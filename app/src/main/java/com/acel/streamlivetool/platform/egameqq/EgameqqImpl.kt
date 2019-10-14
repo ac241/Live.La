@@ -24,28 +24,35 @@ object EgameqqImpl : IPlatform {
     }
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
-        val longZhuAnchor = longZhuAnchor(queryAnchor)
-
-        longZhuAnchor?.let {
-            val anchorDetail = it.data.key.retBody.data
-            return Anchor(
-                platform, anchorDetail.nickName, anchorDetail.uid.toString(),
-                anchorDetail.uid.toString()
-            )
+        val html = getHtml(queryAnchor)
+        html?.let {
+            val tempRoomId = TextUtil.subString(html, "roomId: '", "'}")
+            val roomId = tempRoomId?.split("_")?.get(1)
+            queryAnchor.roomId = roomId
+            val longZhuAnchor = getLongZhuAnchor(queryAnchor)
+            longZhuAnchor?.let {
+                return Anchor(
+                    platform,
+                    it.data.key.retBody.data.nickName,
+                    it.data.key.retBody.data.aliasId.toString(),
+                    it.data.key.retBody.data.uid.toString()
+                )
+            }
         }
+
         return null
     }
 
-    private fun longZhuAnchor(queryAnchor: Anchor): LongZhuAnchor? {
+    private fun getLongZhuAnchor(queryAnchor: Anchor): LongZhuAnchor? {
         val param =
-            Param(Param.Key(param = Param.Key.ParamX(anchorUid = queryAnchor.showId.toInt())))
+            Param(Param.Key(param = Param.Key.ParamX(anchorUid = queryAnchor.roomId.toInt())))
 
         val longZhuAnchor = egameqqService.getAnchor(Gson().toJson(param)).execute().body()
         return longZhuAnchor
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
-        val longZhuAnchor = longZhuAnchor(queryAnchor)
+        val longZhuAnchor = getLongZhuAnchor(queryAnchor)
 
         longZhuAnchor?.let {
             return AnchorStatus(
@@ -70,7 +77,7 @@ object EgameqqImpl : IPlatform {
         val intent = Intent()
         val uri =
             Uri.parse(
-                "qgameapi://video/room?aid=${anchor.showId}"
+                "qgameapi://video/room?aid=${anchor.roomId}"
             )
         intent.setData(uri)
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
