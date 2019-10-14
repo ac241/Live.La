@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:orientation="vertical"
-              android:layout_height="match_parent"
-              tools:context=".ui.main.AddAnchorFragment">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".ui.main.AddAnchorFragment">
 
 
     <TextView
-            android:textSize="25sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_anchor"/>
-    <EditText
-            android:id="@+id/edit_anchor_id_add_anchor"
-            android:hint="@string/anchor_id"
-            android:focusable="true"
-            android:layout_width="match_parent"
-            android:selectAllOnFocus="true"
-            android:layout_height="wrap_content"
-            android:inputType="text" android:autofillHints="@string/anchor_id"/>
-    <com.acel.streamlivetool.ui.MyRadioGroup
-            android:orientation="horizontal"
-            android:id="@+id/radio_group_add_anchor"
+            android:text="@string/add_anchor"
+            android:textSize="25sp" />
+
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/text_input_layout_anchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-    </com.acel.streamlivetool.ui.MyRadioGroup>
-    <Button
-            android:text="@string/confirm"
+
+        <EditText
+                android:id="@+id/edit_anchor_id_add_anchor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:hint="@string/anchor_id"
+                android:inputType="text"
+                android:selectAllOnFocus="true"
+                android:importantForAutofill="no" />
+    </android.support.design.widget.TextInputLayout>
+
+    <com.acel.streamlivetool.ui.MyRadioGroup
+            android:id="@+id/radio_group_add_anchor"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:id="@+id/btn_confirm_add_anchor"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+    <Button
+            android:id="@+id/btn_confirm_add_anchor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm" />
 </LinearLayout>

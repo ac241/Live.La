@@ -39,11 +39,11 @@ class MyApplication : Application(), AnkoLogger {
         val anchorDao = DbManager.getInstance(this)?.getDaoSession(this)?.anchorDao
         val list = mutableListOf<Anchor>()
         list.add(Anchor("douyu", "即将拥有人鱼线的PDD", "101", "101"))
-        list.add(Anchor("douyu", "毛阿姨", "469195", "469195"))
-        list.add(Anchor("bilibili", "阿P在家吗", "12856139", "12856139"))
-        list.add(Anchor("bilibili", "轻尘biubiubiu", "2262671", "2262671"))
         list.add(Anchor("douyu", "小苏菲", "241431", "241431"))
+        list.add(Anchor("bilibili", "阿P在家吗", "12856139", "12856139"))
+        list.add(Anchor("bilibili", "凉子和猫", "1039633", "1039633"))
         list.add(Anchor("douyu", "Nymph佩佩", "5122899", "5122899"))
+        list.add(Anchor("douyu", "毛阿姨", "469195", "469195"))
         list.forEach {
             anchorDao?.insert(it)
         }

@@ -15,12 +15,12 @@ interface LongzhuApi {
 //    @GET
 //    fun getBaidu(): Call<String>
 
-    @GET("http://star.longzhu.com/{id}")
+    @GET("https://star.longzhu.com/{id}")
     fun getHtml(@Path("id") id: String): Call<String>
 
-    @GET("http://roomapicdn.longzhu.com/room/roomstatus")
+    @GET("https://roomapicdn.longzhu.com/room/roomstatus")
     fun roomStatus(@Query("roomid") id: String): Call<RoomStatus>
 
-    @GET("http://livestream.longzhu.com/live/getlivePlayurl?hostPullType=2&isAdvanced=true&playUrlsType=1")
+    @GET("https://livestream.longzhu.com/live/getlivePlayurl?hostPullType=2&isAdvanced=true&playUrlsType=1")
     fun liveStream(@Query("roomId") id: String): Call<LiveStream>
 }

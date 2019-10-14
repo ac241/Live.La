@@ -4,7 +4,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="add_anchor">新增直播间</string>
-    <string name="anchor_id">直播间号码</string>
+    <string name="anchor_id">直播间号</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
     <string name="setting">设置</string>
