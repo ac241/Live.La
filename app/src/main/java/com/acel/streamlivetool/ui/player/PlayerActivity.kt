@@ -5,12 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.PlatformPitcher
-import kotlinx.android.synthetic.main.activity_player.*
-import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
-import org.jetbrains.anko.uiThread
 
 
 class PlayerActivity : BaseActivity() {
@@ -24,6 +19,7 @@ class PlayerActivity : BaseActivity() {
     }
 
     //网络提示
+    @Suppress("DEPRECATION")
     private fun checkNetwork() {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo

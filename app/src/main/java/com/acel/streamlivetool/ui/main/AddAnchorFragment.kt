@@ -20,7 +20,7 @@ import org.jetbrains.anko.support.v4.toast
 
 
 class AddAnchorFragment : BottomSheetDialogFragment() {
-    lateinit var platformList: List<String>
+    private lateinit var platformList: List<String>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
@@ -39,7 +39,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
             val radioButton = RadioButton(context)
             val stringList = s.split(",")
             tempList.add(stringList[0])
-            radioButton.setText(stringList[1])
+            radioButton.text = stringList[1]
             radioButton.id = i
             radio_group_add_anchor.addView(radioButton)
         }
@@ -48,7 +48,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         btn_confirm_add_anchor.setOnClickListener {
             val roomId = edit_anchor_id_add_anchor.text.toString()
             roomId.ifEmpty {
-                edit_anchor_id_add_anchor.setError("直播间Id不能为空")
+                edit_anchor_id_add_anchor.error = "直播间Id不能为空"
                 return@setOnClickListener
             }
             val radioIndex = radio_group_add_anchor.checkedRadioButtonId
@@ -62,10 +62,10 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun hideKeyboard() {
+    private fun hideKeyboard() {
         val imm = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (imm.isActive()) {
-            imm.hideSoftInputFromWindow(activity!!.getWindow().getDecorView().applicationWindowToken, 0)
+        if (imm.isActive) {
+            imm.hideSoftInputFromWindow(activity!!.window.decorView.applicationWindowToken, 0)
         }
     }
 
@@ -82,7 +82,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
 
     fun onGetAnchorInfoFailed(reason: String) {
         runOnUiThread {
-            toast("添加失败：" + reason)
+            toast("添加失败：$reason")
         }
     }
 }

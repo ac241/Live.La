@@ -1,16 +1,13 @@
-/**
- * @author 再见孙悟空_
- * @site https://blog.csdn.net/shaoyezhangliwei/article/details/75278001
- */
-
 package com.acel.streamlivetool.ui;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
-
+/*
+ * @author 再见孙悟空_
+ * @site https://blog.csdn.net/shaoyezhangliwei/article/details/75278001
+ */
 public class MyRadioGroup extends RadioGroup {
     private static final String TAG = "RadioGroupEx";
 

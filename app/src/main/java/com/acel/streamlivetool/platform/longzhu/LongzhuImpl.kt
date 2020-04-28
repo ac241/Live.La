@@ -8,17 +8,15 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
-import java.net.URLEncoder
 
 
 object LongzhuImpl : IPlatform {
     override val platform: String = "longzhu"
     override val platformShowNameRes: Int = R.string.longzhu
-    val longzhuService = retrofit.create(LongzhuApi::class.java)
+    private val longzhuService: LongzhuApi = retrofit.create(LongzhuApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {
-        val html: String? = longzhuService.getHtml(queryAnchor.showId).execute().body()
-        return html
+        return longzhuService.getHtml(queryAnchor.showId).execute().body()
     }
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
@@ -26,7 +24,7 @@ object LongzhuImpl : IPlatform {
 
         html?.let {
             val showId = TextUtil.subString(it, "\"Domain\":\"", "\",")
-            if (showId != null && !showId.isEmpty()) {
+            if (showId != null && showId.isNotEmpty()) {
                 val name =
                     TextUtil.subString(it, "\"Name\":\"", "\",")
                 val roomId = TextUtil.subString(it, "\"RoomId\":", ",")
@@ -43,7 +41,7 @@ object LongzhuImpl : IPlatform {
             return AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                if (html.indexOf("\"live\":{") != -1) true else false
+                html.indexOf("\"live\":{") != -1
             )
         }
         return null
@@ -64,10 +62,10 @@ object LongzhuImpl : IPlatform {
             Uri.parse(
                 "plulongzhulive://room/openwith?roomId=${anchor.roomId}&feed=1&livestatus=1"
             )
-        intent.setData(uri)
+        intent.data = uri
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
-        intent.setAction(Intent.ACTION_VIEW)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.action = Intent.ACTION_VIEW
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
     }
 

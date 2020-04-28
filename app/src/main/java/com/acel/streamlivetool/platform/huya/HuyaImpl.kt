@@ -17,11 +17,10 @@ import java.net.URLEncoder
 object HuyaImpl : IPlatform {
     override val platform: String = "huya"
     override val platformShowNameRes: Int = R.string.huya
-    val huyaService = retrofit.create(HuyaApi::class.java)
+    private val huyaService: HuyaApi = retrofit.create(HuyaApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {
-        val html: String? = huyaService.getHtml(queryAnchor.showId).execute().body()
-        return html
+        return huyaService.getHtml(queryAnchor.showId).execute().body()
     }
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
@@ -29,7 +28,7 @@ object HuyaImpl : IPlatform {
 
         html?.let {
             val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
-            if (showId != null && !showId.isEmpty()) {
+            if (showId != null && showId.isNotEmpty()) {
                 val nickname =
                     TextUtil.subString(it, "\"nick\":\"", "\",")?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
                 val uid = TextUtil.subString(it, "\"lp\":", ",")?.replace("\"", "")
@@ -44,11 +43,11 @@ object HuyaImpl : IPlatform {
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             val state = TextUtil.subString(it, "\"state\":\"", "\",")
-            if (state != null && !state.isEmpty())
+            if (state != null && state.isNotEmpty())
                 return AnchorStatus(
                     queryAnchor.platform,
                     queryAnchor.roomId,
-                    if (state == "ON") true else false
+                    state == "ON"
                 )
         }
         return null
@@ -58,7 +57,7 @@ object HuyaImpl : IPlatform {
         val html = getHtml(queryAnchor)
         html?.let {
             val streamStr = TextUtil.subString(it, "\"stream\":", "};")
-            val stream = Gson().fromJson<Stream>(streamStr, Stream::class.java)
+            val stream = Gson().fromJson(streamStr, Stream::class.java)
             val streamInfo = stream.data[0].gameStreamInfoList[0]
             return streamInfo.sHlsUrl + "/" + streamInfo.sStreamName + "." + streamInfo.sHlsUrlSuffix + "?" + streamInfo.sHlsAntiCode
         }
@@ -74,10 +73,10 @@ object HuyaImpl : IPlatform {
                     "utf-8"
                 )
             )
-        intent.setData(uri)
+        intent.data = uri
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
-        intent.setAction(Intent.ACTION_VIEW)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.action = Intent.ACTION_VIEW
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
     }
 }

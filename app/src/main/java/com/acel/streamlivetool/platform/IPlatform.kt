@@ -29,7 +29,7 @@ interface IPlatform {
 
     /**
      * 获取直播间信息
-     * @param //todo
+     * @param
      * @return Anchor if fail return null
      */
     fun getAnchor(queryAnchor: Anchor): Anchor?
@@ -49,15 +49,6 @@ interface IPlatform {
      * 打开直播间
      */
     fun startApp(context: Context, anchor: Anchor)
-
-    /**
-     * 搜索直播间
-     * @return 如果没有此功能，返回null
-     */
-    @Nullable
-    fun searchAnchor() {
-
-    }
 
     /**
      * 调用第三方播放器

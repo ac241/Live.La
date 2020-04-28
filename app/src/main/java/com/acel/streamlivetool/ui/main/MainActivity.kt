@@ -15,10 +15,10 @@ import org.jetbrains.anko.startActivity
 
 
 class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
-    lateinit var fragmentmanager: FragmentManager
-    lateinit var recyclerView: RecyclerView
+    private lateinit var fragmentmanager: FragmentManager
+    private lateinit var recyclerView: RecyclerView
     lateinit var presenter: MainPresenter
-    lateinit var adapter: MainAdapter
+    private lateinit var adapter: MainAdapter
 
     override fun getResLayoutId(): Int {
         return R.layout.activity_main

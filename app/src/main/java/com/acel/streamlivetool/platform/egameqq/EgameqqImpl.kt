@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.platform.huya
+package com.acel.streamlivetool.platform.egameqq
 
 import android.content.Context
 import android.content.Intent
@@ -9,6 +9,7 @@ import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.egameqq.bean.LongZhuAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
+import com.acel.streamlivetool.platform.huya.EgameqqApi
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 
@@ -16,11 +17,10 @@ import com.google.gson.Gson
 object EgameqqImpl : IPlatform {
     override val platform: String = "egameqq"
     override val platformShowNameRes: Int = R.string.egameqq
-    val egameqqService = retrofit.create(EgameqqApi::class.java)
+    private val egameqqService: EgameqqApi = retrofit.create(EgameqqApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {
-        val html: String? = egameqqService.getHtml(queryAnchor.showId).execute().body()
-        return html
+        return egameqqService.getHtml(queryAnchor.showId).execute().body()
     }
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
@@ -47,8 +47,7 @@ object EgameqqImpl : IPlatform {
         val param =
             Param(Param.Key(param = Param.Key.ParamX(anchorUid = queryAnchor.roomId.toInt())))
 
-        val longZhuAnchor = egameqqService.getAnchor(Gson().toJson(param)).execute().body()
-        return longZhuAnchor
+        return egameqqService.getAnchor(Gson().toJson(param)).execute().body()
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
@@ -79,10 +78,10 @@ object EgameqqImpl : IPlatform {
             Uri.parse(
                 "qgameapi://video/room?aid=${anchor.roomId}"
             )
-        intent.setData(uri)
+        intent.data = uri
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
-        intent.setAction(Intent.ACTION_VIEW)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.action = Intent.ACTION_VIEW
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
     }
 }

@@ -9,7 +9,7 @@ class OpenSourceActivity : BaseActivity() {
         return R.layout.activity_open_source
     }
 
-    val stringBuilder = StringBuilder()
+    private val stringBuilder = StringBuilder()
 
     override fun init() {
         val list = mutableListOf<Module>()
@@ -73,7 +73,7 @@ class OpenSourceActivity : BaseActivity() {
             addModuleToTextView(it)
         }
 
-        open_source_text.setText(stringBuilder.toString())
+        open_source_text.text = stringBuilder.toString()
     }
 
     private fun addModuleToTextView(module: Module) {
