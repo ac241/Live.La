@@ -5,9 +5,6 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface HuomaoApi {
-    companion object {
-        val baseUrl = "https://www.huomao.com/"
-    }
 
     @GET("https://www.huomao.com/{id}")
     fun getRoomInfo(@Path("id") id: String): Call<String>

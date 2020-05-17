@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.platform.huya
+package com.acel.streamlivetool.platform.longzhu
 
 import com.acel.streamlivetool.platform.longzhu.bean.LiveStream
 import com.acel.streamlivetool.platform.longzhu.bean.RoomStatus
@@ -8,9 +8,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LongzhuApi {
-    companion object {
-        val baseUrl = "https://www.longzhu.com/"
-    }
 //    @Headers("changeBaseUrl:douyu")
 //    @GET
 //    fun getBaidu(): Call<String>

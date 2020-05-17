@@ -9,7 +9,7 @@ class OpenSourceActivity : BaseActivity() {
         return R.layout.activity_open_source
     }
 
-    val stringBuilder = StringBuilder()
+    private val stringBuilder = StringBuilder()
 
     override fun init() {
         val list = mutableListOf<Module>()
@@ -51,15 +51,6 @@ class OpenSourceActivity : BaseActivity() {
         )
         list.add(
             Module(
-                "dkplayer:2.5.7",
-                "com.github.dueeeke.dkplayer",
-                "https://github.com/dueeeke/dkplayer",
-                "Copyright (c) 2017 dueeeke",
-                "Licensed under the Apache License, Version 2.0 "
-            )
-        )
-        list.add(
-            Module(
                 "rhino:1.7.9",
                 "libs/rhino-1.7.9.jar",
                 "https://github.com/mozilla/rhino",
@@ -73,7 +64,7 @@ class OpenSourceActivity : BaseActivity() {
             addModuleToTextView(it)
         }
 
-        open_source_text.setText(stringBuilder.toString())
+        open_source_text.text = stringBuilder.toString()
     }
 
     private fun addModuleToTextView(module: Module) {

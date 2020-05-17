@@ -2,21 +2,18 @@ package com.acel.streamlivetool.ui.main
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
 import com.acel.streamlivetool.platform.PlatformPitcher
-import com.acel.streamlivetool.ui.player.PlayerActivity
 import org.jetbrains.anko.*
-import java.lang.Exception
 
 
-class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
+class MainPresenter(private var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
     val context = view as Context
     var anchorList: MutableList<Anchor> = mutableListOf()
     val anchorStatusMap = mutableMapOf<String, Boolean>()
-    val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
+    private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
 
     override fun addAnchor(queryAnchor: Anchor) {
         doAsync {
@@ -49,13 +46,13 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
     fun sortAnchorListByStatus() {
         //状态排序
         anchorList.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap.get(o2.anchorKey) == null)
+            if (anchorStatusMap[o2.anchorKey] == null)
                 return@Comparator 1
-            if (anchorStatusMap.get(o1.anchorKey) == null)
+            if (anchorStatusMap[o1.anchorKey] == null)
                 return@Comparator -1
-            if (anchorStatusMap.get(o1.anchorKey) == anchorStatusMap.get(o2.anchorKey))
+            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey])
                 return@Comparator 0
-            if (anchorStatusMap.get(o2.anchorKey) == true) {
+            if (anchorStatusMap[o2.anchorKey] == true) {
                 return@Comparator 1
             } else
                 return@Comparator -1
@@ -65,7 +62,7 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
         })
         //ID再排序一次
         anchorList.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap.get(o1.anchorKey) == anchorStatusMap.get(o2.anchorKey)) {
+            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey]) {
                 if (o1.id < o2.id)
                     return@Comparator -1
                 else
@@ -95,7 +92,7 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
             val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
             val anchorStatus = platformImpl?.getStatus(anchor)
             if (anchorStatus != null) {
-                anchorStatusMap.put(anchorStatus.getAnchorKey(), anchorStatus.isLive)
+                anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
                 uiThread {
                     //                    view?.refreshAnchorStatus(anchor)
                     sortAnchorListByStatus()
@@ -142,12 +139,6 @@ class MainPresenter(var view: MainConstract.View?) : MainConstract.Presenter, An
 
     private fun actionWhenClick(actionSecondBtn: String?, anchor: Anchor) {
         when (actionSecondBtn) {
-            "inner_player" -> {
-                doAsync {
-                    val context = view as Context
-                    context.startActivity<PlayerActivity>("anchor" to anchor)
-                }
-            }
             "open_app" -> {
                 doAsync {
                     val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)

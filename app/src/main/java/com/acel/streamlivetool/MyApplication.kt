@@ -17,13 +17,13 @@ class MyApplication : Application(), AnkoLogger {
         firstTimeLaunch()
     }
 
-    fun firstTimeLaunch() {
-        val first_key = "first_time_launch"
-        val isFirst = defaultSharedPreferences.getBoolean(first_key, true)
+    private fun firstTimeLaunch() {
+        val firstKey = "first_time_launch"
+        val isFirst = defaultSharedPreferences.getBoolean(firstKey, true)
         if (isFirst) {
             initDefaultAnchor()
             initPreference()
-            defaultSharedPreferences.edit().putBoolean(first_key, false).apply()
+            defaultSharedPreferences.edit().putBoolean(firstKey, false).apply()
         }
     }
 

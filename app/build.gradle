@@ -4,14 +4,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.acel.streamlivetool"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 200
         versionName "2.0.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -36,9 +36,9 @@ android {
             def fileName
             def date = new Date()
             def formattedDate = date.format('yyyyMMdd')
-            if (variant.buildType.name.equals('release')) {
+            if (variant.buildType.name == 'release') {
                 fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_release_${formattedDate}.apk"
-            } else if (variant.buildType.name.equals('debug')) {
+            } else if (variant.buildType.name == 'debug') {
                 fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_debug_${formattedDate}.apk"
             }
             outputFileName = fileName;
@@ -48,30 +48,22 @@ android {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.12'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:preference-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha03'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'org.jetbrains.anko:anko:0.10.8'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
     implementation 'org.greenrobot:greendao:3.2.2'
-//    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv7a:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-arm64:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-armv5:2.5~.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86:2.5.7'
-//    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
     implementation files('libs/rhino-1.7.9.jar')
-    //    implementation 'com.github.dueeeke.dkplayer:dkplayer-x86_64:2.5.7'
 }

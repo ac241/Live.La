@@ -11,21 +11,20 @@ import com.acel.streamlivetool.platform.IPlatform
 object BilibiliImpl : IPlatform {
     override val platform: String = "bilibili"
     override val platformShowNameRes: Int = R.string.bilibili
-    val bilibiliService = retrofit.create(BilibiliApi::class.java)
-
+    private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()
         val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
 
-        if (roomInfo?.code == 0) {
+        return if (roomInfo?.code == 0) {
             val roomId = roomInfo.data.roomId
             val ownerName = getAnchorName(roomId)
-            return Anchor(platform, ownerName, roomId.toString(), roomId.toString())
+            Anchor(platform, ownerName, roomId.toString(), roomId.toString())
         } else
-            return null
+            null
     }
 
-    fun getAnchorName(roomId: Int): String? {
+    private fun getAnchorName(roomId: Int): String? {
         val staticRoomInfo = bilibiliService.getStaticInfo(roomId).execute().body()
         return staticRoomInfo?.data?.uname
     }
@@ -37,7 +36,7 @@ object BilibiliImpl : IPlatform {
             return AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                if (roomStatus == 1) true else false
+                roomStatus == 1
             )
         } else
             return null
@@ -45,17 +44,17 @@ object BilibiliImpl : IPlatform {
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val playUrl = bilibiliService.getPlayUrl(queryAnchor.roomId).execute().body()
-        if (playUrl != null) {
-            return playUrl.data.durl[0].url
+        return if (playUrl != null) {
+            playUrl.data.durl[0].url
         } else
-            return null
+            null
     }
 
     override fun startApp(context: Context, anchor: Anchor) {
         val intent = Intent()
         val uri = Uri.parse("bilibili://live/${anchor.roomId}")
-        intent.setData(uri)
-        intent.setAction("android.intent.action.VIEW")
+        intent.data = uri
+        intent.action = "android.intent.action.VIEW"
         context.startActivity(intent)
     }
 

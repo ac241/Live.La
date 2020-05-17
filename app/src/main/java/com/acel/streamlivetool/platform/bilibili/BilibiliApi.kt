@@ -8,12 +8,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface BilibiliApi {
-    companion object {
-        val baseUrl = "https://live.bilibili.com/"
-    }
-//    @Headers("changeBaseUrl:douyu")
-//    @GET
-//    fun getBaidu(): Call<String>
 
     @GET("https://api.live.bilibili.com/room/v1/Room/get_info")
     fun getRoomInfo(@Query("room_id") id: String): Call<RoomInfo>

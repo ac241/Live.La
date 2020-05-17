@@ -3,16 +3,16 @@ package com.acel.streamlivetool.ui.main
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.design.widget.BottomSheetDialogFragment
-import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
+import androidx.fragment.app.DialogFragment
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformPitcher
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.fragment_add_anchor.*
 import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.support.v4.runOnUiThread
@@ -26,20 +26,24 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_add_anchor, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        platformList = PlatformPitcher.getAllPlatfrom(this)
+        platformList = PlatformPitcher.getAllPlatform(this)
         val tempList = mutableListOf<String>()
         //显示radio
         platformList.forEachWithIndex { i, s ->
             val radioButton = RadioButton(context)
             val stringList = s.split(",")
             tempList.add(stringList[0])
-            radioButton.setText(stringList[1])
+            radioButton.text = stringList[1]
             radioButton.id = i
             radio_group_add_anchor.addView(radioButton)
         }
@@ -48,7 +52,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         btn_confirm_add_anchor.setOnClickListener {
             val roomId = edit_anchor_id_add_anchor.text.toString()
             roomId.ifEmpty {
-                edit_anchor_id_add_anchor.setError("直播间Id不能为空")
+                edit_anchor_id_add_anchor.error = "直播间Id不能为空"
                 return@setOnClickListener
             }
             val radioIndex = radio_group_add_anchor.checkedRadioButtonId
@@ -62,27 +66,27 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun hideKeyboard() {
-        val imm = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (imm.isActive()) {
-            imm.hideSoftInputFromWindow(activity!!.getWindow().getDecorView().applicationWindowToken, 0)
+    private fun hideKeyboard() {
+        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (imm.isActive) {
+            imm.hideSoftInputFromWindow(activity?.window?.getDecorView()?.applicationWindowToken, 0)
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
+    override fun onDismiss(dialog: DialogInterface) {
         hideKeyboard()
         super.onDismiss(dialog)
     }
 
     fun onGetAnchorInfoSuccess(anchor: Anchor) {
         runOnUiThread {
-            toast("添加成功" + anchor.nickname)
+            toast("添加成功${anchor.nickname}")
         }
     }
 
     fun onGetAnchorInfoFailed(reason: String) {
         runOnUiThread {
-            toast("添加失败：" + reason)
+            toast("添加失败：$reason")
         }
     }
 }

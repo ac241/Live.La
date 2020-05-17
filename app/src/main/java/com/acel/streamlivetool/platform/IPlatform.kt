@@ -29,7 +29,7 @@ interface IPlatform {
 
     /**
      * 获取直播间信息
-     * @param //todo
+     * @param queryAnchor Anchor
      * @return Anchor if fail return null
      */
     fun getAnchor(queryAnchor: Anchor): Anchor?
@@ -52,9 +52,9 @@ interface IPlatform {
 
     /**
      * 搜索直播间
-     * @return 如果没有此功能，返回null
      */
     @Nullable
+    @Deprecated("wait to do")
     fun searchAnchor() {
 
     }

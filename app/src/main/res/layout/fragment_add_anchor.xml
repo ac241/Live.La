@@ -13,7 +13,7 @@
             android:text="@string/add_anchor"
             android:textSize="25sp" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout_anchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -27,7 +27,7 @@
                 android:inputType="text"
                 android:selectAllOnFocus="true"
                 android:importantForAutofill="no" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.acel.streamlivetool.ui.MyRadioGroup
             android:id="@+id/radio_group_add_anchor"

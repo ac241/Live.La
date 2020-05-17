@@ -1,24 +1,20 @@
 package com.acel.streamlivetool.ui.main
 
-import android.support.v4.app.FragmentManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
+import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.startActivity
 
-
-class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
-    lateinit var fragmentmanager: FragmentManager
-    lateinit var recyclerView: RecyclerView
+class MainActivity : BaseActivity(), MainConstract.View{
+    private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: MainPresenter
-    lateinit var adapter: MainAdapter
+    private lateinit var adapter: MainAdapter
 
     override fun getResLayoutId(): Int {
         return R.layout.activity_main
@@ -26,13 +22,12 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
 
     override fun init() {
         initToolbar()
-        recyclerView = main_recycler_view
         presenter = MainPresenter(this)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        main_recycler_view.layoutManager = LinearLayoutManager(this)
         adapter = MainAdapter(this, presenter.anchorList, presenter.anchorStatusMap)
-        recyclerView.adapter = adapter
+        main_recycler_view.adapter = adapter
         //关闭刷新item时CardViewd的闪烁提示
-        recyclerView.itemAnimator?.changeDuration = 0
+        main_recycler_view.itemAnimator?.changeDuration = 0
         main_swipe_refresh.setOnRefreshListener { presenter.getAllAnchorsStatus() }
         main_btn_add_anchor.setOnClickListener {
             showAddAnchorFragment()
@@ -54,7 +49,7 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
 
     @Synchronized
     override fun refreshAnchorStatus(anchor: Anchor) {
-        recyclerView.adapter?.notifyItemChanged(presenter.anchorList.indexOf(anchor))
+        main_recycler_view.adapter?.notifyItemChanged(presenter.anchorList.indexOf(anchor))
         hideSwipeRefreshBtn()
     }
 
@@ -71,7 +66,7 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
 
     @Synchronized
     override fun refreshAnchorList() {
-        recyclerView.adapter?.notifyDataSetChanged()
+        main_recycler_view.adapter?.notifyDataSetChanged()
         hideSwipeRefreshBtn()
     }
 
@@ -100,8 +95,8 @@ class MainActivity : BaseActivity(), MainConstract.View, AnkoLogger {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.action_main_setting -> {
                 startActivity<SettingsActivity>()
             }

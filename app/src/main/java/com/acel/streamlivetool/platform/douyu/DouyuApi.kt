@@ -8,7 +8,7 @@ import retrofit2.http.*
 
 interface DouyuApi {
     companion object {
-        val baseUrl = "https://www.douyu.com/"
+        const val baseUrl = "https://www.douyu.com/"
     }
 //    @Headers("changeBaseUrl:douyu")
 //    @GET
@@ -26,6 +26,7 @@ interface DouyuApi {
     @GET("https://www.douyu.com/swf_api/homeH5Enc")
     fun getH5Enc(@Query("rids") rids: String): Call<H5Enc>
 
+    @Suppress("unused")
     @Headers("Content-Type:application/x-www-form-urlencoded; charset=utf-8")
     @Multipart
     @POST("https://www.douyu.com/lapi/live/getH5Play/{id}")
