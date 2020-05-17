@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.ui.main
 
-import com.acel.streamlivetool.BasePresenter
-import com.acel.streamlivetool.BaseView
+import com.acel.streamlivetool.base.BasePresenter
+import com.acel.streamlivetool.base.BaseView
 import com.acel.streamlivetool.bean.Anchor
 
 interface MainConstract {
