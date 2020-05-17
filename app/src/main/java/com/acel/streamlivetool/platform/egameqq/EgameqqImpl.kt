@@ -9,7 +9,6 @@ import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.egameqq.bean.LongZhuAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
-import com.acel.streamlivetool.platform.huya.EgameqqApi
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 
