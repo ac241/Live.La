@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.PlatformPitcher
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
@@ -38,7 +38,7 @@ class MainAdapter(
             var platformName: String? =
                 platformNameMap[anchor.getPlatform()]
             if (platformName == null) {
-                val resInt = PlatformPitcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
+                val resInt = PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
                 if (resInt != null)
                     platformName = mainActivity.getString(resInt)
             }

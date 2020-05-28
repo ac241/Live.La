@@ -14,7 +14,12 @@ import com.google.gson.Gson
 import java.net.URLEncoder
 
 
-object HuyaImpl : IPlatform {
+class HuyaImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            HuyaImpl()
+        }
+    }
     override val platform: String = "huya"
     override val platformShowNameRes: Int = R.string.huya
     private val huyaService: HuyaApi = retrofit.create(HuyaApi::class.java)

@@ -16,7 +16,12 @@ import com.google.gson.Gson
 import java.util.*
 
 
-object DouyuImpl : IPlatform {
+class DouyuImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            DouyuImpl()
+        }
+    }
     override val platform: String = "douyu"
     override val platformShowNameRes: Int = R.string.douyu
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
@@ -28,7 +33,8 @@ object DouyuImpl : IPlatform {
         return if (msg?.error != 0) {
             getAnchorFromHtml(queryAnchor)
         } else {
-            val roomInfo: RoomInfo? = douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
+            val roomInfo: RoomInfo? =
+                douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
             val roomId = roomInfo?.data?.roomId
             val ownerName = roomInfo?.data?.ownerName
             Anchor(platform, ownerName, roomId, roomId)
@@ -36,7 +42,8 @@ object DouyuImpl : IPlatform {
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
-        val roomInfo: RoomInfo? = douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
+        val roomInfo: RoomInfo? =
+            douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
         return if (roomInfo?.error == 0) {
             val roomStatus = roomInfo.data.roomStatus
             AnchorStatus(

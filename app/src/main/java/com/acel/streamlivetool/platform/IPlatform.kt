@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable
 import retrofit2.Retrofit
 
 interface IPlatform {
+
     /**
      * 平台名，例如"Douyu"
      */

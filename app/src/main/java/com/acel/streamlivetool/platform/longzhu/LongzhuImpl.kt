@@ -9,7 +9,12 @@ import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
 
-object LongzhuImpl : IPlatform {
+class LongzhuImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            LongzhuImpl()
+        }
+    }
     override val platform: String = "longzhu"
     override val platformShowNameRes: Int = R.string.longzhu
     private val longzhuService: LongzhuApi = retrofit.create(LongzhuApi::class.java)

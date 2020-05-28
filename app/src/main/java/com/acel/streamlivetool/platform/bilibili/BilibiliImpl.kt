@@ -8,7 +8,12 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 
-object BilibiliImpl : IPlatform {
+class BilibiliImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            BilibiliImpl()
+        }
+    }
     override val platform: String = "bilibili"
     override val platformShowNameRes: Int = R.string.bilibili
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)

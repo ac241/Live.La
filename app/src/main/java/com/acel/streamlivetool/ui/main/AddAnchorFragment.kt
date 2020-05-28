@@ -11,7 +11,7 @@ import android.widget.RadioButton
 import androidx.fragment.app.DialogFragment
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.PlatformPitcher
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.fragment_add_anchor.*
 import org.jetbrains.anko.collections.forEachWithIndex
@@ -36,7 +36,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        platformList = PlatformPitcher.getAllPlatform(this)
+        platformList = PlatformDispatcher.getAllPlatform(this)
         val tempList = mutableListOf<String>()
         //显示radio
         platformList.forEachWithIndex { i, s ->

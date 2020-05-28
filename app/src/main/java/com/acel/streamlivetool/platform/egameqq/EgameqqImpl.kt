@@ -13,7 +13,12 @@ import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 
 
-object EgameqqImpl : IPlatform {
+class EgameqqImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            EgameqqImpl()
+        }
+    }
     override val platform: String = "egameqq"
     override val platformShowNameRes: Int = R.string.egameqq
     private val egameqqService: EgameqqApi = retrofit.create(EgameqqApi::class.java)

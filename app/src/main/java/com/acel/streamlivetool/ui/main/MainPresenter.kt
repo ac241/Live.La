@@ -5,8 +5,9 @@ import android.content.Context
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
-import com.acel.streamlivetool.platform.PlatformPitcher
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import org.jetbrains.anko.*
+import java.util.concurrent.Executors
 
 
 class MainPresenter(private var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
@@ -14,10 +15,15 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     var anchorList: MutableList<Anchor> = mutableListOf()
     val anchorStatusMap = mutableMapOf<String, Boolean>()
     private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
+    private val PoolExecutor = Executors.newFixedThreadPool(20)
 
     override fun addAnchor(queryAnchor: Anchor) {
-        doAsync {
-            val platformImpl = PlatformPitcher.getPlatformImpl(queryAnchor.platform)
+        PoolExecutor.execute(AddAnchorRunnable(queryAnchor))
+    }
+
+    inner class AddAnchorRunnable(val queryAnchor: Anchor) : Runnable {
+        override fun run() {
+            val platformImpl = PlatformDispatcher.getPlatformImpl(queryAnchor.platform)
             val anchor = platformImpl?.getAnchor(queryAnchor)
             if (anchor != null) {
 //                Log.d("ACEL_LOG", anchorList.indexOf(anchor).toString())
@@ -88,17 +94,22 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     }
 
     override fun getAnchorsStatus(anchor: Anchor) {
-        doAsync {
-            val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
+        PoolExecutor.execute(GetStatusRunnable(anchor))
+    }
+
+    inner class GetStatusRunnable(val anchor: Anchor) : Runnable {
+        override fun run() {
+            val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
             val anchorStatus = platformImpl?.getStatus(anchor)
             if (anchorStatus != null) {
                 anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
-                uiThread {
+                context.runOnUiThread {
                     //                    view?.refreshAnchorStatus(anchor)
                     sortAnchorListByStatus()
                 }
             }
         }
+
     }
 
     override fun getAllAnchorsStatus() {
@@ -141,7 +152,7 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
         when (actionSecondBtn) {
             "open_app" -> {
                 doAsync {
-                    val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
+                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                     try {
                         platformImpl?.startApp(context, anchor)
                     } catch (e: ActivityNotFoundException) {
@@ -162,7 +173,7 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
             }
             "outer_player" -> {
                 doAsync {
-                    val platformImpl = PlatformPitcher.getPlatformImpl(anchor.platform)
+                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                     platformImpl?.callOuterPlayer(context, anchor)
                 }
             }

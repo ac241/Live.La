@@ -9,7 +9,12 @@ import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
 
-object YYImpl : IPlatform {
+class YYImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            YYImpl()
+        }
+    }
     override val platform: String = "yy"
     override val platformShowNameRes: Int = R.string.yy
     private val yyService: YYApi = retrofit.create(YYApi::class.java)

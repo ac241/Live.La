@@ -16,11 +16,16 @@ import java.security.MessageDigest
 import java.util.*
 
 
-object HuomaoImpl : IPlatform {
+class HuomaoImpl : IPlatform {
+    companion object{
+        val INSTANCE by lazy {
+            HuomaoImpl()
+        }
+        private const val SECRETKEY = "6FE26D855E1AEAE090E243EB1AF73685"
+    }
     override val platform: String = "huomao"
     override val platformShowNameRes: Int = R.string.huomao
     private val huomaoService: HuomaoApi = retrofit.create(HuomaoApi::class.java)
-    private const val SECRETKEY = "6FE26D855E1AEAE090E243EB1AF73685"
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()
@@ -67,7 +72,7 @@ object HuomaoImpl : IPlatform {
         val roomInfo = getRoomInfo(queryAnchor)
         if (roomInfo != null) {
             val stream = roomInfo.stream
-            val signStr = stream + tagFrom + time + SECRETKEY
+            val signStr = stream + tagFrom + time + Companion.SECRETKEY
             val md = MessageDigest.getInstance("MD5")
             //对字符串加密
             md.update(signStr.toByteArray())
