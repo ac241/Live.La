@@ -9,11 +9,12 @@ import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.platform.IPlatform
 
 class BilibiliImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             BilibiliImpl()
         }
     }
+
     override val platform: String = "bilibili"
     override val platformShowNameRes: Int = R.string.bilibili
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
@@ -35,13 +36,15 @@ class BilibiliImpl : IPlatform {
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
-        val staticRoomInfo = bilibiliService.getStaticInfo(queryAnchor.roomId.toInt()).execute().body()
+        val staticRoomInfo =
+            bilibiliService.getStaticInfo(queryAnchor.roomId.toInt()).execute().body()
         if (staticRoomInfo?.code == 0) {
             val roomStatus = staticRoomInfo.data.liveStatus
             return AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                roomStatus == 1
+                roomStatus == 1,
+                staticRoomInfo.data.title
             )
         } else
             return null

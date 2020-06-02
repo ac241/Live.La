@@ -9,12 +9,12 @@ import org.greenrobot.greendao.annotation.Id;
 @Entity
 public class Anchor implements Parcelable {
     @Id(autoincrement = true)
-    public Long id;
-    public String platform;
-    public String nickname;
-    public String showId;
-    public String roomId;
-    public String otherParams;
+    private Long id;
+    private String platform;
+    private String nickname;
+    private String showId;
+    private String roomId;
+    private String otherParams;
 
     public Anchor(String platform, String nickname, String showId, String roomId) {
         this.platform = platform;

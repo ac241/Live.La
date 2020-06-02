@@ -11,7 +11,7 @@ import com.acel.streamlivetool.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
-class MainActivity : BaseActivity(), MainConstract.View{
+class MainActivity : BaseActivity(), MainConstract.View {
     private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: MainPresenter
     private lateinit var adapter: MainAdapter
@@ -24,7 +24,12 @@ class MainActivity : BaseActivity(), MainConstract.View{
         initToolbar()
         presenter = MainPresenter(this)
         main_recycler_view.layoutManager = LinearLayoutManager(this)
-        adapter = MainAdapter(this, presenter.anchorList, presenter.anchorStatusMap)
+        adapter = MainAdapter(
+            this,
+            presenter.anchorList,
+            presenter.anchorStatusMap,
+            presenter.anchorTitleMap
+        )
         main_recycler_view.adapter = adapter
         //关闭刷新item时CardViewd的闪烁提示
         main_recycler_view.itemAnimator?.changeDuration = 0
@@ -55,12 +60,14 @@ class MainActivity : BaseActivity(), MainConstract.View{
 
 
     override fun addAnchorSuccess(anchor: Anchor) {
-        val addAnchorFragment = fragmentmanager.findFragmentByTag("add_anchor_fragment") as AddAnchorFragment
+        val addAnchorFragment =
+            fragmentmanager.findFragmentByTag("add_anchor_fragment") as AddAnchorFragment
         addAnchorFragment.onGetAnchorInfoSuccess(anchor)
     }
 
-    override fun addAnchorFail(reason: String) {
-        val addAnchorFragment = fragmentmanager.findFragmentByTag("add_anchor_fragment") as AddAnchorFragment
+    override fun addAnchorFailed(reason: String) {
+        val addAnchorFragment =
+            fragmentmanager.findFragmentByTag("add_anchor_fragment") as AddAnchorFragment
         addAnchorFragment.onGetAnchorInfoFailed(reason)
     }
 

@@ -8,15 +8,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LongzhuApi {
-//    @Headers("changeBaseUrl:douyu")
-//    @GET
-//    fun getBaidu(): Call<String>
-
     @GET("https://star.longzhu.com/{id}")
     fun getHtml(@Path("id") id: String): Call<String>
 
-    @GET("https://roomapicdn.longzhu.com/room/roomstatus")
-    fun roomStatus(@Query("roomid") id: String): Call<RoomStatus>
+    @GET("https://roomapicdn.longzhu.com/room/RoomAppStatusV2")
+    fun roomStatus(@Query("roomId") id: String): Call<RoomStatus>
 
     @GET("https://livestream.longzhu.com/live/getlivePlayurl?hostPullType=2&isAdvanced=true&playUrlsType=1")
     fun liveStream(@Query("roomId") id: String): Call<LiveStream>

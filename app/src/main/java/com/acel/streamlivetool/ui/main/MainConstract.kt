@@ -16,7 +16,7 @@ interface MainConstract {
 
     interface View : BaseView<Presenter> {
         fun addAnchorSuccess(anchor: Anchor)
-        fun addAnchorFail(reason: String)
+        fun addAnchorFailed(reason: String)
         fun refreshAnchorList()
         fun refreshAnchorStatus(anchor: Anchor)
     }

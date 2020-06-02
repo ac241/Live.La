@@ -15,11 +15,12 @@ import java.net.URLEncoder
 
 
 class HuyaImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             HuyaImpl()
         }
     }
+
     override val platform: String = "huya"
     override val platformShowNameRes: Int = R.string.huya
     private val huyaService: HuyaApi = retrofit.create(HuyaApi::class.java)
@@ -35,7 +36,8 @@ class HuyaImpl : IPlatform {
             val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             if (showId != null && showId.isNotEmpty()) {
                 val nickname =
-                    TextUtil.subString(it, "\"nick\":\"", "\",")?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
+                    TextUtil.subString(it, "\"nick\":\"", "\",")
+                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
                 val uid = TextUtil.subString(it, "\"lp\":", ",")?.replace("\"", "")
                 return Anchor(platform, nickname, showId, uid)
             }
@@ -48,11 +50,13 @@ class HuyaImpl : IPlatform {
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             val state = TextUtil.subString(it, "\"state\":\"", "\",")
-            if (state != null && state.isNotEmpty())
+            val title = TextUtil.subString(it, "\"introduction\":\"", "\",")
+            if (state != null && title != null && state.isNotEmpty())
                 return AnchorStatus(
                     queryAnchor.platform,
                     queryAnchor.roomId,
-                    state == "ON"
+                    state == "ON",
+                    UnicodeUtil.decodeUnicode(title)
                 )
         }
         return null

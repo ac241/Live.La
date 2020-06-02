@@ -14,6 +14,7 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     val context = view as Context
     var anchorList: MutableList<Anchor> = mutableListOf()
     val anchorStatusMap = mutableMapOf<String, Boolean>()
+    val anchorTitleMap = mutableMapOf<String, String>()
     private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
     private val PoolExecutor = Executors.newFixedThreadPool(20)
 
@@ -24,21 +25,28 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     inner class AddAnchorRunnable(val queryAnchor: Anchor) : Runnable {
         override fun run() {
             val platformImpl = PlatformDispatcher.getPlatformImpl(queryAnchor.platform)
-            val anchor = platformImpl?.getAnchor(queryAnchor)
-            if (anchor != null) {
+            try {
+                val anchor = platformImpl?.getAnchor(queryAnchor)
+                if (anchor != null) {
 //                Log.d("ACEL_LOG", anchorList.indexOf(anchor).toString())
-                if (anchorList.indexOf(anchor) == -1) {
-                    anchorDao?.insert(anchor)
-                    initAnchorList()
-                    view?.addAnchorSuccess(anchor)
-                    //添加后获取状态
-                    getAnchorsStatus(anchor)
-                } else {
-                    view?.addAnchorFail("该直播间已存在")
-                }
+                    if (anchorList.indexOf(anchor) == -1) {
+                        anchorDao?.insert(anchor)
+                        initAnchorList()
+                        view?.addAnchorSuccess(anchor)
+                        //添加后获取状态
+                        getAnchorsStatus(anchor)
+                    } else {
+                        view?.addAnchorFailed("该直播间已存在——${anchor.nickname}")
+                    }
 
-            } else {
-                view?.addAnchorFail("该直播间找寻不到")
+                } else {
+                    view?.addAnchorFailed("该直播间找寻不到")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                context.runOnUiThread {
+                    context.toast("发生错误。")
+                }
             }
         }
     }
@@ -99,15 +107,21 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
 
     inner class GetStatusRunnable(val anchor: Anchor) : Runnable {
         override fun run() {
-            val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-            val anchorStatus = platformImpl?.getStatus(anchor)
-            if (anchorStatus != null) {
-                anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
-                context.runOnUiThread {
-                    //                    view?.refreshAnchorStatus(anchor)
-                    sortAnchorListByStatus()
+            try {
+                val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
+                val anchorStatus = platformImpl?.getStatus(anchor)
+                if (anchorStatus != null) {
+                    anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
+                    anchorTitleMap[anchorStatus.getAnchorKey()] = anchorStatus.title
+                    context.runOnUiThread {
+                        //                    view?.refreshAnchorStatus(anchor)
+                        sortAnchorListByStatus()
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+
         }
 
     }

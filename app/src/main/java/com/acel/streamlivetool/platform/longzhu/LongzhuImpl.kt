@@ -10,11 +10,12 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
 
 class LongzhuImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             LongzhuImpl()
         }
     }
+
     override val platform: String = "longzhu"
     override val platformShowNameRes: Int = R.string.longzhu
     private val longzhuService: LongzhuApi = retrofit.create(LongzhuApi::class.java)
@@ -39,13 +40,13 @@ class LongzhuImpl : IPlatform {
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
-        val html: String? = getHtml(queryAnchor)
-
-        html?.let {
+        val roomStatus = longzhuService.roomStatus(queryAnchor.roomId).execute().body()
+        roomStatus?.let {
             return AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                html.indexOf("\"live\":{") != -1
+                roomStatus.IsBroadcasting,
+                roomStatus.BaseRoomInfo.BoardCastTitle
             )
         }
         return null

@@ -17,12 +17,13 @@ import java.util.*
 
 
 class HuomaoImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             HuomaoImpl()
         }
         private const val SECRETKEY = "6FE26D855E1AEAE090E243EB1AF73685"
     }
+
     override val platform: String = "huomao"
     override val platformShowNameRes: Int = R.string.huomao
     private val huomaoService: HuomaoApi = retrofit.create(HuomaoApi::class.java)
@@ -60,7 +61,7 @@ class HuomaoImpl : IPlatform {
             AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                roomInfo.isLive == 1
+                roomInfo.isLive == 1, UnicodeUtil.decodeUnicode(roomInfo.channel)
             )
         } else
             null
@@ -72,7 +73,7 @@ class HuomaoImpl : IPlatform {
         val roomInfo = getRoomInfo(queryAnchor)
         if (roomInfo != null) {
             val stream = roomInfo.stream
-            val signStr = stream + tagFrom + time + Companion.SECRETKEY
+            val signStr = stream + tagFrom + time + SECRETKEY
             val md = MessageDigest.getInstance("MD5")
             //对字符串加密
             md.update(signStr.toByteArray())

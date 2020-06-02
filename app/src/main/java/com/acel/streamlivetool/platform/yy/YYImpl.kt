@@ -35,15 +35,13 @@ class YYImpl : IPlatform {
     }
 
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
-
         val searchInfo = yyService.search(queryAnchor.showId).execute().body()
         searchInfo?.let {
             val anchorMsg = it.data.searchResult.response.x2.docs[0]
-//            return Anchor(platform,anchor.name,anchor.asid,anchor.sid)
             return AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                anchorMsg.liveOn == "1"
+                anchorMsg.liveOn == "1",""
             )
         }
         return null

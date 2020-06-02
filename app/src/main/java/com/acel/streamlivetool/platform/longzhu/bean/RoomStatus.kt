@@ -1,129 +1,79 @@
 package com.acel.streamlivetool.platform.longzhu.bean
-import com.google.gson.annotations.SerializedName
-
 
 data class RoomStatus(
-    @SerializedName("Broadcast")
-    val broadcast: Broadcast,
-    @SerializedName("Closed")
-    val closed: Boolean,
-    @SerializedName("ContributionValue")
-    val contributionValue: Int,
-    @SerializedName("FlowerCount")
-    val flowerCount: Int,
-    @SerializedName("FollowUserSound")
-    val followUserSound: Int,
-    @SerializedName("GiftCost")
-    val giftCost: Double,
-    @SerializedName("GiftSound")
-    val giftSound: Int,
-    @SerializedName("HasMatch")
-    val hasMatch: Boolean,
-    @SerializedName("HeatValue")
-    val heatValue: Int,
-    @SerializedName("IsCertified")
-    val isCertified: Boolean,
-    @SerializedName("IsPtoP")
-    val isPtoP: Boolean,
-    @SerializedName("IsSession")
-    val isSession: Int,
-    @SerializedName("Managers")
-    val managers: List<Any>,
-    @SerializedName("Medal")
-    val medal: List<Any>,
-    @SerializedName("OnlineCount")
-    val onlineCount: Int,
-    @SerializedName("P2pType")
-    val p2pType: Int,
-    @SerializedName("PKMatchBar")
-    val pKMatchBar: Int,
-    @SerializedName("PkSessionContribution")
-    val pkSessionContribution: List<Any>,
-    @SerializedName("RoomGradeInfo")
-    val roomGradeInfo: RoomGradeInfo,
-    @SerializedName("RoomSubscribeCount")
-    val roomSubscribeCount: Int,
-    @SerializedName("SafeUserGrade")
-    val safeUserGrade: Int,
-    @SerializedName("ServerTime")
-    val serverTime: String,
-    @SerializedName("SessionContribution")
-    val sessionContribution: Int,
-    @SerializedName("Sessions")
-    val sessions: List<Any>,
-    @SerializedName("Sofas")
-    val sofas: List<Any>,
-    @SerializedName("SpecificGradeSound")
-    val specificGradeSound: Int,
-    @SerializedName("UserRankLists")
-    val userRankLists: List<Any>
+    val AppChatStatus: Int,
+    val BaseRoomInfo: BaseRoomInfo,
+    val Broadcast: Broadcast,
+    val CityId: Int,
+    val CollegeId: Int,
+    val Contribution: Int,
+    val FlowerCount: Int,
+    val HasMatch: Boolean,
+    val IsBroadcasting: Boolean,
+    val IsPtoP: Boolean,
+    val IsSignRoom: Boolean,
+    val LastCategoryId: Int,
+    val OnlineCount: Int,
+    val P2pType: Int,
+    val PKMatchBar: Int,
+    val RoomGrade: Int,
+    val RoomScreenshot: String,
+    val SlzType: Int,
+    val SlzTypeId: String,
+    val Vid: String
+)
+
+data class BaseRoomInfo(
+    val AnchorCategory: Int,
+    val AnchorCertification: String,
+    val Avatar: String,
+    val BoardCastAddress: String,
+    val BoardCastTitle: String,
+    val DailyPlayHourConfig: Int,
+    val Desc: String,
+    val Domain: String,
+    val Game: Int,
+    val GameName: String,
+    val Id: Int,
+    val LivePermission: Int,
+    val Name: String,
+    val Status: Int,
+    val SubscribeCount: Int,
+    val Type: Int,
+    val UserId: Int,
+    val UserTitle: String,
+    val VerifiedInformation: String,
+    val VideoPermission: Int,
+    val WriteTime: String
 )
 
 data class Broadcast(
-    @SerializedName("Address")
-    val address: String,
-    @SerializedName("BeginTime")
-    val beginTime: String,
-    @SerializedName("Channels")
-    val channels: List<Channel>,
-    @SerializedName("Cover")
-    val cover: String,
-    @SerializedName("GameId")
-    val gameId: Int,
-    @SerializedName("GameName")
-    val gameName: String,
-    @SerializedName("Html")
-    val html: String,
-    @SerializedName("Latitude")
-    val latitude: Int,
-    @SerializedName("LiveSource")
-    val liveSource: Int,
-    @SerializedName("LiveSourceType")
-    val liveSourceType: Int,
-    @SerializedName("LiveStreamType")
-    val liveStreamType: Int,
-    @SerializedName("LiveType")
-    val liveType: Int,
-    @SerializedName("Longitude")
-    val longitude: Int,
-    @SerializedName("MatchId")
-    val matchId: Int,
-    @SerializedName("OS")
-    val oS: Int,
-    @SerializedName("ParentGameId")
-    val parentGameId: Int,
-    @SerializedName("ParentGameName")
-    val parentGameName: String,
-    @SerializedName("PlayId")
-    val playId: Int,
-    @SerializedName("PrivateRoomType")
-    val privateRoomType: Int,
-    @SerializedName("RoomId")
-    val roomId: Int,
-    @SerializedName("Title")
-    val title: String,
-    @SerializedName("Token")
-    val token: String,
-    @SerializedName("UpStreamUrl")
-    val upStreamUrl: String,
-    @SerializedName("UserId")
-    val userId: Int
+    val Address: String,
+    val BeginTime: String,
+    val Channels: List<Channel>,
+    val Cover: String,
+    val GameId: Int,
+    val GameName: String,
+    val Html: String,
+    val Latitude: Int,
+    val LiveSource: Int,
+    val LiveSourceType: Int,
+    val LiveStreamType: Int,
+    val LiveType: Int,
+    val Longitude: Int,
+    val MatchId: Int,
+    val OS: Int,
+    val ParentGameId: Int,
+    val ParentGameName: String,
+    val PlayId: Int,
+    val PrivateRoomType: Int,
+    val RoomId: Int,
+    val Title: String,
+    val Token: String,
+    val UserId: Int
 )
 
 data class Channel(
-    @SerializedName("Code")
-    val code: String,
-    @SerializedName("Name")
-    val name: String
-)
-
-data class RoomGradeInfo(
-    @SerializedName("CurrentExp")
-    val currentExp: Int,
-    @SerializedName("CurrentGrade")
-    val currentGrade: Int,
-    @SerializedName("CurrentGradeExp")
-    val currentGradeExp: Int,
-    @SerializedName("NextGradeExp")
-    val nextGradeExp: Int
+    val Code: String,
+    val Name: String
 )

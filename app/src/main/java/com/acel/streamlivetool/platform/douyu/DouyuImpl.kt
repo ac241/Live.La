@@ -17,11 +17,12 @@ import java.util.*
 
 
 class DouyuImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             DouyuImpl()
         }
     }
+
     override val platform: String = "douyu"
     override val platformShowNameRes: Int = R.string.douyu
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
@@ -49,7 +50,8 @@ class DouyuImpl : IPlatform {
             AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
-                roomStatus == "1"
+                roomStatus == "1",
+                roomInfo.data.roomName
             )
         } else
             null

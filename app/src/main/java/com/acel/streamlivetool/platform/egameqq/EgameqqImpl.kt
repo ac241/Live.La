@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
@@ -14,11 +15,12 @@ import com.google.gson.Gson
 
 
 class EgameqqImpl : IPlatform {
-    companion object{
+    companion object {
         val INSTANCE by lazy {
             EgameqqImpl()
         }
     }
+
     override val platform: String = "egameqq"
     override val platformShowNameRes: Int = R.string.egameqq
     private val egameqqService: EgameqqApi = retrofit.create(EgameqqApi::class.java)
@@ -30,7 +32,7 @@ class EgameqqImpl : IPlatform {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val html = getHtml(queryAnchor)
         html?.let {
-            val tempRoomId = TextUtil.subString(html, "roomId: '", "'}")
+            val tempRoomId = TextUtil.subString(html, "channelId:\"", "\",")
             val roomId = tempRoomId?.split("_")?.get(1)
             queryAnchor.roomId = roomId
             val longZhuAnchor = getLongZhuAnchor(queryAnchor)
@@ -50,7 +52,6 @@ class EgameqqImpl : IPlatform {
     private fun getLongZhuAnchor(queryAnchor: Anchor): LongZhuAnchor? {
         val param =
             Param(Param.Key(param = Param.Key.ParamX(anchorUid = queryAnchor.roomId.toInt())))
-
         return egameqqService.getAnchor(Gson().toJson(param)).execute().body()
     }
 
@@ -58,12 +59,16 @@ class EgameqqImpl : IPlatform {
         val longZhuAnchor = getLongZhuAnchor(queryAnchor)
 
         longZhuAnchor?.let {
-            return AnchorStatus(
-                queryAnchor.platform,
-                queryAnchor.roomId,
-                it.data.key.retBody.data
-                    .isLive == 1
-            )
+            val html = getHtml(queryAnchor)
+            val title = html?.let { it1 -> TextUtil.subString(it1, "title:\"", "\",") }
+            return title?.let { it1 ->
+                AnchorStatus(
+                    queryAnchor.platform,
+                    queryAnchor.roomId,
+                    it.data.key.retBody.data
+                        .isLive == 1, it1
+                )
+            }
         }
         return null
     }

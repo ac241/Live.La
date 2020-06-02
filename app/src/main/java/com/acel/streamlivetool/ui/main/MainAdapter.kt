@@ -17,7 +17,8 @@ import kotlinx.android.synthetic.main.item_main_anchor.view.*
 class MainAdapter(
     val mainActivity: MainActivity,
     private val anchorList: MutableList<Anchor>,
-    private val anchorStatusMap: MutableMap<String, Boolean>
+    private val anchorStatusMap: MutableMap<String, Boolean>,
+    private val anchorTitlieMap: MutableMap<String, String>
 ) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
@@ -31,46 +32,49 @@ class MainAdapter(
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
         val anchor: Anchor = anchorList[p1]
-        p0.let { viewholder ->
+        p0.let { viewHolder ->
+            //
+            viewHolder.title.text = anchorTitlieMap[anchor.anchorKey] ?: "-"
             //主播名
-            viewholder.anchorName.text = anchor.nickname
+            viewHolder.anchorName.text = anchor.nickname
             //平台名
             var platformName: String? =
-                platformNameMap[anchor.getPlatform()]
+                platformNameMap[anchor.platform]
             if (platformName == null) {
-                val resInt = PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
+                val resInt =
+                    PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
                 if (resInt != null)
                     platformName = mainActivity.getString(resInt)
             }
             platformNameMap[anchor.platform] = platformName ?: "未知平台"
-            viewholder.platform.text = platformName
+            viewHolder.platform.text = platformName
             //直播间Id
-            viewholder.roomId.text = anchor.showId
+            viewHolder.roomId.text = anchor.showId
             //直播状态
             if (anchorStatusMap[anchor.anchorKey] != null) {
                 if (anchorStatusMap[anchor.anchorKey]!!) {
-                    viewholder.status.text = "直播中"
-                    viewholder.status.setTextColor(Color.GREEN)
+                    viewHolder.status.text = "直播中"
+                    viewHolder.status.setTextColor(Color.GREEN)
                 } else {
-                    viewholder.status.text = "未直播"
-                    viewholder.status.setTextColor(Color.GRAY)
+                    viewHolder.status.text = "未直播"
+                    viewHolder.status.setTextColor(Color.GRAY)
                 }
             } else {
-                viewholder.status.text = ""
+                viewHolder.status.text = ""
             }
             //item click
-            viewholder.itemView.setOnClickListener {
+            viewHolder.itemView.setOnClickListener {
                 mainActivity.presenter.itemClick(anchor)
             }
 
             //长按菜单
-            viewholder.itemView.setOnLongClickListener {
-                mPosition = viewholder.adapterPosition
+            viewHolder.itemView.setOnLongClickListener {
+                mPosition = viewHolder.bindingAdapterPosition
                 return@setOnLongClickListener false
             }
 
             //侧键点击
-            viewholder.secondBtn.setOnClickListener {
+            viewHolder.secondBtn.setOnClickListener {
                 mainActivity.presenter.secondBtnClick(anchor)
             }
         }
@@ -97,6 +101,7 @@ class MainAdapter(
         val roomId: TextView = itemView.main_anchor_roomId
         val status: TextView = itemView.main_anchor_status
         val secondBtn: ImageView = itemView.main_second_btn
+        val title: TextView = itemView.main_anchor_title
 
     }
 
