@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:layout_marginStart="5dp"
@@ -18,7 +17,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/main_anchor_title"
+            android:id="@+id/main_anchor_name"
             style="@style/main_recy_item_text"
             android:layout_width="280dp"
             android:layout_marginStart="12dp"
@@ -31,11 +30,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/main_anchor_name"
+            android:id="@+id/main_anchor_title"
             style="@style/main_recy_item_text"
+            android:layout_width="180dp"
+            android:lines="1"
             android:layout_marginStart="12dp"
             android:layout_marginLeft="12dp"
             android:layout_marginBottom="8dp"
+            android:gravity="start"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -43,18 +45,18 @@
         <TextView
             android:id="@+id/main_anchor_platform"
             style="@style/main_recy_item_text"
-            android:layout_marginStart="18dp"
-            android:layout_marginLeft="18dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginBottom="8dp"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/main_anchor_name" />
+            app:layout_constraintStart_toEndOf="@+id/main_anchor_title" />
 
         <TextView
             android:id="@+id/main_anchor_roomId"
             style="@style/main_recy_item_text"
-            android:layout_marginStart="18dp"
-            android:layout_marginLeft="18dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginBottom="8dp"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
