@@ -20,10 +20,8 @@ interface BilibiliApi {
     @GET("https://api.live.bilibili.com/room/v1/RoomStatic/get_room_static_info")
     fun getStaticInfo(@Query("room_id") id: Int): Call<StaticRoomInfo>
 
-    @GET("https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=1&page_size=10")
+    @GET("https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=1&page_size=29")
     fun getFollowing(
-        @Header("cookies") cookies: String,
-        @Query("page") page: Int,
-        @Query("page_size") pageSize: Int
+        @Header("cookies") cookies: String
     ): Call<Following>
 }

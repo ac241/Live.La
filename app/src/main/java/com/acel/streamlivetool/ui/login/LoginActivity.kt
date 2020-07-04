@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
@@ -18,13 +20,22 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.statusBarColor = resources.getColor(android.R.color.background_light)
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+
         val platform = intent.getStringExtra("platform") ?: return
         val platformImpl = PlatformDispatcher.getPlatformImpl(platform) ?: return
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 val cookieStr = cookieManager.getCookie(url)
-                Log.d("onPageFinished", cookieStr.toString())
+                cookieStr ?: Log.d("onPageFinished", cookieStr.toString())
                 if (platformImpl.checkLoginOk(cookieStr)) {
                     platformImpl.saveCookie(cookieStr)
                     toast("添加成功")

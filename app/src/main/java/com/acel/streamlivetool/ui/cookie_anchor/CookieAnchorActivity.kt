@@ -1,25 +1,18 @@
 package com.acel.streamlivetool.ui.cookie_anchor
 
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.Window
+import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
 import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.ActionClick.actionWhenClick
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_cookie_anchor.*
-import org.jetbrains.anko.backgroundColor
-import org.jetbrains.anko.defaultSharedPreferences
 
 class CookieAnchorActivity : BaseActivity() {
     override fun getResLayoutId(): Int {
@@ -41,6 +34,13 @@ class CookieAnchorActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.clearFlags(FLAG_TRANSLUCENT_STATUS)
+            window.statusBarColor = resources.getColor(android.R.color.background_light,null)
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
                 return platforms.size

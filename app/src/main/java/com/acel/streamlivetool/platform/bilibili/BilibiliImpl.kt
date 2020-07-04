@@ -74,7 +74,7 @@ class BilibiliImpl : IPlatform {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
-                val following = bilibiliService.getFollowing(this, 1, 10).execute().body()
+                val following = bilibiliService.getFollowing(this).execute().body()
                 if (following != null) {
                     val list = mutableListOf<AnchorsCookieMode.Anchor>()
                     following.data.list.forEach {
