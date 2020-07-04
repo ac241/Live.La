@@ -7,6 +7,7 @@ import com.acel.streamlivetool.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
@@ -25,6 +26,7 @@ class DouyuImpl : IPlatform {
 
     override val platform: String = "douyu"
     override val platformShowNameRes: Int = R.string.douyu
+    override val supportCookieMode: Boolean = true
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
@@ -98,7 +100,7 @@ class DouyuImpl : IPlatform {
         val uuid = UUID.randomUUID().toString().replace("-", "")
 //        val uuid = "07095540bc131c2cc23726a200021501"
         val time = (Date().time / 1000).toString()
-        val inputStream = MyApplication.instance.resources.openRawResource(R.raw.douyu_crypto_js)
+        val inputStream = MyApplication.application.resources.openRawResource(R.raw.douyu_crypto_js)
         val cryptoJs = inputStream.bufferedReader().use {
             it.readText()
         }
@@ -137,4 +139,38 @@ class DouyuImpl : IPlatform {
         return null
     }
 
+    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        readCookie().run {
+            if (this.isEmpty())
+                return super.getAnchorsWithCookieMode()
+            else {
+                val followed = douyuService.getFollowed(this).execute().body()
+                return if (followed != null) {
+                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                    followed.data.list.forEach {
+                        list.add(
+                            AnchorsCookieMode.Anchor(it.show_status == 1, it.room_name)
+                                .also { anchor ->
+                                    anchor.platform = platform
+                                    anchor.nickname = it.nickname
+                                    anchor.roomId = it.room_id.toString()
+                                    anchor.showId = it.room_id.toString()
+                                })
+                    }
+                    AnchorsCookieMode(true, list)
+                } else
+                    super.getAnchorsWithCookieMode()
+            }
+        }
+    }
+
+    override fun checkLoginOk(cookie: String): Boolean {
+        if (cookie.contains("PHPSESSID") && cookie.contains("dy_auth"))
+            return true
+        return false
+    }
+
+    override fun getLoginUrl(): String {
+        return "https://passport.douyu.com/index/login"
+    }
 }

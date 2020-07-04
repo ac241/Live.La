@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.platform.douyu
 
+import com.acel.streamlivetool.platform.bilibili.bean.Following
+import com.acel.streamlivetool.platform.douyu.bean.Followed
 import com.acel.streamlivetool.platform.douyu.bean.H5Enc
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfoMsg
@@ -10,9 +12,6 @@ interface DouyuApi {
     companion object {
         const val baseUrl = "https://www.douyu.com/"
     }
-//    @Headers("changeBaseUrl:douyu")
-//    @GET
-//    fun getBaidu(): Call<String>
 
     @GET("https://m.douyu.com/{id}")
     fun getRoomInfo(@Path("id") id: String): Call<String>
@@ -51,6 +50,8 @@ interface DouyuApi {
     ): Call<String>
 
 
-//    @GET("https://www.douyu.com/swf_api/homeH5Enc?rids={id}")
-//    fun get(@Path("id") id: String): Call<String>
+    @GET("https://www.douyu.com/wgapi/livenc/liveweb/follow/list")
+    fun getFollowed(
+        @Header("cookies") cookies: String
+    ): Call<Followed>
 }

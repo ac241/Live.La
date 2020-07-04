@@ -3,9 +3,12 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.acel.streamlivetool.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import org.jetbrains.annotations.Nullable
@@ -22,6 +25,12 @@ interface IPlatform {
      * 平台显示名resId，例如：R.string.douyu
      */
     val platformShowNameRes: Int
+
+    /**
+     *  支持cookie模式
+     *  如果为true，需要复写 [getAnchorsWithCookieMode] [getLoginUrl] [checkLoginOk]
+     */
+    val supportCookieMode: Boolean
 
     /**
      * Retrofit实例
@@ -77,5 +86,53 @@ interface IPlatform {
         }
     }
 
+    /**
+     * cookie方式获取列表
+     * Use [readCookie] to get saved cookie
+     * @return AnchorsCookieMode
+     */
+    fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        return AnchorsCookieMode(false, null)
+    }
 
+    /**
+     *  WebView 使用PC Agent
+     */
+    fun usePcAgent(): Boolean {
+        return false
+    }
+
+    /**
+     * 登录页面
+     */
+    fun getLoginUrl(): String {
+        return ""
+    }
+
+    /**
+     * 检查登录是否成功
+     */
+    fun checkLoginOk(cookie: String): Boolean {
+        return false
+    }
+
+    /**
+     * 保存cookie
+     */
+    fun saveCookie(cookie: String) {
+        MyApplication.application.defaultSharedPreferences.edit()
+            .putString("${platform}_cookie", cookie)
+            .apply()
+    }
+
+    /**
+     * 读取cookie
+     */
+    fun readCookie(): String {
+        val cookie = MyApplication.application.defaultSharedPreferences.getString(
+            "${platform}_cookie",
+            ""
+        )
+        return cookie ?: ""
+    }
 }

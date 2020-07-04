@@ -25,5 +25,9 @@
         <item name="value_outer_player">outer_player</item>
     </array>
     <string name="open_source_licensed">开放源代码许可</string>
+    <string name="cookie_anchor">cookie</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login_first">请先登录</string>
+    <string name="please_login">请登录帐号</string>
 
 </resources>

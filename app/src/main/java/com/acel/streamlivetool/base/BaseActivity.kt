@@ -11,9 +11,9 @@ abstract class BaseActivity : AppCompatActivity() {
         init()
     }
 
+    abstract fun getResLayoutId(): Int
+
     open fun init() {
 
     }
-
-    abstract fun getResLayoutId(): Int
 }

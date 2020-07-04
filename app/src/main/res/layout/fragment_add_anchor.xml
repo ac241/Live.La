@@ -29,7 +29,7 @@
                 android:importantForAutofill="no" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.acel.streamlivetool.ui.MyRadioGroup
+    <com.acel.streamlivetool.ui.AutoResizeRadioGroup
             android:id="@+id/radio_group_add_anchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

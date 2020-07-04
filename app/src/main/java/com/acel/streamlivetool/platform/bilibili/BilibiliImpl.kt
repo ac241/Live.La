@@ -6,6 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 
 class BilibiliImpl : IPlatform {
@@ -17,6 +18,8 @@ class BilibiliImpl : IPlatform {
 
     override val platform: String = "bilibili"
     override val platformShowNameRes: Int = R.string.bilibili
+    override val supportCookieMode: Boolean = true
+
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()
@@ -38,16 +41,16 @@ class BilibiliImpl : IPlatform {
     override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
         val staticRoomInfo =
             bilibiliService.getStaticInfo(queryAnchor.roomId.toInt()).execute().body()
-        if (staticRoomInfo?.code == 0) {
+        return if (staticRoomInfo?.code == 0) {
             val roomStatus = staticRoomInfo.data.liveStatus
-            return AnchorStatus(
+            AnchorStatus(
                 queryAnchor.platform,
                 queryAnchor.roomId,
                 roomStatus == 1,
                 staticRoomInfo.data.title
             )
         } else
-            return null
+            null
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
@@ -64,6 +67,44 @@ class BilibiliImpl : IPlatform {
         intent.data = uri
         intent.action = "android.intent.action.VIEW"
         context.startActivity(intent)
+    }
+
+    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        readCookie().run {
+            if (this.isEmpty())
+                return super.getAnchorsWithCookieMode()
+            else {
+                val following = bilibiliService.getFollowing(this, 1, 10).execute().body()
+                if (following != null) {
+                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                    following.data.list.forEach {
+                        list.add(
+                            AnchorsCookieMode.Anchor(
+                                it.live_status == 1,
+                                it.title
+                            ).also { anchor ->
+                                anchor.platform = platform
+                                anchor.nickname = it.uname
+                                anchor.roomId = it.roomid.toString()
+                                anchor.showId = it.roomid.toString()
+                            }
+                        )
+                    }
+                    return AnchorsCookieMode(true, list)
+                } else
+                    return super.getAnchorsWithCookieMode()
+            }
+        }
+    }
+
+    override fun checkLoginOk(cookie: String): Boolean {
+        if (cookie.contains("SESSDATA") && cookie.contains("DedeUserID"))
+            return true
+        return false
+    }
+
+    override fun getLoginUrl(): String {
+        return "https://passport.bilibili.com/login"
     }
 
 }

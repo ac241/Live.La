@@ -8,12 +8,12 @@ import org.jetbrains.anko.defaultSharedPreferences
 
 class MyApplication : Application(), AnkoLogger {
     companion object {
-        lateinit var instance: Application
+        lateinit var application: Application
     }
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+        application = this
         firstTimeLaunch()
     }
 

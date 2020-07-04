@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.ActionClick.itemClick
+import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
@@ -64,7 +66,7 @@ class MainAdapter(
             }
             //item click
             viewHolder.itemView.setOnClickListener {
-                mainActivity.presenter.itemClick(anchor)
+                itemClick(mainActivity, anchor)
             }
 
             //长按菜单
@@ -75,7 +77,7 @@ class MainAdapter(
 
             //侧键点击
             viewHolder.secondBtn.setOnClickListener {
-                mainActivity.presenter.secondBtnClick(anchor)
+                secondBtnClick(mainActivity, anchor)
             }
         }
     }
@@ -89,7 +91,7 @@ class MainAdapter(
             v: View?,
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
-            mainActivity.menuInflater.inflate(R.menu.main_item_menu, menu)
+            mainActivity.menuInflater.inflate(R.menu.anchor_item_menu, menu)
         }
 
         init {

@@ -36,7 +36,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        platformList = PlatformDispatcher.getAllPlatform(this)
+        platformList = PlatformDispatcher.getAllPlatform()
         val tempList = mutableListOf<String>()
         //显示radio
         platformList.forEachWithIndex { i, s ->

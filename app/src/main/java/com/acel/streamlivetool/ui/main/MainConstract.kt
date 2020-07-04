@@ -9,8 +9,6 @@ interface MainConstract {
         fun addAnchor(queryAnchor: Anchor)
         fun getAnchorsStatus(anchor: Anchor)
         fun getAllAnchorsStatus()
-        fun itemClick(anchor: Anchor)
-        fun secondBtnClick(anchor: Anchor)
         fun deleteAnchor(queryAnchor: Anchor)
     }
 

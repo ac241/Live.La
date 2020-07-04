@@ -3,7 +3,6 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
@@ -23,6 +22,7 @@ class EgameqqImpl : IPlatform {
 
     override val platform: String = "egameqq"
     override val platformShowNameRes: Int = R.string.egameqq
+    override val supportCookieMode: Boolean = false
     private val egameqqService: EgameqqApi = retrofit.create(EgameqqApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {

@@ -2,12 +2,11 @@ package com.acel.streamlivetool.net
 
 import android.util.Log
 import com.acel.streamlivetool.platform.douyu.DouyuApi
-import okhttp3.HttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class RetrofitUtils {
@@ -15,31 +14,7 @@ class RetrofitUtils {
         private val okHttpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
                 //拦截器 动态切换baseUrl
-                .addInterceptor {
-                    val originalRequest = it.request()
-                    val oldUrl = originalRequest.url()
-                    Log.d("retrofit request:", oldUrl.toString())
-                    val builder = Request.Builder()
-                    val changeBaseUrlList = originalRequest.headers("changeBaseUrl")
-//                builder.addHeader("Content-Type", "application/x-www-form-urlencoded");
-                    if (changeBaseUrlList.size > 0) {
-                        builder.removeHeader("changeBaseUrl")
-                        //动态切换baseUrl
-                        val baseUrl = when (changeBaseUrlList.get(0)) {
-                            "douyu" -> HttpUrl.parse(DouyuApi.baseUrl)!!
-                            else -> HttpUrl.parse("")!!
-                        }
-                        val newHttpUrl = oldUrl.newBuilder()
-                            .scheme(baseUrl.scheme())
-                            .host(baseUrl.host())
-                            .port(baseUrl.port())
-                            .build()
-                        val newRequest = builder.url(newHttpUrl).build()
-                        it.proceed(newRequest)
-                    } else
-                        it.proceed(originalRequest)
-
-                }
+                .addInterceptor(AddCookiesInterceptor())
                 .retryOnConnectionFailure(true)
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .build()
@@ -53,5 +28,22 @@ class RetrofitUtils {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         }
+    }
+}
+
+/**
+ * 用于添加cookie的拦截器
+ */
+private class AddCookiesInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originRequest = chain.request()
+        val requestBuilder = originRequest.newBuilder()
+        //添加cookie
+        val cookies = originRequest.header("cookies")
+        cookies?.let {
+            requestBuilder.removeHeader("cookies")
+            requestBuilder.addHeader("Cookie", it)
+        }
+        return chain.proceed(requestBuilder.build())
     }
 }

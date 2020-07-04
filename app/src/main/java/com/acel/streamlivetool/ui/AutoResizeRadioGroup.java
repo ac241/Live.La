@@ -11,14 +11,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
 
-public class MyRadioGroup extends RadioGroup {
+public class AutoResizeRadioGroup extends RadioGroup {
     private static final String TAG = "RadioGroupEx";
 
-    public MyRadioGroup(Context context) {
+    public AutoResizeRadioGroup(Context context) {
         super(context);
     }
 
-    public MyRadioGroup(Context context, AttributeSet attrs) {
+    public AutoResizeRadioGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

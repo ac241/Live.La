@@ -17,6 +17,7 @@ class YYImpl : IPlatform {
     }
     override val platform: String = "yy"
     override val platformShowNameRes: Int = R.string.yy
+    override val supportCookieMode: Boolean = false
     private val yyService: YYApi = retrofit.create(YYApi::class.java)
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {

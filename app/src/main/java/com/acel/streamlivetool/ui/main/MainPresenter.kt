@@ -1,13 +1,13 @@
 package com.acel.streamlivetool.ui.main
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import com.acel.streamlivetool.R
+import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import org.jetbrains.anko.*
-import java.util.concurrent.Executors
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.runOnUiThread
+import org.jetbrains.anko.toast
 
 
 class MainPresenter(private var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
@@ -16,10 +16,9 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     val anchorStatusMap = mutableMapOf<String, Boolean>()
     val anchorTitleMap = mutableMapOf<String, String>()
     private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
-    private val PoolExecutor = Executors.newFixedThreadPool(20)
 
     override fun addAnchor(queryAnchor: Anchor) {
-        PoolExecutor.execute(AddAnchorRunnable(queryAnchor))
+        MainExecutor.execute(AddAnchorRunnable(queryAnchor))
     }
 
     inner class AddAnchorRunnable(val queryAnchor: Anchor) : Runnable {
@@ -102,7 +101,7 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     }
 
     override fun getAnchorsStatus(anchor: Anchor) {
-        PoolExecutor.execute(GetStatusRunnable(anchor))
+        MainExecutor.execute(GetStatusRunnable(anchor))
     }
 
     inner class GetStatusRunnable(val anchor: Anchor) : Runnable {
@@ -143,57 +142,4 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
         sortAnchorListByStatus()
     }
 
-    override fun itemClick(anchor: Anchor) {
-        actionWhenClick(
-            context.defaultSharedPreferences.getString(
-                context.getString(R.string.pref_key_item_click_action),
-                ""
-            ), anchor
-        )
-    }
-
-    override fun secondBtnClick(anchor: Anchor) {
-        actionWhenClick(
-            context.defaultSharedPreferences.getString(
-                context.getString(R.string.pref_key_second_button_click_action),
-                ""
-            ), anchor
-        )
-
-    }
-
-    private fun actionWhenClick(actionSecondBtn: String?, anchor: Anchor) {
-        when (actionSecondBtn) {
-            "open_app" -> {
-                doAsync {
-                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    try {
-                        platformImpl?.startApp(context, anchor)
-                    } catch (e: ActivityNotFoundException) {
-                        e.printStackTrace()
-                        uiThread {
-                            context.toast(
-                                "没有找到" +
-                                        platformImpl?.platformShowNameRes?.let { it1 ->
-                                            context.resources.getString(
-                                                it1
-                                            )
-                                        }
-                                        + " app..."
-                            )
-                        }
-                    }
-                }
-            }
-            "outer_player" -> {
-                doAsync {
-                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    platformImpl?.callOuterPlayer(context, anchor)
-                }
-            }
-            else -> {
-                context.toast("未定义的功能，你是怎么到达这里的0_0")
-            }
-        }
-    }
 }

@@ -6,6 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.huya.bean.Stream
 import com.acel.streamlivetool.util.TextUtil
@@ -23,6 +24,7 @@ class HuyaImpl : IPlatform {
 
     override val platform: String = "huya"
     override val platformShowNameRes: Int = R.string.huya
+    override val supportCookieMode: Boolean = true
     private val huyaService: HuyaApi = retrofit.create(HuyaApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {
@@ -87,5 +89,52 @@ class HuyaImpl : IPlatform {
         intent.action = Intent.ACTION_VIEW
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
+    }
+
+    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        readCookie().run {
+            if (this.isEmpty())
+                return super.getAnchorsWithCookieMode()
+            else {
+                val cs = this.split(";")
+                var uid = ""
+                cs.forEach {
+                    if (it.contains("yyuid")) {
+                        val yyuid = it.split("=")
+                        uid = yyuid[1]
+                    }
+                }
+                val subscribe = huyaService.getSubscribe(this, uid).execute().body()
+                return if (subscribe != null) {
+                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                    subscribe.result.list.forEach {
+                        list.add(
+                            AnchorsCookieMode.Anchor(it.isLive, it.intro)
+                                .also { anchor ->
+                                    anchor.platform = platform
+                                    anchor.nickname = it.nick
+                                    anchor.roomId = it.uid.toString()
+                                    anchor.showId = it.profileRoom.toString()
+                                })
+                    }
+                    AnchorsCookieMode(true, list)
+                } else
+                    super.getAnchorsWithCookieMode()
+            }
+        }
+    }
+
+    override fun checkLoginOk(cookie: String): Boolean {
+        if (cookie.contains("udb_biztoken") && cookie.contains("udb_passport"))
+            return true
+        return false
+    }
+
+    override fun usePcAgent(): Boolean {
+        return true
+    }
+
+    override fun getLoginUrl(): String {
+        return "https://www.huya.com/myfollow"
     }
 }

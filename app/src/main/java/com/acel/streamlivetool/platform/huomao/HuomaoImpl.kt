@@ -26,6 +26,7 @@ class HuomaoImpl : IPlatform {
 
     override val platform: String = "huomao"
     override val platformShowNameRes: Int = R.string.huomao
+    override val supportCookieMode: Boolean = false
     private val huomaoService: HuomaoApi = retrofit.create(HuomaoApi::class.java)
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {

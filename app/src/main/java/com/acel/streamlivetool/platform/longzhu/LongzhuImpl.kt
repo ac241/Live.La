@@ -18,6 +18,7 @@ class LongzhuImpl : IPlatform {
 
     override val platform: String = "longzhu"
     override val platformShowNameRes: Int = R.string.longzhu
+    override val supportCookieMode: Boolean  = false
     private val longzhuService: LongzhuApi = retrofit.create(LongzhuApi::class.java)
 
     private fun getHtml(queryAnchor: Anchor): String? {

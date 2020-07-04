@@ -1,10 +1,10 @@
 package com.acel.streamlivetool.platform
 
-import androidx.fragment.app.Fragment
+import com.acel.streamlivetool.MyApplication
 import com.acel.streamlivetool.platform.bilibili.BilibiliImpl
 import com.acel.streamlivetool.platform.douyu.DouyuImpl
-import com.acel.streamlivetool.platform.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.egameqq.EgameqqImpl
+import com.acel.streamlivetool.platform.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
 import com.acel.streamlivetool.platform.longzhu.LongzhuImpl
 import com.acel.streamlivetool.platform.yy.YYImpl
@@ -26,13 +26,18 @@ object PlatformDispatcher {
         return mMap[platform]
     }
 
+    fun getAllPlatformInstance(): Map<String, IPlatform> {
+        return mMap
+    }
+
     /**
      * @return List<"platform,platformShowName">
      */
-    fun getAllPlatform(fragment: Fragment): List<String> {
+    fun getAllPlatform(): List<String> {
         val platformList = mutableListOf<String>()
         mMap.forEach {
-            val platformShowName = fragment.resources.getString(it.value.platformShowNameRes)
+            val platformShowName =
+                MyApplication.application.resources.getString(it.value.platformShowNameRes)
             val platform = it.value.platform
             platformList.add("$platform,$platformShowName")
         }

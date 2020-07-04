@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.ui.cookie_anchor.CookieAnchorActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
@@ -58,7 +59,6 @@ class MainActivity : BaseActivity(), MainConstract.View {
         hideSwipeRefreshBtn()
     }
 
-
     override fun addAnchorSuccess(anchor: Anchor) {
         val addAnchorFragment =
             fragmentmanager.findFragmentByTag("add_anchor_fragment") as AddAnchorFragment
@@ -93,7 +93,6 @@ class MainActivity : BaseActivity(), MainConstract.View {
                 presenter.deleteAnchor(presenter.anchorList[position])
             }
         }
-
         return super.onContextItemSelected(item)
     }
 
@@ -106,6 +105,9 @@ class MainActivity : BaseActivity(), MainConstract.View {
         when (item.itemId) {
             R.id.action_main_setting -> {
                 startActivity<SettingsActivity>()
+            }
+            R.id.action_cookie_anchor -> {
+                startActivity<CookieAnchorActivity>()
             }
         }
         return super.onOptionsItemSelected(item)

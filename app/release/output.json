@@ -1,1 +1,20 @@
-[{"outputType":{"type":"APK"},"apkData":{"type":"MAIN","splits":[],"versionCode":210,"versionName":"2.1.0","enabled":true,"outputFile":"com.acel.streamlivetool_v210_2.1.0_release_20200626.apk","fullName":"release","baseName":"release","dirName":""},"path":"com.acel.streamlivetool_v210_2.1.0_release_20200626.apk","properties":{}}]
+{
+  "version": 1,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.acel.streamlivetool",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "properties": [],
+      "versionCode": 210,
+      "versionName": "210",
+      "enabled": true,
+      "outputFile": "com.acel.streamlivetool_v210_2.1.0_release_20200704.apk"
+    }
+  ]
+}
