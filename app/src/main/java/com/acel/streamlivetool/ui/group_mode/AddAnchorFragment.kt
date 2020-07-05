@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
 import android.content.DialogInterface
@@ -61,8 +61,8 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
             val platform = tempList[radioIndex]
-            val mainActivity = activity as MainActivity
-            mainActivity.presenter.addAnchor(Anchor(platform, "", roomId, ""))
+            val groupModeActivity = activity as GroupModeActivity
+            groupModeActivity.presenter.addAnchor(Anchor(platform, "", roomId, ""))
         }
     }
 

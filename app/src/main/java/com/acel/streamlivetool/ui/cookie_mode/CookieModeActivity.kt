@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.cookie_anchor
+package com.acel.streamlivetool.ui.cookie_mode
 
 import android.os.Build
 import android.os.Bundle
@@ -11,7 +11,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_cookie_mode.*
 import org.jetbrains.anko.startActivity
@@ -40,8 +40,7 @@ class CookieModeActivity : BaseActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(android.R.color.background_light, null)
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
@@ -62,6 +61,6 @@ class CookieModeActivity : BaseActivity() {
     }
 
     fun fabClick(view: View) {
-        startActivity<MainActivity>()
+        startActivity<GroupModeActivity>()
     }
 }

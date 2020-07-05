@@ -1,6 +1,10 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
+import com.acel.streamlivetool.MainAnchorHelper
+import com.acel.streamlivetool.MainAnchorHelper.anchorList
+import com.acel.streamlivetool.MainAnchorHelper.loadAnchorList
+import com.acel.streamlivetool.MainAnchorHelper.sortAnchorListByStatus
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
@@ -10,9 +14,8 @@ import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 
 
-class MainPresenter(private var view: MainConstract.View?) : MainConstract.Presenter, AnkoLogger {
+class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupModeConstract.Presenter, AnkoLogger {
     val context = view as Context
-    var anchorList: MutableList<Anchor> = mutableListOf()
     val anchorStatusMap = mutableMapOf<String, Boolean>()
     val anchorTitleMap = mutableMapOf<String, String>()
     private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
@@ -27,17 +30,11 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
             try {
                 val anchor = platformImpl?.getAnchor(queryAnchor)
                 if (anchor != null) {
-//                Log.d("ACEL_LOG", anchorList.indexOf(anchor).toString())
-                    if (anchorList.indexOf(anchor) == -1) {
-                        anchorDao?.insert(anchor)
-                        initAnchorList()
-                        view?.addAnchorSuccess(anchor)
-                        //添加后获取状态
-                        getAnchorsStatus(anchor)
+                    if (anchorList.value!!.indexOf(anchor) == -1) {
+                        insertAnchor(anchor)
                     } else {
                         view?.addAnchorFailed("该直播间已存在——${anchor.nickname}")
                     }
-
                 } else {
                     view?.addAnchorFailed("该直播间找寻不到")
                 }
@@ -48,56 +45,18 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
                 }
             }
         }
+
+        private fun insertAnchor(anchor: Anchor) {
+            MainAnchorHelper.insertAnchor(anchor)
+            view?.addAnchorSuccess(anchor)
+            //添加后获取状态
+            getAnchorsStatus(anchor)
+        }
     }
 
     init {
-        initAnchorList()
+        loadAnchorList()
         getAllAnchorsStatus()
-    }
-
-    @Synchronized
-    fun sortAnchorListByStatus() {
-        //状态排序
-        anchorList.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o2.anchorKey] == null)
-                return@Comparator 1
-            if (anchorStatusMap[o1.anchorKey] == null)
-                return@Comparator -1
-            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey])
-                return@Comparator 0
-            if (anchorStatusMap[o2.anchorKey] == true) {
-                return@Comparator 1
-            } else
-                return@Comparator -1
-//            if (anchorStatusMap.get(o2.anchorKey) == null)
-//
-//            anchorStatusMap.get(o1.anchorKey) == anchorStatusMap.get(o2.anchorKey)
-        })
-        //ID再排序一次
-        anchorList.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey]) {
-                if (o1.id < o2.id)
-                    return@Comparator -1
-                else
-                    return@Comparator 1
-            } else {
-                return@Comparator 0
-            }
-
-        })
-        view?.refreshAnchorList()
-    }
-
-    private fun initAnchorList() {
-        //get anchors from database
-        val dataAnchorList = anchorDao?.loadAll() as ArrayList
-        with(anchorList) {
-            clear()
-            addAll(dataAnchorList)
-        }
-        context.runOnUiThread {
-            view?.refreshAnchorList()
-        }
     }
 
     override fun getAnchorsStatus(anchor: Anchor) {
@@ -113,8 +72,7 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
                     anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
                     anchorTitleMap[anchorStatus.getAnchorKey()] = anchorStatus.title
                     context.runOnUiThread {
-                        //                    view?.refreshAnchorStatus(anchor)
-                        sortAnchorListByStatus()
+                        sortAnchorListByStatus(anchorStatusMap)
                     }
                 }
             } catch (e: Exception) {
@@ -126,20 +84,13 @@ class MainPresenter(private var view: MainConstract.View?) : MainConstract.Prese
     }
 
     override fun getAllAnchorsStatus() {
-        anchorList.forEach { anchor ->
+        anchorList.value!!.forEach { anchor ->
             getAnchorsStatus(anchor)
         }
     }
 
-
     override fun onDestroy() {
         view = null
-    }
-
-    override fun deleteAnchor(queryAnchor: Anchor) {
-        anchorDao?.delete(queryAnchor)
-        initAnchorList()
-        sortAnchorListByStatus()
     }
 
 }

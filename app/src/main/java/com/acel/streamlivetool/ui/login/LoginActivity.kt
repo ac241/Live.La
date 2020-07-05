@@ -25,8 +25,7 @@ class LoginActivity : AppCompatActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(android.R.color.background_light)
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
 
         val platform = intent.getStringExtra("platform") ?: return
@@ -48,20 +47,20 @@ class LoginActivity : AppCompatActivity() {
         }
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
-        webView.settings.setSupportZoom(true)
-        // 设置出现缩放工具
-        webView.settings.builtInZoomControls = true
-        webView.setInitialScale(25)
-        //扩大比例的缩放
-        webView.settings.useWideViewPort = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-        }
-        webView.settings.loadWithOverviewMode = true
-        if (platformImpl.usePcAgent())
+
+        if (platformImpl.usePcAgent()) {
+            webView.settings.setSupportZoom(true)
+            webView.settings.builtInZoomControls = true
+            webView.settings.loadWithOverviewMode = true
+            // 设置出现缩放工具
+            //扩大比例的缩放
+            webView.settings.useWideViewPort = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+            }
             webView.settings.userAgentString =
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
-
+        }
         webView.loadUrl(platformImpl.getLoginUrl())
     }
 

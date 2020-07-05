@@ -1,6 +1,7 @@
-package com.acel.streamlivetool.ui.cookie_anchor
+package com.acel.streamlivetool.ui.cookie_mode
 
 import android.graphics.Color
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +15,10 @@ import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
-
-class CookieAnchorAdapter(
+class CookieModeAdapter(
     private val cookieAnchorActivity: CookieModeActivity,
     private val anchors: MutableList<AnchorsCookieMode.Anchor>
-) : RecyclerView.Adapter<CookieAnchorAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<CookieModeAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
 
@@ -62,28 +62,40 @@ class CookieAnchorAdapter(
                 itemClick(cookieAnchorActivity, anchor)
             }
 
-            //长按菜单
-//            viewHolder.itemView.setOnLongClickListener {
-//                mPosition = viewHolder.bindingAdapterPosition
-//                return@setOnLongClickListener false
-//            }
+            // 长按菜单
+            viewHolder.itemView.setOnLongClickListener {
+                mPosition = viewHolder.bindingAdapterPosition
+                return@setOnLongClickListener false
+            }
 
             //侧键点击
             it.secondBtn.setOnClickListener {
-                secondBtnClick(cookieAnchorActivity,anchor)
+                secondBtnClick(cookieAnchorActivity, anchor)
             }
         }
     }
 
     override fun getItemCount(): Int = anchors.size
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnCreateContextMenuListener {
         val anchorName: TextView = itemView.main_anchor_name
         val platform: TextView = itemView.main_anchor_platform
         val roomId: TextView = itemView.main_anchor_roomId
         val status: TextView = itemView.main_anchor_status
         val secondBtn: ImageView = itemView.main_second_btn
         val title: TextView = itemView.main_anchor_title
+        override fun onCreateContextMenu(
+            menu: ContextMenu?,
+            v: View?,
+            menuInfo: ContextMenu.ContextMenuInfo?
+        ) {
+            cookieAnchorActivity.menuInflater.inflate(R.menu.anchor_item_menu_cookie_mode, menu)
+        }
+
+        init {
+            itemView.setOnCreateContextMenuListener(this)
+        }
     }
 
     fun getPosition(): Int {

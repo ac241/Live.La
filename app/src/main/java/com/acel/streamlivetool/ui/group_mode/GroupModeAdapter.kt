@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.group_mode
 
 import android.graphics.Color
 import android.view.ContextMenu
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
@@ -16,12 +17,12 @@ import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
-class MainAdapter(
-    val mainActivity: MainActivity,
-    private val anchorList: MutableList<Anchor>,
+class GroupModeAdapter(
+    val groupModeActivity: GroupModeActivity,
+    private val anchorList: MutableLiveData<MutableList<Anchor>>,
     private val anchorStatusMap: MutableMap<String, Boolean>,
     private val anchorTitlieMap: MutableMap<String, String>
-) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<GroupModeAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
 
@@ -33,7 +34,7 @@ class MainAdapter(
     }
 
     override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
-        val anchor: Anchor = anchorList[p1]
+        val anchor: Anchor = anchorList.value!![p1]
         p0.let { viewHolder ->
             //
             viewHolder.title.text = anchorTitlieMap[anchor.anchorKey] ?: "-"
@@ -46,7 +47,7 @@ class MainAdapter(
                 val resInt =
                     PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
                 if (resInt != null)
-                    platformName = mainActivity.getString(resInt)
+                    platformName = groupModeActivity.getString(resInt)
             }
             platformNameMap[anchor.platform] = platformName ?: "未知平台"
             viewHolder.platform.text = platformName
@@ -66,7 +67,7 @@ class MainAdapter(
             }
             //item click
             viewHolder.itemView.setOnClickListener {
-                itemClick(mainActivity, anchor)
+                itemClick(groupModeActivity, anchor)
             }
 
             //长按菜单
@@ -77,12 +78,12 @@ class MainAdapter(
 
             //侧键点击
             viewHolder.secondBtn.setOnClickListener {
-                secondBtnClick(mainActivity, anchor)
+                secondBtnClick(groupModeActivity, anchor)
             }
         }
     }
 
-    override fun getItemCount(): Int = anchorList.size
+    override fun getItemCount(): Int = anchorList.value!!.size
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {
@@ -91,7 +92,7 @@ class MainAdapter(
             v: View?,
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
-            mainActivity.menuInflater.inflate(R.menu.anchor_item_menu, menu)
+            groupModeActivity.menuInflater.inflate(R.menu.anchor_item_menu, menu)
         }
 
         init {

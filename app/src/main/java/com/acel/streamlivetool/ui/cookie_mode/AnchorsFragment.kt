@@ -1,21 +1,25 @@
-package com.acel.streamlivetool.ui.cookie_anchor
+package com.acel.streamlivetool.ui.cookie_mode
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.acel.streamlivetool.MainAnchorHelper
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.ui.login.LoginActivity
+import kotlinx.android.synthetic.main.activity_cookie_mode.*
 import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
 import kotlinx.android.synthetic.main.layout_login_first.*
 import org.jetbrains.anko.support.v4.runOnUiThread
+import org.jetbrains.anko.support.v4.toast
 
 class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
@@ -37,7 +41,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         cookie_anchor_recyclerView.layoutManager = LinearLayoutManager(context)
         cookie_anchor_recyclerView.adapter =
-            CookieAnchorAdapter(
+            CookieModeAdapter(
                 activity as CookieModeActivity,
                 anchors
             )
@@ -70,7 +74,6 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                         runOnUiThread {
                             cookie_anchor_recyclerView.adapter?.notifyDataSetChanged()
                         }
-                        Log.d("getAnchors", "${anchors.size}")
                     }
                 }
 
@@ -86,10 +89,29 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         }
     }
 
+
     override fun onResume() {
         super.onResume()
         if (addCookie) {
             getAnchors()
         }
     }
+
+    fun getItemPosition() {
+
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        if (isVisible)
+            when (item.itemId) {
+                R.id.action_item_add_to_main_mode -> {
+                    val adapter = cookie_anchor_recyclerView.adapter as CookieModeAdapter
+                    val position = adapter.getPosition()
+                    MainAnchorHelper.insertAnchor(anchors[position])
+                    toast("添加成功")
+                }
+            }
+        return super.onContextItemSelected(item)
+    }
+
 }

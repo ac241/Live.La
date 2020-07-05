@@ -28,18 +28,18 @@
     <string name="cookie_anchor">cookie</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="login_first">请先登录</string>
-    <string name="please_login">请登录帐号</string>
+    <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
     <string name="clear_cookie">清除cookie</string>
     <string name="pref_key_launch_activity">pref_key_launch_activity</string>
     <string name="launch_activity">启动时界面</string>
-
+    <string name="add_to_group_mode">添加到聚合模式</string>
     <array name="pref_launch_activity_entries">
-        <item>集合模式</item>
-        <item>Cookie模式</item>
+        <item>聚合模式</item>
+        <item>分页模式</item>
     </array>
     <array name="pref_launch_activity_entries_values">
-        <item name="value_main_activity">main_activity</item>
+        <item name="value_group_activity">main_activity</item>
         <item name="value_cookie_activity">cookie_activity</item>
     </array>
 </resources>

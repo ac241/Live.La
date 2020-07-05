@@ -1,41 +1,52 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.group_mode
 
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.acel.streamlivetool.MainAnchorHelper.anchorList
+import com.acel.streamlivetool.MainAnchorHelper.deleteAnchor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.cookie_anchor.CookieModeActivity
+import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
 
-class MainActivity : BaseActivity(), MainConstract.View {
+class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     private lateinit var fragmentmanager: FragmentManager
-    lateinit var presenter: MainPresenter
-    private lateinit var adapter: MainAdapter
+    lateinit var presenter: GroupModePresenter
+    private lateinit var adapter: GroupModeAdapter
 
     override fun getResLayoutId(): Int {
         return R.layout.activity_main
     }
 
     override fun init() {
+        anchorList.observe(this, Observer {
+            refreshAnchorList()
+        })
         initToolbar()
-        presenter = MainPresenter(this)
+        presenter = GroupModePresenter(this)
         main_recycler_view.layoutManager = LinearLayoutManager(this)
-        adapter = MainAdapter(
+        adapter = GroupModeAdapter(
             this,
-            presenter.anchorList,
+            anchorList,
             presenter.anchorStatusMap,
             presenter.anchorTitleMap
         )
         main_recycler_view.adapter = adapter
-        //关闭刷新item时CardViewd的闪烁提示
+        //关闭刷新item时CardView的闪烁提示
         main_recycler_view.itemAnimator?.changeDuration = 0
-        main_swipe_refresh.setOnRefreshListener { presenter.getAllAnchorsStatus() }
+        main_swipe_refresh.setOnRefreshListener {
+            if (anchorList.value!!.size != 0)
+                presenter.getAllAnchorsStatus()
+            else
+                hideSwipeRefreshBtn()
+        }
 
     }
 
@@ -54,7 +65,7 @@ class MainActivity : BaseActivity(), MainConstract.View {
 
     @Synchronized
     override fun refreshAnchorStatus(anchor: Anchor) {
-        main_recycler_view.adapter?.notifyItemChanged(presenter.anchorList.indexOf(anchor))
+        main_recycler_view.adapter?.notifyItemChanged(anchorList.value?.indexOf(anchor)!!)
         hideSwipeRefreshBtn()
     }
 
@@ -87,9 +98,9 @@ class MainActivity : BaseActivity(), MainConstract.View {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_main_item_delete -> {
+            R.id.action_item_delete -> {
                 val position = adapter.getPosition()
-                presenter.deleteAnchor(presenter.anchorList[position])
+                deleteAnchor(anchorList.value!![position])
             }
         }
         return super.onContextItemSelected(item)

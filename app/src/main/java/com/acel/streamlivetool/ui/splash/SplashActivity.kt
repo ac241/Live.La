@@ -2,8 +2,8 @@ package com.acel.streamlivetool.ui.splash
 
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.ui.cookie_anchor.CookieModeActivity
-import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
+import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
 
@@ -19,7 +19,7 @@ class SplashActivity : BaseActivity() {
         )
         when (mode) {
             "main_activity" ->
-                startActivity<MainActivity>()
+                startActivity<GroupModeActivity>()
             "cookie_activity" ->
                 startActivity<CookieModeActivity>()
         }
