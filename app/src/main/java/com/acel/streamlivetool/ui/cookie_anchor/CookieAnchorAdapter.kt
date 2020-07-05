@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
 class CookieAnchorAdapter(
-    private val cookieAnchorActivity: CookieAnchorActivity,
+    private val cookieAnchorActivity: CookieModeActivity,
     private val anchors: MutableList<AnchorsCookieMode.Anchor>
 ) : RecyclerView.Adapter<CookieAnchorAdapter.ViewHolder>() {
 

@@ -17,24 +17,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ui.splash.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|screenSize" />
         <activity
-            android:name=".ui.cookie_anchor.CookieAnchorActivity"
-            android:configChanges="orientation|screenSize" />
+            android:name=".ui.cookie_anchor.CookieModeActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask" />
         <activity android:name=".ui.open_source.OpenSourceActivity" />
         <activity
             android:name=".ui.main.MainActivity"
             android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan|stateHidden">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_setting"

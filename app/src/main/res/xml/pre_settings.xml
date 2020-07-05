@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <ListPreference
-            android:key="@string/pref_key_item_click_action"
-            android:title="@string/item_click_action_name"
-            android:defaultValue="open_app"
-            android:entries="@array/pref_click_action_entries"
-            app:iconSpaceReserved="false"
-            android:entryValues="@array/pref_click_action_entry_values"/>
+        android:defaultValue="open_app"
+        android:entries="@array/pref_click_action_entries"
+        android:entryValues="@array/pref_click_action_entry_values"
+        android:key="@string/pref_key_item_click_action"
+        android:title="@string/item_click_action_name"
+        app:iconSpaceReserved="false" />
     <ListPreference
-            android:key="@string/pref_key_second_button_click_action"
-            android:title="@string/second_button_action_name"
-            android:defaultValue="outer_player"
-            android:entries="@array/pref_click_action_entries"
-            app:iconSpaceReserved="false"
-            android:entryValues="@array/pref_click_action_entry_values"/>
+        android:defaultValue="outer_player"
+        android:entries="@array/pref_click_action_entries"
+        android:entryValues="@array/pref_click_action_entry_values"
+        android:key="@string/pref_key_second_button_click_action"
+        android:title="@string/second_button_action_name"
+        app:iconSpaceReserved="false" />
     <Preference
-            android:key="@string/pref_key_about_open_source"
-            app:iconSpaceReserved="false"
-            android:title="@string/open_source_licensed"/>
+        android:key="@string/pref_key_about_open_source"
+        android:title="@string/open_source_licensed"
+        app:iconSpaceReserved="false" />
+    <ListPreference
+        android:defaultValue="main_activity"
+        android:entries="@array/pref_launch_activity_entries"
+        android:entryValues="@array/pref_launch_activity_entries_values"
+        android:key="@string/pref_key_launch_activity"
+        android:title="@string/launch_activity"
+        app:iconSpaceReserved="false" />
+    <Preference
+        android:key="@string/pref_key_clear_cookie"
+        android:title="@string/clear_cookie"
+        app:iconSpaceReserved="false" />
 </PreferenceScreen>

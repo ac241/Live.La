@@ -11,12 +11,14 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_cookie_anchor.*
+import kotlinx.android.synthetic.main.activity_cookie_mode.*
+import org.jetbrains.anko.startActivity
 
-class CookieAnchorActivity : BaseActivity() {
+class CookieModeActivity : BaseActivity() {
     override fun getResLayoutId(): Int {
-        return R.layout.activity_cookie_anchor
+        return R.layout.activity_cookie_mode
     }
 
     val platforms = mutableListOf<IPlatform>().also {
@@ -37,7 +39,7 @@ class CookieAnchorActivity : BaseActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = resources.getColor(android.R.color.background_light,null)
+            window.statusBarColor = resources.getColor(android.R.color.background_light, null)
             window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
@@ -57,5 +59,9 @@ class CookieAnchorActivity : BaseActivity() {
                 tab.text = resources.getString(platforms[position].platformShowNameRes)
             }
         ).attach()
+    }
+
+    fun fabClick(view: View) {
+        startActivity<MainActivity>()
     }
 }

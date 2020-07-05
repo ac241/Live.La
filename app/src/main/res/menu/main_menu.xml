@@ -6,7 +6,9 @@
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/setting"
         app:showAsAction="always" />
-    <item android:id="@+id/action_cookie_anchor"
-        android:title="@string/cookie_anchor"
-        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_cookie_anchor"
+        android:icon="@drawable/ic_add_white_24dp"
+        android:title="@string/add_anchor"
+        app:showAsAction="ifRoom" />
 </menu>

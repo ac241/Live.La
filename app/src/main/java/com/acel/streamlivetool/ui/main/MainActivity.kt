@@ -2,12 +2,13 @@ package com.acel.streamlivetool.ui.main
 
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.cookie_anchor.CookieAnchorActivity
+import com.acel.streamlivetool.ui.cookie_anchor.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.startActivity
@@ -35,9 +36,7 @@ class MainActivity : BaseActivity(), MainConstract.View {
         //关闭刷新item时CardViewd的闪烁提示
         main_recycler_view.itemAnimator?.changeDuration = 0
         main_swipe_refresh.setOnRefreshListener { presenter.getAllAnchorsStatus() }
-        main_btn_add_anchor.setOnClickListener {
-            showAddAnchorFragment()
-        }
+
     }
 
     private fun initToolbar() {
@@ -107,9 +106,13 @@ class MainActivity : BaseActivity(), MainConstract.View {
                 startActivity<SettingsActivity>()
             }
             R.id.action_cookie_anchor -> {
-                startActivity<CookieAnchorActivity>()
+                showAddAnchorFragment()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun fabClick(view: View) {
+        startActivity<CookieModeActivity>()
     }
 }

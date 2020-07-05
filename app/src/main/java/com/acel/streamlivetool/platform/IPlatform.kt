@@ -135,4 +135,12 @@ interface IPlatform {
         )
         return cookie ?: ""
     }
+
+    /**
+     * 清除cookie
+     */
+    fun clearCookie() {
+        MyApplication.application.defaultSharedPreferences.edit().remove("${platform}_cookie")
+            .apply()
+    }
 }

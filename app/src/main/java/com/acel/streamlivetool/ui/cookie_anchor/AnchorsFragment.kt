@@ -38,7 +38,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         cookie_anchor_recyclerView.layoutManager = LinearLayoutManager(context)
         cookie_anchor_recyclerView.adapter =
             CookieAnchorAdapter(
-                activity as CookieAnchorActivity,
+                activity as CookieModeActivity,
                 anchors
             )
         cookie_anchor_swipe_refresh.setOnRefreshListener {
