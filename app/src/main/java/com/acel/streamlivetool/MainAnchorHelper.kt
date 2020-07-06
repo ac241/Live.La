@@ -1,7 +1,7 @@
 package com.acel.streamlivetool
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.DbManager
 

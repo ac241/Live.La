@@ -1,6 +1,6 @@
 package com.acel.streamlivetool.platform
 
-import com.acel.streamlivetool.MyApplication
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.bilibili.BilibiliImpl
 import com.acel.streamlivetool.platform.douyu.DouyuImpl
 import com.acel.streamlivetool.platform.egameqq.EgameqqImpl

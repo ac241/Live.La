@@ -2,7 +2,7 @@ package com.acel.streamlivetool.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import com.acel.streamlivetool.MyApplication
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher

@@ -3,7 +3,7 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.acel.streamlivetool.MyApplication
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorStatus
 import com.acel.streamlivetool.bean.AnchorsCookieMode

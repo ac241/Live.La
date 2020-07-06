@@ -42,7 +42,7 @@ android {
                 fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_debug_${formattedDate}.apk"
             }
             //noinspection GroovyVariableNotAssigned
-            outputFileName = fileName;
+            outputFileName = fileName
         }
     }
 
@@ -69,4 +69,5 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
     implementation 'org.greenrobot:greendao:3.3.0'
     implementation files('libs/rhino-1.7.9.jar')
+    implementation 'com.tencent.bugly:crashreport:3.2.1'
 }
