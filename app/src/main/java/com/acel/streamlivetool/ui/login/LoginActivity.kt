@@ -16,6 +16,7 @@ import org.jetbrains.anko.toast
 class LoginActivity : AppCompatActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()
 
+    @Suppress("DEPRECATION")
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

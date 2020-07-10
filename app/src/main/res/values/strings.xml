@@ -14,16 +14,8 @@
     <string name="second_button_action_name">点击侧边键时</string>
     <string name="click">点击</string>
     <string name="pref_key_about_open_source">pref_key_about_open_source</string>
-    <array name="pref_click_action_entries">
-        <!--<item>内置播放器</item>-->
-        <item>打开app</item>
-        <item>外置播放器</item>
-    </array>
-    <array name="pref_click_action_entry_values">
-        <!--<item name="value_inner_player">inner_player</item>-->
-        <item name="value_open_app">open_app</item>
-        <item name="value_outer_player">outer_player</item>
-    </array>
+    <string name="string_open_app">open_app</string>
+    <string name="string_outer_player">outer_player</string>
     <string name="open_source_licensed">开放源代码许可</string>
     <string name="cookie_anchor">cookie</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -34,12 +26,40 @@
     <string name="pref_key_launch_activity">pref_key_launch_activity</string>
     <string name="launch_activity">启动时界面</string>
     <string name="add_to_group_mode">添加到聚合模式</string>
+    <string name="live_image">直播图片</string>
+    <string name="avatar">头像</string>
+    <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
+    <string name="group_mode_list_type">聚合模式展示方式</string>
+    <!--  list preference  -->
+    <array name="pref_click_action_entries">
+        <item>打开app</item>
+        <item>外置播放器</item>
+    </array>
+    <array name="pref_click_action_entry_values">
+        <item name="value_open_app">@string/string_open_app</item>
+        <item name="value_outer_player">@string/string_outer_player</item>
+    </array>
+
     <array name="pref_launch_activity_entries">
         <item>聚合模式</item>
         <item>分页模式</item>
     </array>
     <array name="pref_launch_activity_entries_values">
-        <item name="value_group_activity">main_activity</item>
-        <item name="value_cookie_activity">cookie_activity</item>
+        <item name="value_group_activity">@string/group_mode</item>
+        <item name="value_cookie_activity">@string/cookie_mode</item>
     </array>
+    <string name="group_mode">group_mode</string>
+    <string name="cookie_mode">cookie_mode</string>
+
+    <array name="pref_group_mode_list_type_entries">
+        <item>无图</item>
+        <item>有图</item>
+    </array>
+    <array name="pref_group_mode_list_type_entries_values">
+        <item name="value_group_activity">@string/recycler_view</item>
+        <item name="value_cookie_activity">@string/grid_view</item>
+    </array>
+    <string name="recycler_view">recycler_view</string>
+    <string name="grid_view">grid_view</string>
+    <!--  list preference end  -->
 </resources>

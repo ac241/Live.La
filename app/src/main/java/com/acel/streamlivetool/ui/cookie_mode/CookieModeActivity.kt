@@ -60,6 +60,7 @@ class CookieModeActivity : BaseActivity() {
         ).attach()
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun fabClick(view: View) {
         startActivity<GroupModeActivity>()
     }

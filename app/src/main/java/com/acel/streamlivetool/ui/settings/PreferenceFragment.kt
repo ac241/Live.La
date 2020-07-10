@@ -20,6 +20,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private val entriesMap = mutableMapOf<String, Pair<Array<String>, Array<String>>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         entriesMap[getString(R.string.pref_key_item_click_action)] = Pair(
             resources.getStringArray(R.array.pref_click_action_entries),
             resources.getStringArray(R.array.pref_click_action_entry_values)
@@ -32,13 +34,15 @@ class SettingsFragment : PreferenceFragmentCompat(),
             resources.getStringArray(R.array.pref_launch_activity_entries),
             resources.getStringArray(R.array.pref_launch_activity_entries_values)
         )
-
-        super.onCreate(savedInstanceState)
+        entriesMap[getString(R.string.pref_key_group_mode_list_type)] = Pair(
+            resources.getStringArray(R.array.pref_group_mode_list_type_entries),
+            resources.getStringArray(R.array.pref_group_mode_list_type_entries_values)
+        )
+        initPreferencesSummary()
     }
 
     override fun onCreatePreferences(p0: Bundle?, p1: String?) {
         addPreferencesFromResource(R.xml.pre_settings)
-        initPreferencesSummary()
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         preferenceScreen.onPreferenceClickListener = this
         findPreference<Preference>(getString(R.string.pref_key_about_open_source))?.setOnPreferenceClickListener {
@@ -55,14 +59,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if (isAdded) {
-            when (key) {
-                //改变ListPreference值时设置summary
-                getString(R.string.pref_key_item_click_action) ->
-                    setListPreferenceSummary(key)
-                getString(R.string.pref_key_second_button_click_action) ->
-                    setListPreferenceSummary(key)
-                getString(R.string.pref_key_launch_activity) ->
-                    setListPreferenceSummary(key)
+            if (key != null) {
+                setListPreferenceSummary(key)
             }
         }
     }
@@ -96,9 +94,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     private fun initPreferencesSummary() {
-        setListPreferenceSummary(getString(R.string.pref_key_item_click_action))
-        setListPreferenceSummary(getString(R.string.pref_key_second_button_click_action))
-        setListPreferenceSummary(getString(R.string.pref_key_launch_activity))
+        entriesMap.keys.forEach {
+            setListPreferenceSummary(it)
+        }
     }
 
     private fun setListPreferenceSummary(key: String) {

@@ -10,7 +10,6 @@
         android:id="@+id/viewStub_login_first"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inflatedId="@+id/login_first_wrapper"
         android:layout="@layout/layout_login_first" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

@@ -3,22 +3,22 @@ package com.acel.streamlivetool.ui.group_mode
 import android.content.Context
 import com.acel.streamlivetool.MainAnchorHelper
 import com.acel.streamlivetool.MainAnchorHelper.anchorList
+import com.acel.streamlivetool.MainAnchorHelper.initAnchorList
 import com.acel.streamlivetool.MainAnchorHelper.loadAnchorList
 import com.acel.streamlivetool.MainAnchorHelper.sortAnchorListByStatus
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.db.DbManager
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 
 
-class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupModeConstract.Presenter, AnkoLogger {
+class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupModeConstract.Presenter,
+    AnkoLogger {
     val context = view as Context
-    val anchorStatusMap = mutableMapOf<String, Boolean>()
-    val anchorTitleMap = mutableMapOf<String, String>()
-    private val anchorDao = DbManager.getInstance(context)?.getDaoSession(context)?.anchorDao
+    val anchorAttributeMap: MutableMap<String, AnchorAttribute> = mutableMapOf()
 
     override fun addAnchor(queryAnchor: Anchor) {
         MainExecutor.execute(AddAnchorRunnable(queryAnchor))
@@ -55,7 +55,8 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
     }
 
     init {
-        loadAnchorList()
+        initAnchorList()
+//        loadAnchorList()
         getAllAnchorsStatus()
     }
 
@@ -67,12 +68,11 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
         override fun run() {
             try {
                 val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                val anchorStatus = platformImpl?.getStatus(anchor)
-                if (anchorStatus != null) {
-                    anchorStatusMap[anchorStatus.getAnchorKey()] = anchorStatus.isLive
-                    anchorTitleMap[anchorStatus.getAnchorKey()] = anchorStatus.title
+                val anchorAttribute = platformImpl?.getAnchorAttribute(anchor)
+                if (anchorAttribute != null) {
+                    anchorAttributeMap[anchorAttribute.getAnchorKey()] = anchorAttribute
                     context.runOnUiThread {
-                        sortAnchorListByStatus(anchorStatusMap)
+                        sortAnchorListByStatus(anchorAttributeMap)
                     }
                 }
             } catch (e: Exception) {

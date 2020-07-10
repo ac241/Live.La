@@ -36,7 +36,7 @@ object ActionClick {
 
     fun actionWhenClick(context: Context, actionSecondBtn: String?, anchor: Anchor) {
         when (actionSecondBtn) {
-            "open_app" -> {
+            context.getString(R.string.string_open_app) -> {
                 doAsync {
                     val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                     try {
@@ -57,7 +57,7 @@ object ActionClick {
                     }
                 }
             }
-            "outer_player" -> {
+            context.getString(R.string.string_outer_player) -> {
                 doAsync {
                     val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                     platformImpl?.callOuterPlayer(context, anchor)

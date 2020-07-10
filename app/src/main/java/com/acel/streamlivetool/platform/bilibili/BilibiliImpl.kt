@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 
@@ -38,16 +38,18 @@ class BilibiliImpl : IPlatform {
         return staticRoomInfo?.data?.uname
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val staticRoomInfo =
             bilibiliService.getStaticInfo(queryAnchor.roomId.toInt()).execute().body()
         return if (staticRoomInfo?.code == 0) {
             val roomStatus = staticRoomInfo.data.liveStatus
-            AnchorStatus(
+            AnchorAttribute(
                 queryAnchor.platform,
                 queryAnchor.roomId,
                 roomStatus == 1,
-                staticRoomInfo.data.title
+                staticRoomInfo.data.title,
+                staticRoomInfo.data.face,
+                staticRoomInfo.data.userCover
             )
         } else
             null
@@ -74,10 +76,10 @@ class BilibiliImpl : IPlatform {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
-                val following = bilibiliService.getFollowing(this).execute().body()
-                if (following != null) {
-                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
-                    following.data.list.forEach {
+                val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                for (i in 1..2) {
+                    val following = bilibiliService.getFollowing(this, i).execute().body()
+                    following?.data?.list?.forEach {
                         list.add(
                             AnchorsCookieMode.Anchor(
                                 it.live_status == 1,
@@ -90,9 +92,11 @@ class BilibiliImpl : IPlatform {
                             }
                         )
                     }
-                    return AnchorsCookieMode(true, list)
-                } else
-                    return super.getAnchorsWithCookieMode()
+                }
+                return if (list.size != 0)
+                    AnchorsCookieMode(true, list)
+                else
+                    super.getAnchorsWithCookieMode()
             }
         }
     }

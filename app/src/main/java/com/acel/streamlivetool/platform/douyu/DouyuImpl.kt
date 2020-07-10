@@ -6,7 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
@@ -44,16 +44,18 @@ class DouyuImpl : IPlatform {
         }
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val roomInfo: RoomInfo? =
             douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
         return if (roomInfo?.error == 0) {
             val roomStatus = roomInfo.data.roomStatus
-            AnchorStatus(
+            AnchorAttribute(
                 queryAnchor.platform,
                 queryAnchor.roomId,
                 roomStatus == "1",
-                roomInfo.data.roomName
+                roomInfo.data.roomName,
+                roomInfo.data.avatar,
+                roomInfo.data.roomThumb
             )
         } else
             null

@@ -23,10 +23,21 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/main_recycler_view"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+            <ViewStub
+                android:id="@+id/viewStub_group_mode_grid_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout="@layout/layout_group_mode_grid_view" />
+
+            <ViewStub
+                android:id="@+id/viewStub_group_mode_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout="@layout/layout_group_mode_recycler_view" />
+        </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <include layout="@layout/fab_layout" />

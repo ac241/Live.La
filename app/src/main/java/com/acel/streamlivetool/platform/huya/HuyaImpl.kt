@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.huya.bean.Stream
@@ -47,18 +47,22 @@ class HuyaImpl : IPlatform {
         return null
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val html: String? = getHtml(queryAnchor)
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             val state = TextUtil.subString(it, "\"state\":\"", "\",")
             val title = TextUtil.subString(it, "\"introduction\":\"", "\",")
+            val avatar = TextUtil.subStringAfterWhat(it,"TT_META_DATA", "\"avatar\":\"", "\",")?.replace("\\", "")
+            val screenshot = TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
             if (state != null && title != null && state.isNotEmpty())
-                return AnchorStatus(
+                return AnchorAttribute(
                     queryAnchor.platform,
                     queryAnchor.roomId,
                     state == "ON",
-                    UnicodeUtil.decodeUnicode(title)
+                    UnicodeUtil.decodeUnicode(title),
+                    avatar,
+                    screenshot
                 )
         }
         return null

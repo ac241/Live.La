@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
 
@@ -35,11 +35,11 @@ class YYImpl : IPlatform {
         return null
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val searchInfo = yyService.search(queryAnchor.showId).execute().body()
         searchInfo?.let {
             val anchorMsg = it.data.searchResult.response.x2.docs[0]
-            return AnchorStatus(
+            return AnchorAttribute(
                 queryAnchor.platform,
                 queryAnchor.roomId,
                 anchorMsg.liveOn == "1",""

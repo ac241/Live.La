@@ -2,14 +2,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ListPreference
-        android:defaultValue="open_app"
+        android:defaultValue="@string/group_mode"
+        android:entries="@array/pref_launch_activity_entries"
+        android:entryValues="@array/pref_launch_activity_entries_values"
+        android:key="@string/pref_key_launch_activity"
+        android:title="@string/launch_activity"
+        app:iconSpaceReserved="false" />
+    <ListPreference
+        android:defaultValue="@string/grid_view"
+        android:entries="@array/pref_group_mode_list_type_entries"
+        android:entryValues="@array/pref_group_mode_list_type_entries_values"
+        android:key="@string/pref_key_group_mode_list_type"
+        android:title="@string/group_mode_list_type"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:defaultValue="@string/string_open_app"
         android:entries="@array/pref_click_action_entries"
         android:entryValues="@array/pref_click_action_entry_values"
         android:key="@string/pref_key_item_click_action"
         android:title="@string/item_click_action_name"
         app:iconSpaceReserved="false" />
     <ListPreference
-        android:defaultValue="outer_player"
+        android:defaultValue="@string/string_outer_player"
         android:entries="@array/pref_click_action_entries"
         android:entryValues="@array/pref_click_action_entry_values"
         android:key="@string/pref_key_second_button_click_action"
@@ -18,13 +33,6 @@
     <Preference
         android:key="@string/pref_key_about_open_source"
         android:title="@string/open_source_licensed"
-        app:iconSpaceReserved="false" />
-    <ListPreference
-        android:defaultValue="main_activity"
-        android:entries="@array/pref_launch_activity_entries"
-        android:entryValues="@array/pref_launch_activity_entries_values"
-        android:key="@string/pref_key_launch_activity"
-        android:title="@string/launch_activity"
         app:iconSpaceReserved="false" />
     <Preference
         android:key="@string/pref_key_clear_cookie"

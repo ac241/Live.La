@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
 import org.jetbrains.anko.defaultSharedPreferences
@@ -48,7 +48,7 @@ interface IPlatform {
      * 获取直播状态
      * @return AnchorStatus if fail return null
      */
-    fun getStatus(queryAnchor: Anchor): AnchorStatus?
+    fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute?
 
     /**
      * 获取直播流

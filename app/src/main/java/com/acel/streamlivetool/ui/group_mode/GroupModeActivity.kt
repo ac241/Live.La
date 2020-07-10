@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.group_mode
 
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -13,41 +14,80 @@ import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_group_mode.*
+import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
+import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
 
 class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: GroupModePresenter
-    private lateinit var adapter: GroupModeAdapter
+    private var listViewType = ListViewType.RecyclerView
 
     override fun getResLayoutId(): Int {
-        return R.layout.activity_main
+        return R.layout.activity_group_mode
+    }
+
+    enum class ListViewType {
+        RecyclerView, GridView;
     }
 
     override fun init() {
+        presenter = GroupModePresenter(this)
         anchorList.observe(this, Observer {
+            Log.d("init", "observe data change")
             refreshAnchorList()
         })
         initToolbar()
-        presenter = GroupModePresenter(this)
-        main_recycler_view.layoutManager = LinearLayoutManager(this)
-        adapter = GroupModeAdapter(
-            this,
-            anchorList,
-            presenter.anchorStatusMap,
-            presenter.anchorTitleMap
-        )
-        main_recycler_view.adapter = adapter
-        //关闭刷新item时CardView的闪烁提示
-        main_recycler_view.itemAnimator?.changeDuration = 0
+        initPreference()
+
+        when (listViewType) {
+            ListViewType.RecyclerView -> initRecyclerView()
+            ListViewType.GridView -> initGridView()
+        }
+
         main_swipe_refresh.setOnRefreshListener {
             if (anchorList.value!!.size != 0)
                 presenter.getAllAnchorsStatus()
             else
                 hideSwipeRefreshBtn()
         }
+    }
 
+    private fun initPreference() {
+        val type = defaultSharedPreferences.getString(
+            resources.getString(R.string.pref_key_group_mode_list_type),
+            "recycler_view"
+        )
+
+        listViewType = when (type) {
+            "recycler_view" -> ListViewType.RecyclerView
+            "grid_view" -> ListViewType.GridView
+            else -> ListViewType.RecyclerView
+        }
+    }
+
+    private fun initGridView() {
+        viewStub_group_mode_grid_view.inflate()
+        group_mode_gridView.adapter = GroupModeGridViewAdapter(
+            this,
+            anchorList,
+            presenter.anchorAttributeMap
+        )
+    }
+
+    private fun initRecyclerView() {
+        viewStub_group_mode_recycler_view.inflate()
+        group_mode_recycler_view.layoutManager = LinearLayoutManager(this)
+        val recyclerViewAdapter = GroupModeRecyclerViewAdapter(
+            this,
+            anchorList,
+            presenter.anchorAttributeMap
+        )
+        group_mode_recycler_view.adapter = recyclerViewAdapter
+        //关闭刷新item时CardView的闪烁提示
+        group_mode_recycler_view.itemAnimator?.changeDuration = 0
     }
 
     private fun initToolbar() {
@@ -65,7 +105,12 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     @Synchronized
     override fun refreshAnchorStatus(anchor: Anchor) {
-        main_recycler_view.adapter?.notifyItemChanged(anchorList.value?.indexOf(anchor)!!)
+        when (listViewType) {
+            ListViewType.RecyclerView ->
+                group_mode_recycler_view.adapter?.notifyItemChanged(anchorList.value?.indexOf(anchor)!!)
+            ListViewType.GridView ->
+                (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
+        }
         hideSwipeRefreshBtn()
     }
 
@@ -83,7 +128,10 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     @Synchronized
     override fun refreshAnchorList() {
-        main_recycler_view.adapter?.notifyDataSetChanged()
+        when (listViewType) {
+            ListViewType.RecyclerView -> group_mode_recycler_view.adapter?.notifyDataSetChanged()
+            ListViewType.GridView -> (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
+        }
         hideSwipeRefreshBtn()
     }
 
@@ -99,7 +147,10 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_item_delete -> {
-                val position = adapter.getPosition()
+                val position = when (listViewType) {
+                    ListViewType.RecyclerView -> (group_mode_recycler_view.adapter as GroupModeRecyclerViewAdapter).getPosition()
+                    ListViewType.GridView -> (group_mode_gridView.adapter as GroupModeGridViewAdapter).getPosition()
+                }
                 deleteAnchor(anchorList.value!![position])
             }
         }
@@ -123,6 +174,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
         return super.onOptionsItemSelected(item)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun fabClick(view: View) {
         startActivity<CookieModeActivity>()
     }

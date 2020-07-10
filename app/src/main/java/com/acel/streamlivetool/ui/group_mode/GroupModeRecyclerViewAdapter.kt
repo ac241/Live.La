@@ -11,21 +11,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
-class GroupModeAdapter(
+class GroupModeRecyclerViewAdapter(
     val groupModeActivity: GroupModeActivity,
     private val anchorList: MutableLiveData<MutableList<Anchor>>,
-    private val anchorStatusMap: MutableMap<String, Boolean>,
-    private val anchorTitlieMap: MutableMap<String, String>
-) : RecyclerView.Adapter<GroupModeAdapter.ViewHolder>() {
+    private val anchorAttributeMap: MutableMap<String, AnchorAttribute>
+) : RecyclerView.Adapter<GroupModeRecyclerViewAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
-
     private var mPosition: Int = -1
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
@@ -33,11 +32,11 @@ class GroupModeAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, p1: Int) {
         val anchor: Anchor = anchorList.value!![p1]
-        p0.let { viewHolder ->
+        holder.let { viewHolder ->
             //
-            viewHolder.title.text = anchorTitlieMap[anchor.anchorKey] ?: "-"
+            viewHolder.title.text = anchorAttributeMap[anchor.anchorKey]?.title ?: "-"
             //主播名
             viewHolder.anchorName.text = anchor.nickname
             //平台名
@@ -54,8 +53,8 @@ class GroupModeAdapter(
             //直播间Id
             viewHolder.roomId.text = anchor.showId
             //直播状态
-            if (anchorStatusMap[anchor.anchorKey] != null) {
-                if (anchorStatusMap[anchor.anchorKey]!!) {
+            if (anchorAttributeMap[anchor.anchorKey]?.isLive != null) {
+                if (anchorAttributeMap[anchor.anchorKey]?.isLive!!) {
                     viewHolder.status.text = "直播中"
                     viewHolder.status.setTextColor(Color.GREEN)
                 } else {

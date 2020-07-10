@@ -15,12 +15,12 @@ class SplashActivity : BaseActivity() {
     override fun init() {
         val mode = defaultSharedPreferences.getString(
             resources.getString(R.string.pref_key_launch_activity),
-            "main_activity"
+            getString(R.string.group_mode)
         )
         when (mode) {
-            "main_activity" ->
+            getString(R.string.group_mode) ->
                 startActivity<GroupModeActivity>()
-            "cookie_activity" ->
+            getString(R.string.cookie_mode) ->
                 startActivity<CookieModeActivity>()
         }
         finish()

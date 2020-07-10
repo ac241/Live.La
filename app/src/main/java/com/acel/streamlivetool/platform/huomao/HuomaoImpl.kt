@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
 import com.acel.streamlivetool.util.TextUtil
@@ -56,10 +56,10 @@ class HuomaoImpl : IPlatform {
             null
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val roomInfo: RoomInfo? = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
-            AnchorStatus(
+            AnchorAttribute(
                 queryAnchor.platform,
                 queryAnchor.roomId,
                 roomInfo.isLive == 1, UnicodeUtil.decodeUnicode(roomInfo.channel)

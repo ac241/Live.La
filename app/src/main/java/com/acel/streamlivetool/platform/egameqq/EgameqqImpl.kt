@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorStatus
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.egameqq.bean.LongZhuAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
@@ -55,14 +55,14 @@ class EgameqqImpl : IPlatform {
         return egameqqService.getAnchor(Gson().toJson(param)).execute().body()
     }
 
-    override fun getStatus(queryAnchor: Anchor): AnchorStatus? {
+    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val longZhuAnchor = getLongZhuAnchor(queryAnchor)
 
         longZhuAnchor?.let {
             val html = getHtml(queryAnchor)
             val title = html?.let { it1 -> TextUtil.subString(it1, "title:\"", "\",") }
             return title?.let { it1 ->
-                AnchorStatus(
+                AnchorAttribute(
                     queryAnchor.platform,
                     queryAnchor.roomId,
                     it.data.key.retBody.data

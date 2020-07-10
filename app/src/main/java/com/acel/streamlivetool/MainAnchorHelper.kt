@@ -2,7 +2,9 @@ package com.acel.streamlivetool
 
 import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.base.MyApplication.Companion.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.db.DbManager
 
 object MainAnchorHelper {
@@ -11,7 +13,7 @@ object MainAnchorHelper {
     }
     private val anchorDao = DbManager.getInstance(MyApplication.application)
         ?.getDaoSession(MyApplication.application)?.anchorDao
-    var lastStatusMap = mutableMapOf<String, Boolean>()
+    private var lastStatusMap = mutableMapOf<String, AnchorAttribute>()
     private fun setAnchorListValue(list: MutableList<Anchor>) {
         anchorList.value = list
     }
@@ -34,27 +36,32 @@ object MainAnchorHelper {
         sortAnchorListByStatus(lastStatusMap)
     }
 
-    internal fun loadAnchorList() {
-        //get anchors from database
+    internal fun initAnchorList() {
         val dataAnchorList = anchorDao?.loadAll() as ArrayList
         setAnchorListValue(dataAnchorList)
     }
 
+    internal fun loadAnchorList() {
+        //get anchors from database
+        val dataAnchorList = anchorDao?.loadAll() as ArrayList
+        postAnchorListValue(dataAnchorList)
+    }
+
     @Synchronized
-    fun sortAnchorListByStatus(anchorStatusMap: MutableMap<String, Boolean>) {
+    fun sortAnchorListByStatus(anchorStatusMap: MutableMap<String, AnchorAttribute>) {
         lastStatusMap = anchorStatusMap
         val list = anchorList.value
         if (list?.size == 0)
             return
         //状态排序
         list?.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o2.anchorKey] == null)
+            if (anchorStatusMap[o2.anchorKey]?.isLive == null)
                 return@Comparator 1
-            if (anchorStatusMap[o1.anchorKey] == null)
+            if (anchorStatusMap[o1.anchorKey]?.isLive == null)
                 return@Comparator -1
-            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey])
+            if (anchorStatusMap[o1.anchorKey]?.isLive == anchorStatusMap[o2.anchorKey]?.isLive)
                 return@Comparator 0
-            if (anchorStatusMap[o2.anchorKey] == true) {
+            if (anchorStatusMap[o2.anchorKey]?.isLive == true) {
                 return@Comparator 1
             } else
                 return@Comparator -1
@@ -62,7 +69,7 @@ object MainAnchorHelper {
 
         //ID再排序一次
         list?.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o1.anchorKey] == anchorStatusMap[o2.anchorKey]) {
+            if (anchorStatusMap[o1.anchorKey]?.isLive == anchorStatusMap[o2.anchorKey]?.isLive) {
                 if (o1.id < o2.id)
                     return@Comparator -1
                 else
