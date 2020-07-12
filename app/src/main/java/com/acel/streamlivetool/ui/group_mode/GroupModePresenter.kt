@@ -3,7 +3,7 @@ package com.acel.streamlivetool.ui.group_mode
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.acel.streamlivetool.MainAnchorHelper
+import com.acel.streamlivetool.util.AnchorListHelper
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -27,7 +27,7 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
     private var firstTimeLoadAnchorList = true
     internal val sortedAnchorList = mutableListOf<Anchor>()
     private fun sortAnchorList() {
-        val list = MainAnchorHelper.sortAnchorListByStatus(
+        val list = AnchorListHelper.sortAnchorListByStatus(
             anchorRepository.anchorList,
             anchorAttributeMap
         )

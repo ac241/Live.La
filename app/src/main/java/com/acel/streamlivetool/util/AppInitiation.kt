@@ -1,10 +1,11 @@
 package com.acel.streamlivetool.util
 
 import android.content.Context
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
-import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.tencent.bugly.crashreport.CrashReport
 
 class AppInitiation {
@@ -56,10 +57,12 @@ class AppInitiation {
     }
 
     private fun initDefaultAnchor() {
+        Log.d("initDefaultAnchor", "init")
         val anchorRepository = AnchorRepository.getInstance(appContext.applicationContext)
         val list = mutableListOf<Anchor>()
         list.add(Anchor("douyu", "即将拥有人鱼线的PDD", "101", "101"))
-        list.add(Anchor("douyu", "毛阿姨", "469195", "469195"))
+        list.add(Anchor("douyu", "英雄联盟赛事", "288016", "288016"))
+        list.add(Anchor("douyu", "毛阿姨不在", "469195", "469195"))
         list.add(Anchor("bilibili", "阿P在家吗", "12856139", "12856139"))
         list.add(Anchor("bilibili", "超carry的柴西", "21426464", "21426464"))
         list.add(Anchor("douyu", "小苏菲", "241431", "241431"))

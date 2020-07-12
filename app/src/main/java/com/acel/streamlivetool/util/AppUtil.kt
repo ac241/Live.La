@@ -9,6 +9,9 @@ import android.os.Process
 import androidx.preference.PreferenceManager
 import com.acel.streamlivetool.base.MyApplication
 
+val defaultSharedPreferences: SharedPreferences by lazy {
+    PreferenceManager.getDefaultSharedPreferences(MyApplication.application)
+}
 object AppUtil {
 
     fun runOnUiThread(todo: () -> Unit) {
@@ -17,7 +20,4 @@ object AppUtil {
         }
     }
 
-    val defaultSharedPreferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(MyApplication.application)
-    }
 }

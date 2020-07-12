@@ -62,7 +62,6 @@ class LongzhuImpl : IPlatform {
     }
 
     override fun startApp(context: Context, anchor: Anchor) {
-        //todo
         val intent = Intent()
         val uri =
             Uri.parse(

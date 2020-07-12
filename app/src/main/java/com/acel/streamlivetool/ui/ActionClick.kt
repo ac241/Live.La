@@ -7,7 +7,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 

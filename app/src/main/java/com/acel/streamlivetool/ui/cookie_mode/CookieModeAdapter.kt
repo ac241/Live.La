@@ -14,6 +14,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 class CookieModeAdapter(
@@ -24,7 +25,7 @@ class CookieModeAdapter(
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
     private val fullVersion =
-        AppUtil.defaultSharedPreferences.getBoolean(
+        defaultSharedPreferences.getBoolean(
             cookieAnchorActivity.getString(R.string.full_version),
             false
         )

@@ -1,50 +1,11 @@
-package com.acel.streamlivetool
+package com.acel.streamlivetool.util
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 
-object MainAnchorHelper {
-//    val anchorList by lazy {
-//        MutableLiveData<MutableList<Anchor>>()
-//    }
-
-    //    private val anchorDao = DbManager.getInstance(MyApplication.application)?.getDaoSession(MyApplication.application)?.anchorDao
-//    private var lastStatusMap = mutableMapOf<String, AnchorAttribute>()
-//    private fun setAnchorListValue(list: MutableList<Anchor>) {
-//        anchorList.value = list
-//    }
-//
-//    private fun postAnchorListValue(list: MutableList<Anchor>) {
-//        anchorList.postValue(list)
-//    }
-
-//    fun insertAnchor(anchor: Anchor) {
-//        if (anchor.platform != null)
-//            if (!anchorList.value!!.contains(anchor))
-//                anchorDao?.insert(anchor)
-//        loadAnchorList()
-//        sortAnchorListByStatus(lastStatusMap)
-//    }
-
-//    fun deleteAnchor(queryAnchor: Anchor) {
-//        anchorDao?.delete(queryAnchor)
-//        loadAnchorList()
-//        sortAnchorListByStatus(lastStatusMap)
-//    }
-
-//    internal fun initAnchorList() {
-//        val dataAnchorList = anchorDao?.loadAll() as ArrayList
-//        setAnchorListValue(dataAnchorList)
-//    }
-
-//    internal fun loadAnchorList() {
-//        //get anchors from database
-//        val dataAnchorList = anchorDao?.loadAll() as ArrayList
-//        postAnchorListValue(dataAnchorList)
-//    }
-
+object AnchorListHelper {
     @Synchronized
     fun sortAnchorListByStatus(
         anchorList: LiveData<List<Anchor>>,

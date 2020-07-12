@@ -25,24 +25,32 @@ class AnchorRepository {
     private val anchorDatabase = AnchorDatabase.getInstance(thisContext.applicationContext)
     private val anchorDao = anchorDatabase.getDao()
     internal val anchorList = anchorDao.getAllAnchors()
+    private val insertList = mutableListOf<Anchor>()
 
     /**
      * 插入anchor
      * @return Pair<结果,信息>
      */
     fun insertAnchor(anchor: Anchor): Pair<Boolean, String> {
-        anchorList.value?.let {
-            return if (!it.contains(anchor)) {
+        anchorList.value.let {
+            //如果list为空 或者 list和插入历史中不含anchor
+            return if (it == null || (!it.contains(anchor) && !insertList.contains(anchor))) {
                 MainExecutor.execute { anchorDao.insertAnchor(anchor) }
+                insertList.add(anchor)
+                Log.d("insertAnchor", "insert anchor $anchor")
                 Pair(true, thisContext.getString(R.string.add_anchor_success))
             } else {
                 Pair(false, thisContext.getString(R.string.anchor_already_exist))
             }
         }
-        return Pair(false, "list empty code 113")
     }
 
-    fun deleteAnchor(anchor: Anchor) = MainExecutor.execute { anchorDao.deleteAnchor(anchor) }
+    fun deleteAnchor(anchor: Anchor) = MainExecutor.execute {
+        anchorDao.deleteAnchor(anchor)
+        insertList.remove(anchor)
+        Log.d("deleteAnchor", "delete anchor $anchor")
+    }
+
     fun updateAnchor(anchor: Anchor) = MainExecutor.execute { anchorDao.updateAnchor(anchor) }
     fun getAllAnchors(): LiveData<List<Anchor>> = anchorDao.getAllAnchors()
     fun deleteAllAnchors() = MainExecutor.execute { anchorDao.deleteAllAnchors() }

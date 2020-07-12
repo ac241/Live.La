@@ -9,7 +9,7 @@
         android:title="@string/launch_activity"
         app:iconSpaceReserved="false" />
     <ListPreference
-        android:defaultValue="@string/grid_view"
+        android:defaultValue="@string/recycler_view"
         android:entries="@array/pref_group_mode_list_type_entries"
         android:entryValues="@array/pref_group_mode_list_type_entries_values"
         android:key="@string/pref_key_group_mode_list_type"

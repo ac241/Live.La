@@ -49,4 +49,7 @@ open class Anchor() {
         return result
     }
 
+    override fun toString(): String {
+        return "platform=$platform,nickname=$nickname,roomId=$roomId,showId=$showId,otherParams=$otherParams"
+    }
 }

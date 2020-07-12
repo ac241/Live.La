@@ -16,6 +16,9 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
+import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
+import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_grid_anchor.view.*
 
 
@@ -26,6 +29,11 @@ class GroupModeGridViewAdapter(
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
+    private val fullVersion =
+        defaultSharedPreferences.getBoolean(
+            context.getString(R.string.full_version),
+            false
+        )
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {
@@ -48,8 +56,7 @@ class GroupModeGridViewAdapter(
 
         //        val roomId: TextView = itemView.main_anchor_roomId
         val status: TextView = itemView.grid_anchor_status
-
-        //        val secondBtn: ImageView = itemView.main_second_btn
+        val secondBtn: ImageView = itemView.grid_anchor_second_btn
         val title: TextView = itemView.grid_anchor_title
     }
 
@@ -141,10 +148,13 @@ class GroupModeGridViewAdapter(
             return@setOnLongClickListener false
         }
 
-//        //侧键点击
-////        viewHolder.secondBtn.setOnClickListener {
-////            secondBtnClick(context, anchor)
-////        }
+        //副键点击
+        if (fullVersion) {
+            viewHolder.secondBtn.visibility = View.VISIBLE
+            viewHolder.secondBtn.setOnClickListener {
+                secondBtnClick(context, anchor)
+            }
+        }
 
         return view!!
     }

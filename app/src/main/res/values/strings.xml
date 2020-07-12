@@ -62,5 +62,6 @@
     <string name="full_version">full_version</string>
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>
+    <string name="open_source_module">开源组件</string>
     <!--  list preference end  -->
 </resources>

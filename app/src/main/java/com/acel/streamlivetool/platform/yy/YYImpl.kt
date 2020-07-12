@@ -49,7 +49,6 @@ class YYImpl : IPlatform {
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
-        //todo
         return null
     }
 

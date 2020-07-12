@@ -13,7 +13,7 @@ import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
-import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_group_mode.*
 import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
 import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
@@ -23,7 +23,6 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     lateinit var presenter: GroupModePresenter
     private var listViewType = ListViewType.RecyclerView
     private val addAnchorFragment = AddAnchorFragment()
-
 
     override fun getResLayoutId(): Int {
         return R.layout.activity_group_mode

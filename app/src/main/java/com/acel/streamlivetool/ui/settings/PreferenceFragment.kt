@@ -10,7 +10,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
-import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.ToastUtil.toast
 
 class SettingsFragment : PreferenceFragmentCompat(),
