@@ -29,7 +29,7 @@ class YYImpl : IPlatform {
                 val nick = TextUtil.subString(htmlString, "nick: \"", "\",")
                 val sid = TextUtil.subString(htmlString, "sid : \"", "\",")
                 val ssid = TextUtil.subString(htmlString, "ssid : \"", "\",")
-                return Anchor(platform, nick, queryAnchor.showId, "$sid/$ssid")
+                return Anchor(platform, nick.toString(), queryAnchor.showId, "$sid/$ssid")
             }
         }
         return null

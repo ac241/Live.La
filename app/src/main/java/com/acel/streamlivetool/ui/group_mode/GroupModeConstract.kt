@@ -15,6 +15,6 @@ interface GroupModeConstract {
         fun addAnchorSuccess(anchor: Anchor)
         fun addAnchorFailed(reason: String)
         fun refreshAnchorList()
-        fun refreshAnchorStatus(anchor: Anchor)
+        fun refreshAnchorStatus()
     }
 }

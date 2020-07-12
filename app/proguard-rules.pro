@@ -27,37 +27,13 @@
 
 # 使用Gson时需要配置Gson的解析对象及变量都不混淆。不然Gson会找不到变量。
 -keep class com.acel.streamlivetool.bean.** { *; }
-#-keep class com.acel.streamlivetool.platform.bilibili.bean.** { *; }
-#-keep class com.acel.streamlivetool.platform.douyu.bean.** { *; }
-#-keep class com.acel.streamlivetool.platform.huya.bean.** { *; }
-##-keep class com.acel.streamlivetool.platform.douyu.** { *; }
-#-keep class com.acel.streamlivetool.platform.huomao.bean.** { *; }
 -keep class com.acel.streamlivetool.platform.**.bean.** { *; }
-
 
 # Retrofit
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }
 -keepattributes Signature
 -keepattributes Exceptions
-
-
-### greenDAO 3
--keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
-public static java.lang.String TABLENAME;
-}
--keep class **$Properties
-
-# If you do not use SQLCipher:
--dontwarn org.greenrobot.greendao.database.**
-# If you do not use RxJava:
--dontwarn rx.**
--keep class com.acel.streamlivetool.db.** { *; }
-
-#ijkplayer  dkplayer
--keep class tv.danmaku.ijk.** { *; }
--dontwarn tv.danmaku.ijk.**
--keep class com.dueeeke.videoplayer.** { *; }
 
 #rhino
 -dontwarn org.mozilla.**
@@ -75,6 +51,3 @@ public static java.lang.String TABLENAME;
 -keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
   *** rewind();
 }
-
-# for DexGuard only
--keepresourcexmlelements manifest/application/meta-data@value=GlideModule

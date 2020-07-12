@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.platform.douyu
 
-import com.acel.streamlivetool.platform.bilibili.bean.Following
 import com.acel.streamlivetool.platform.douyu.bean.Followed
 import com.acel.streamlivetool.platform.douyu.bean.H5Enc
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
@@ -9,9 +8,6 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface DouyuApi {
-    companion object {
-        const val baseUrl = "https://www.douyu.com/"
-    }
 
     @GET("https://m.douyu.com/{id}")
     fun getRoomInfo(@Path("id") id: String): Call<String>

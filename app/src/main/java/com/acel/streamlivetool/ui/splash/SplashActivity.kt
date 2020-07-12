@@ -1,11 +1,11 @@
 package com.acel.streamlivetool.ui.splash
 
+import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.startActivity
+import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
 
 class SplashActivity : BaseActivity() {
     override fun getResLayoutId(): Int {
@@ -19,9 +19,9 @@ class SplashActivity : BaseActivity() {
         )
         when (mode) {
             getString(R.string.group_mode) ->
-                startActivity<GroupModeActivity>()
+                startActivity(Intent(this, GroupModeActivity::class.java))
             getString(R.string.cookie_mode) ->
-                startActivity<CookieModeActivity>()
+                startActivity(Intent(this, CookieModeActivity::class.java))
         }
         finish()
     }

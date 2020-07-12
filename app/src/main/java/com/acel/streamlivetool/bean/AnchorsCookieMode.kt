@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.bean
 
+import kotlinx.android.parcel.Parcelize
+
 data class AnchorsCookieMode(
     val cookieOk: Boolean,
     val anchors: List<Anchor>?

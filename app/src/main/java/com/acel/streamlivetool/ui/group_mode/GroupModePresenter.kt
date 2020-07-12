@@ -1,24 +1,39 @@
 package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.acel.streamlivetool.MainAnchorHelper
-import com.acel.streamlivetool.MainAnchorHelper.anchorList
-import com.acel.streamlivetool.MainAnchorHelper.initAnchorList
-import com.acel.streamlivetool.MainAnchorHelper.loadAnchorList
-import com.acel.streamlivetool.MainAnchorHelper.sortAnchorListByStatus
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
+import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.runOnUiThread
-import org.jetbrains.anko.toast
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.ToastUtil.toast
 
-
-class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupModeConstract.Presenter,
-    AnkoLogger {
+class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupModeConstract.Presenter {
     val context = view as Context
-    val anchorAttributeMap: MutableMap<String, AnchorAttribute> = mutableMapOf()
+    val anchorAttributeMap = MutableLiveData<MutableMap<String, AnchorAttribute>>().also {
+        it.value = mutableMapOf()
+    }
+
+    fun setAnchorAttribute(anchorAttribute: AnchorAttribute) {
+        anchorAttributeMap.value?.set(anchorAttribute.getAnchorKey(), anchorAttribute)
+        anchorAttributeMap.postValue(anchorAttributeMap.value)
+    }
+
+    val anchorRepository = AnchorRepository.getInstance(context.applicationContext)
+    private var firstTimeLoadAnchorList = true
+    internal val sortedAnchorList = mutableListOf<Anchor>()
+    private fun sortAnchorList() {
+        val list = MainAnchorHelper.sortAnchorListByStatus(
+            anchorRepository.anchorList,
+            anchorAttributeMap
+        )
+        sortedAnchorList.clear()
+        sortedAnchorList.addAll(list)
+    }
 
     override fun addAnchor(queryAnchor: Anchor) {
         MainExecutor.execute(AddAnchorRunnable(queryAnchor))
@@ -30,7 +45,7 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
             try {
                 val anchor = platformImpl?.getAnchor(queryAnchor)
                 if (anchor != null) {
-                    if (anchorList.value!!.indexOf(anchor) == -1) {
+                    if (anchorRepository.anchorList.value!!.indexOf(anchor) == -1) {
                         insertAnchor(anchor)
                     } else {
                         view?.addAnchorFailed("该直播间已存在——${anchor.nickname}")
@@ -40,14 +55,14 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                context.runOnUiThread {
-                    context.toast("发生错误。")
+                runOnUiThread {
+                    toast("发生错误。")
                 }
             }
         }
 
         private fun insertAnchor(anchor: Anchor) {
-            MainAnchorHelper.insertAnchor(anchor)
+            anchorRepository.insertAnchor(anchor)
             view?.addAnchorSuccess(anchor)
             //添加后获取状态
             getAnchorsStatus(anchor)
@@ -55,9 +70,18 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
     }
 
     init {
-        initAnchorList()
-//        loadAnchorList()
-        getAllAnchorsStatus()
+        anchorRepository.anchorList.observe(context as GroupModeActivity, Observer {
+            if (firstTimeLoadAnchorList) {
+                getAllAnchorsStatus()
+                firstTimeLoadAnchorList = false
+            }
+            sortAnchorList()
+            view?.refreshAnchorList()
+        })
+        anchorAttributeMap.observe(context, Observer {
+            sortAnchorList()
+            view?.refreshAnchorStatus()
+        })
     }
 
     override fun getAnchorsStatus(anchor: Anchor) {
@@ -70,21 +94,16 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
                 val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                 val anchorAttribute = platformImpl?.getAnchorAttribute(anchor)
                 if (anchorAttribute != null) {
-                    anchorAttributeMap[anchorAttribute.getAnchorKey()] = anchorAttribute
-                    context.runOnUiThread {
-                        sortAnchorListByStatus(anchorAttributeMap)
-                    }
+                    setAnchorAttribute(anchorAttribute)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
-
     }
 
     override fun getAllAnchorsStatus() {
-        anchorList.value!!.forEach { anchor ->
+        anchorRepository.anchorList.value?.forEach { anchor ->
             getAnchorsStatus(anchor)
         }
     }

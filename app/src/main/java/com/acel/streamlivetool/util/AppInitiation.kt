@@ -1,12 +1,11 @@
 package com.acel.streamlivetool.util
 
 import android.content.Context
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.db.DbManager
+import com.acel.streamlivetool.db.AnchorRepository
+import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
 import com.tencent.bugly.crashreport.CrashReport
-import org.jetbrains.anko.defaultSharedPreferences
 
 class AppInitiation {
     companion object {
@@ -25,23 +24,29 @@ class AppInitiation {
     }
 
     private fun initBugly() {
-        Log.d("initBugly", "initBugly")
         val strategy = CrashReport.UserStrategy(appContext)
         CrashReport.initCrashReport(appContext, buglyAppId, false, strategy)
     }
 
     private fun firstTimeLaunch() {
         val firstKey = "first_time_launch"
-        val isFirst = appContext.defaultSharedPreferences.getBoolean(firstKey, true)
+        val isFirst = defaultSharedPreferences.getBoolean(firstKey, true)
         if (isFirst) {
             initDefaultAnchor()
             initPreference()
-            appContext.defaultSharedPreferences.edit().putBoolean(firstKey, false).apply()
+            initFullVersion()
+            defaultSharedPreferences.edit().putBoolean(firstKey, false).apply()
         }
     }
 
+    private fun initFullVersion() {
+        //是否使用完整版
+        defaultSharedPreferences.edit()
+            .putBoolean(appContext.resources.getString(R.string.full_version), false).apply()
+    }
+
     private fun initPreference() {
-        appContext.defaultSharedPreferences.edit()
+        defaultSharedPreferences.edit()
             .putString(appContext.getString(R.string.pref_key_item_click_action), "open_app")
             .putString(
                 appContext.getString(R.string.pref_key_second_button_click_action),
@@ -51,7 +56,7 @@ class AppInitiation {
     }
 
     private fun initDefaultAnchor() {
-        val anchorDao = DbManager.getInstance(appContext)?.getDaoSession(appContext)?.anchorDao
+        val anchorRepository = AnchorRepository.getInstance(appContext.applicationContext)
         val list = mutableListOf<Anchor>()
         list.add(Anchor("douyu", "即将拥有人鱼线的PDD", "101", "101"))
         list.add(Anchor("douyu", "毛阿姨", "469195", "469195"))
@@ -60,7 +65,7 @@ class AppInitiation {
         list.add(Anchor("douyu", "小苏菲", "241431", "241431"))
         list.add(Anchor("bilibili", "凉子和猫", "1039633", "1039633"))
         list.forEach {
-            anchorDao?.insert(it)
+            anchorRepository.insertAnchor(it)
         }
     }
 }

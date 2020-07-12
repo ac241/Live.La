@@ -6,7 +6,6 @@
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
     <string name="setting">设置</string>
-    <string name="title_activity_player">player</string>
     <string name="second_button">第二按钮</string>
     <string name="pref_key_item_click_action">pref_key_item_click_action</string>
     <string name="item_click_action_name">点击条目时</string>
@@ -18,7 +17,6 @@
     <string name="string_outer_player">outer_player</string>
     <string name="open_source_licensed">开放源代码许可</string>
     <string name="cookie_anchor">cookie</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
@@ -56,10 +54,13 @@
         <item>有图</item>
     </array>
     <array name="pref_group_mode_list_type_entries_values">
-        <item name="value_group_activity">@string/recycler_view</item>
-        <item name="value_cookie_activity">@string/grid_view</item>
+        <item name="value_recycler_view_type">@string/recycler_view</item>
+        <item name="value_grid_view_type">@string/grid_view</item>
     </array>
     <string name="recycler_view">recycler_view</string>
     <string name="grid_view">grid_view</string>
+    <string name="full_version">full_version</string>
+    <string name="anchor_already_exist">该主播已在列表中</string>
+    <string name="add_anchor_success">添加成功</string>
     <!--  list preference end  -->
 </resources>

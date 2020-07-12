@@ -33,11 +33,11 @@
             android:id="@+id/main_anchor_title"
             style="@style/main_recy_item_text"
             android:layout_width="180dp"
-            android:lines="1"
             android:layout_marginStart="12dp"
             android:layout_marginLeft="12dp"
             android:layout_marginBottom="8dp"
             android:gravity="start"
+            android:lines="1"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -84,7 +84,8 @@
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="center"
-            android:src="@drawable/ic_adjust_black_24dp"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

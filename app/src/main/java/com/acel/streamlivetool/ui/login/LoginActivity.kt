@@ -10,8 +10,8 @@ import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.toast
 
 class LoginActivity : AppCompatActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()

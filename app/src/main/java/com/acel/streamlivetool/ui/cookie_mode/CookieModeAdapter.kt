@@ -13,6 +13,7 @@ import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
+import com.acel.streamlivetool.util.AppUtil
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 class CookieModeAdapter(
@@ -21,9 +22,12 @@ class CookieModeAdapter(
 ) : RecyclerView.Adapter<CookieModeAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
-
     private var mPosition: Int = -1
-
+    private val fullVersion =
+        AppUtil.defaultSharedPreferences.getBoolean(
+            cookieAnchorActivity.getString(R.string.full_version),
+            false
+        )
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(p0.context).inflate(R.layout.item_main_anchor, p0, false)
         return ViewHolder(view)
@@ -69,8 +73,11 @@ class CookieModeAdapter(
             }
 
             //侧键点击
-            it.secondBtn.setOnClickListener {
-                secondBtnClick(cookieAnchorActivity, anchor)
+            if (fullVersion) {
+                viewHolder.secondBtn.visibility = View.VISIBLE
+                viewHolder.secondBtn.setOnClickListener {
+                    secondBtnClick(cookieAnchorActivity, anchor)
+                }
             }
         }
     }

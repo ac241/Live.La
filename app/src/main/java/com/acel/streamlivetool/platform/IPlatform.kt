@@ -3,14 +3,13 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.runOnUiThread
-import org.jetbrains.anko.toast
+import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.ToastUtil.toast
 import org.jetbrains.annotations.Nullable
 import retrofit2.Retrofit
 
@@ -80,7 +79,7 @@ interface IPlatform {
             intent.setDataAndType(uri, "video/*")
             context.startActivity(intent)
         } else {
-            context.runOnUiThread {
+            runOnUiThread {
                 toast("获取直播流失败")
             }
         }
@@ -120,7 +119,7 @@ interface IPlatform {
      * 保存cookie
      */
     fun saveCookie(cookie: String) {
-        MyApplication.application.defaultSharedPreferences.edit()
+        defaultSharedPreferences.edit()
             .putString("${platform}_cookie", cookie)
             .apply()
     }
@@ -129,7 +128,7 @@ interface IPlatform {
      * 读取cookie
      */
     fun readCookie(): String {
-        val cookie = MyApplication.application.defaultSharedPreferences.getString(
+        val cookie = defaultSharedPreferences.getString(
             "${platform}_cookie",
             ""
         )
@@ -140,7 +139,7 @@ interface IPlatform {
      * 清除cookie
      */
     fun clearCookie() {
-        MyApplication.application.defaultSharedPreferences.edit().remove("${platform}_cookie")
+        defaultSharedPreferences.edit().remove("${platform}_cookie")
             .apply()
     }
 }

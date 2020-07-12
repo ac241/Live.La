@@ -7,25 +7,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
+import com.acel.streamlivetool.util.AppUtil
 import kotlinx.android.synthetic.main.item_main_anchor.view.*
 
 
 class GroupModeRecyclerViewAdapter(
     val groupModeActivity: GroupModeActivity,
-    private val anchorList: MutableLiveData<MutableList<Anchor>>,
-    private val anchorAttributeMap: MutableMap<String, AnchorAttribute>
+    private val presenter: GroupModePresenter
 ) : RecyclerView.Adapter<GroupModeRecyclerViewAdapter.ViewHolder>() {
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
+
+    private val fullVersion =
+        AppUtil.defaultSharedPreferences.getBoolean(
+            groupModeActivity.getString(R.string.full_version),
+            false
+        )
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(p0.context).inflate(R.layout.item_main_anchor, p0, false)
@@ -33,10 +37,25 @@ class GroupModeRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, p1: Int) {
-        val anchor: Anchor = anchorList.value!![p1]
+        val anchor: Anchor = presenter.sortedAnchorList[p1]
         holder.let { viewHolder ->
-            //
-            viewHolder.title.text = anchorAttributeMap[anchor.anchorKey]?.title ?: "-"
+
+            presenter.anchorAttributeMap.value?.get(anchor.anchorKey()).let {
+                viewHolder.title.text =
+                    it?.title ?: "-"
+                //直播状态
+                if (it?.isLive != null) {
+                    if (it.isLive) {
+                        viewHolder.status.text = "直播中"
+                        viewHolder.status.setTextColor(Color.GREEN)
+                    } else {
+                        viewHolder.status.text = "未直播"
+                        viewHolder.status.setTextColor(Color.GRAY)
+                    }
+                } else {
+                    viewHolder.status.text = ""
+                }
+            }
             //主播名
             viewHolder.anchorName.text = anchor.nickname
             //平台名
@@ -52,18 +71,7 @@ class GroupModeRecyclerViewAdapter(
             viewHolder.platform.text = platformName
             //直播间Id
             viewHolder.roomId.text = anchor.showId
-            //直播状态
-            if (anchorAttributeMap[anchor.anchorKey]?.isLive != null) {
-                if (anchorAttributeMap[anchor.anchorKey]?.isLive!!) {
-                    viewHolder.status.text = "直播中"
-                    viewHolder.status.setTextColor(Color.GREEN)
-                } else {
-                    viewHolder.status.text = "未直播"
-                    viewHolder.status.setTextColor(Color.GRAY)
-                }
-            } else {
-                viewHolder.status.text = ""
-            }
+
             //item click
             viewHolder.itemView.setOnClickListener {
                 itemClick(groupModeActivity, anchor)
@@ -76,13 +84,16 @@ class GroupModeRecyclerViewAdapter(
             }
 
             //侧键点击
-            viewHolder.secondBtn.setOnClickListener {
-                secondBtnClick(groupModeActivity, anchor)
+            if (fullVersion) {
+                viewHolder.secondBtn.visibility = View.VISIBLE
+                viewHolder.secondBtn.setOnClickListener {
+                    secondBtnClick(groupModeActivity, anchor)
+                }
             }
         }
     }
 
-    override fun getItemCount(): Int = anchorList.value!!.size
+    override fun getItemCount(): Int = presenter.sortedAnchorList.size
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {

@@ -1,8 +1,8 @@
 package com.acel.streamlivetool.ui.settings
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -10,13 +10,11 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
-import org.jetbrains.anko.support.v4.defaultSharedPreferences
-import org.jetbrains.anko.support.v4.startActivity
-import org.jetbrains.anko.support.v4.toast
+import com.acel.streamlivetool.util.AppUtil.defaultSharedPreferences
+import com.acel.streamlivetool.util.ToastUtil.toast
 
 class SettingsFragment : PreferenceFragmentCompat(),
-    SharedPreferences.OnSharedPreferenceChangeListener,
-    Preference.OnPreferenceClickListener {
+    SharedPreferences.OnSharedPreferenceChangeListener {
     private val entriesMap = mutableMapOf<String, Pair<Array<String>, Array<String>>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,34 +42,41 @@ class SettingsFragment : PreferenceFragmentCompat(),
     override fun onCreatePreferences(p0: Bundle?, p1: String?) {
         addPreferencesFromResource(R.xml.pre_settings)
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-        preferenceScreen.onPreferenceClickListener = this
+
         findPreference<Preference>(getString(R.string.pref_key_about_open_source))?.setOnPreferenceClickListener {
-            startActivity<OpenSourceActivity>()
+            startActivity(Intent(context, OpenSourceActivity::class.java))
             false
         }
         findPreference<Preference>(getString(R.string.pref_key_clear_cookie))?.setOnPreferenceClickListener {
             clearCookie()
-
             false
         }
+        //隐藏preference
+        val fullVersion =
+            defaultSharedPreferences.getBoolean(resources.getString(R.string.full_version), false)
+        if (!fullVersion) {
+            val hideList = arrayOf(
+                R.string.pref_key_item_click_action,
+                R.string.pref_key_second_button_click_action
+            )
+            hideList.forEach {
+                findPreference<Preference>(getString(it))?.isVisible = false
+            }
+        }
     }
-
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if (isAdded) {
             if (key != null) {
                 setListPreferenceSummary(key)
             }
+            when (key) {
+                resources.getString(R.string.pref_key_group_mode_list_type), resources.getString(R.string.pref_key_launch_activity) ->
+                    (requireActivity() as SettingsActivity).settingsChanges = true
+            }
         }
     }
 
-    override fun onPreferenceClick(p0: Preference?): Boolean {
-//        when (p0?.key) {
-//            getString(R.string.pref_key_about_open_source) ->
-//                startActivity<OpenSourceActivity>()
-//        }
-        return true
-    }
 
     private fun clearCookie() {
         val builder = context?.let { AlertDialog.Builder(it) }

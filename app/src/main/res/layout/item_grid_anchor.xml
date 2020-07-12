@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grid_anchor_card_view"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="160dp"
-    android:background="#000"
     android:clickable="true"
+    app:cardCornerRadius="10dp"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/grid_anchor_image"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="110dp"
             android:contentDescription="@string/live_image"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,20 +33,22 @@
             android:textColor="@android:color/white"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="@+id/grid_anchor_image"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="SmallSp" />
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/grid_anchor_avatar"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
             android:contentDescription="@string/avatar"
-            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:riv_corner_radius="30dip"
+            android:scaleType="centerCrop"
+            app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/grid_anchor_name"
@@ -52,10 +56,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_marginLeft="5dp"
-            android:textSize="10sp"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/grid_anchor_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image" />
+            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
+            tools:ignore="SmallSp" />
 
         <TextView
             android:id="@+id/grid_anchor_platform"
@@ -68,7 +73,8 @@
             android:textColor="@android:color/white"
             android:textSize="8sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
         <TextView
             android:id="@+id/grid_anchor_status"
@@ -81,7 +87,8 @@
             android:textColor="@android:color/white"
             android:textSize="10sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.platform.huya
 
-import com.acel.streamlivetool.platform.douyu.bean.Followed
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import retrofit2.Call
 import retrofit2.http.GET

@@ -41,7 +41,7 @@ class HuyaImpl : IPlatform {
                     TextUtil.subString(it, "\"nick\":\"", "\",")
                         ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
                 val uid = TextUtil.subString(it, "\"lp\":", ",")?.replace("\"", "")
-                return Anchor(platform, nickname, showId, uid)
+                return Anchor(platform, nickname.toString(), showId, uid.toString())
             }
         }
         return null

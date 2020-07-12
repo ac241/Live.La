@@ -15,15 +15,6 @@ class OpenSourceActivity : BaseActivity() {
         val list = mutableListOf<Module>()
         list.add(
             Module(
-                "anko:0.10.8",
-                "org.jetbrains.anko",
-                "https://github.com/Kotlin/anko",
-                "JetBrains inc.",
-                "licensed under the Apache License 2.0"
-            )
-        )
-        list.add(
-            Module(
                 "retrofit:2.5.0",
                 "com.squareup.retrofit2",
                 "https://github.com/square/retrofit",
@@ -37,15 +28,6 @@ class OpenSourceActivity : BaseActivity() {
                 "com.google.code.gson",
                 "https://github.com/google/gson",
                 "Copyright 2008 Google Inc.",
-                "Licensed under the Apache License, Version 2.0 "
-            )
-        )
-        list.add(
-            Module(
-                "greendao:3.2.2",
-                "org.greenrobot.greendao",
-                "https://github.com/greenrobot/greenDAO",
-                "greenrobot",
                 "Licensed under the Apache License, Version 2.0 "
             )
         )

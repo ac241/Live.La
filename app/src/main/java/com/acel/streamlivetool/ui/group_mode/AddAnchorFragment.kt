@@ -10,17 +10,16 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import androidx.fragment.app.DialogFragment
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.fragment_add_anchor.*
-import org.jetbrains.anko.collections.forEachWithIndex
-import org.jetbrains.anko.support.v4.runOnUiThread
-import org.jetbrains.anko.support.v4.toast
 
 
 class AddAnchorFragment : BottomSheetDialogFragment() {
-    lateinit var platformList: List<String>
+    private lateinit var platformList: List<String>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
@@ -39,7 +38,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         platformList = PlatformDispatcher.getAllPlatform()
         val tempList = mutableListOf<String>()
         //显示radio
-        platformList.forEachWithIndex { i, s ->
+        platformList.forEachIndexed { i, s ->
             val radioButton = RadioButton(context)
             val stringList = s.split(",")
             tempList.add(stringList[0])
@@ -69,7 +68,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
     private fun hideKeyboard() {
         val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (imm.isActive) {
-            imm.hideSoftInputFromWindow(activity?.window?.getDecorView()?.applicationWindowToken, 0)
+            imm.hideSoftInputFromWindow(activity?.window?.decorView?.applicationWindowToken, 0)
         }
     }
 

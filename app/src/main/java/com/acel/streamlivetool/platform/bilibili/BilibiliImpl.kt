@@ -28,7 +28,7 @@ class BilibiliImpl : IPlatform {
         return if (roomInfo?.code == 0) {
             val roomId = roomInfo.data.roomId
             val ownerName = getAnchorName(roomId)
-            Anchor(platform, ownerName, roomId.toString(), roomId.toString())
+            Anchor(platform, ownerName.toString(), roomId.toString(), roomId.toString())
         } else
             null
     }

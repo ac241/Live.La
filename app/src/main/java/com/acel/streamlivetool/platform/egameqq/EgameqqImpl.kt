@@ -34,7 +34,7 @@ class EgameqqImpl : IPlatform {
         html?.let {
             val tempRoomId = TextUtil.subString(html, "channelId:\"", "\",")
             val roomId = tempRoomId?.split("_")?.get(1)
-            queryAnchor.roomId = roomId
+            queryAnchor.roomId = roomId.toString()
             val longZhuAnchor = getLongZhuAnchor(queryAnchor)
             longZhuAnchor?.let {
                 return Anchor(

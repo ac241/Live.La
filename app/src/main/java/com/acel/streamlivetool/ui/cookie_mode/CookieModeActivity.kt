@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.cookie_mode
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -14,7 +15,6 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_cookie_mode.*
-import org.jetbrains.anko.startActivity
 
 class CookieModeActivity : BaseActivity() {
     override fun getResLayoutId(): Int {
@@ -62,6 +62,6 @@ class CookieModeActivity : BaseActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun fabClick(view: View) {
-        startActivity<GroupModeActivity>()
+        startActivity(Intent(this, GroupModeActivity::class.java))
     }
 }

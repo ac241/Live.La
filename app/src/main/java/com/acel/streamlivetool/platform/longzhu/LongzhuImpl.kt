@@ -34,7 +34,7 @@ class LongzhuImpl : IPlatform {
                 val name =
                     TextUtil.subString(it, "\"Name\":\"", "\",")
                 val roomId = TextUtil.subString(it, "\"RoomId\":", ",")
-                return Anchor(platform, name, showId, roomId)
+                return Anchor(platform, name.toString(), showId, roomId.toString())
             }
         }
         return null

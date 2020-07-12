@@ -40,7 +40,7 @@ class DouyuImpl : IPlatform {
                 douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
             val roomId = roomInfo?.data?.roomId
             val ownerName = roomInfo?.data?.ownerName
-            Anchor(platform, ownerName, roomId, roomId)
+            Anchor(platform, ownerName.toString(), roomId.toString(), roomId.toString())
         }
     }
 

@@ -2,33 +2,28 @@ package com.acel.streamlivetool.ui.cookie_mode
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.acel.streamlivetool.MainAnchorHelper
 import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.AnchorsCookieMode
+import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.ui.login.LoginActivity
-import kotlinx.android.synthetic.main.activity_cookie_mode.*
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
 import kotlinx.android.synthetic.main.layout_login_first.*
-import org.jetbrains.anko.support.v4.runOnUiThread
-import org.jetbrains.anko.support.v4.toast
 
 class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
     private var addCookie: Boolean = false
     private val anchors = mutableListOf<AnchorsCookieMode.Anchor>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,18 +92,15 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         }
     }
 
-    fun getItemPosition() {
-
-    }
-
     override fun onContextItemSelected(item: MenuItem): Boolean {
         if (isVisible)
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
                     val adapter = cookie_anchor_recyclerView.adapter as CookieModeAdapter
                     val position = adapter.getPosition()
-                    MainAnchorHelper.insertAnchor(anchors[position])
-                    toast("添加成功")
+                    val result = AnchorRepository.getInstance(requireContext().applicationContext)
+                        .insertAnchor(anchors[position])
+                    toast(result.second)
                 }
             }
         return super.onContextItemSelected(item)

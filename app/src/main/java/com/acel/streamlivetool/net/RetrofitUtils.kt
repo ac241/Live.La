@@ -1,12 +1,11 @@
 package com.acel.streamlivetool.net
 
-import android.util.Log
-import com.acel.streamlivetool.platform.douyu.DouyuApi
-import okhttp3.*
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class RetrofitUtils {
