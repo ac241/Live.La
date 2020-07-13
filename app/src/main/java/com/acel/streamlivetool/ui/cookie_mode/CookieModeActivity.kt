@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.cookie_mode
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
@@ -10,6 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
+import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
+import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
@@ -33,9 +37,15 @@ class CookieModeActivity : BaseActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+    override fun onBackPressed() {
+        if (isActivityFirst(this)) {
+            finishAllActivity()
+            super.onBackPressed()
+        } else
+            startGroupModeActivity()
+    }
+    override fun createDo() {
+        Log.d("init", "oncreate")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(FLAG_TRANSLUCENT_STATUS)
@@ -62,6 +72,10 @@ class CookieModeActivity : BaseActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun fabClick(view: View) {
+        startGroupModeActivity()
+    }
+
+    private fun startGroupModeActivity() {
         startActivity(Intent(this, GroupModeActivity::class.java))
     }
 }

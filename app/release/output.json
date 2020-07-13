@@ -11,10 +11,10 @@
       "type": "SINGLE",
       "filters": [],
       "properties": [],
-      "versionCode": 1,
-      "versionName": "1",
+      "versionCode": 2,
+      "versionName": "2",
       "enabled": true,
-      "outputFile": "com.acel.streamlivetool_v1_0.0.1_release_20200713.apk"
+      "outputFile": "com.acel.streamlivetool_v2_0.0.2_release_20200713.apk"
     }
   ]
 }

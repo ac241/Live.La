@@ -12,17 +12,15 @@ class SettingsActivity : BaseActivity() {
         return R.layout.activity_setting
     }
 
-    override fun init() {
+    override fun createDo() {
         supportFragmentManager.beginTransaction().add(R.id.setting_layout, SettingsFragment())
             .commit()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun destroyDo() {
         if (settingsChanges) {
             MyApplication.finishAllActivity()
             startActivity(Intent(this, SplashActivity::class.java))
         }
-//        restartApplication(this)
     }
 }

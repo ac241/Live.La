@@ -101,6 +101,8 @@ class EgameqqImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        if (readCookie().isEmpty())
+            return super.getAnchorsWithCookieMode()
         val list = egameqqService.getFollowList(readCookie()).execute().body()
         if (list != null) {
             val anchorList = mutableListOf<AnchorsCookieMode.Anchor>()

@@ -24,7 +24,6 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
     private var addCookie: Boolean = false
     private val anchors = mutableListOf<AnchorsCookieMode.Anchor>()
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,16 +50,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
             val anchorsCookieMode = platform.getAnchorsWithCookieMode()
             if (!anchorsCookieMode.cookieOk) {
                 if (viewStub_login_first != null)
-                    runOnUiThread {
-                        viewStub_login_first.inflate()
-                        textView_login_first.setOnClickListener {
-                            val intent = Intent(context, LoginActivity::class.java).also {
-                                it.putExtra("platform", platform.platform)
-                            }
-                            startActivity(intent)
-                            addCookie = true
-                        }
-                    }
+                    showLoginSub()
             } else {
                 with(anchorsCookieMode.anchors) {
                     if (this != null) {
@@ -80,6 +70,19 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
             }
             runOnUiThread {
                 cookie_anchor_swipe_refresh.isRefreshing = false
+            }
+        }
+    }
+
+    private fun showLoginSub() {
+        runOnUiThread {
+            viewStub_login_first.inflate()
+            textView_login_first.setOnClickListener {
+                val intent = Intent(context, LoginActivity::class.java).also {
+                    it.putExtra("platform", platform.platform)
+                }
+                startActivity(intent)
+                addCookie = true
             }
         }
     }

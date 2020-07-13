@@ -14,7 +14,7 @@ class OpenSourceActivity : BaseActivity() {
     private val stringBuilder = StringBuilder()
     private var titleClickTimes = 0
     private var setFullVersion = false
-    override fun init() {
+    override fun createDo() {
         open_source_title.setOnClickListener {
 
             if (titleClickTimes >= 100) {

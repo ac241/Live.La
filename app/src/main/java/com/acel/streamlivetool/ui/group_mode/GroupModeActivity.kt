@@ -1,6 +1,8 @@
 package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Intent
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +12,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
+import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
+import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
@@ -32,7 +37,16 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
         RecyclerView, GridView;
     }
 
-    override fun init() {
+    override fun onBackPressed() {
+        if (isActivityFirst(this)) {
+            finishAllActivity()
+            super.onBackPressed()
+        } else
+            startCookieModeActivity()
+    }
+
+    override fun createDo() {
+        Log.d("init", "oncreate")
         presenter = GroupModePresenter(this)
         initToolbar()
         initPreference()
@@ -153,8 +167,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
         hideSwipeRefreshBtn()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun destroyDo() {
         presenter.onDestroy()
     }
 
@@ -194,6 +207,10 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     @Suppress("UNUSED_PARAMETER")
     fun fabClick(view: View) {
+        startCookieModeActivity()
+    }
+
+    private fun startCookieModeActivity() {
         startActivity(Intent(this, CookieModeActivity::class.java))
     }
 }

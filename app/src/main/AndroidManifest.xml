@@ -35,7 +35,7 @@
         <activity
             android:name=".ui.group_mode.GroupModeActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
@@ -43,5 +43,4 @@
             android:label="@string/title_activity_setting"
             android:theme="@style/AppTheme" />
     </application>
-
 </manifest>

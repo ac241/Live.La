@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.base
 
 import android.app.Application
+import android.util.Log
 import com.acel.streamlivetool.util.AppInitiation
 
 class MyApplication : Application() {
@@ -20,6 +21,14 @@ class MyApplication : Application() {
             activityManageList.forEach {
                 it.finish()
             }
+        }
+
+        fun isActivityFirst(activity: BaseActivity): Boolean {
+            Log.d("isActivityFirst", "$activityManageList")
+            val index = activityManageList.indexOf(activity)
+            if (index == 0)
+                return true
+            return false
         }
     }
 
