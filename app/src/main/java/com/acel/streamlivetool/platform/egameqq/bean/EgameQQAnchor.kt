@@ -3,7 +3,7 @@ package com.acel.streamlivetool.platform.egameqq.bean
 import com.google.gson.annotations.SerializedName
 
 
-data class LongZhuAnchor(
+data class EgameQQAnchor(
     @SerializedName("data")
     val `data`: Data,
     @SerializedName("ecode")

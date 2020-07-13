@@ -35,11 +35,13 @@ class LoginActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 val cookieStr = cookieManager.getCookie(url)
-                cookieStr ?: Log.d("onPageFinished", cookieStr.toString())
-                if (platformImpl.checkLoginOk(cookieStr)) {
-                    platformImpl.saveCookie(cookieStr)
-                    toast("添加成功")
-                    finish()
+                if (cookieStr != null) {
+                    Log.d("onPageFinished", cookieStr.toString())
+                    if (platformImpl.checkLoginOk(cookieStr)) {
+                        platformImpl.saveCookie(cookieStr)
+                        toast("添加成功")
+                        finish()
+                    }
                 }
             }
         }
