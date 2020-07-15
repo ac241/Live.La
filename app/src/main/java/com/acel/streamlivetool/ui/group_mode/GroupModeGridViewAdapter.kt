@@ -2,6 +2,11 @@ package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
+import android.text.Html
+import android.text.Html.FROM_HTML_MODE_COMPACT
+import android.text.Html.FROM_HTML_MODE_LEGACY
+import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -9,15 +14,18 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
-import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_grid_anchor.view.*
 
@@ -34,6 +42,7 @@ class GroupModeGridViewAdapter(
             context.getString(R.string.full_version),
             false
         )
+    private val additionalAction = AdditionalAction.instance
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {
@@ -58,6 +67,7 @@ class GroupModeGridViewAdapter(
         val status: TextView = itemView.grid_anchor_status
         val secondBtn: ImageView = itemView.grid_anchor_second_btn
         val title: TextView = itemView.grid_anchor_title
+        val additionBtn: ImageView = itemView.grid_anchor_addition_action
     }
 
     fun getPosition(): Int {
@@ -132,10 +142,8 @@ class GroupModeGridViewAdapter(
             }
         }
 
-
         //直播间Id
 //        viewHolder.roomId.text = anchor.showId
-
 
         //item click
         viewHolder.itemView.setOnClickListener {
@@ -154,6 +162,28 @@ class GroupModeGridViewAdapter(
             viewHolder.secondBtn.setOnClickListener {
                 secondBtnClick(context, anchor)
             }
+        }
+        //附加功能按钮
+        if (additionalAction.check(anchor)) {
+            viewHolder.additionBtn.visibility = View.VISIBLE
+            viewHolder.additionBtn.setOnClickListener {
+                MainExecutor.execute {
+                    val html = additionalAction.getHtmlText(anchor)
+                    val builder = AlertDialog.Builder(context)
+                    builder.setView(R.layout.alert_additional_action)
+                    runOnUiThread {
+                        val dialog = builder.show()
+                        val textView =
+                            dialog.findViewById<TextView>(R.id.textView_additional_action)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                            textView?.text = Html.fromHtml(html, FROM_HTML_MODE_LEGACY)
+                        else
+                            textView?.text = Html.fromHtml(html)
+                    }
+                }
+            }
+        } else {
+            viewHolder.additionBtn.visibility = View.GONE
         }
 
         return view!!

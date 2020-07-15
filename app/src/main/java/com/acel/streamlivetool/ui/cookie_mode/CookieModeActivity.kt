@@ -45,7 +45,6 @@ class CookieModeActivity : BaseActivity() {
             startGroupModeActivity()
     }
     override fun createDo() {
-        Log.d("init", "oncreate")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(FLAG_TRANSLUCENT_STATUS)

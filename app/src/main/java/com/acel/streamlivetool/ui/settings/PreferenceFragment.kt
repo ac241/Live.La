@@ -15,27 +15,30 @@ import com.acel.streamlivetool.util.ToastUtil.toast
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
-    private val entriesMap = mutableMapOf<String, Pair<Array<String>, Array<String>>>()
+    private val entriesMap =
+        mutableMapOf<String, Pair<Array<String>, Array<String>>>().also {
+            it[getString(R.string.pref_key_item_click_action)] = Pair(
+                resources.getStringArray(R.array.pref_click_action_entries),
+                resources.getStringArray(R.array.pref_click_action_entry_values)
+            )
+            it[getString(R.string.pref_key_second_button_click_action)] = Pair(
+                resources.getStringArray(R.array.pref_click_action_entries),
+                resources.getStringArray(R.array.pref_click_action_entry_values)
+            )
+            it[getString(R.string.pref_key_launch_activity)] = Pair(
+                resources.getStringArray(R.array.pref_launch_activity_entries),
+                resources.getStringArray(R.array.pref_launch_activity_entries_values)
+            )
+            it[getString(R.string.pref_key_group_mode_list_type)] = Pair(
+                resources.getStringArray(R.array.pref_group_mode_list_type_entries),
+                resources.getStringArray(R.array.pref_group_mode_list_type_entries_values)
+            )
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        entriesMap[getString(R.string.pref_key_item_click_action)] = Pair(
-            resources.getStringArray(R.array.pref_click_action_entries),
-            resources.getStringArray(R.array.pref_click_action_entry_values)
-        )
-        entriesMap[getString(R.string.pref_key_second_button_click_action)] = Pair(
-            resources.getStringArray(R.array.pref_click_action_entries),
-            resources.getStringArray(R.array.pref_click_action_entry_values)
-        )
-        entriesMap[getString(R.string.pref_key_launch_activity)] = Pair(
-            resources.getStringArray(R.array.pref_launch_activity_entries),
-            resources.getStringArray(R.array.pref_launch_activity_entries_values)
-        )
-        entriesMap[getString(R.string.pref_key_group_mode_list_type)] = Pair(
-            resources.getStringArray(R.array.pref_group_mode_list_type_entries),
-            resources.getStringArray(R.array.pref_group_mode_list_type_entries_values)
-        )
+
         initPreferencesSummary()
     }
 
@@ -68,7 +71,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if (isAdded) {
             if (key != null) {
-                setListPreferenceSummary(key)
+                if (entriesMap.keys.contains(key))
+                    setListPreferenceSummary(key)
             }
             when (key) {
                 resources.getString(R.string.pref_key_group_mode_list_type), resources.getString(R.string.pref_key_launch_activity) ->

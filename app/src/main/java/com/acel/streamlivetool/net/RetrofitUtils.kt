@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class RetrofitUtils {
     companion object {
-        private val okHttpClient: OkHttpClient by lazy {
+        val okHttpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
                 //拦截器 动态切换baseUrl
                 .addInterceptor(AddCookiesInterceptor())

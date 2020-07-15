@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/grid_anchor_card_view"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/grid_anchor_card_view"
     android:layout_width="match_parent"
     android:layout_height="160dp"
     android:clickable="true"
-    app:cardCornerRadius="10dp"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="10dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -43,11 +43,11 @@
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:contentDescription="@string/avatar"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
             app:riv_corner_radius="30dip"
-            android:scaleType="centerCrop"
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
@@ -94,16 +94,30 @@
             android:id="@+id/grid_anchor_second_btn"
             android:layout_width="35dp"
             android:layout_height="0dp"
-            android:contentDescription="@string/second_button"
             android:clickable="true"
+            android:contentDescription="@string/second_button"
             android:focusable="true"
-            android:visibility="gone"
             android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="center"
             android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/grid_anchor_addition_action"
             app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title"
-            app:layout_constraintVertical_bias="0" />
+            tools:layout_editor_absoluteX="411dp" />
+
+        <ImageView
+            android:id="@+id/grid_anchor_addition_action"
+            android:layout_width="35dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:contentDescription="@string/additional_action"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/grid_anchor_image"
+            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

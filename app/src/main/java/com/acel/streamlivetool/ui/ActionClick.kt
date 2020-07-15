@@ -34,6 +34,10 @@ object ActionClick {
 
     }
 
+    fun additionBtnClick(context: Context, anchor: Anchor) {
+
+    }
+
     private fun actionWhenClick(context: Context, actionSecondBtn: String?, anchor: Anchor) {
         when (actionSecondBtn) {
             context.getString(R.string.string_open_app) -> {

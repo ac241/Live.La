@@ -46,7 +46,6 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     }
 
     override fun createDo() {
-        Log.d("init", "oncreate")
         presenter = GroupModePresenter(this)
         initToolbar()
         initPreference()

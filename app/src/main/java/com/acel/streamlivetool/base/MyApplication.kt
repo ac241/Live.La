@@ -24,7 +24,6 @@ class MyApplication : Application() {
         }
 
         fun isActivityFirst(activity: BaseActivity): Boolean {
-            Log.d("isActivityFirst", "$activityManageList")
             val index = activityManageList.indexOf(activity)
             if (index == 0)
                 return true
