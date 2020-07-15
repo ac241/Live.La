@@ -45,7 +45,6 @@ open class Anchor() {
     override fun hashCode(): Int {
         var result = roomId.hashCode()
         result = 31 * result + platform.hashCode()
-        result = 31 * result + showId.hashCode()
         return result
     }
 
