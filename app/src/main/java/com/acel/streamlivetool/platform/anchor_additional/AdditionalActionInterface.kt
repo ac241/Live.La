@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.platform.anchor_additional
 
+import android.content.Context
+
 interface AdditionalActionInterface {
-    fun get(): String
+    fun doAction(context: Context)
 }

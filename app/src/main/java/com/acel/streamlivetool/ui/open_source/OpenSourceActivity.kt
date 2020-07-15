@@ -1,7 +1,10 @@
 package com.acel.streamlivetool.ui.open_source
 
+import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
+import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.ui.splash.SplashActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_open_source.*
@@ -13,17 +16,15 @@ class OpenSourceActivity : BaseActivity() {
 
     private val stringBuilder = StringBuilder()
     private var titleClickTimes = 0
-    private var setFullVersion = false
     override fun createDo() {
         open_source_title.setOnClickListener {
 
             if (titleClickTimes >= 100) {
-                if (!setFullVersion) {
-                    toast("ok")
-                    defaultSharedPreferences.edit()
-                        .putBoolean(resources.getString(R.string.full_version), true).apply()
-                    setFullVersion = true
-                }
+                defaultSharedPreferences.edit()
+                    .putBoolean(resources.getString(R.string.full_version), true).apply()
+                toast("ok")
+                MyApplication.finishAllActivity()
+                startActivity(Intent(this, SplashActivity::class.java))
             } else {
                 titleClickTimes++
             }

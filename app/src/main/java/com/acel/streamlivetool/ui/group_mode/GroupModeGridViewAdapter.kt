@@ -4,9 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.text.Html
-import android.text.Html.FROM_HTML_MODE_COMPACT
 import android.text.Html.FROM_HTML_MODE_LEGACY
-import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -164,22 +162,15 @@ class GroupModeGridViewAdapter(
             }
         }
         //附加功能按钮
-        if (additionalAction.check(anchor)) {
+        if (defaultSharedPreferences.getBoolean(
+                context.getString(R.string.pref_key_additional_action_btn),
+                false
+            ) && additionalAction.check(anchor)
+        ) {
             viewHolder.additionBtn.visibility = View.VISIBLE
             viewHolder.additionBtn.setOnClickListener {
                 MainExecutor.execute {
-                    val html = additionalAction.getHtmlText(anchor)
-                    val builder = AlertDialog.Builder(context)
-                    builder.setView(R.layout.alert_additional_action)
-                    runOnUiThread {
-                        val dialog = builder.show()
-                        val textView =
-                            dialog.findViewById<TextView>(R.id.textView_additional_action)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                            textView?.text = Html.fromHtml(html, FROM_HTML_MODE_LEGACY)
-                        else
-                            textView?.text = Html.fromHtml(html)
-                    }
+                    additionalAction.doAdditionalAction(anchor, context)
                 }
             }
         } else {

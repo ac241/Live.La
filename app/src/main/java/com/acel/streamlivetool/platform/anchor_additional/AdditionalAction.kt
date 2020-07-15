@@ -1,14 +1,7 @@
 package com.acel.streamlivetool.platform.anchor_additional
 
-import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.MyApplication
+import android.content.Context
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.net.RetrofitUtils.Companion.okHttpClient
-import com.acel.streamlivetool.platform.anchor_additional.bean.LPLMatch
-import com.acel.streamlivetool.util.TextUtil
-import com.google.gson.Gson
-import okhttp3.Request
-import java.lang.StringBuilder
 
 class AdditionalAction {
     companion object {
@@ -26,7 +19,7 @@ class AdditionalAction {
         return anchorActionMap.keys.contains(anchor)
     }
 
-    fun getHtmlText(anchor: Anchor): String {
-        return anchorActionMap[anchor]?.get() ?: ""
+    fun doAdditionalAction(anchor: Anchor, context: Context) {
+        anchorActionMap[anchor]?.doAction(context)
     }
 }

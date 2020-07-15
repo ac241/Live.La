@@ -65,5 +65,6 @@
     <string name="open_source_module">开源组件</string>
     <string name="lpl_match"><![CDATA[<html><h2>本周赛程</h3><ul>%s</ul></html>]]></string>
     <string name="additional_action">附加功能</string>
+    <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
     <!--  list preference end  -->
 </resources>
