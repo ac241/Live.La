@@ -17,7 +17,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/main_anchor_name"
+            android:id="@+id/anchor_name"
             style="@style/main_recy_item_text"
             android:layout_width="280dp"
             android:layout_marginStart="12dp"
@@ -30,7 +30,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/main_anchor_title"
+            android:id="@+id/anchor_title"
             style="@style/main_recy_item_text"
             android:layout_width="180dp"
             android:layout_marginStart="12dp"
@@ -50,7 +50,7 @@
             android:layout_marginBottom="8dp"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/main_anchor_title" />
+            app:layout_constraintStart_toEndOf="@+id/anchor_title" />
 
         <TextView
             android:id="@+id/main_anchor_roomId"

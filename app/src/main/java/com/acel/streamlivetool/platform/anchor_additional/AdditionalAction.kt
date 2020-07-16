@@ -9,10 +9,10 @@ class AdditionalAction {
     }
 
     private val anchorActionMap = mutableMapOf<Anchor, AdditionalActionInterface>().also {
-        it[Anchor("douyu", "英雄联盟赛事", "288016", "288016")] = GetLPLMatchAction()
-        it[Anchor("huya", "英雄联盟赛事", "660000", "1346609715")] = GetLPLMatchAction()
-        it[Anchor("bilibili", "哔哩哔哩英雄联盟赛事", "7734200", "7734200")] = GetLPLMatchAction()
-        it[Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257")] = GetLPLMatchAction()
+        it[Anchor("douyu", "英雄联盟赛事", "288016", "288016")] = GetLPLMatchAction.instance
+        it[Anchor("huya", "英雄联盟赛事", "660000", "1346609715")] = GetLPLMatchAction.instance
+        it[Anchor("bilibili", "哔哩哔哩英雄联盟赛事", "7734200", "7734200")] = GetLPLMatchAction.instance
+        it[Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257")] = GetLPLMatchAction.instance
     }
 
     fun check(anchor: Anchor): Boolean {

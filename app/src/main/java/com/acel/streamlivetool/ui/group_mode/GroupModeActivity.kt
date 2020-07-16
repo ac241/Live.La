@@ -1,34 +1,37 @@
 package com.acel.streamlivetool.ui.group_mode
 
+import android.Manifest
 import android.content.Intent
-import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AbsListView
+import android.widget.ImageView
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.settings.SettingsActivity
+import com.acel.streamlivetool.ui.view.ListOverlayWindow
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_group_mode.*
 import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
 import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
+import permissions.dispatcher.*
 
+@RuntimePermissions
 class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: GroupModePresenter
     private var listViewType = ListViewType.RecyclerView
     private val addAnchorFragment = AddAnchorFragment()
-
+    var listOverlayLayout: View? = null
+    var recyclerViewListOverlay: RecyclerView? = null
     override fun getResLayoutId(): Int {
         return R.layout.activity_group_mode
     }
@@ -163,6 +166,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
             ListViewType.RecyclerView -> group_mode_recycler_view.adapter?.notifyDataSetChanged()
             ListViewType.GridView -> (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
         }
+        recyclerViewListOverlay?.adapter?.notifyDataSetChanged()
         hideSwipeRefreshBtn()
     }
 
@@ -188,7 +192,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
+        menuInflater.inflate(R.menu.group_mode_activity_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -199,6 +203,12 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
             }
             R.id.action_cookie_anchor -> {
                 showAddAnchorFragment()
+            }
+            R.id.action_list_overlay -> {
+                if (listOverlayLayout == null)
+                    showOverlayWindowWithPermissionCheck()
+                else
+                    removeListOverlayWindow()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -211,5 +221,51 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     private fun startCookieModeActivity() {
         startActivity(Intent(this, CookieModeActivity::class.java))
+    }
+
+    /**
+     * 创建List悬浮窗
+     */
+    private fun createListOverlayWindow() {
+        val listOverlayWindow = ListOverlayWindow.instance.create(this)
+        listOverlayWindow.setMovable(windowManager)
+        listOverlayLayout = listOverlayWindow.getLayout()
+        if (listOverlayLayout != null) {
+            recyclerViewListOverlay =
+                listOverlayLayout?.findViewById(R.id.recycler_view_list_overlay)
+            recyclerViewListOverlay?.layoutManager = LinearLayoutManager(this)
+            recyclerViewListOverlay?.adapter = ListOverlayAdapter(this, presenter)
+            val btnClose = listOverlayLayout?.findViewById<ImageView>(R.id.btn_list_overlay_close)
+            btnClose?.setOnClickListener {
+                removeListOverlayWindow()
+            }
+        }
+    }
+
+    /**
+     * 移除List悬浮窗
+     */
+    private fun removeListOverlayWindow() {
+        windowManager.removeView(listOverlayLayout)
+        listOverlayLayout = null
+        recyclerViewListOverlay = null
+    }
+
+    @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
+    fun showOverlayWindow() {
+        createListOverlayWindow()
+    }
+
+    @OnShowRationale(Manifest.permission.SYSTEM_ALERT_WINDOW)
+    internal fun showRationaleForSystemAlertWindow(request: PermissionRequest?) {
+    }
+
+    @OnPermissionDenied(Manifest.permission.SYSTEM_ALERT_WINDOW)
+    internal fun showDeniedForSystemAlertWindow() {
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        onActivityResult(requestCode)
     }
 }

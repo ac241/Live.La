@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#22000000"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            android:contentDescription="@string/button_list_overlay_movable"
+            android:src="@drawable/ic_movable" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_list_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00FFFFFF" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btn_list_overlay_close"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="end|top"
+        android:alpha="0.5"
+        android:clickable="true"
+        android:contentDescription="@string/button_list_overlay_close"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_close_24" />
+</FrameLayout>

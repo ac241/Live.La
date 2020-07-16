@@ -13,9 +13,8 @@ import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
-import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.item_main_anchor.view.*
+import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
 
 class CookieModeAdapter(
     private val cookieAnchorActivity: CookieModeActivity,
@@ -30,7 +29,7 @@ class CookieModeAdapter(
             false
         )
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
-        val view = LayoutInflater.from(p0.context).inflate(R.layout.item_main_anchor, p0, false)
+        val view = LayoutInflater.from(p0.context).inflate(R.layout.item_recycler_anchor, p0, false)
         return ViewHolder(view)
     }
 
@@ -87,12 +86,12 @@ class CookieModeAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {
-        val anchorName: TextView = itemView.main_anchor_name
+        val anchorName: TextView = itemView.anchor_name
         val platform: TextView = itemView.main_anchor_platform
         val roomId: TextView = itemView.main_anchor_roomId
         val status: TextView = itemView.main_anchor_status
         val secondBtn: ImageView = itemView.main_second_btn
-        val title: TextView = itemView.main_anchor_title
+        val title: TextView = itemView.anchor_title
         override fun onCreateContextMenu(
             menu: ContextMenu?,
             v: View?,
