@@ -165,13 +165,14 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
 
     @Synchronized
-    override fun refreshAnchorStatus() {
+    override fun refreshAnchorAttribute() {
         when (listViewType) {
             ListViewType.RecyclerView ->
                 group_mode_recycler_view.adapter?.notifyDataSetChanged()
             ListViewType.GridView ->
                 (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
         }
+        recyclerViewListOverlay?.adapter?.notifyDataSetChanged()
         hideSwipeRefreshBtn()
     }
 

@@ -80,7 +80,7 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) : GroupMode
         })
         anchorAttributeMap.observe(context, Observer {
             sortAnchorList()
-            view?.refreshAnchorStatus()
+            view?.refreshAnchorAttribute()
         })
     }
 
