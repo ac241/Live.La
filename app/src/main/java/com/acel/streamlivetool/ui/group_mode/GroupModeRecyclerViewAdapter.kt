@@ -8,12 +8,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import kotlinx.android.synthetic.main.item_grid_anchor.view.*
 import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
 
 
@@ -24,6 +27,7 @@ class GroupModeRecyclerViewAdapter(
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
+    private val additionalAction = AdditionalAction.instance
 
     private val fullVersion =
         defaultSharedPreferences.getBoolean(
@@ -90,6 +94,21 @@ class GroupModeRecyclerViewAdapter(
                     secondBtnClick(groupModeActivity, anchor)
                 }
             }
+            //附加功能按钮
+            if (defaultSharedPreferences.getBoolean(
+                    groupModeActivity.getString(R.string.pref_key_additional_action_btn),
+                    false
+                ) && additionalAction.check(anchor)
+            ) {
+                viewHolder.additionBtn.visibility = View.VISIBLE
+                viewHolder.additionBtn.setOnClickListener {
+                    MainExecutor.execute {
+                        additionalAction.doAdditionalAction(anchor, groupModeActivity)
+                    }
+                }
+            } else {
+                viewHolder.additionBtn.visibility = View.GONE
+            }
         }
     }
 
@@ -115,7 +134,7 @@ class GroupModeRecyclerViewAdapter(
         val status: TextView = itemView.main_anchor_status
         val secondBtn: ImageView = itemView.main_second_btn
         val title: TextView = itemView.anchor_title
-
+        val additionBtn: ImageView = itemView.btn_addition_action
     }
 
     fun getPosition(): Int {
