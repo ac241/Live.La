@@ -1,9 +1,6 @@
 package com.acel.streamlivetool.platform.bilibili
 
-import com.acel.streamlivetool.platform.bilibili.bean.Following
-import com.acel.streamlivetool.platform.bilibili.bean.PlayUrl
-import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
-import com.acel.streamlivetool.platform.bilibili.bean.StaticRoomInfo
+import com.acel.streamlivetool.platform.bilibili.bean.*
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -25,4 +22,9 @@ interface BilibiliApi {
         @Header("cookies") cookies: String,
         @Query("page") page: Int
     ): Call<Following>
+
+    @GET("https://api.live.bilibili.com/xlive/web-room/v1/index/getRoomPlayInfo?play_url=1&mask=1&qn=1&platform=web")
+    fun getRoomPlayInfo(
+        @Query("room_id") roomId: String
+    ): Call<RoomPlayInfo>
 }

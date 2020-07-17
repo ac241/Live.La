@@ -56,9 +56,12 @@ class BilibiliImpl : IPlatform {
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
-        val playUrl = bilibiliService.getPlayUrl(queryAnchor.roomId).execute().body()
-        return if (playUrl != null) {
-            playUrl.data.durl[0].url
+        val roomPlayInfo = bilibiliService.getRoomPlayInfo(queryAnchor.roomId).execute().body()
+        return if (roomPlayInfo != null) {
+            if (roomPlayInfo.code == 0) {
+                roomPlayInfo.data.play_url.durl[0].url
+            } else
+                null
         } else
             null
     }
