@@ -10,26 +10,26 @@
         android:orientation="vertical">
 
         <ImageView
+            style="@style/overlay_alpha"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_gravity="center"
-            android:alpha="0.5"
             android:contentDescription="@string/button_list_overlay_movable"
             android:src="@drawable/ic_movable" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_list_overlay"
+            style="@style/overlay_alpha"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#00FFFFFF" />
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/btn_list_overlay_close"
+        style="@style/overlay_alpha"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_gravity="end|top"
-        android:alpha="0.5"
         android:clickable="true"
         android:contentDescription="@string/button_list_overlay_close"
         android:focusable="true"
