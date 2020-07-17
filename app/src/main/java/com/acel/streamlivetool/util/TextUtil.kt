@@ -18,7 +18,7 @@ object TextUtil {
     ): String? {
         val newString = str.substring(str.indexOf(afterWhat))
         val startIndex = newString.indexOf(startStr)
-        val endIndex = newString.indexOf(endString, startIndex)
+        val endIndex = newString.indexOf(endString, startIndex + startStr.length)
         return if (startIndex == -1 || endIndex == -1)
             null
         else
