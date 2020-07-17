@@ -44,6 +44,7 @@ class OpenSourceActivity : BaseActivity() {
             } else
                 titleClickTimes++
         }
+
         val list = mutableListOf<Module>()
         list.add(
             Module(
