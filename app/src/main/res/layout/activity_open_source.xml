@@ -4,17 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="10dp"
     tools:context=".ui.open_source.OpenSourceActivity">
 
     <TextView
         android:id="@+id/open_source_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:clickable="true"
         android:focusable="true"
         android:padding="10dp"
         android:text="@string/open_source_module"
-        android:textSize="16sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <ScrollView
         android:layout_width="match_parent"

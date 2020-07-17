@@ -5,5 +5,6 @@ data class Module(
     val `package`: String,
     val path: String,
     val author: String,
-    val licensed: String
+    val licensed: String,
+    val hideWhenNotFullVersion: Boolean = false
 )
