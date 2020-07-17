@@ -70,32 +70,46 @@ class HuyaImpl : IPlatform {
         val html: String? = getMHtml(queryAnchor)
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
-            val state = TextUtil.subString(it, "ISLIVE =", ";")?.trim()
+            val state = TextUtil.subString(it, "ISLIVE =", ";")?.trim() == "true"
             val title = TextUtil.subStringAfterWhat(
                 it,
                 "class=\"live-info-desc\"",
                 "<h1>",
                 "</h1>"
-            )
+            ) ?: "获取标题失败"
             val avatar = TextUtil.subStringAfterWhat(
                 it,
                 "class=\"live-info-img\"",
                 "<img src=\"",
                 "\""
             )
-            if (state != null && title != null && state.isNotEmpty())
+            if (!state) {
                 return AnchorAttribute(
                     queryAnchor.platform,
                     queryAnchor.roomId,
-                    state == "true",
+                    state,
                     title,
                     avatar
                 )
+            } else {
+                getHtml(queryAnchor)?.let {
+                    val screenshot =
+                        TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
+                    return AnchorAttribute(
+                        queryAnchor.platform,
+                        queryAnchor.roomId,
+                        state,
+                        title,
+                        avatar,
+                        screenshot
+                    )
+                }
+            }
         }
         return null
     }
 
-    private fun getAnchorAttributeBackup1(queryAnchor: Anchor): AnchorAttribute? {
+    fun getAnchorAttributeBackup1(queryAnchor: Anchor): AnchorAttribute? {
         val html: String? = getHtml(queryAnchor)
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
@@ -111,7 +125,7 @@ class HuyaImpl : IPlatform {
                     state == "ON",
                     UnicodeUtil.decodeUnicode(title),
                     avatar,
-                    screenshot
+                    if (screenshot != null && screenshot.isNotEmpty()) screenshot else null
                 )
         }
         return null
