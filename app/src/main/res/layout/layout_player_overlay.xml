@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/btn_player_overlay_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#55000000" />
+
+    <ImageView
+        android:id="@+id/btn_player_overlay_close"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="end|top"
+        android:alpha="0.5"
+        android:clickable="true"
+        android:contentDescription="@string/button_player_overlay_close"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_close_24" />
+
+    <ProgressBar
+        android:id="@+id/player_overlay_process_bar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center" />
+</FrameLayout>

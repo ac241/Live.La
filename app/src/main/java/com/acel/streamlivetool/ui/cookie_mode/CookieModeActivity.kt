@@ -2,8 +2,6 @@ package com.acel.streamlivetool.ui.cookie_mode
 
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
@@ -11,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.platform.IPlatform

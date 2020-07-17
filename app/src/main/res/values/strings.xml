@@ -32,10 +32,13 @@
     <array name="pref_click_action_entries">
         <item>打开app</item>
         <item>外置播放器</item>
+        <item>悬浮窗播放</item>
     </array>
+
     <array name="pref_click_action_entry_values">
         <item name="value_open_app">@string/string_open_app</item>
         <item name="value_outer_player">@string/string_outer_player</item>
+        <item name="value_overlay_player">@string/string_overlay_player</item>
     </array>
 
     <array name="pref_launch_activity_entries">
@@ -69,5 +72,7 @@
     <string name="list_overlay">列表悬浮窗</string>
     <string name="button_list_overlay_close">列表悬浮窗关闭按钮</string>
     <string name="button_list_overlay_movable">列表悬浮窗可移动按钮</string>
+    <string name="button_player_overlay_close">悬浮窗播放器关闭</string>
+    <string name="string_overlay_player">overlay_player</string>
     <!--  list preference end  -->
 </resources>

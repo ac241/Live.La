@@ -2,9 +2,6 @@ package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
 import android.graphics.Color
-import android.os.Build
-import android.text.Html
-import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.MainExecutor
@@ -23,7 +19,6 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_grid_anchor.view.*
 
@@ -158,7 +153,7 @@ class GroupModeGridViewAdapter(
         if (fullVersion) {
             viewHolder.secondBtn.visibility = View.VISIBLE
             viewHolder.secondBtn.setOnClickListener {
-                secondBtnClick(context, anchor)
+                secondBtnClick(context,anchor)
             }
         }
         //附加功能按钮

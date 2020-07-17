@@ -14,6 +14,7 @@ abstract class AbsOverlayWindow {
     abstract val y: Int
     val layoutParams by lazy { WindowManager.LayoutParams() }
     private var mLayout: View? = null
+    var isShown: Boolean = false
 
     @Suppress("DEPRECATION")
     fun create(context: Context): AbsOverlayWindow {
@@ -30,11 +31,29 @@ abstract class AbsOverlayWindow {
         layoutParams.y = y
         layoutParams.flags =
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        this.mLayout = layout
+        show(context)
+        return this
+    }
+
+    fun show(context: Context) {
         val windowManager =
             context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(layout, layoutParams)
-        this.mLayout = layout
-        return this
+        if (isShown) {
+            windowManager.updateViewLayout(mLayout, layoutParams)
+        } else {
+            windowManager.addView(mLayout, layoutParams)
+            isShown = true
+        }
+    }
+
+    fun remove(context: Context) {
+        val windowManager =
+            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        if (isShown) {
+            windowManager.removeView(mLayout)
+            isShown = false
+        }
     }
 
     fun getLayout(): View? {

@@ -11,6 +11,11 @@ interface HuyaApi {
     @GET("https://www.huya.com/{id}")
     fun getHtml(@Path("id") id: String): Call<String>
 
+    @GET("https://m.huya.com/{id}")
+    fun getMHtml(
+        @Path("id") id: String,
+        @Header("User-Agent") userAgent: String = "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Mobile Safari/537.36"
+    ): Call<String>
 
     @GET("https://fw.huya.com/dispatch?do=subscribeList&page=1&pageSize=100")
     fun getSubscribe(

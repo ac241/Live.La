@@ -91,7 +91,7 @@
             tools:ignore="SmallSp" />
 
         <ImageView
-            android:id="@+id/grid_anchor_second_btn"
+            android:id="@+id/grid_anchor_addition_action"
             android:layout_width="35dp"
             android:layout_height="0dp"
             android:clickable="true"
@@ -99,22 +99,22 @@
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
             android:scaleType="center"
-            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:src="@drawable/ic_baseline_more_vert_24"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/grid_anchor_addition_action"
+            app:layout_constraintEnd_toStartOf="@+id/grid_anchor_second_btn"
             app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title"
             tools:layout_editor_absoluteX="411dp" />
 
         <ImageView
-            android:id="@+id/grid_anchor_addition_action"
+            android:id="@+id/grid_anchor_second_btn"
             android:layout_width="35dp"
             android:layout_height="0dp"
             android:clickable="true"
             android:contentDescription="@string/additional_action"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/grid_anchor_image"

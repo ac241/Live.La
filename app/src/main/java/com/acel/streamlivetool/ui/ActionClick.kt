@@ -7,9 +7,13 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
+import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
+import com.acel.streamlivetool.ui.group_mode.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
+import java.security.acl.Group
 
 object ActionClick {
 
@@ -31,11 +35,6 @@ object ActionClick {
                 ""
             ), anchor
         )
-
-    }
-
-    fun additionBtnClick(context: Context, anchor: Anchor) {
-
     }
 
     private fun actionWhenClick(context: Context, actionSecondBtn: String?, anchor: Anchor) {
@@ -66,6 +65,20 @@ object ActionClick {
                     val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                     MainExecutor.execute {
                         platformImpl?.callOuterPlayer(context, anchor)
+                    }
+                }
+            }
+            context.getString(R.string.string_overlay_player) -> {
+                when (context) {
+                    is GroupModeActivity ->{
+                        context.showPlayerOverlayWindowWithPermissionCheck(anchor)
+
+                    }
+                    is CookieModeActivity ->{
+                        val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
+                        MainExecutor.execute {
+                            platformImpl?.callOuterPlayer(context, anchor)
+                        }
                     }
                 }
             }

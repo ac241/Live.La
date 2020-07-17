@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.huya
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -53,7 +54,8 @@ class HuyaImpl : IPlatform {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             val state = TextUtil.subString(it, "\"state\":\"", "\",")
             val title = TextUtil.subString(it, "\"introduction\":\"", "\",")
-            val avatar = TextUtil.subStringAfterWhat(it,"TT_META_DATA", "\"avatar\":\"", "\",")?.replace("\\", "")
+            val avatar = TextUtil.subStringAfterWhat(it, "TT_META_DATA", "\"avatar\":\"", "\",")
+                ?.replace("\\", "")
             val screenshot = TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
             if (state != null && title != null && state.isNotEmpty())
                 return AnchorAttribute(
@@ -69,12 +71,11 @@ class HuyaImpl : IPlatform {
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
-        val html = getHtml(queryAnchor)
+        val html = huyaService.getMHtml(queryAnchor.showId).execute().body()
         html?.let {
-            val streamStr = TextUtil.subString(it, "\"stream\":", "};")
-            val stream = Gson().fromJson(streamStr, Stream::class.java)
-            val streamInfo = stream.data[0].gameStreamInfoList[0]
-            return streamInfo.sHlsUrl + "/" + streamInfo.sStreamName + "." + streamInfo.sHlsUrlSuffix + "?" + streamInfo.sHlsAntiCode
+            val streamStr = TextUtil.subString(it, "liveLineUrl = \"", "\";")
+            if (streamStr != null)
+                return "https:$streamStr"
         }
         return null
     }
