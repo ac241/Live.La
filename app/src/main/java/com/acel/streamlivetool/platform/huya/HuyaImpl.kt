@@ -32,9 +32,27 @@ class HuyaImpl : IPlatform {
         return huyaService.getHtml(queryAnchor.showId).execute().body()
     }
 
-    override fun getAnchor(queryAnchor: Anchor): Anchor? {
-        val html: String? = getHtml(queryAnchor)
+    private fun getMHtml(queryAnchor: Anchor): String? {
+        return huyaService.getMHtml(queryAnchor.showId).execute().body()
+    }
 
+    override fun getAnchor(queryAnchor: Anchor): Anchor? {
+        val html: String? = getMHtml(queryAnchor)
+        html?.let {
+            val showId = TextUtil.subString(it, "class=\"roomid\">房间号 : ", "</h2>")
+            if (showId != null && showId.isNotEmpty()) {
+                val nickname =
+                    TextUtil.subString(it, "ANTHOR_NICK = '", "';")
+                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
+                val uid = TextUtil.subString(it, "ayyuid: '", "',")
+                return Anchor(platform, nickname.toString(), showId, uid.toString())
+            }
+        }
+        return null
+    }
+
+    private fun getAnchorBackup1(queryAnchor: Anchor): Anchor? {
+        val html: String? = getHtml(queryAnchor)
         html?.let {
             val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             if (showId != null && showId.isNotEmpty()) {
@@ -49,6 +67,35 @@ class HuyaImpl : IPlatform {
     }
 
     override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
+        val html: String? = getMHtml(queryAnchor)
+        html?.let {
+            //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
+            val state = TextUtil.subString(it, "ISLIVE =", ";")?.trim()
+            val title = TextUtil.subStringAfterWhat(
+                it,
+                "class=\"live-info-desc\"",
+                "<h1>",
+                "</h1>"
+            )
+            val avatar = TextUtil.subStringAfterWhat(
+                it,
+                "class=\"live-info-img\"",
+                "<img src=\"",
+                "\""
+            )
+            if (state != null && title != null && state.isNotEmpty())
+                return AnchorAttribute(
+                    queryAnchor.platform,
+                    queryAnchor.roomId,
+                    state == "true",
+                    title,
+                    avatar
+                )
+        }
+        return null
+    }
+
+    private fun getAnchorAttributeBackup1(queryAnchor: Anchor): AnchorAttribute? {
         val html: String? = getHtml(queryAnchor)
         html?.let {
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
@@ -71,7 +118,7 @@ class HuyaImpl : IPlatform {
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
-        val html = huyaService.getMHtml(queryAnchor.showId).execute().body()
+        val html = getMHtml(queryAnchor)
         html?.let {
             val streamStr = TextUtil.subString(it, "liveLineUrl = \"", "\";")
             if (streamStr != null)
