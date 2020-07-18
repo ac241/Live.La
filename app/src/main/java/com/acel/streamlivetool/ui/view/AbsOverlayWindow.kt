@@ -2,6 +2,7 @@ package com.acel.streamlivetool.ui.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.view.*
@@ -25,8 +26,8 @@ abstract class AbsOverlayWindow {
             layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
         }
         layoutParams.format = PixelFormat.RGBA_8888
-        layoutParams.width = dp2px(context, widthDp).toInt()
-        layoutParams.height = dp2px(context, heightDp).toInt()
+        layoutParams.width = dp2px(widthDp).toInt()
+        layoutParams.height = dp2px(heightDp).toInt()
         layoutParams.x = x
         layoutParams.y = y
         layoutParams.flags =
@@ -60,8 +61,8 @@ abstract class AbsOverlayWindow {
         return mLayout
     }
 
-    private fun dp2px(context: Context, dp: Float): Float =
-        dp * context.resources.displayMetrics.density
+    protected fun dp2px(dp: Float): Float =
+        (0.5f + dp * Resources.getSystem().displayMetrics.density)
 
     @SuppressLint("ClickableViewAccessibility")
     fun setMovable(windowManager: WindowManager) {

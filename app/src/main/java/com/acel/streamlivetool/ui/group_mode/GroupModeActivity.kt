@@ -303,7 +303,6 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
                 playerOverlayView?.findViewById(R.id.btn_player_overlay_video_view)
             val processBar: ProgressBar? =
                 playerOverlayView?.findViewById(R.id.player_overlay_process_bar)
-
             playerView?.player = playerOverlay
             playerView?.useController = false
             playerOverlay?.playWhenReady = true
@@ -322,6 +321,14 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
                 playerOverlayWindow?.remove(this)
                 playerOverlay?.stop()
             }
+            //改变大小按钮
+            val resizeBtn =
+                playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
+            resizeBtn?.setOnClickListener {
+                (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(this)
+            }
+
+
         } else {
             playerOverlayWindow?.show(this)
         }
@@ -335,8 +342,6 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
             val url =
                 PlatformDispatcher.getPlatformImpl(anchor.platform)
                     ?.getStreamingLiveUrl(anchor)
-            Log.d("playerOverlayStart", url.toString())
-            Log.d("playerOverlayStart", url ?: "null")
             if (url == null || url.isEmpty()) {
                 runOnUiThread {
                     toast("bad stream url")

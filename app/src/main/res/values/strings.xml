@@ -74,5 +74,7 @@
     <string name="button_list_overlay_movable">列表悬浮窗可移动按钮</string>
     <string name="button_player_overlay_close">悬浮窗播放器关闭</string>
     <string name="string_overlay_player">overlay_player</string>
+    <string name="string_first_time_launch">first_time_launch</string>
+    <string name="button_player_overlay_resize">改变大小</string>
     <!--  list preference end  -->
 </resources>

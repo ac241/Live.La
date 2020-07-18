@@ -30,7 +30,7 @@ class AppInitiation {
     }
 
     private fun firstTimeLaunch() {
-        val firstKey = "first_time_launch"
+        val firstKey = appContext.getString(R.string.string_first_time_launch)
         val isFirst = defaultSharedPreferences.getBoolean(firstKey, true)
         if (isFirst) {
             initDefaultAnchor()
@@ -48,10 +48,13 @@ class AppInitiation {
 
     private fun initPreference() {
         defaultSharedPreferences.edit()
-            .putString(appContext.getString(R.string.pref_key_item_click_action), "open_app")
+            .putString(
+                appContext.getString(R.string.pref_key_item_click_action),
+                appContext.getString(R.string.string_open_app)
+            )
             .putString(
                 appContext.getString(R.string.pref_key_second_button_click_action),
-                "outer_player"
+                appContext.getString(R.string.string_overlay_player)
             )
             .apply()
     }
