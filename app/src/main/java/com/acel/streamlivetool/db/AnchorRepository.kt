@@ -32,9 +32,9 @@ class AnchorRepository {
      * @return Pair<结果,信息>
      */
     fun insertAnchor(anchor: Anchor): Pair<Boolean, String> {
-        anchorList.value.let {
+        with(anchorList.value) {
             //如果list为空 或者 list和插入历史中不含anchor
-            return if (it == null || (!it.contains(anchor) && !insertList.contains(anchor))) {
+            return if (this == null || (!this.contains(anchor) && !insertList.contains(anchor))) {
                 MainExecutor.execute { anchorDao.insertAnchor(anchor) }
                 insertList.add(anchor)
                 Log.d("insertAnchor", "insert anchor $anchor")

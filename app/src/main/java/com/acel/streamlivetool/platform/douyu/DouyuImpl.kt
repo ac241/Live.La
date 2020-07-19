@@ -151,7 +151,7 @@ class DouyuImpl : IPlatform {
                     val list = mutableListOf<AnchorsCookieMode.Anchor>()
                     followed.data.list.forEach {
                         list.add(
-                            AnchorsCookieMode.Anchor(it.show_status == 1, it.room_name)
+                            AnchorsCookieMode.Anchor(it.show_status == 1, it.room_name,it.avatar_small,it.room_src)
                                 .also { anchor ->
                                     anchor.platform = platform
                                     anchor.nickname = it.nickname

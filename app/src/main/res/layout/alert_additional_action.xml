@@ -14,6 +14,6 @@
             android:id="@+id/textView_additional_action"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/recycler_view" />
+            android:text="@string/string_recycler_view" />
     </ScrollView>
 </FrameLayout>

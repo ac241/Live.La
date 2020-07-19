@@ -3,17 +3,15 @@ package com.acel.streamlivetool.ui
 import android.content.ActivityNotFoundException
 import android.content.Context
 import com.acel.streamlivetool.MainExecutor
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
-import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.acel.streamlivetool.ui.group_mode.showPlayerOverlayWindowWithPermissionCheck
-import com.acel.streamlivetool.util.defaultSharedPreferences
+import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
-import java.security.acl.Group
+import com.acel.streamlivetool.util.defaultSharedPreferences
 
 object ActionClick {
 
@@ -69,18 +67,7 @@ object ActionClick {
                 }
             }
             context.getString(R.string.string_overlay_player) -> {
-                when (context) {
-                    is GroupModeActivity ->{
-                        context.showPlayerOverlayWindowWithPermissionCheck(anchor)
-
-                    }
-                    is CookieModeActivity ->{
-                        val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                        MainExecutor.execute {
-                            platformImpl?.callOuterPlayer(context, anchor)
-                        }
-                    }
-                }
+                (context as PlayOverlayFunction).playStream(anchor)
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")

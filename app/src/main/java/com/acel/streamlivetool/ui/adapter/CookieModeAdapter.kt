@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.cookie_mode
+package com.acel.streamlivetool.ui.adapter
 
 import android.graphics.Color
 import android.view.ContextMenu
@@ -13,6 +13,7 @@ import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.ActionClick.itemClick
 import com.acel.streamlivetool.ui.ActionClick.secondBtnClick
+import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
 
@@ -28,6 +29,7 @@ class CookieModeAdapter(
             cookieAnchorActivity.getString(R.string.full_version),
             false
         )
+
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(p0.context).inflate(R.layout.item_recycler_anchor, p0, false)
         return ViewHolder(view)
@@ -35,11 +37,11 @@ class CookieModeAdapter(
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val anchor = anchors[position]
-        viewHolder.let {
+        with(viewHolder) {
             //标题
-            it.title.text = anchor.title
+            this.title.text = anchor.title
             //主播名
-            it.anchorName.text = anchor.nickname
+            this.anchorName.text = anchor.nickname
             //平台名
             var platformName: String? =
                 platformNameMap[anchor.platform]
@@ -50,19 +52,19 @@ class CookieModeAdapter(
                     platformName = cookieAnchorActivity.getString(resInt)
             }
             platformNameMap[anchor.platform] = platformName ?: "未知平台"
-            it.platform.text = platformName
+            this.platform.text = platformName
             //直播间Id
-            it.roomId.text = anchor.showId
+            this.roomId.text = anchor.showId
             //直播状态
             if (anchor.status) {
-                it.status.text = "直播中"
-                it.status.setTextColor(Color.GREEN)
+                this.status.text = "直播中"
+                this.status.setTextColor(Color.GREEN)
             } else {
-                it.status.text = "未直播"
-                it.status.setTextColor(Color.GRAY)
+                this.status.text = "未直播"
+                this.status.setTextColor(Color.GRAY)
             }
             //item click
-            it.itemView.setOnClickListener {
+            this.itemView.setOnClickListener {
                 itemClick(cookieAnchorActivity, anchor)
             }
 
@@ -104,9 +106,4 @@ class CookieModeAdapter(
             itemView.setOnCreateContextMenuListener(this)
         }
     }
-
-    fun getPosition(): Int {
-        return mPosition
-    }
-
 }

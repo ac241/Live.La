@@ -32,8 +32,12 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     res.getStringArray(R.array.pref_launch_activity_entries_values)
                 )
                 it[res.getString(R.string.pref_key_group_mode_list_type)] = Pair(
-                    res.getStringArray(R.array.pref_group_mode_list_type_entries),
-                    res.getStringArray(R.array.pref_group_mode_list_type_entries_values)
+                    res.getStringArray(R.array.pref_show_list_type_entries),
+                    res.getStringArray(R.array.pref_show_list_type_entries_values)
+                )
+                it[res.getString(R.string.pref_key_cookie_mode_list_type)] = Pair(
+                    res.getStringArray(R.array.pref_show_list_type_entries),
+                    res.getStringArray(R.array.pref_show_list_type_entries_values)
                 )
             }
         }
@@ -77,8 +81,10 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 if (entriesMap.keys.contains(key))
                     setListPreferenceSummary(key)
             }
+            //设置后重启应用
             when (key) {
-                resources.getString(R.string.pref_key_group_mode_list_type), resources.getString(R.string.pref_key_launch_activity) ,resources.getString(R.string.pref_key_additional_action_btn)->
+                resources.getString(R.string.pref_key_group_mode_list_type), resources.getString(R.string.pref_key_launch_activity)
+                    ,resources.getString(R.string.pref_key_additional_action_btn),resources.getString(R.string.pref_key_cookie_mode_list_type)->
                     (requireActivity() as SettingsActivity).settingsChanges = true
             }
         }

@@ -106,10 +106,15 @@ class EgameqqImpl : IPlatform {
         val list = egameqqService.getFollowList(readCookie()).execute().body()
         if (list != null) {
             val anchorList = mutableListOf<AnchorsCookieMode.Anchor>()
-            list.data.key.retBody.data.online_follow_list.let { follows ->
-                follows.forEach {
+            with(list.data.key.retBody.data.online_follow_list) {
+                this.forEach {
                     anchorList.add(
-                        AnchorsCookieMode.Anchor(it.status == 1, it.live_info.title)
+                        AnchorsCookieMode.Anchor(
+                            it.status == 1,
+                            it.live_info.title,
+                            it.live_info.anchor_face_url,
+                            it.live_info.video_info.url
+                        )
                             .also { anchor ->
                                 anchor.nickname = it.live_info.anchor_name
                                 anchor.platform = platform

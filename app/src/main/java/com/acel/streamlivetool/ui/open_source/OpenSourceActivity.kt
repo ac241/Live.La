@@ -31,7 +31,7 @@ class OpenSourceActivity : BaseActivity() {
         )
     private var colorIndex = 0
 
-    override fun createDo() {
+    override fun createdDo() {
         open_source_title.setOnClickListener {
 //            setTitleColor()
             titileAnimate()

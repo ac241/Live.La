@@ -27,4 +27,11 @@ interface BilibiliApi {
     fun getRoomPlayInfo(
         @Query("room_id") roomId: String
     ): Call<RoomPlayInfo>
+
+    @GET("https://api.live.bilibili.com/relation/v1/Feed/getList?page_size=10")
+    fun getLivingList(
+        @Header("cookies") cookies: String,
+        @Query("page") page: Int
+    ): Call<LivingList>
+
 }

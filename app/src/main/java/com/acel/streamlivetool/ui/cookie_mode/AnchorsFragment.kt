@@ -1,11 +1,13 @@
 package com.acel.streamlivetool.ui.cookie_mode
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.acel.streamlivetool.MainExecutor
@@ -13,16 +15,32 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.ui.adapter.AnchorRecyclerViewAnchorAdapter
 import com.acel.streamlivetool.ui.login.LoginActivity
+import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
+import com.acel.streamlivetool.ui.adapter.AnchorGridViewAnchorAdapter
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.defaultSharedPreferences
+import kotlinx.android.synthetic.main.activity_cookie_mode.*
+import kotlinx.android.synthetic.main.activity_group_mode.*
+import kotlinx.android.synthetic.main.anchor_list_view.*
 import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
+import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
+import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
 import kotlinx.android.synthetic.main.layout_login_first.*
 
 class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
     private var addCookie: Boolean = false
     private val anchors = mutableListOf<AnchorsCookieMode.Anchor>()
+    private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    private var listViewType = ListViewType.RecyclerView
+    private val viewPager by lazy { (requireActivity() as CookieModeActivity).viewPager }
+
+    enum class ListViewType {
+        RecyclerView, GridView;
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,16 +51,84 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        cookie_anchor_recyclerView.layoutManager = LinearLayoutManager(context)
-        cookie_anchor_recyclerView.adapter =
-            CookieModeAdapter(
-                activity as CookieModeActivity,
-                anchors
-            )
+        initPreference()
+        when (listViewType) {
+            ListViewType.RecyclerView -> initRecyclerView()
+            ListViewType.GridView -> initGridView()
+        }
+
         cookie_anchor_swipe_refresh.setOnRefreshListener {
             getAnchors()
         }
         getAnchors()
+    }
+
+    private fun initPreference() {
+        val type = defaultSharedPreferences.getString(
+            resources.getString(R.string.pref_key_cookie_mode_list_type),
+            resources.getString(R.string.string_grid_view)
+        )
+
+        listViewType = when (type) {
+            resources.getString(R.string.string_recycler_view) -> ListViewType.RecyclerView
+            resources.getString(R.string.string_grid_view) -> ListViewType.GridView
+            else -> ListViewType.RecyclerView
+        }
+    }
+
+    private fun initRecyclerView() {
+        viewStub_recycler_view.inflate()
+        recycler_view.layoutManager = LinearLayoutManager(context)
+        val adapter = AnchorRecyclerViewAnchorAdapter(
+            activity as Context,
+            anchors
+        )
+        recycler_view.adapter = adapter
+        nowAnchorAnchorAdapter = adapter
+    }
+
+    private fun initGridView() {
+        viewStub_grid_view.inflate()
+        val adapter = AnchorGridViewAnchorAdapter(
+            activity as Context,
+            anchors
+        )
+        grid_view.adapter = adapter
+        nowAnchorAnchorAdapter = adapter
+        //解决滑动冲突
+        grid_view.setOnScrollListener(object : AbsListView.OnScrollListener {
+            override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
+                when (scrollState) {
+                    AbsListView.OnScrollListener.SCROLL_STATE_FLING ->
+                        viewPager.isUserInputEnabled = false
+                    AbsListView.OnScrollListener.SCROLL_STATE_IDLE->
+                        viewPager.isUserInputEnabled = true
+                }
+            }
+
+            override fun onScroll(
+                view: AbsListView,
+                firstVisibleItem: Int,
+                visibleItemCount: Int,
+                totalItemCount: Int
+            ) {
+                if (firstVisibleItem == 0) {
+                    if (grid_view.childCount != 0) {
+                        val firstVisibleItemView: View = grid_view.getChildAt(0)
+                        cookie_anchor_swipe_refresh.isEnabled = firstVisibleItemView.top >= 0
+                    } else
+                        cookie_anchor_swipe_refresh.isEnabled = true
+                } else {
+                    cookie_anchor_swipe_refresh.isEnabled = false
+                }
+//                // 判断滚动到底部
+//                if (view.lastVisiblePosition == view.count - 1) {
+//                }
+            }
+        })
+//        grid_view.setOnTouchListener { view, motionEvent ->
+//            return@setOnTouchListener true
+//        }
     }
 
     private fun getAnchors() {
@@ -57,7 +143,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                         anchors.clear()
                         anchors.addAll(this)
                         runOnUiThread {
-                            cookie_anchor_recyclerView.adapter?.notifyDataSetChanged()
+                            nowAnchorAnchorAdapter.notifyAnchorsChange()
                         }
                     }
                 }
@@ -87,7 +173,6 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         }
     }
 
-
     override fun onResume() {
         super.onResume()
         if (addCookie) {
@@ -99,8 +184,8 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         if (isVisible)
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
-                    val adapter = cookie_anchor_recyclerView.adapter as CookieModeAdapter
-                    val position = adapter.getPosition()
+                    val position =
+                        (recycler_view.adapter as AnchorAdapterWrapper).getLongClickPosition()
                     val result = AnchorRepository.getInstance(requireContext().applicationContext)
                         .insertAnchor(anchors[position])
                     toast(result.second)

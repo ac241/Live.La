@@ -12,8 +12,8 @@ object AnchorListHelper {
         map: MutableLiveData<MutableMap<String, AnchorAttribute>>
     ): List<Anchor> {
         var list: MutableList<Anchor>
-        anchorList.value.let {
-            list = if (it != null) (it as MutableList<Anchor>) else mutableListOf()
+        with(anchorList.value) {
+            list = if (this != null) (this as MutableList<Anchor>) else mutableListOf()
         }
         if (list.size == 0)
             return list

@@ -28,6 +28,7 @@
     <string name="avatar">头像</string>
     <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
     <string name="group_mode_list_type">聚合模式展示方式</string>
+    <string name="cookie_mode_list_type">Cookie模式展示方式</string>
     <!--  list preference  -->
     <array name="pref_click_action_entries">
         <item>打开app</item>
@@ -52,16 +53,16 @@
     <string name="group_mode">group_mode</string>
     <string name="cookie_mode">cookie_mode</string>
 
-    <array name="pref_group_mode_list_type_entries">
+    <array name="pref_show_list_type_entries">
         <item>无图</item>
         <item>有图</item>
     </array>
-    <array name="pref_group_mode_list_type_entries_values">
-        <item name="value_recycler_view_type">@string/recycler_view</item>
-        <item name="value_grid_view_type">@string/grid_view</item>
+    <array name="pref_show_list_type_entries_values">
+        <item name="value_recycler_view_type">@string/string_recycler_view</item>
+        <item name="value_grid_view_type">@string/string_grid_view</item>
     </array>
-    <string name="recycler_view">recycler_view</string>
-    <string name="grid_view">grid_view</string>
+    <string name="string_recycler_view">recycler_view</string>
+    <string name="string_grid_view">grid_view</string>
     <string name="full_version">full_version</string>
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>
@@ -76,5 +77,6 @@
     <string name="string_overlay_player">overlay_player</string>
     <string name="string_first_time_launch">first_time_launch</string>
     <string name="button_player_overlay_resize">改变大小</string>
+    <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
     <!--  list preference end  -->
 </resources>

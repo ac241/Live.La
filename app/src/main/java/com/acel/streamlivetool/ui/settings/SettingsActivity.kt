@@ -12,7 +12,7 @@ class SettingsActivity : BaseActivity() {
         return R.layout.activity_setting
     }
 
-    override fun createDo() {
+    override fun createdDo() {
         supportFragmentManager.beginTransaction().add(R.id.setting_layout, SettingsFragment())
             .commit()
     }

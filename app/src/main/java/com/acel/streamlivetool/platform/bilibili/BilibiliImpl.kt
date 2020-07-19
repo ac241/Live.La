@@ -80,6 +80,45 @@ class BilibiliImpl : IPlatform {
                 return super.getAnchorsWithCookieMode()
             else {
                 val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                var page = 0
+                while (true) {
+                    val livingList = bilibiliService.getLivingList(this,page).execute().body()
+                    livingList?.data?.rooms?.forEach {
+                        list.add(
+                            AnchorsCookieMode.Anchor(
+                                it.live_status == 1,
+                                it.title,
+                                it.face,
+                                it.keyframe
+                            ).also { anchor ->
+                                anchor.platform = platform
+                                anchor.nickname = it.uname
+                                anchor.roomId = it.roomid.toString()
+                                anchor.showId = it.roomid.toString()
+                            }
+                        )
+                    }
+                    val count = livingList?.data?.count
+                    if (count != null)
+                        if (list.size >= count - 2)
+                            break
+                    page++
+                }
+
+                return if (list.size != 0)
+                    AnchorsCookieMode(true, list)
+                else
+                    super.getAnchorsWithCookieMode()
+            }
+        }
+    }
+
+    fun getAnchorsWithCookieModeBackup1(): AnchorsCookieMode {
+        readCookie().run {
+            if (this.isEmpty())
+                return super.getAnchorsWithCookieMode()
+            else {
+                val list = mutableListOf<AnchorsCookieMode.Anchor>()
                 for (i in 1..2) {
                     val following = bilibiliService.getFollowing(this, i).execute().body()
                     following?.data?.list?.forEach {

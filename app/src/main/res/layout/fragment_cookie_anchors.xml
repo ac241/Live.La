@@ -17,9 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/cookie_anchor_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <include layout="@layout/anchor_list_view"/>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

@@ -2,61 +2,42 @@ package com.acel.streamlivetool.ui.group_mode
 
 import android.Manifest
 import android.content.Intent
-import android.net.Uri
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AbsListView
-import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.adapter.AnchorGridViewAnchorAdapter
+import com.acel.streamlivetool.ui.adapter.AnchorRecyclerViewAnchorAdapter
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
+import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
+import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
+import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
+import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.ui.settings.SettingsActivity
-import com.acel.streamlivetool.ui.view.AbsOverlayWindow
-import com.acel.streamlivetool.ui.view.ListOverlayWindow
-import com.acel.streamlivetool.ui.view.PlayerOverlayWindow
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_group_mode.*
+import kotlinx.android.synthetic.main.anchor_list_view.*
 import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
 import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
 import permissions.dispatcher.*
 
 
 @RuntimePermissions
-class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
+class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFunction {
 
     private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: GroupModePresenter
     private var listViewType = ListViewType.RecyclerView
     private val addAnchorFragment = AddAnchorFragment()
-
-    private var listOverlayWindow: AbsOverlayWindow? = null
-    private var listOverlayView: View? = null
-    private var recyclerViewListOverlay: RecyclerView? = null
-
-    private var playerOverlayWindow: AbsOverlayWindow? = null
-    private var playerOverlayView: View? = null
-    private var playerOverlay: SimpleExoPlayer? = null
+    private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
 
 
     override fun getResLayoutId(): Int {
@@ -75,7 +56,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
             startCookieModeActivity()
     }
 
-    override fun createDo() {
+    override fun createdDo() {
         presenter = GroupModePresenter(this)
         initToolbar()
         initPreference()
@@ -97,24 +78,27 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     private fun initPreference() {
         val type = defaultSharedPreferences.getString(
             resources.getString(R.string.pref_key_group_mode_list_type),
-            resources.getString(R.string.grid_view)
+            resources.getString(R.string.string_grid_view)
         )
 
         listViewType = when (type) {
-            "recycler_view" -> ListViewType.RecyclerView
-            "grid_view" -> ListViewType.GridView
+            resources.getString(R.string.string_recycler_view) -> ListViewType.RecyclerView
+            resources.getString(R.string.string_grid_view) -> ListViewType.GridView
             else -> ListViewType.RecyclerView
         }
     }
 
     private fun initGridView() {
-        viewStub_group_mode_grid_view.inflate()
-        group_mode_gridView.adapter = GroupModeGridViewAdapter(
+        viewStub_grid_view.inflate()
+        val adapter = AnchorGridViewAnchorAdapter(
             this,
-            presenter
+            presenter.sortedAnchorList,
+            presenter.anchorAttributeMap
         )
+        grid_view.adapter = adapter
+        nowAnchorAnchorAdapter = adapter
         //解决滑动冲突
-        group_mode_gridView.setOnScrollListener(object : AbsListView.OnScrollListener {
+        grid_view.setOnScrollListener(object : AbsListView.OnScrollListener {
             override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {}
             override fun onScroll(
                 view: AbsListView,
@@ -123,33 +107,34 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
                 totalItemCount: Int
             ) {
                 if (firstVisibleItem == 0) {
-                    if (group_mode_gridView.childCount != 0) {
-                        val firstVisibleItemView: View = group_mode_gridView.getChildAt(0)
+                    if (grid_view.childCount != 0) {
+                        val firstVisibleItemView: View = grid_view.getChildAt(0)
                         main_swipe_refresh.isEnabled = firstVisibleItemView.top >= 0
                     } else
                         main_swipe_refresh.isEnabled = true
                 } else {
                     main_swipe_refresh.isEnabled = false
                 }
-//
 //                // 判断滚动到底部
 //                if (view.lastVisiblePosition == view.count - 1) {
 //                }
             }
         })
-
     }
 
     private fun initRecyclerView() {
-        viewStub_group_mode_recycler_view.inflate()
-        group_mode_recycler_view.layoutManager = LinearLayoutManager(this)
-        val recyclerViewAdapter = GroupModeRecyclerViewAdapter(
-            this,
-            presenter
-        )
-        group_mode_recycler_view.adapter = recyclerViewAdapter
+        viewStub_recycler_view.inflate()
+        recycler_view.layoutManager = LinearLayoutManager(this)
+        val recyclerViewAdapter =
+            AnchorRecyclerViewAnchorAdapter(
+                this,
+                presenter.sortedAnchorList,
+                presenter.anchorAttributeMap
+            )
+        recycler_view.adapter = recyclerViewAdapter
+        nowAnchorAnchorAdapter = recyclerViewAdapter
         //关闭刷新item时CardView的闪烁提示
-        group_mode_recycler_view.itemAnimator?.changeDuration = 0
+        recycler_view.itemAnimator?.changeDuration = 0
     }
 
     private fun initToolbar() {
@@ -166,13 +151,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     @Synchronized
     override fun refreshAnchorAttribute() {
-        when (listViewType) {
-            ListViewType.RecyclerView ->
-                group_mode_recycler_view.adapter?.notifyDataSetChanged()
-            ListViewType.GridView ->
-                (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
-        }
-        recyclerViewListOverlay?.adapter?.notifyDataSetChanged()
+        nowAnchorAnchorAdapter.notifyAnchorsChange()
         hideSwipeRefreshBtn()
     }
 
@@ -190,11 +169,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
 
     @Synchronized
     override fun refreshAnchorList() {
-        when (listViewType) {
-            ListViewType.RecyclerView -> group_mode_recycler_view.adapter?.notifyDataSetChanged()
-            ListViewType.GridView -> (group_mode_gridView.adapter as GroupModeGridViewAdapter).notifyDataSetChanged()
-        }
-        recyclerViewListOverlay?.adapter?.notifyDataSetChanged()
+        nowAnchorAnchorAdapter.notifyAnchorsChange()
         hideSwipeRefreshBtn()
     }
 
@@ -209,11 +184,8 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_item_delete -> {
-                val position = when (listViewType) {
-                    ListViewType.RecyclerView -> (group_mode_recycler_view.adapter as GroupModeRecyclerViewAdapter).getPosition()
-                    ListViewType.GridView -> (group_mode_gridView.adapter as GroupModeGridViewAdapter).getPosition()
-                }
-                presenter.anchorRepository.deleteAnchor(presenter.anchorRepository.anchorList.value!![position])
+                val position = nowAnchorAnchorAdapter.getLongClickPosition()
+                presenter.anchorRepository.deleteAnchor(presenter.sortedAnchorList[position])
             }
         }
         return super.onContextItemSelected(item)
@@ -233,13 +205,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
                 showAddAnchorFragment()
             }
             R.id.action_list_overlay -> {
-                listOverlayWindow.let {
-                    if (it == null || !it.isShown)
-                        showListOverlayWindowWithPermissionCheck()
-                    else {
-                        removeListOverlayWindow()
-                    }
-                }
+                showListOverlayWindowWithPermissionCheck()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -254,127 +220,18 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
         startActivity(Intent(this, CookieModeActivity::class.java))
     }
 
-    /**
-     * 创建List悬浮窗
-     */
-    private fun createListOverlayWindow() {
-        if (listOverlayView == null) {
-            listOverlayWindow = ListOverlayWindow.instance.create(this)
-            listOverlayWindow?.setMovable(windowManager)
-            listOverlayView = listOverlayWindow?.getLayout()
-            recyclerViewListOverlay =
-                listOverlayView?.findViewById(R.id.recycler_view_list_overlay)
-            recyclerViewListOverlay?.layoutManager = LinearLayoutManager(this)
-            recyclerViewListOverlay?.adapter = ListOverlayAdapter(this, presenter)
-            val btnClose = listOverlayView?.findViewById<ImageView>(R.id.btn_list_overlay_close)
-            btnClose?.setOnClickListener {
-                removeListOverlayWindow()
-            }
-        } else {
-            listOverlayWindow?.show(this)
-        }
-    }
-
-    /**
-     * 移除List悬浮窗
-     */
-    private fun removeListOverlayWindow() {
-        listOverlayWindow?.remove(this)
-    }
-
-    /**
-     * 创建播放器悬浮窗
-     */
-    private fun createPlayerOverlayWindow(anchor: Anchor) {
-        initPlayOverlay()
-        playerOverlayStart(anchor)
-    }
-
-    /**
-     *  初始化播放窗口
-     */
-    private fun initPlayOverlay() {
-        if (playerOverlayView == null) {
-            playerOverlayWindow = PlayerOverlayWindow.instance.create(this)
-            playerOverlayWindow?.setMovable(windowManager)
-            playerOverlayView = playerOverlayWindow?.getLayout()
-            playerOverlay = SimpleExoPlayer.Builder(this).build()
-            val playerView: PlayerView? =
-                playerOverlayView?.findViewById(R.id.btn_player_overlay_video_view)
-            val processBar: ProgressBar? =
-                playerOverlayView?.findViewById(R.id.player_overlay_process_bar)
-            playerView?.player = playerOverlay
-            playerView?.useController = false
-            playerOverlay?.playWhenReady = true
-            playerOverlay?.addListener(object : Player.EventListener {
-                override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    if (isPlaying)
-                        processBar?.visibility = View.GONE
-                    else
-                        processBar?.visibility = View.VISIBLE
-                }
-            })
-            //关闭按钮
-            val btnClose =
-                playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
-            btnClose?.setOnClickListener {
-                playerOverlayWindow?.remove(this)
-                playerOverlay?.stop()
-            }
-            //改变大小按钮
-            val resizeBtn =
-                playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
-            resizeBtn?.setOnClickListener {
-                (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(this)
-            }
-
-
-        } else {
-            playerOverlayWindow?.show(this)
-        }
-    }
-
-    /**
-     * 获取url开始悬浮窗播放
-     */
-    private fun playerOverlayStart(anchor: Anchor) {
-        MainExecutor.execute {
-            val url =
-                PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    ?.getStreamingLiveUrl(anchor)
-            if (url == null || url.isEmpty()) {
-                runOnUiThread {
-                    toast("bad stream url")
-                }
-                return@execute
-            }
-            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                this,
-                Util.getUserAgent(this, "com.acel.streamlivetool")
-            )
-            val uri = Uri.parse(url)
-            val videoSource: MediaSource
-
-            videoSource = if (url.contains(".m3u8"))
-                HlsMediaSource.Factory(dataSourceFactory).setAllowChunklessPreparation(true)
-                    .createMediaSource(uri)
-            else
-                ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(uri)
-            runOnUiThread {
-                playerOverlay?.prepare(videoSource)
-            }
-        }
-    }
-
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
     fun showListOverlayWindow() {
-        createListOverlayWindow()
+        ListOverlayWindowManager.instance.toggleShow(
+            this,
+            presenter.sortedAnchorList,
+            presenter.anchorAttributeMap
+        )
     }
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
     fun showPlayerOverlayWindow(anchor: Anchor) {
-        createPlayerOverlayWindow(anchor)
+        PlayerOverlayWindowManager.instance.play(anchor)
     }
 
     @OnShowRationale(Manifest.permission.SYSTEM_ALERT_WINDOW)
@@ -389,5 +246,9 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         onActivityResult(requestCode)
+    }
+
+    override fun playStream(anchor: Anchor) {
+        showPlayerOverlayWindowWithPermissionCheck(anchor)
     }
 }

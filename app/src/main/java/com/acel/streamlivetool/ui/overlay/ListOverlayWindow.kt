@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.view
+package com.acel.streamlivetool.ui.overlay
 
 class ListOverlayWindow : AbsOverlayWindow() {
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_list_overlay
@@ -8,8 +8,6 @@ class ListOverlayWindow : AbsOverlayWindow() {
     override val y: Int = 100
 
     companion object {
-        val instance by lazy {
-            ListOverlayWindow()
-        }
+        val instance by lazy { ListOverlayWindow() }
     }
 }

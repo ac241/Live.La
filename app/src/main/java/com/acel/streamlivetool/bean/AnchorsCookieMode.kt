@@ -8,6 +8,8 @@ data class AnchorsCookieMode(
 ) {
     class Anchor(
         val status: Boolean,
-        val title: String
+        val title: String,
+        val avatar: String? = null,
+        val keyFrame: String? = null
     ) : com.acel.streamlivetool.bean.Anchor()
 }

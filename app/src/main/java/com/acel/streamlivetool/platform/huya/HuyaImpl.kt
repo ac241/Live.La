@@ -175,7 +175,12 @@ class HuyaImpl : IPlatform {
                     val list = mutableListOf<AnchorsCookieMode.Anchor>()
                     subscribe.result.list.forEach {
                         list.add(
-                            AnchorsCookieMode.Anchor(it.isLive, it.intro)
+                            AnchorsCookieMode.Anchor(
+                                it.isLive,
+                                it.intro,
+                                it.avatar180,
+                                it.screenshot
+                            )
                                 .also { anchor ->
                                     anchor.platform = platform
                                     anchor.nickname = it.nick

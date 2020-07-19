@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.view
+package com.acel.streamlivetool.ui.overlay
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,20 +6,25 @@ import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.view.*
+import com.acel.streamlivetool.base.MyApplication
 
 abstract class AbsOverlayWindow {
+    private val applicationContext = MyApplication.application.applicationContext
+    private val windowManager =
+        MyApplication.application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     abstract val layoutId: Int
     abstract val widthDp: Float
     abstract val heightDp: Float
     abstract val x: Int
     abstract val y: Int
     val layoutParams by lazy { WindowManager.LayoutParams() }
-    private var mLayout: View? = null
+    private lateinit var mLayout: View
     var isShown: Boolean = false
 
+
     @Suppress("DEPRECATION")
-    fun create(context: Context): AbsOverlayWindow {
-        val layout = LayoutInflater.from(context).inflate(layoutId, null)
+    fun create(): AbsOverlayWindow {
+        val layout = LayoutInflater.from(applicationContext).inflate(layoutId, null)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         } else {
@@ -33,13 +38,11 @@ abstract class AbsOverlayWindow {
         layoutParams.flags =
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         this.mLayout = layout
-        show(context)
+        show()
         return this
     }
 
-    fun show(context: Context) {
-        val windowManager =
-            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    fun show() {
         if (isShown) {
             windowManager.updateViewLayout(mLayout, layoutParams)
         } else {
@@ -48,16 +51,16 @@ abstract class AbsOverlayWindow {
         }
     }
 
-    fun remove(context: Context) {
+    fun remove() {
         val windowManager =
-            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (isShown) {
             windowManager.removeView(mLayout)
             isShown = false
         }
     }
 
-    fun getLayout(): View? {
+    fun getLayout(): View {
         return mLayout
     }
 
@@ -65,9 +68,8 @@ abstract class AbsOverlayWindow {
         (0.5f + dp * Resources.getSystem().displayMetrics.density)
 
     @SuppressLint("ClickableViewAccessibility")
-    fun setMovable(windowManager: WindowManager) {
-        mLayout ?: throw Exception("window did not created")
-        mLayout?.setOnTouchListener(object : View.OnTouchListener {
+    fun setMovable() {
+        mLayout.setOnTouchListener(object : View.OnTouchListener {
             private var x = 0
             private var y = 0
             override fun onTouch(p0: View?, event: MotionEvent?): Boolean {

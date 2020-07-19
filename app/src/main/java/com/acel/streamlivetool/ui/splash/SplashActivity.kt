@@ -12,7 +12,7 @@ class SplashActivity : BaseActivity() {
         return R.layout.activity_splash
     }
 
-    override fun createDo() {
+    override fun createdDo() {
         val mode = defaultSharedPreferences.getString(
             resources.getString(R.string.pref_key_launch_activity),
             getString(R.string.group_mode)
