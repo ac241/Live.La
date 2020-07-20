@@ -2,22 +2,18 @@ package com.acel.streamlivetool.ui.overlay
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
-import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.acel.streamlivetool.MainExecutor
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.adapter.ListOverlayAdapter
+import com.acel.streamlivetool.ui.ActionClick.startApp
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -33,6 +29,7 @@ class PlayerOverlayWindowManager {
         val instance by lazy { PlayerOverlayWindowManager() }
     }
 
+    var nowAnchor: Anchor? = null
     var isShown = false
     private val applicationContext: Context = MyApplication.application.applicationContext
     private val playerOverlayWindow: AbsOverlayWindow =
@@ -44,7 +41,6 @@ class PlayerOverlayWindowManager {
         playerOverlayView?.findViewById(R.id.btn_player_overlay_video_view)
     private val processBar: ProgressBar? =
         playerOverlayView?.findViewById(R.id.player_overlay_process_bar)
-
 
     init {
         exoPlayerView?.player = playerOverlay
@@ -64,7 +60,6 @@ class PlayerOverlayWindowManager {
             playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
         btnClose?.setOnClickListener {
             remove()
-            playerOverlay?.stop()
         }
         //改变大小按钮
         val resizeBtn =
@@ -72,7 +67,16 @@ class PlayerOverlayWindowManager {
         resizeBtn?.setOnClickListener {
             (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(applicationContext)
         }
-
+        //打开APP按钮
+        val btnStartApp =
+            playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
+        btnStartApp?.setOnClickListener {
+            Log.d("zzz", nowAnchor.toString())
+            nowAnchor?.let { anchor ->
+                startApp(applicationContext, anchor)
+                remove()
+            }
+        }
     }
 
 
@@ -88,8 +92,10 @@ class PlayerOverlayWindowManager {
      * 移除Player悬浮窗
      */
     internal fun remove() {
+        playerOverlay?.stop()
         playerOverlayWindow.remove()
         isShown = false
+
     }
 
     internal fun toggle() {
@@ -120,9 +126,11 @@ class PlayerOverlayWindowManager {
             if (url == null || url.isEmpty()) {
                 runOnUiThread {
                     ToastUtil.toast("bad stream url")
+                    remove()
                 }
                 return@execute
             }
+            nowAnchor = anchor
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
                 applicationContext,
                 Util.getUserAgent(applicationContext, "com.acel.streamlivetool")

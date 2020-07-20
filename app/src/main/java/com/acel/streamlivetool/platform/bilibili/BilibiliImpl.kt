@@ -80,9 +80,11 @@ class BilibiliImpl : IPlatform {
                 return super.getAnchorsWithCookieMode()
             else {
                 val list = mutableListOf<AnchorsCookieMode.Anchor>()
-                var page = 0
+                var page = 1
                 while (true) {
-                    val livingList = bilibiliService.getLivingList(this,page).execute().body()
+                    if (page >= 10)
+                        break
+                    val livingList = bilibiliService.getLivingList(this, page).execute().body()
                     livingList?.data?.rooms?.forEach {
                         list.add(
                             AnchorsCookieMode.Anchor(
@@ -100,7 +102,7 @@ class BilibiliImpl : IPlatform {
                     }
                     val count = livingList?.data?.count
                     if (count != null)
-                        if (list.size >= count - 2)
+                        if (list.size >= count)
                             break
                     page++
                 }

@@ -110,5 +110,9 @@ class ListOverlayAdapter() : RecyclerView.Adapter<ListOverlayAdapter.ViewHolder>
         notifyDataSetChanged()
     }
 
+    override fun setScrolling(boolean: Boolean) {
+
+    }
+
 
 }

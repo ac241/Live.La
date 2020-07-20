@@ -3,7 +3,7 @@
  * @site https://blog.csdn.net/shaoyezhangliwei/article/details/75278001
  */
 
-package com.acel.streamlivetool.ui;
+package com.acel.streamlivetool.ui.custom_view;
 
 import android.content.Context;
 import android.util.AttributeSet;

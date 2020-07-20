@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
-import com.acel.streamlivetool.MainExecutor
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -32,6 +32,10 @@ class AnchorGridViewAnchorAdapter() : BaseAdapter(),
     AnchorAdapterWrapper {
     private lateinit var context: Context
     private lateinit var anchorList: List<Anchor>
+    private var isScrolling = false
+    override fun setScrolling(boolean: Boolean) {
+        isScrolling = boolean
+    }
 
     constructor(context: Context, anchorList: List<Anchor>) : this() {
         if (context !is CookieModeActivity)
@@ -197,11 +201,13 @@ class AnchorGridViewAnchorAdapter() : BaseAdapter(),
         anchor as AnchorsCookieMode.Anchor
         if (anchor.status) {
             viewHolder.status.text = "直播中"
-            viewHolder.status.setTextColor(Color.GREEN)
+            viewHolder.status.setTextColor(Color.parseColor("#4CAF50"))
         } else {
             viewHolder.status.text = "未直播"
-            viewHolder.status.setTextColor(Color.GRAY)
+            viewHolder.status.setTextColor(Color.WHITE)
         }
+        //title
+        viewHolder.title.text = anchor.title
         //头像
         with(anchor.avatar) {
             if (this != null) {

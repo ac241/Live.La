@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
-import com.acel.streamlivetool.MainExecutor
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -216,4 +216,7 @@ class AnchorRecyclerViewAnchorAdapter() :
 
     override fun getLongClickPosition(): Int = mPosition
     override fun notifyAnchorsChange() = notifyDataSetChanged()
+    override fun setScrolling(boolean: Boolean) {
+
+    }
 }

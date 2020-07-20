@@ -6,6 +6,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import com.baidu.mobstat.StatService
 import com.tencent.bugly.crashreport.CrashReport
 
 class AppInitiation {
@@ -22,6 +23,15 @@ class AppInitiation {
     fun init() {
         firstTimeLaunch()
         initBugly()
+        initMtj()
+    }
+
+    /**
+     * 百度统计
+     */
+    private fun initMtj() {
+        StatService.setAuthorizedState(appContext, false)
+        StatService.start(appContext)
     }
 
     private fun initBugly() {

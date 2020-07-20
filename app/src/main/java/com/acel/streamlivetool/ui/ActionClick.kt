@@ -2,12 +2,11 @@ package com.acel.streamlivetool.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import com.acel.streamlivetool.MainExecutor
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.group_mode.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -38,25 +37,7 @@ object ActionClick {
     private fun actionWhenClick(context: Context, actionSecondBtn: String?, anchor: Anchor) {
         when (actionSecondBtn) {
             context.getString(R.string.string_open_app) -> {
-                MainExecutor.execute {
-                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    try {
-                        platformImpl?.startApp(context, anchor)
-                    } catch (e: ActivityNotFoundException) {
-                        e.printStackTrace()
-                        runOnUiThread {
-                            toast(
-                                "没有找到" +
-                                        platformImpl?.platformShowNameRes?.let { it1 ->
-                                            MyApplication.application.resources.getString(
-                                                it1
-                                            )
-                                        }
-                                        + " app..."
-                            )
-                        }
-                    }
-                }
+                startApp(context,anchor)
             }
             context.getString(R.string.string_outer_player) -> {
                 runOnUiThread {
@@ -71,6 +52,28 @@ object ActionClick {
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")
+            }
+        }
+    }
+
+    fun startApp(context: Context, anchor: Anchor) {
+        MainExecutor.execute {
+            val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
+            try {
+                platformImpl?.startApp(context, anchor)
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    toast(
+                        "没有找到" +
+                                platformImpl?.platformShowNameRes?.let { it1 ->
+                                    MyApplication.application.resources.getString(
+                                        it1
+                                    )
+                                }
+                                + " app..."
+                    )
+                }
             }
         }
     }

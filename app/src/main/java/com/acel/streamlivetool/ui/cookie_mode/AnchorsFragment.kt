@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.acel.streamlivetool.MainExecutor
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.db.AnchorRepository
@@ -23,7 +23,6 @@ import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_cookie_mode.*
-import kotlinx.android.synthetic.main.activity_group_mode.*
 import kotlinx.android.synthetic.main.anchor_list_view.*
 import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
 import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
@@ -95,17 +94,9 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         )
         grid_view.adapter = adapter
         nowAnchorAnchorAdapter = adapter
-        //解决滑动冲突
+        //解决与swipeRefreshLayout滑动冲突
         grid_view.setOnScrollListener(object : AbsListView.OnScrollListener {
-            override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
-                when (scrollState) {
-                    AbsListView.OnScrollListener.SCROLL_STATE_FLING ->
-                        viewPager.isUserInputEnabled = false
-                    AbsListView.OnScrollListener.SCROLL_STATE_IDLE->
-                        viewPager.isUserInputEnabled = true
-                }
-            }
-
+            override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {}
             override fun onScroll(
                 view: AbsListView,
                 firstVisibleItem: Int,
@@ -126,9 +117,6 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
 //                }
             }
         })
-//        grid_view.setOnTouchListener { view, motionEvent ->
-//            return@setOnTouchListener true
-//        }
     }
 
     private fun getAnchors() {

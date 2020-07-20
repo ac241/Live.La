@@ -16,14 +16,14 @@
     <!--            app:layout_scrollFlags="scroll|enterAlways" />-->
     <!--    </com.google.android.material.appbar.AppBarLayout>-->
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
         android:id="@+id/main_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"-->
 
         <include layout="@layout/anchor_list_view"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
 
     <include layout="@layout/fab_layout" />
 

@@ -36,4 +36,15 @@
         android:contentDescription="@string/button_player_overlay_resize"
         android:focusable="true"
         android:src="@drawable/ic_baseline_zoom_out_map_24" />
+
+    <ImageView
+        android:id="@+id/btn_player_overlay_start_app"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="end|center_vertical"
+        android:alpha="0.8"
+        android:clickable="true"
+        android:contentDescription="@string/second_button"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_call_missed_outgoing_24" />
 </FrameLayout>

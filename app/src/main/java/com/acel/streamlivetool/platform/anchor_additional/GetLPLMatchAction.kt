@@ -8,7 +8,6 @@ import android.os.Build
 import android.text.Html
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import com.acel.streamlivetool.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.net.RetrofitUtils

@@ -1,4 +1,4 @@
-package com.acel.streamlivetool
+package com.acel.streamlivetool.util
 
 import java.lang.Exception
 import java.util.concurrent.Executors
