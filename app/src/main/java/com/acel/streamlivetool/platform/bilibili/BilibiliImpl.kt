@@ -70,6 +70,7 @@ class BilibiliImpl : IPlatform {
         val intent = Intent()
         val uri = Uri.parse("bilibili://live/${anchor.roomId}")
         intent.data = uri
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.action = "android.intent.action.VIEW"
         context.startActivity(intent)
     }

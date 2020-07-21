@@ -173,7 +173,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
-                        (recycler_view.adapter as AnchorAdapterWrapper).getLongClickPosition()
+                        nowAnchorAnchorAdapter.getLongClickPosition()
                     val result = AnchorRepository.getInstance(requireContext().applicationContext)
                         .insertAnchor(anchors[position])
                     toast(result.second)

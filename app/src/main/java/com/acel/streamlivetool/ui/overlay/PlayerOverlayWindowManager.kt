@@ -11,8 +11,8 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.ActionClick.startApp
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -30,6 +30,7 @@ class PlayerOverlayWindowManager {
     }
 
     var nowAnchor: Anchor? = null
+    var lastAnchor: Anchor? = null
     var isShown = false
     private val applicationContext: Context = MyApplication.application.applicationContext
     private val playerOverlayWindow: AbsOverlayWindow =
@@ -71,7 +72,6 @@ class PlayerOverlayWindowManager {
         val btnStartApp =
             playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
         btnStartApp?.setOnClickListener {
-            Log.d("zzz", nowAnchor.toString())
             nowAnchor?.let { anchor ->
                 startApp(applicationContext, anchor)
                 remove()
@@ -107,6 +107,8 @@ class PlayerOverlayWindowManager {
     }
 
     internal fun play(anchor: Anchor) {
+        lastAnchor = nowAnchor
+        nowAnchor = anchor
         if (isShown) {
             playAnchorSteaming(anchor)
         } else {
@@ -124,13 +126,13 @@ class PlayerOverlayWindowManager {
                 PlatformDispatcher.getPlatformImpl(anchor.platform)
                     ?.getStreamingLiveUrl(anchor)
             if (url == null || url.isEmpty()) {
+                nowAnchor = lastAnchor
                 runOnUiThread {
                     ToastUtil.toast("bad stream url")
                     remove()
                 }
                 return@execute
             }
-            nowAnchor = anchor
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
                 applicationContext,
                 Util.getUserAgent(applicationContext, "com.acel.streamlivetool")

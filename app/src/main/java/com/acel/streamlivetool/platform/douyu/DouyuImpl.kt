@@ -2,6 +2,7 @@ package com.acel.streamlivetool.platform.douyu
 
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
@@ -83,6 +84,7 @@ class DouyuImpl : IPlatform {
         val intent = Intent()
         val uri = Uri.parse("douyutvtest://?type=4&room_id=${anchor.roomId}")
         intent.data = uri
+        intent.flags = FLAG_ACTIVITY_NEW_TASK
         intent.action = "android.intent.action.VIEW"
         context.startActivity(intent)
     }

@@ -9,6 +9,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
@@ -56,25 +57,5 @@ object ActionClick {
         }
     }
 
-    fun startApp(context: Context, anchor: Anchor) {
-        MainExecutor.execute {
-            val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-            try {
-                platformImpl?.startApp(context, anchor)
-            } catch (e: ActivityNotFoundException) {
-                e.printStackTrace()
-                runOnUiThread {
-                    toast(
-                        "没有找到" +
-                                platformImpl?.platformShowNameRes?.let { it1 ->
-                                    MyApplication.application.resources.getString(
-                                        it1
-                                    )
-                                }
-                                + " app..."
-                    )
-                }
-            }
-        }
-    }
+
 }
