@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -60,11 +61,14 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     }
 
 
+    @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolderStatusGroup) {
             when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving ->
+                AnchorPlaceHolder.anchorIsLiving ->{
                     holder.statusText.text = context.getString(R.string.is_living)
+                    holder.statusText.setTextColor(Color.parseColor(context.getString(R.color.colorPrimary)))
+                }
                 AnchorPlaceHolder.anchorNotLiving ->
                     holder.statusText.text = context.getString(R.string.not_living)
             }
@@ -77,14 +81,14 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                 anchor.title ?: "-"
             //直播状态
             if (!anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
-                && !anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
+                && !anchorList.contains(AnchorPlaceHolder.anchorNotLiving)
             ) {
                 holder.status.visibility = View.VISIBLE
                 if (anchor.status) {
-                    this.status.text = "直播中"
+                    this.status.text = context.getString(R.string.is_living)
                     this.status.setTextColor(Color.GREEN)
                 } else {
-                    this.status.text = "未直播"
+                    this.status.text = context.getString(R.string.not_living)
                     this.status.setTextColor(Color.GRAY)
                 }
             } else

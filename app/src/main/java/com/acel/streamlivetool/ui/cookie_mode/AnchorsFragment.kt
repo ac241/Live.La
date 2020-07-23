@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
@@ -16,8 +17,8 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
 import com.acel.streamlivetool.ui.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.adapter.TextAnchorAdapter
-import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.acel.streamlivetool.ui.login.LoginActivity
+import com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -28,7 +29,7 @@ import kotlinx.android.synthetic.main.layout_login_first.*
 
 class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
-    private val anchors = mutableListOf<Anchor>()
+    private val anchorList = mutableListOf<Anchor>()
     private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
     private var layoutManagerType = ListItemType.Text
 
@@ -72,17 +73,17 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                 recycler_view.layoutManager = LinearLayoutManager(requireContext())
                 val adapter = TextAnchorAdapter(
                     requireContext(),
-                    anchors
+                    anchorList
                 )
                 recycler_view.adapter = adapter
                 nowAnchorAnchorAdapter = adapter
             }
 
             ListItemType.Graphic -> {
-                recycler_view.layoutManager = GridLayoutManager(requireContext(), 2)
+                recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
                 val adapter = GraphicAnchorAdapter(
                     requireContext(),
-                    anchors
+                    anchorList
                 )
                 recycler_view.adapter = adapter
                 nowAnchorAnchorAdapter = adapter
@@ -99,8 +100,9 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
             } else {
                 with(anchorsCookieMode.anchors) {
                     if (this != null) {
-                        anchors.clear()
-                        anchors.addAll(this)
+                        anchorList.clear()
+                        anchorList.addAll(this)
+                        insertStatusPlaceHolder(anchorList)
                         runOnUiThread {
                             nowAnchorAnchorAdapter.notifyAnchorsChange()
                         }
@@ -141,7 +143,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                     val position =
                         nowAnchorAnchorAdapter.getLongClickPosition()
                     val result = AnchorRepository.getInstance(requireContext().applicationContext)
-                        .insertAnchor(anchors[position])
+                        .insertAnchor(anchorList[position])
                     toast(result.second)
                 }
             }

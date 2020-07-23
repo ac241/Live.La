@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -11,10 +12,10 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
-import com.acel.streamlivetool.util.ActionClick.itemClick
-import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
+import com.acel.streamlivetool.util.ActionClick.itemClick
+import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
@@ -81,11 +82,14 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
     }
 
 
+    @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolderStatusGroup) {
             when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving ->
+                AnchorPlaceHolder.anchorIsLiving -> {
                     holder.statusText.text = context.getString(R.string.is_living)
+                    holder.statusText.setTextColor(Color.parseColor(context.getString(R.color.colorPrimary)))
+                }
                 AnchorPlaceHolder.anchorNotLiving ->
                     holder.statusText.text = context.getString(R.string.not_living)
             }
@@ -100,14 +104,14 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
                 anchor.title ?: "-"
             //直播状态
             if (!anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
-                && !anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
+                || !anchorList.contains(AnchorPlaceHolder.anchorNotLiving)
             ) {
                 holder.status.visibility = View.VISIBLE
                 if (anchor.status) {
-                    holder.status.text = "直播中"
+                    holder.status.text = context.getString(R.string.is_living)
                     holder.status.setTextColor(Color.GREEN)
                 } else {
-                    holder.status.text = "未直播"
+                    holder.status.text = context.getString(R.string.not_living)
                     holder.status.setTextColor(Color.GRAY)
                 }
                 holder.title.text =
