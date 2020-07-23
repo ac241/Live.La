@@ -26,19 +26,25 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-//        val view = LayoutInflater.from(p0.context).inflate(R.layout.item_list_overlay, p0, false)
-//        return ViewHolder(view)
         val holder: RecyclerView.ViewHolder
         when (viewType) {
             GraphicAnchorAdapter.VIEW_TYPE_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_overlay_status_group, parent, false)
+                        .inflate(R.layout.item_overlay_status_living, parent, false)
+                        .also {
+                            it.tag =
+                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_LIVING
+                        }
                 )
-            GraphicAnchorAdapter.VIEW_TYPE_SLEEPING ->
+            GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_overlay_status_group, parent, false)
+                        .inflate(R.layout.item_overlay_status_not_living, parent, false)
+                        .also {
+                            it.tag =
+                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_NOT_LIVING
+                        }
                 )
             else ->
                 holder = ViewHolder(
@@ -54,7 +60,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             AnchorPlaceHolder.anchorIsLiving ->
                 GraphicAnchorAdapter.VIEW_TYPE_LIVING
             AnchorPlaceHolder.anchorNotLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_SLEEPING
+                GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING
             else ->
                 GraphicAnchorAdapter.VIEW_TYPE_NORMAL
         }
@@ -63,17 +69,8 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderStatusGroup) {
-            when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving ->{
-                    holder.statusText.text = context.getString(R.string.is_living)
-                    holder.statusText.setTextColor(Color.parseColor(context.getString(R.color.colorPrimary)))
-                }
-                AnchorPlaceHolder.anchorNotLiving ->
-                    holder.statusText.text = context.getString(R.string.not_living)
-            }
+        if (holder is ViewHolderStatusGroup)
             return
-        }
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]
         with(holder) {

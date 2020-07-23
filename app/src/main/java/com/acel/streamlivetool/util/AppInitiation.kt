@@ -53,7 +53,7 @@ class AppInitiation {
     private fun initFullVersion() {
         //是否使用完整版
         defaultSharedPreferences.edit()
-            .putBoolean(appContext.resources.getString(R.string.full_version), true).apply()
+            .putBoolean(appContext.resources.getString(R.string.full_version), false).apply()
     }
 
     private fun initPreference() {

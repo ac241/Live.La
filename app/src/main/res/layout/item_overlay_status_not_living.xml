@@ -2,10 +2,12 @@
 
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/status"
+    android:id="@+id/status_not_living"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/white"
     android:gravity="center_vertical"
+    android:text="@string/not_living"
     android:textColor="@color/lightDark"
     android:textSize="12sp"
     android:textStyle="bold" />

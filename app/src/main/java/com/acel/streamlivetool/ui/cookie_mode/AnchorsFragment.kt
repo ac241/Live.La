@@ -15,6 +15,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
+import com.acel.streamlivetool.ui.adapter.AnchorRecyclerViewOnScrollListener
 import com.acel.streamlivetool.ui.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.adapter.TextAnchorAdapter
 import com.acel.streamlivetool.ui.login.LoginActivity
@@ -89,6 +90,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                 nowAnchorAnchorAdapter = adapter
             }
         }
+        recycler_view.addOnScrollListener(AnchorRecyclerViewOnScrollListener())
     }
 
     private fun getAnchors() {

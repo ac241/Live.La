@@ -28,7 +28,7 @@ class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
     companion object {
         const val VIEW_TYPE_NORMAL = 443
         const val VIEW_TYPE_LIVING = 444
-        const val VIEW_TYPE_SLEEPING = 445
+        const val VIEW_TYPE_NOT_LIVING = 445
     }
 
     private var isScrolling = false
@@ -65,19 +65,22 @@ class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
             VIEW_TYPE_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_group, parent, false)
+                        .inflate(R.layout.item_status_title_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-                                true
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
+                                .isFullSpan = true
+                            it.tag = AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_LIVING
                         }
                 )
-            VIEW_TYPE_SLEEPING ->
+            VIEW_TYPE_NOT_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_group, parent, false)
+                        .inflate(R.layout.item_status_title_not_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-                                true
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
+                                .isFullSpan = true
+                            it.tag =
+                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_NOT_LIVING
                         }
                 )
             else ->
@@ -99,7 +102,7 @@ class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
             AnchorPlaceHolder.anchorIsLiving ->
                 VIEW_TYPE_LIVING
             AnchorPlaceHolder.anchorNotLiving ->
-                VIEW_TYPE_SLEEPING
+                VIEW_TYPE_NOT_LIVING
             else ->
                 VIEW_TYPE_NORMAL
         }
@@ -108,17 +111,9 @@ class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderStatusGroup) {
-            when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving -> {
-                    holder.statusText.text = context.getString(R.string.is_living)
-                    holder.statusText.setTextColor(Color.parseColor(context.getString(R.color.colorPrimary)))
-                }
-                AnchorPlaceHolder.anchorNotLiving ->
-                    holder.statusText.text = context.getString(R.string.not_living)
-            }
+        if (holder is ViewHolderStatusGroup)
             return
-        }
+
         val anchor: Anchor = anchorList[position]
         holder as ViewHolderGraphic
         //主播名

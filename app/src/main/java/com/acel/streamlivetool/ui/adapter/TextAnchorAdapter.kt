@@ -52,12 +52,20 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
             GraphicAnchorAdapter.VIEW_TYPE_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_group, parent, false)
+                        .inflate(R.layout.item_status_title_living, parent, false)
+                        .also {
+                            it.tag =
+                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_LIVING
+                        }
                 )
-            GraphicAnchorAdapter.VIEW_TYPE_SLEEPING ->
+            GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_group, parent, false)
+                        .inflate(R.layout.item_status_title_not_living, parent, false)
+                        .also {
+                            it.tag =
+                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_NOT_LIVING
+                        }
                 )
             else ->
                 holder = ViewHolderText(
@@ -75,7 +83,7 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
             AnchorPlaceHolder.anchorIsLiving ->
                 GraphicAnchorAdapter.VIEW_TYPE_LIVING
             AnchorPlaceHolder.anchorNotLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_SLEEPING
+                GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING
             else ->
                 GraphicAnchorAdapter.VIEW_TYPE_NORMAL
         }
@@ -84,19 +92,10 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderStatusGroup) {
-            when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving -> {
-                    holder.statusText.text = context.getString(R.string.is_living)
-                    holder.statusText.setTextColor(Color.parseColor(context.getString(R.color.colorPrimary)))
-                }
-                AnchorPlaceHolder.anchorNotLiving ->
-                    holder.statusText.text = context.getString(R.string.not_living)
-            }
+        if (holder is ViewHolderStatusGroup)
             return
-        }
-        holder as ViewHolderText
 
+        holder as ViewHolderText
         val anchor: Anchor = anchorList[position]
         with(holder) {
             //title

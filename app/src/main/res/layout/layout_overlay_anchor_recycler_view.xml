@@ -5,6 +5,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
+        style="@style/overlay_alpha"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="3dp" />
@@ -12,15 +13,16 @@
     <FrameLayout
         android:id="@+id/group_title_wrapper"
         android:layout_width="match_parent"
-        android:paddingHorizontal="3dp"
-        android:layout_height="wrap_content">
+        style="@style/overlay_alpha"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="3dp">
 
         <include
-            layout="@layout/item_status_title_living"
+            layout="@layout/item_overlay_status_living"
             android:visibility="gone" />
 
         <include
-            layout="@layout/item_status_title_not_living"
+            layout="@layout/item_overlay_status_not_living"
             android:visibility="gone" />
     </FrameLayout>
 </FrameLayout>

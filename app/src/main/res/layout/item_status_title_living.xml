@@ -2,11 +2,13 @@
 
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/status"
+    android:id="@+id/status_living"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/white"
     android:gravity="center_vertical"
     android:padding="5dp"
-    android:textColor="@color/lightDark"
+    android:text="@string/is_living"
+    android:textColor="@color/colorPrimary"
     android:textSize="16sp"
     android:textStyle="bold" />

@@ -9,12 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
 import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
-import kotlinx.android.synthetic.main.item_status_group.view.*
+import kotlinx.android.synthetic.main.item_status_title_living.view.*
 
 
-class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val statusText: TextView = itemView.status
-}
+class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 enum class ModeType { CookieMode, GroupMode }
 
