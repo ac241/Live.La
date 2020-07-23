@@ -11,7 +11,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.ActionClick.itemClick
+import com.acel.streamlivetool.util.ActionClick.itemClick
 import kotlinx.android.synthetic.main.item_overlay_list.view.*
 import kotlinx.android.synthetic.main.item_recycler_anchor.view.anchor_name
 import kotlinx.android.synthetic.main.item_recycler_anchor.view.anchor_title

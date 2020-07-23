@@ -1,8 +1,6 @@
-package com.acel.streamlivetool.ui
+package com.acel.streamlivetool.util
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -11,7 +9,6 @@ import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
-import com.acel.streamlivetool.util.defaultSharedPreferences
 
 object ActionClick {
 
