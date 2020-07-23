@@ -11,8 +11,8 @@ class MySwipeRefreshLayout : SwipeRefreshLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
-    var downX = 0f
-    var downY = 0f
+    private var downX = 0f
+    private var downY = 0f
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {

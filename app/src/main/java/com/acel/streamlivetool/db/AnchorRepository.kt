@@ -3,8 +3,9 @@ package com.acel.streamlivetool.db
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.acel.streamlivetool.util.MainExecutor
+import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
 
 class AnchorRepository {
@@ -23,7 +24,7 @@ class AnchorRepository {
 
     private val anchorDatabase = AnchorDatabase.getInstance(thisContext.applicationContext)
     private val anchorDao = anchorDatabase.getDao()
-    internal val anchorList = anchorDao.getAllAnchors()
+    internal val anchorList = getAllAnchors()
     private val insertList = mutableListOf<Anchor>()
 
     /**
@@ -51,6 +52,6 @@ class AnchorRepository {
     }
 
     fun updateAnchor(anchor: Anchor) = MainExecutor.execute { anchorDao.updateAnchor(anchor) }
-    fun getAllAnchors(): LiveData<List<Anchor>> = anchorDao.getAllAnchors()
+    private fun getAllAnchors(): LiveData<MutableList<Anchor>> = anchorDao.getAllAnchors()
     fun deleteAllAnchors() = MainExecutor.execute { anchorDao.deleteAllAnchors() }
 }

@@ -66,8 +66,7 @@ class EgameqqImpl : IPlatform {
 
             return title?.let { titleX ->
                 AnchorAttribute(
-                    queryAnchor.platform,
-                    queryAnchor.roomId,
+                    queryAnchor,
                     anchorX.data.key.retBody.data
                         .isLive == 1,
                     titleX,
@@ -105,22 +104,20 @@ class EgameqqImpl : IPlatform {
             return super.getAnchorsWithCookieMode()
         val list = egameqqService.getFollowList(readCookie()).execute().body()
         if (list != null) {
-            val anchorList = mutableListOf<AnchorsCookieMode.Anchor>()
+            val anchorList = mutableListOf<Anchor>()
             with(list.data.key.retBody.data.online_follow_list) {
                 this.forEach {
                     anchorList.add(
-                        AnchorsCookieMode.Anchor(
-                            it.status == 1,
-                            it.live_info.title,
-                            it.live_info.anchor_face_url,
-                            it.live_info.video_info.url
+                        Anchor(
+                            platform = platform,
+                            nickname = it.live_info.anchor_name,
+                            showId = it.live_info.anchor_id.toString(),
+                            roomId = it.live_info.anchor_id.toString(),
+                            status = it.status == 1,
+                            title = it.live_info.title,
+                            avatar = it.live_info.anchor_face_url,
+                            keyFrame = it.live_info.video_info.url
                         )
-                            .also { anchor ->
-                                anchor.nickname = it.live_info.anchor_name
-                                anchor.platform = platform
-                                anchor.showId = it.live_info.anchor_id.toString()
-                                anchor.roomId = it.live_info.anchor_id.toString()
-                            }
                     )
                 }
             }

@@ -15,5 +15,5 @@
         android:id="@+id/viewStub_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout="@layout/layout_group_mode_recycler_view" />
+        android:layout="@layout/layout_anchor_recycler_view" />
 </FrameLayout>

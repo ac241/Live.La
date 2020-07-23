@@ -116,6 +116,7 @@ class OpenSourceActivity : BaseActivity() {
             .scaleY(randomFloat.toFloat()).start()
     }
 
+    @Suppress("unused")
     private fun setTitleColor() {
         open_source_title.setTextColor(Color.parseColor(colors[colorIndex++]))
         if (colorIndex > colors.size - 1)

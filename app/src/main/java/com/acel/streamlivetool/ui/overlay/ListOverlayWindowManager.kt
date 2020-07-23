@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.ui.adapter.ListOverlayAdapter
 
 
@@ -18,7 +17,7 @@ class ListOverlayWindowManager {
         val instance by lazy { ListOverlayWindowManager() }
     }
 
-    var isShown = false
+    private var isShown = false
     private val applicationContext: Context = MyApplication.application.applicationContext
     private val listOverlayWindow by lazy {
         ListOverlayWindow.instance.create().also { it.setMovable() }
@@ -42,12 +41,12 @@ class ListOverlayWindowManager {
     internal fun show(
         context: Context,
         anchorList: List<Anchor>,
-        anchorAttributeMap: MutableLiveData<MutableMap<String, AnchorAttribute>>?
+        anchorAttributeMap: MutableLiveData<MutableMap<String, Anchor>>?
     ) {
 
         recyclerViewListOverlay?.adapter =
             if (anchorAttributeMap != null)
-                ListOverlayAdapter(context, anchorList, anchorAttributeMap)
+                ListOverlayAdapter(context, anchorList)
             else
                 ListOverlayAdapter(context, anchorList)
 
@@ -66,7 +65,7 @@ class ListOverlayWindowManager {
     internal fun toggleShow(
         context: Context,
         anchorList: List<Anchor>,
-        anchorAttributeMap: MutableLiveData<MutableMap<String, AnchorAttribute>>? = null
+        anchorAttributeMap: MutableLiveData<MutableMap<String, Anchor>>? = null
     ) {
         if (isShown) {
             remove()

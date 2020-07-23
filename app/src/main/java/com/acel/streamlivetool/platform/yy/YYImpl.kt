@@ -40,8 +40,7 @@ class YYImpl : IPlatform {
         searchInfo?.let {
             val anchorMsg = it.data.searchResult.response.x2.docs[0]
             return AnchorAttribute(
-                queryAnchor.platform,
-                queryAnchor.roomId,
+                queryAnchor,
                 anchorMsg.liveOn == "1",""
             )
         }

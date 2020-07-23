@@ -19,7 +19,6 @@ import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
-import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_cookie_mode.*
@@ -98,6 +97,7 @@ class CookieModeActivity : BaseActivity(), PlayOverlayFunction {
         PlayerOverlayWindowManager.instance.play(anchor)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @OnShowRationale(Manifest.permission.SYSTEM_ALERT_WINDOW)
     internal fun showRationaleForSystemAlertWindow(request: PermissionRequest?) {
     }

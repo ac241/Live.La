@@ -44,8 +44,7 @@ class LongzhuImpl : IPlatform {
         val roomStatus = longzhuService.roomStatus(queryAnchor.roomId).execute().body()
         roomStatus?.let {
             return AnchorAttribute(
-                queryAnchor.platform,
-                queryAnchor.roomId,
+                queryAnchor,
                 roomStatus.IsBroadcasting,
                 roomStatus.BaseRoomInfo.BoardCastTitle
             )

@@ -2,21 +2,23 @@ package com.acel.streamlivetool.ui.group_mode
 
 import android.Manifest
 import android.content.Intent
+import android.content.IntentFilter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AbsListView
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.adapter.AnchorGridViewAnchorAdapter
-import com.acel.streamlivetool.ui.adapter.AnchorRecyclerViewAnchorAdapter
-import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
+import com.acel.streamlivetool.ui.adapter.GraphicAnchorAdapter
+import com.acel.streamlivetool.ui.adapter.TextAnchorAdapter
+import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
@@ -25,8 +27,8 @@ import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_group_mode.*
 import kotlinx.android.synthetic.main.anchor_list_view.*
+import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 import kotlinx.android.synthetic.main.layout_group_mode_grid_view.*
-import kotlinx.android.synthetic.main.layout_group_mode_recycler_view.*
 import permissions.dispatcher.*
 
 
@@ -35,7 +37,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
 
     private lateinit var fragmentmanager: FragmentManager
     lateinit var presenter: GroupModePresenter
-    private var listViewType = ListViewType.RecyclerView
+    private var layoutManagerType = ListItemType.Text
     private val addAnchorFragment = AddAnchorFragment()
     private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
 
@@ -44,8 +46,8 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
         return R.layout.activity_group_mode
     }
 
-    enum class ListViewType {
-        RecyclerView, GridView;
+    enum class ListItemType {
+        Text, Graphic;
     }
 
     override fun onBackPressed() {
@@ -60,15 +62,11 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
         presenter = GroupModePresenter(this)
         initToolbar()
         initPreference()
-        when (listViewType) {
-            ListViewType.RecyclerView -> initRecyclerView()
-            ListViewType.GridView -> initGridView()
-        }
-
+        initRecyclerView()
         main_swipe_refresh.setOnRefreshListener {
-            presenter.anchorRepository.anchorList.value?.let {
+            presenter.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
-                    presenter.getAllAnchorsStatus()
+                    presenter.getAllAnchorsAttribute()
                 else
                     hideSwipeRefreshBtn()
             }
@@ -81,21 +79,27 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
             resources.getString(R.string.string_grid_view)
         )
 
-        listViewType = when (type) {
-            resources.getString(R.string.string_recycler_view) -> ListViewType.RecyclerView
-            resources.getString(R.string.string_grid_view) -> ListViewType.GridView
-            else -> ListViewType.RecyclerView
+        layoutManagerType = when (type) {
+            resources.getString(R.string.string_recycler_view) -> ListItemType.Text
+            resources.getString(R.string.string_grid_view) -> ListItemType.Graphic
+            else -> ListItemType.Text
         }
     }
 
     private fun initGridView() {
         viewStub_grid_view.inflate()
-        val adapter = AnchorGridViewAnchorAdapter(
-            this,
-            presenter.sortedAnchorList,
-            presenter.anchorAttributeMap
-        )
-        grid_view.adapter = adapter
+        val adapter: AnchorAdapterWrapper = when (layoutManagerType) {
+            ListItemType.Text ->
+                GraphicAnchorAdapter(
+                    this,
+                    presenter.sortedAnchorList.value!!
+                )
+            ListItemType.Graphic ->
+                TextAnchorAdapter(
+                    this,
+                    presenter.sortedAnchorList.value!!
+                )
+        }
         nowAnchorAnchorAdapter = adapter
         //解决滑动冲突
         grid_view.setOnScrollListener(object : AbsListView.OnScrollListener {
@@ -123,16 +127,30 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
     }
 
     private fun initRecyclerView() {
-        viewStub_recycler_view.inflate()
-        recycler_view.layoutManager = LinearLayoutManager(this)
-        val recyclerViewAdapter =
-            AnchorRecyclerViewAnchorAdapter(
-                this,
-                presenter.sortedAnchorList,
-                presenter.anchorAttributeMap
-            )
-        recycler_view.adapter = recyclerViewAdapter
-        nowAnchorAnchorAdapter = recyclerViewAdapter
+//        viewStub_recycler_view.inflate()
+
+        when (layoutManagerType) {
+            ListItemType.Text -> {
+                recycler_view.layoutManager = LinearLayoutManager(this)
+                val adapter = TextAnchorAdapter(
+                    this,
+                    presenter.sortedAnchorList.value!!
+                )
+                recycler_view.adapter = adapter
+                nowAnchorAnchorAdapter = adapter
+            }
+
+            ListItemType.Graphic -> {
+                recycler_view.layoutManager =
+                    StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+                val adapter = GraphicAnchorAdapter(
+                    this,
+                    presenter.sortedAnchorList.value!!
+                )
+                recycler_view.adapter = adapter
+                nowAnchorAnchorAdapter = adapter
+            }
+        }
         //关闭刷新item时CardView的闪烁提示
         recycler_view.itemAnimator?.changeDuration = 0
     }
@@ -185,7 +203,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
         when (item.itemId) {
             R.id.action_item_delete -> {
                 val position = nowAnchorAnchorAdapter.getLongClickPosition()
-                presenter.anchorRepository.deleteAnchor(presenter.sortedAnchorList[position])
+                presenter.anchorRepository.deleteAnchor(presenter.sortedAnchorList.value!![position])
             }
         }
         return super.onContextItemSelected(item)
@@ -224,7 +242,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
     fun showListOverlayWindow() {
         ListOverlayWindowManager.instance.toggleShow(
             this,
-            presenter.sortedAnchorList,
+            presenter.sortedAnchorList.value!!,
             presenter.anchorAttributeMap
         )
     }
@@ -234,6 +252,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
         PlayerOverlayWindowManager.instance.play(anchor)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @OnShowRationale(Manifest.permission.SYSTEM_ALERT_WINDOW)
     internal fun showRationaleForSystemAlertWindow(request: PermissionRequest?) {
     }

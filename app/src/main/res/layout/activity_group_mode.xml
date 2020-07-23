@@ -22,7 +22,7 @@
         android:layout_height="match_parent">
         <!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"-->
 
-        <include layout="@layout/anchor_list_view"/>
+        <include layout="@layout/layout_anchor_recycler_view"/>
     </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
 
     <include layout="@layout/fab_layout" />

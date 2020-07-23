@@ -7,8 +7,8 @@ import com.acel.streamlivetool.bean.Anchor
 interface GroupModeConstract {
     interface Presenter : BasePresenter {
         fun addAnchor(queryAnchor: Anchor)
-        fun getAnchorsStatus(anchor: Anchor)
-        fun getAllAnchorsStatus()
+        fun getAnchorsAttribute(anchor: Anchor)
+        fun getAllAnchorsAttribute()
     }
 
     interface View : BaseView<Presenter> {

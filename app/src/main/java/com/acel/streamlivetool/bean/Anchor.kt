@@ -1,21 +1,30 @@
 package com.acel.streamlivetool.bean
 
-import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
 
 @Entity
-open class Anchor() {
+class Anchor() {
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0
     lateinit var platform: String
     lateinit var nickname: String
     lateinit var showId: String
     lateinit var roomId: String
     var otherParams: String = ""
 
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
+    @Ignore
+    var status: Boolean = false
 
+    @Ignore
+    var title: String? = null
+
+    @Ignore
+    var avatar: String? = ""
+
+    @Ignore
+    var keyFrame: String? = null
     fun anchorKey(): String = platform + roomId
 
     constructor(
@@ -30,6 +39,28 @@ open class Anchor() {
         this.showId = showId
         this.roomId = roomId
         this.otherParams = otherParams
+    }
+
+    constructor(
+        platform: String,
+        nickname: String,
+        showId: String,
+        roomId: String,
+        status: Boolean,
+        title: String,
+        avatar: String,
+        keyFrame: String,
+        otherParams: String = ""
+    ) : this() {
+        this.platform = platform
+        this.nickname = nickname
+        this.showId = showId
+        this.roomId = roomId
+        this.otherParams = otherParams
+        this.status = status
+        this.title = title
+        this.avatar = avatar
+        this.keyFrame = keyFrame
     }
 
     override fun equals(other: Any?): Boolean {

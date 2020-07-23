@@ -60,9 +60,9 @@ class HuomaoImpl : IPlatform {
         val roomInfo: RoomInfo? = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
             AnchorAttribute(
-                queryAnchor.platform,
-                queryAnchor.roomId,
-                roomInfo.isLive == 1, UnicodeUtil.decodeUnicode(roomInfo.channel)
+                queryAnchor,
+                roomInfo.isLive == 1,
+                UnicodeUtil.decodeUnicode(roomInfo.channel)
             )
         } else
             null

@@ -51,8 +51,7 @@ class DouyuImpl : IPlatform {
         return if (roomInfo?.error == 0) {
             val roomStatus = roomInfo.data.roomStatus
             AnchorAttribute(
-                queryAnchor.platform,
-                queryAnchor.roomId,
+                queryAnchor,
                 roomStatus == "1",
                 roomInfo.data.roomName,
                 roomInfo.data.avatar,
@@ -150,16 +149,20 @@ class DouyuImpl : IPlatform {
             else {
                 val followed = douyuService.getFollowed(this).execute().body()
                 return if (followed != null) {
-                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                    val list = mutableListOf<Anchor>()
                     followed.data.list.forEach {
                         list.add(
-                            AnchorsCookieMode.Anchor(it.show_status == 1, it.room_name,it.avatar_small,it.room_src)
-                                .also { anchor ->
-                                    anchor.platform = platform
-                                    anchor.nickname = it.nickname
-                                    anchor.roomId = it.room_id.toString()
-                                    anchor.showId = it.room_id.toString()
-                                })
+                            Anchor(
+                                platform = platform,
+                                nickname = it.nickname,
+                                showId = it.room_id.toString(),
+                                roomId = it.room_id.toString(),
+                                status = it.show_status == 1,
+                                title = it.room_name,
+                                avatar = it.avatar_small,
+                                keyFrame = it.room_src
+                            )
+                        )
                     }
                     AnchorsCookieMode(true, list)
                 } else

@@ -1,20 +1,26 @@
 package com.acel.streamlivetool.ui.overlay
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.util.ToastUtil
+import kotlin.random.Random
 
 abstract class AbsOverlayWindow {
     private val applicationContext = MyApplication.application.applicationContext
     private val windowManager =
         MyApplication.application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private val outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
-    private val widthPixels = outMetrics.widthPixels
-    private val heightPixels = outMetrics.heightPixels
+    private var outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
+    private var widthPixels = outMetrics.widthPixels
+    private var heightPixels = outMetrics.heightPixels
     abstract val layoutId: Int
     abstract val widthDp: Float
     abstract val heightDp: Float
@@ -23,6 +29,11 @@ abstract class AbsOverlayWindow {
     val layoutParams by lazy { WindowManager.LayoutParams() }
     private lateinit var mLayout: View
     var isShown: Boolean = false
+
+
+    init {
+        ConfigurationChangeBroadcastReceiver().register(applicationContext)
+    }
 
     @Suppress("DEPRECATION")
     fun create(): AbsOverlayWindow {
@@ -92,14 +103,22 @@ abstract class AbsOverlayWindow {
                         if (nowX >= 0 && nowY >= 0) {
                             val movedX = nowX - x
                             val movedY = nowY - y
-                            val newX = layoutParams.x + movedX
-                            val newY = layoutParams.y + movedY
-                            val checkX = newX >= 0 && newX < widthPixels - mLayout.width
+                            var newX = layoutParams.x + movedX
+                            //如果越界，移动到X最大
+                            if (newX > widthPixels - mLayout.width)
+                                newX = (widthPixels - mLayout.width).toFloat()
+                            var newY = layoutParams.y + movedY
+                            //如果越界，移动到Y最大
+                            if (newY > heightPixels - mLayout.height)
+                                newY = (heightPixels - mLayout.height).toFloat()
+                            val checkX =
+                                newX >= 0 && newX <= widthPixels - mLayout.width
                             if (checkX) {
                                 layoutParams.x = (newX).toInt()
                                 x = nowX.toInt()
                             }
-                            val checkY = newY >= 0 && newY < heightPixels - mLayout.height
+                            val checkY =
+                                newY >= 0 &&  newY <= heightPixels - mLayout.height
                             if (checkY) {
                                 layoutParams.y = (newY).toInt()
                                 y = nowY.toInt()
@@ -114,5 +133,20 @@ abstract class AbsOverlayWindow {
                 return false
             }
         })
+    }
+
+    inner class ConfigurationChangeBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
+            widthPixels = outMetrics.widthPixels
+            heightPixels = outMetrics.heightPixels
+        }
+
+        fun register(context: Context) {
+            context.registerReceiver(
+                ConfigurationChangeBroadcastReceiver(),
+                IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
+            )
+        }
     }
 }

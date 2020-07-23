@@ -79,5 +79,7 @@
     <string name="button_player_overlay_resize">改变大小</string>
     <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
     <string name="start_app">打开直播app</string>
+    <string name="is_living">直播中</string>
+    <string name="not_living">未直播</string>
     <!--  list preference end  -->
 </resources>

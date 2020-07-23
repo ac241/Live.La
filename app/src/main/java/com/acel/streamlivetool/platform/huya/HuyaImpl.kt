@@ -3,16 +3,13 @@ package com.acel.streamlivetool.platform.huya
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.huya.bean.Stream
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
-import com.google.gson.Gson
 import java.net.URLEncoder
 
 
@@ -85,8 +82,7 @@ class HuyaImpl : IPlatform {
             )
             if (!state) {
                 return AnchorAttribute(
-                    queryAnchor.platform,
-                    queryAnchor.roomId,
+                    queryAnchor,
                     state,
                     title,
                     avatar
@@ -96,8 +92,7 @@ class HuyaImpl : IPlatform {
                     val screenshot =
                         TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
                     return AnchorAttribute(
-                        queryAnchor.platform,
-                        queryAnchor.roomId,
+                        queryAnchor,
                         state,
                         title,
                         avatar,
@@ -120,8 +115,7 @@ class HuyaImpl : IPlatform {
             val screenshot = TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
             if (state != null && title != null && state.isNotEmpty())
                 return AnchorAttribute(
-                    queryAnchor.platform,
-                    queryAnchor.roomId,
+                    queryAnchor,
                     state == "ON",
                     UnicodeUtil.decodeUnicode(title),
                     avatar,
@@ -172,21 +166,20 @@ class HuyaImpl : IPlatform {
                 }
                 val subscribe = huyaService.getSubscribe(this, uid).execute().body()
                 return if (subscribe != null) {
-                    val list = mutableListOf<AnchorsCookieMode.Anchor>()
+                    val list = mutableListOf<Anchor>()
                     subscribe.result.list.forEach {
                         list.add(
-                            AnchorsCookieMode.Anchor(
-                                it.isLive,
-                                it.intro,
-                                it.avatar180,
-                                it.screenshot
+                            Anchor(
+                                platform = platform,
+                                nickname = it.nick,
+                                showId = it.uid.toString(),
+                                roomId = it.profileRoom.toString(),
+                                status = it.isLive,
+                                title = it.intro,
+                                avatar = it.avatar180,
+                                keyFrame = it.screenshot
                             )
-                                .also { anchor ->
-                                    anchor.platform = platform
-                                    anchor.nickname = it.nick
-                                    anchor.roomId = it.uid.toString()
-                                    anchor.showId = it.profileRoom.toString()
-                                })
+                        )
                     }
                     AnchorsCookieMode(true, list)
                 } else

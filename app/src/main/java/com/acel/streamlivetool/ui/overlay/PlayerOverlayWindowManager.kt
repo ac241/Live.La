@@ -29,9 +29,9 @@ class PlayerOverlayWindowManager {
         val instance by lazy { PlayerOverlayWindowManager() }
     }
 
-    var nowAnchor: Anchor? = null
-    var lastAnchor: Anchor? = null
-    var isShown = false
+    private var nowAnchor: Anchor? = null
+    private var lastAnchor: Anchor? = null
+    private var isShown = false
     private val applicationContext: Context = MyApplication.application.applicationContext
     private val playerOverlayWindow: AbsOverlayWindow =
         PlayerOverlayWindow.instance.create().also { it.setMovable() }
@@ -48,11 +48,11 @@ class PlayerOverlayWindowManager {
         exoPlayerView?.useController = false
         playerOverlay?.playWhenReady = true
         playerOverlay?.addListener(object : com.google.android.exoplayer2.Player.EventListener {
-            override fun onIsPlayingChanged(isPlaying: kotlin.Boolean) {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (isPlaying)
-                    processBar?.visibility = android.view.View.GONE
+                    processBar?.visibility = View.GONE
                 else
-                    processBar?.visibility = android.view.View.VISIBLE
+                    processBar?.visibility = View.VISIBLE
             }
         })
 

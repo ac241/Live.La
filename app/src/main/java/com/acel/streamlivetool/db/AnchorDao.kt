@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.db
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.acel.streamlivetool.bean.Anchor
 
@@ -16,7 +17,7 @@ interface AnchorDao {
     fun updateAnchor(anchor: Anchor)
 
     @Query("SELECT * FROM Anchor ORDER BY ID ")
-    fun getAllAnchors(): LiveData<List<Anchor>>
+    fun getAllAnchors(): LiveData<MutableList<Anchor>>
 
     @Query("DELETE FROM Anchor")
     fun deleteAllAnchors()

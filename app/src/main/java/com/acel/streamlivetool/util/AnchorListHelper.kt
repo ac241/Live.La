@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.util
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -8,7 +7,7 @@ import com.acel.streamlivetool.bean.AnchorAttribute
 object AnchorListHelper {
     @Synchronized
     fun sortAnchorListByStatus(
-        anchorList: LiveData<List<Anchor>>,
+        anchorList: MutableLiveData<MutableList<Anchor>>,
         map: MutableLiveData<MutableMap<String, AnchorAttribute>>
     ): List<Anchor> {
         var list: MutableList<Anchor>
@@ -20,13 +19,13 @@ object AnchorListHelper {
         val anchorStatusMap = map.value ?: return list
         //状态排序
         list.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o2.anchorKey()]?.isLive == null)
+            if (anchorStatusMap[o2.anchorKey()]?.status == null)
                 return@Comparator 1
-            if (anchorStatusMap[o1.anchorKey()]?.isLive == null)
+            if (anchorStatusMap[o1.anchorKey()]?.status == null)
                 return@Comparator -1
-            if (anchorStatusMap[o1.anchorKey()]?.isLive == anchorStatusMap[o2.anchorKey()]?.isLive)
+            if (anchorStatusMap[o1.anchorKey()]?.status == anchorStatusMap[o2.anchorKey()]?.status)
                 return@Comparator 0
-            if (anchorStatusMap[o2.anchorKey()]?.isLive == true) {
+            if (anchorStatusMap[o2.anchorKey()]?.status == true) {
                 return@Comparator 1
             } else
                 return@Comparator -1
@@ -34,7 +33,7 @@ object AnchorListHelper {
 
         //ID再排序一次
         list.sortWith(Comparator { o1, o2 ->
-            if (anchorStatusMap[o1.anchorKey()]?.isLive == anchorStatusMap[o2.anchorKey()]?.isLive) {
+            if (anchorStatusMap[o1.anchorKey()]?.status == anchorStatusMap[o2.anchorKey()]?.status) {
                 if (o1.id < o2.id)
                     return@Comparator -1
                 else
@@ -45,4 +44,6 @@ object AnchorListHelper {
         })
         return list
     }
+
+
 }
