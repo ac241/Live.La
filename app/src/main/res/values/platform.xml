@@ -3,8 +3,9 @@
     <string name="douyu">斗鱼</string>
     <string name="bilibili">B站</string>
     <string name="huya">虎牙</string>
+    <string name="egameqq">企鹅电竞</string>
     <string name="huomao">火猫</string>
     <string name="yy">YY</string>
     <string name="longzhu">龙珠</string>
-    <string name="egameqq">企鹅电竞</string>
+
 </resources>

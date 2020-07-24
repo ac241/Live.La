@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.net
 
-import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response

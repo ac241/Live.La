@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -7,20 +8,17 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="3dp" />
+        android:paddingHorizontal="3dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
     <FrameLayout
         android:id="@+id/group_title_wrapper"
         android:layout_width="match_parent"
-        android:paddingHorizontal="3dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="3dp">
 
         <include
             layout="@layout/item_status_title_living"
             android:visibility="gone" />
-
-        <include
-            layout="@layout/item_status_title_not_living"
-            android:visibility="gone" />
     </FrameLayout>
-</FrameLayout>
+</merge>

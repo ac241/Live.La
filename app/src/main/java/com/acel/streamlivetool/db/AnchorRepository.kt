@@ -3,10 +3,9 @@ package com.acel.streamlivetool.db
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.util.MainExecutor
 
 class AnchorRepository {
 

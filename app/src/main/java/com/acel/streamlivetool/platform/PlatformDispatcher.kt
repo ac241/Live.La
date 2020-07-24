@@ -16,10 +16,10 @@ object PlatformDispatcher {
         mMap["douyu"] = DouyuImpl.INSTANCE
         mMap["bilibili"] = BilibiliImpl.INSTANCE
         mMap["huya"] = HuyaImpl.INSTANCE
+        mMap["egameqq"] = EgameqqImpl.INSTANCE
         mMap["huomao"] = HuomaoImpl.INSTANCE
         mMap["yy"] = YYImpl.INSTANCE
         mMap["longzhu"] = LongzhuImpl.INSTANCE
-        mMap["egameqq"] = EgameqqImpl.INSTANCE
     }
 
     fun getPlatformImpl(platform: String): IPlatform? {

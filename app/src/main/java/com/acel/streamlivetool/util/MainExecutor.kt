@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.util
 
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.ToastUtil.toast
 import java.lang.Exception
 import java.util.concurrent.Executors
 
@@ -10,7 +12,10 @@ object MainExecutor {
             try {
                 method.invoke()
             } catch (e: Exception) {
-                e.printStackTrace()
+                e.message?.let { toast(it) }
+                runOnUiThread{
+                    e.printStackTrace()
+                }
             }
         }
     }

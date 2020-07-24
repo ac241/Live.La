@@ -14,7 +14,7 @@ import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
-import com.acel.streamlivetool.ui.adapter.AnchorRecyclerViewOnScrollListener
+import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener
 import com.acel.streamlivetool.ui.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.adapter.TextAnchorAdapter
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
@@ -108,7 +108,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
 //                recycler_view.addItemDecoration(GroupTitleDecoration())
             }
         }
-        recycler_view.addOnScrollListener(AnchorRecyclerViewOnScrollListener())
+        recycler_view.addOnScrollListener(AnchorListAddTitleListener())
 
         //关闭刷新item时CardView的闪烁提示
         recycler_view.itemAnimator?.changeDuration = 0

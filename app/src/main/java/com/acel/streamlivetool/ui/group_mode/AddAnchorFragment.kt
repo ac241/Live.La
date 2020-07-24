@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.RadioButton
 import androidx.fragment.app.DialogFragment
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
@@ -15,6 +14,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_add_anchor.*
 
 
@@ -39,14 +39,17 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         val tempList = mutableListOf<String>()
         //显示radio
         platformList.forEachIndexed { i, s ->
-            val radioButton = RadioButton(context)
+            val chop = Chip(requireContext())
+            chop.isCheckable = true
             val stringList = s.split(",")
             tempList.add(stringList[0])
-            radioButton.text = stringList[1]
-            radioButton.id = i
-            radio_group_add_anchor.addView(radioButton)
+            chop.text = stringList[1]
+            chop.id = i
+            chip_group_add_anchor.addView(chop)
         }
-        edit_anchor_id_add_anchor.requestFocus()
+        chip_group_add_anchor.isSingleSelection = true
+//        edit_anchor_id_add_anchor.requestFocus()
+//        edit_anchor_id_add_anchor.selectAll()
 
         btn_confirm_add_anchor.setOnClickListener {
             val roomId = edit_anchor_id_add_anchor.text.toString()
@@ -54,7 +57,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                 edit_anchor_id_add_anchor.error = "直播间Id不能为空"
                 return@setOnClickListener
             }
-            val radioIndex = radio_group_add_anchor.checkedRadioButtonId
+            val radioIndex = chip_group_add_anchor.checkedChipId
             if (radioIndex == -1) {
                 toast("请选择平台")
                 return@setOnClickListener

@@ -65,7 +65,7 @@ class HuyaImpl : IPlatform {
 
     override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
         val html: String? = getMHtml(queryAnchor)
-        html?.let {
+        html?.let { it ->
             //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
             val state = TextUtil.subString(it, "ISLIVE =", ";")?.trim() == "true"
             val title = TextUtil.subStringAfterWhat(
@@ -88,9 +88,9 @@ class HuyaImpl : IPlatform {
                     avatar
                 )
             } else {
-                getHtml(queryAnchor)?.let {
+                getHtml(queryAnchor)?.let { screenShotHtml ->
                     val screenshot =
-                        TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
+                        TextUtil.subString(screenShotHtml, "\"screenshot\":\"", "\",")?.replace("\\", "")
                     return AnchorAttribute(
                         queryAnchor,
                         state,
@@ -172,8 +172,8 @@ class HuyaImpl : IPlatform {
                             Anchor(
                                 platform = platform,
                                 nickname = it.nick,
-                                showId = it.uid.toString(),
-                                roomId = it.profileRoom.toString(),
+                                showId = it.profileRoom.toString(),
+                                roomId = it.uid.toString(),
                                 status = it.isLive,
                                 title = it.intro,
                                 avatar = it.avatar180,

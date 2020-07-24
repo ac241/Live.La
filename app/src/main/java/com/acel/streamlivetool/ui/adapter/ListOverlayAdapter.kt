@@ -28,22 +28,22 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
-            GraphicAnchorAdapter.VIEW_TYPE_LIVING ->
+            GraphicAnchorAdapter.VIEW_TYPE_LIVING_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_overlay_status_living, parent, false)
                         .also {
                             it.tag =
-                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_LIVING
+                                AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
                         }
                 )
-            GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING ->
+            GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_overlay_status_not_living, parent, false)
                         .also {
                             it.tag =
-                                AnchorRecyclerViewOnScrollListener.STATUS_GROUP_TITLE_NOT_LIVING
+                                AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
                         }
                 )
             else ->
@@ -58,9 +58,9 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     override fun getItemViewType(position: Int): Int {
         return when (anchorList[position]) {
             AnchorPlaceHolder.anchorIsLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_LIVING
+                GraphicAnchorAdapter.VIEW_TYPE_LIVING_TITLE
             AnchorPlaceHolder.anchorNotLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING
+                GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING_TITLE
             else ->
                 GraphicAnchorAdapter.VIEW_TYPE_NORMAL
         }
@@ -73,6 +73,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             return
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]
+        holder.itemView.tag = if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
         with(holder) {
             this.title.text =
                 anchor.title ?: "-"

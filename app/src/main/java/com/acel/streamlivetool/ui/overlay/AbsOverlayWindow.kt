@@ -8,11 +8,8 @@ import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.util.ToastUtil
-import kotlin.random.Random
 
 abstract class AbsOverlayWindow {
     private val applicationContext = MyApplication.application.applicationContext

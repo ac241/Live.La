@@ -11,12 +11,10 @@
     <string name="item_click_action_name">点击条目时</string>
     <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
     <string name="second_button_action_name">点击侧边键时</string>
-    <string name="click">点击</string>
     <string name="pref_key_about_open_source">pref_key_about_open_source</string>
     <string name="string_open_app">open_app</string>
     <string name="string_outer_player">outer_player</string>
     <string name="open_source_licensed">开放源代码许可</string>
-    <string name="cookie_anchor">cookie</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
@@ -78,7 +76,6 @@
     <string name="string_first_time_launch">first_time_launch</string>
     <string name="button_player_overlay_resize">改变大小</string>
     <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
-    <string name="start_app">打开直播app</string>
     <string name="is_living">直播中</string>
     <string name="not_living">未直播</string>
     <!--  list preference end  -->

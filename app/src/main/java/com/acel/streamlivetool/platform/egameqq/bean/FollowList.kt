@@ -81,8 +81,7 @@ data class FollowList(
         val win_rate: Int
     )
 
-    class Ext(
-    )
+    class Ext
 
     data class Jump(
         val ext: ExtX,
@@ -151,8 +150,7 @@ data class FollowList(
         val video_type: Int
     )
 
-    class ExtX(
-    )
+    class ExtX
 
     data class ShowTimeInfo(
         val `data`: String,
@@ -258,8 +256,7 @@ data class FollowList(
         val win_rate: Int
     )
 
-    class ExtXX(
-    )
+    class ExtXX
 
     data class JumpX(
         val ext: ExtXXX,
@@ -328,8 +325,7 @@ data class FollowList(
         val video_type: Int
     )
 
-    class ExtXXX(
-    )
+    class ExtXXX
 
     data class ShowTimeInfoX(
         val `data`: String,

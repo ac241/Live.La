@@ -25,7 +25,6 @@ class Anchor() {
 
     @Ignore
     var keyFrame: String? = null
-    fun anchorKey(): String = platform + roomId
 
     constructor(
         platform: String,

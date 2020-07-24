@@ -2,17 +2,16 @@ package com.acel.streamlivetool.ui.overlay
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
+import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -83,7 +82,7 @@ class PlayerOverlayWindowManager {
     /**
      * 创建Player悬浮窗
      */
-    internal fun show() {
+    private fun show() {
         playerOverlayWindow.show()
         isShown = true
     }
@@ -91,7 +90,7 @@ class PlayerOverlayWindowManager {
     /**
      * 移除Player悬浮窗
      */
-    internal fun remove() {
+    private fun remove() {
         playerOverlay?.stop()
         playerOverlayWindow.remove()
         isShown = false

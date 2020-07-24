@@ -1,5 +1,3 @@
 package com.acel.streamlivetool.base
 
-interface BaseView<T> {
-
-}
+interface BaseView<T>

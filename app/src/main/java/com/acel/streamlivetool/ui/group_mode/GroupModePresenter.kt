@@ -1,13 +1,11 @@
 package com.acel.streamlivetool.ui.group_mode
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder
@@ -21,9 +19,6 @@ class GroupModePresenter(private var view: GroupModeConstract.View?) :
     GroupModeConstract.Presenter {
     val context = view as Context
     val anchorRepository = AnchorRepository.getInstance(context.applicationContext)
-    val anchorAttributeMap = MutableLiveData<MutableMap<String, Anchor>>().also {
-        it.value = mutableMapOf()
-    }
 
     @Synchronized
     fun updateAnchorAttribute(anchorAttribute: AnchorAttribute) {
