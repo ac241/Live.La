@@ -10,6 +10,7 @@ import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
+import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 
@@ -81,7 +82,12 @@ class EgameqqImpl : IPlatform {
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val html = getHtml(queryAnchor)
         html?.let {
-            return TextUtil.subString(html, "\"playUrl\":\"", "\",")
+            val jsonStr = TextUtil.subString(html, "playerInfo = ", ";window._playerInfo")
+            val playerInfo = Gson().fromJson<PlayerInfo>(jsonStr, PlayerInfo::class.java)
+            playerInfo.urlArray.forEach {
+                if (it.playUrl.isNotEmpty())
+                    return it.playUrl
+            }
         }
         return null
     }
