@@ -18,13 +18,15 @@ import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener.Companion.S
 import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener.Companion.STATUS_NOT_LIVING
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
-import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
-import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
-class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
+class GraphicAnchorAdapter(
+    private val context: Context,
+    private val anchorList: List<Anchor>,
+    private val modeType: Int
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
     companion object {
@@ -48,18 +50,6 @@ class GraphicAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
     }
 
     private val additionalAction = AdditionalAction.instance
-
-
-    private val modeType by lazy {
-        when (context) {
-            is CookieModeActivity ->
-                ModeType.CookieMode
-            is GroupModeActivity ->
-                ModeType.GroupMode
-            else ->
-                ModeType.GroupMode
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder

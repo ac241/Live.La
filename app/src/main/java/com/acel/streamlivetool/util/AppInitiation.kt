@@ -17,6 +17,7 @@ class AppInitiation {
         }
     }
 
+    private val fullVersion: Boolean = true
     private val buglyAppId = "ee4f2df64b"
 
     fun init() {
@@ -52,7 +53,7 @@ class AppInitiation {
     private fun initFullVersion() {
         //是否使用完整版
         defaultSharedPreferences.edit()
-            .putBoolean(appContext.resources.getString(R.string.full_version), false).apply()
+            .putBoolean(appContext.resources.getString(R.string.full_version), fullVersion).apply()
     }
 
     private fun initPreference() {

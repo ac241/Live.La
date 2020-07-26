@@ -13,10 +13,7 @@ import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.finishAllActivity
 import com.acel.streamlivetool.base.MyApplication.Companion.isActivityFirst
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.adapter.AnchorAdapterWrapper
-import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener
-import com.acel.streamlivetool.ui.adapter.GraphicAnchorAdapter
-import com.acel.streamlivetool.ui.adapter.TextAnchorAdapter
+import com.acel.streamlivetool.ui.adapter.*
 import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
@@ -43,9 +40,12 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
         return R.layout.activity_group_mode
     }
 
-    enum class ListItemType {
-        Text, Graphic;
+    companion object {
+        enum class ListItemType {
+            Text, Graphic;
+        }
     }
+
 
     override fun onBackPressed() {
         if (isActivityFirst(this)) {
@@ -90,7 +90,8 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
                 recycler_view.layoutManager = LinearLayoutManager(this)
                 val adapter = TextAnchorAdapter(
                     this,
-                    presenter.sortedAnchorList.value!!
+                    presenter.sortedAnchorList.value!!,
+                    MODE_GROUP
                 )
                 recycler_view.adapter = adapter
                 nowAnchorAnchorAdapter = adapter
@@ -101,7 +102,8 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
                 recycler_view.layoutManager = manager
                 val adapter = GraphicAnchorAdapter(
                     this,
-                    presenter.sortedAnchorList.value!!
+                    presenter.sortedAnchorList.value!!,
+                    MODE_GROUP
                 )
                 recycler_view.adapter = adapter
                 nowAnchorAnchorAdapter = adapter

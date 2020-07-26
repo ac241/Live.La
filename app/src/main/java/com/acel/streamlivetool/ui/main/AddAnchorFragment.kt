@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.group_mode
+package com.acel.streamlivetool.ui.main
 
 import android.content.Context
 import android.content.DialogInterface
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
@@ -20,6 +21,10 @@ import kotlinx.android.synthetic.main.fragment_add_anchor.*
 
 class AddAnchorFragment : BottomSheetDialogFragment() {
     private lateinit var platformList: List<String>
+    private val viewModel by viewModels<AddAnchorViewModel> {
+        AddAnchorViewModel.ViewModeFactory(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
@@ -63,8 +68,8 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
             val platform = tempList[radioIndex]
-            val groupModeActivity = activity as GroupModeActivity
-            groupModeActivity.presenter.addAnchor(Anchor(platform, "", roomId, ""))
+
+            viewModel.addAnchor(Anchor(platform, "", roomId, ""))
         }
     }
 
@@ -80,15 +85,15 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         super.onDismiss(dialog)
     }
 
-    fun onGetAnchorInfoSuccess(anchor: Anchor) {
+    fun addAnchorFailed(reason: String) {
         runOnUiThread {
-            toast("添加成功${anchor.nickname}")
+            toast("添加失败：$reason")
         }
     }
 
-    fun onGetAnchorInfoFailed(reason: String) {
+    fun addAnchorSuccess(anchor: Anchor) {
         runOnUiThread {
-            toast("添加失败：$reason")
+            toast("添加成功${anchor.nickname}")
         }
     }
 

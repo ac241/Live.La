@@ -13,9 +13,11 @@ import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
 
 class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-enum class ModeType { CookieMode, GroupMode }
+const val MODE_GROUP = 332
+const val MODE_COOKIE = 333
 
-class ViewHolderGraphic(itemView: View, private val modeType: ModeType) : RecyclerView.ViewHolder(itemView),
+class ViewHolderGraphic(itemView: View, private val modeType: Int) :
+    RecyclerView.ViewHolder(itemView),
     View.OnCreateContextMenuListener {
     override fun onCreateContextMenu(
         menu: ContextMenu?,
@@ -23,12 +25,12 @@ class ViewHolderGraphic(itemView: View, private val modeType: ModeType) : Recycl
         menuInfo: ContextMenu.ContextMenuInfo?
     ) {
         when (modeType) {
-            ModeType.GroupMode ->
+            MODE_GROUP ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu,
                     menu
                 )
-            ModeType.CookieMode ->
+            MODE_COOKIE ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu_cookie_mode,
                     menu
@@ -50,7 +52,8 @@ class ViewHolderGraphic(itemView: View, private val modeType: ModeType) : Recycl
     val additionBtn: ImageView = itemView.grid_anchor_addition_action
 }
 
-class ViewHolderText(itemView: View, private val modeType: ModeType) : RecyclerView.ViewHolder(itemView),
+class ViewHolderText(itemView: View, private val modeType: Int) :
+    RecyclerView.ViewHolder(itemView),
     View.OnCreateContextMenuListener {
     override fun onCreateContextMenu(
         menu: ContextMenu?,
@@ -58,12 +61,12 @@ class ViewHolderText(itemView: View, private val modeType: ModeType) : RecyclerV
         menuInfo: ContextMenu.ContextMenuInfo?
     ) {
         when (modeType) {
-            ModeType.GroupMode ->
+            MODE_GROUP ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu,
                     menu
                 )
-            ModeType.CookieMode ->
+            MODE_COOKIE ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu_cookie_mode,
                     menu

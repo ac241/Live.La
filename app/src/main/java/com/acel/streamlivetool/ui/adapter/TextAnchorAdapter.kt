@@ -20,20 +20,10 @@ import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
-class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
+class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>, private val modeType: Int) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
 
-    private val modeType by lazy {
-        when (context) {
-            is CookieModeActivity ->
-                ModeType.CookieMode
-            is GroupModeActivity ->
-                ModeType.GroupMode
-            else ->
-                ModeType.GroupMode
-        }
-    }
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
@@ -97,7 +87,8 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>) :
 
         holder as ViewHolderText
         val anchor: Anchor = anchorList[position]
-        holder.itemView.tag = if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
+        holder.itemView.tag =
+            if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
 
         with(holder) {
             //title

@@ -4,6 +4,7 @@ import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.splash.SplashActivity
 
 class SettingsActivity : BaseActivity() {
@@ -20,7 +21,7 @@ class SettingsActivity : BaseActivity() {
     override fun destroyDo() {
         if (settingsChanges) {
             MyApplication.finishAllActivity()
-            startActivity(Intent(this, SplashActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
         }
     }
 }

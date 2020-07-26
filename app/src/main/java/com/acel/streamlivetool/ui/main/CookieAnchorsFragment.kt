@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.cookie_mode
+package com.acel.streamlivetool.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,31 +7,36 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.ui.adapter.*
 import com.acel.streamlivetool.ui.login.LoginActivity
-import com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 import kotlinx.android.synthetic.main.layout_login_first.*
 
-class AnchorsFragment(val platform: IPlatform) : Fragment() {
+class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
 
-    private val anchorList = mutableListOf<Anchor>()
-    private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
     private var layoutManagerType = ListItemType.Text
+    private val viewModel by viewModels<CookieAnchorsViewModel> {
+        CookieAnchorsViewModel.ViewModeFactory(this)
+    }
 
     enum class ListItemType {
         Text, Graphic;
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -47,7 +52,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         initRecyclerView()
 
         cookie_anchor_swipe_refresh.setOnRefreshListener {
-            getAnchors()
+            viewModel.getAnchors()
         }
     }
 
@@ -70,7 +75,8 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                 recycler_view.layoutManager = LinearLayoutManager(requireContext())
                 val adapter = TextAnchorAdapter(
                     requireContext(),
-                    anchorList, MODE_COOKIE
+                    viewModel.anchorList,
+                    MODE_COOKIE
                 )
                 recycler_view.adapter = adapter
                 nowAnchorAnchorAdapter = adapter
@@ -81,7 +87,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                     StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
                 val adapter = GraphicAnchorAdapter(
                     requireContext(),
-                    anchorList,
+                    viewModel.anchorList,
                     MODE_COOKIE
                 )
                 recycler_view.adapter = adapter
@@ -91,35 +97,8 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
         recycler_view.addOnScrollListener(AnchorListAddTitleListener())
     }
 
-    private fun getAnchors() {
-        MainExecutor.execute {
-            val anchorsCookieMode = platform.getAnchorsWithCookieMode()
-            if (!anchorsCookieMode.cookieOk) {
-                if (viewStub_login_first != null)
-                    showLoginSub()
-            } else {
-                with(anchorsCookieMode.anchors) {
-                    if (this != null) {
-                        anchorList.clear()
-                        anchorList.addAll(this)
-                        insertStatusPlaceHolder(anchorList)
-                        runOnUiThread {
-                            nowAnchorAnchorAdapter.notifyAnchorsChange()
-                        }
-                    }
-                }
-                if (login_first_wrapper != null && login_first_wrapper.visibility == View.VISIBLE)
-                    runOnUiThread {
-                        login_first_wrapper.visibility = View.GONE
-                    }
-            }
-            runOnUiThread {
-                cookie_anchor_swipe_refresh.isRefreshing = false
-            }
-        }
-    }
 
-    private fun showLoginSub() {
+    fun showLoginSub() {
         runOnUiThread {
             viewStub_login_first.inflate()
             textView_login_first.setOnClickListener {
@@ -133,7 +112,7 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        getAnchors()
+        viewModel.getAnchors()
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -143,11 +122,22 @@ class AnchorsFragment(val platform: IPlatform) : Fragment() {
                     val position =
                         nowAnchorAnchorAdapter.getLongClickPosition()
                     val result = AnchorRepository.getInstance(requireContext().applicationContext)
-                        .insertAnchor(anchorList[position])
+                        .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)
                 }
             }
         return super.onContextItemSelected(item)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_list_overlay -> {
+                (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
+//                    viewModel.sortedAnchorList.value!!
+                    viewModel.anchorList
+                )
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }

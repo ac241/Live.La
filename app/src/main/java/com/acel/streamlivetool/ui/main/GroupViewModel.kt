@@ -1,0 +1,99 @@
+package com.acel.streamlivetool.ui.main
+
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.AnchorAttribute
+import com.acel.streamlivetool.db.AnchorRepository
+import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.util.AnchorListHelper
+import com.acel.streamlivetool.util.MainExecutor
+import java.util.*
+
+class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
+
+    class ViewModeFactory(private val groupFragment: GroupFragment) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return GroupViewModel(groupFragment) as T
+        }
+    }
+
+    //数据库读取的anchorList
+    private val anchorRepository =
+        AnchorRepository.getInstance(groupFragment.requireContext().applicationContext)
+
+    //排序后的anchorList
+    val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {
+        it.value = Collections.synchronizedList(mutableListOf())
+        it.addSource(anchorRepository.anchorList) { sourceList ->
+            it.value?.clear()
+            it.value?.addAll(sourceList)
+            it.postValue(it.value)
+            getAllAnchorsAttribute()
+        }
+        it.observe(groupFragment, Observer {
+            groupFragment.refreshAnchorAttribute()
+        })
+    }
+
+//    init {
+//        //初始化LiveData 观察
+//        sortedAnchorList.observe(groupFragment, Observer {
+//            groupFragment.refreshAnchorAttribute()
+//        })
+//    }
+
+    /**
+     * 更新主播属性
+     */
+    @Synchronized
+    fun updateAnchorAttribute(anchorAttribute: AnchorAttribute) {
+        sortedAnchorList.value?.let {
+            val index = it.indexOf(anchorAttribute.anchor)
+            if (index != -1) {
+                with(it[index]) {
+                    status = anchorAttribute.status
+                    title = anchorAttribute.title
+                    avatar = anchorAttribute.avatar
+                    keyFrame = anchorAttribute.keyFrame
+
+                }
+            }
+        }
+        AnchorListHelper.sortAnchorListByStatus(sortedAnchorList.value!!)
+        AnchorListHelper.insertStatusPlaceHolder(sortedAnchorList.value!!)
+        sortedAnchorList.postValue(sortedAnchorList.value)
+    }
+
+    private fun getAnchorsAttribute(anchor: Anchor) {
+        MainExecutor.execute(GetAnchorAttributeRunnable(anchor))
+    }
+
+    inner class GetAnchorAttributeRunnable(val anchor: Anchor) : Runnable {
+        override fun run() {
+            try {
+                val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
+                val anchorAttribute = platformImpl?.getAnchorAttribute(anchor)
+                if (anchorAttribute != null) {
+                    updateAnchorAttribute(anchorAttribute)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getAllAnchorsAttribute() {
+        sortedAnchorList.value?.forEach { anchor ->
+            getAnchorsAttribute(anchor)
+        }
+    }
+
+    fun deleteAnchor(anchor: Anchor) {
+        anchorRepository.deleteAnchor(anchor)
+
+    }
+}
