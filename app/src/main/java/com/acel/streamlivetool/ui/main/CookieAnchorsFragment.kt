@@ -23,7 +23,6 @@ import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 import kotlinx.android.synthetic.main.layout_login_first.*
 
 class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
-
     internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
     private var layoutManagerType = ListItemType.Text
     private val viewModel by viewModels<CookieAnchorsViewModel> {
@@ -130,14 +129,16 @@ class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         when (item.itemId) {
             R.id.action_list_overlay -> {
-                (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
-//                    viewModel.sortedAnchorList.value!!
-                    viewModel.anchorList
-                )
+                if (isVisible)
+                    (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
+                        viewModel.anchorList
+                    )
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
 }

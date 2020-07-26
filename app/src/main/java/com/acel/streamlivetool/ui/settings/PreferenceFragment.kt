@@ -83,8 +83,12 @@ class SettingsFragment : PreferenceFragmentCompat(),
             }
             //设置后重启应用
             when (key) {
-                resources.getString(R.string.pref_key_group_mode_list_type), resources.getString(R.string.pref_key_launch_activity)
-                    ,resources.getString(R.string.pref_key_additional_action_btn),resources.getString(R.string.pref_key_cookie_mode_list_type)->
+                resources.getString(R.string.pref_key_group_mode_list_type),
+                resources.getString(R.string.pref_key_launch_activity),
+                resources.getString(R.string.pref_key_additional_action_btn),
+                resources.getString(R.string.pref_key_cookie_mode_list_type),
+                resources.getString(R.string.pref_key_cookie_mode_platform_showable)
+                ->
                     (requireActivity() as SettingsActivity).settingsChanges = true
             }
         }

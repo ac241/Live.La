@@ -13,7 +13,9 @@ import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 import permissions.dispatcher.*
 import kotlin.properties.Delegates
 
@@ -37,7 +39,12 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-        viewPager.isUserInputEnabled = true
+        TabLayoutMediator(
+            tabLayout,
+            viewPager,
+            TabLayoutMediator.TabConfigurationStrategy { _, _ ->
+            }
+        ).attach()
     }
 
     override fun getResLayoutId(): Int {
@@ -105,7 +112,7 @@ class MainActivity : BaseActivity() {
 
     private var backPressedTime by Delegates.observable(0L) { _, old, new ->
         // 2次的时间间隔小于2秒就退出
-        if (new - old < 2000) {
+        if (new - old < 1000) {
             finish()
         } else {
             toast("双击返回键退出")

@@ -7,18 +7,41 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 class CookieFragment : Fragment() {
-    val platforms = mutableListOf<IPlatform>().also {
+    val a = mutableListOf<IPlatform>().also {
         for (entry in PlatformDispatcher.getAllPlatformInstance()) {
             if (entry.value.supportCookieMode)
                 it.add(entry.value)
         }
     }
+    val platforms by lazy {
+        val platforms = mutableListOf<IPlatform>()
+        val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
+        val showSet = defaultSharedPreferences.getStringSet(
+            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+            setOf()
+        )
+
+        if (showSet != null)
+            sortPlatformArray.forEach {
+                if (!showSet.contains(it))
+                    return@forEach
+                val platform = PlatformDispatcher.getPlatformImpl(it)
+                if (platform != null) {
+                    if (platform.supportCookieMode)
+                        platforms.add(platform)
+                }
+            }
+        platforms
+    }
+
     val fragments = mutableMapOf<IPlatform, CookieAnchorsFragment>().also {
         platforms.forEach { platform ->
             it[platform] = CookieAnchorsFragment(platform)
@@ -48,14 +71,14 @@ class CookieFragment : Fragment() {
                 return fragments[platforms[position]] as Fragment
             }
         }
+
         TabLayoutMediator(
-            tabLayout,
+            cookie_tabLayout,
             cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
                 tab.text = resources.getString(platforms[position].platformShowNameRes)
             }
         ).attach()
-
     }
 
     companion object {

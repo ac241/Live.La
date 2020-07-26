@@ -67,7 +67,7 @@ class CookieModeActivity : BaseActivity(), PlayOverlayFunction {
             }
         }
         TabLayoutMediator(
-            tabLayout,
+            cookie_tabLayout,
             cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
                 tab.text = resources.getString(platforms[position].platformShowNameRes)

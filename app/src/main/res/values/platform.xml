@@ -7,5 +7,23 @@
     <string name="huomao">火猫</string>
     <string name="yy">YY</string>
     <string name="longzhu">龙珠</string>
+    <array name="platform">
+        <item>douyu</item>
+        <item>bilibili</item>
+        <item>huya</item>
+        <item>egameqq</item>
+        <item>huomao</item>
+        <item>yy</item>
+        <item>longzhu</item>
+    </array>
 
+    <array name="platformName">
+        <item>斗鱼</item>
+        <item>B站</item>
+        <item>虎牙</item>
+        <item>企鹅电竞</item>
+        <item>火猫</item>
+        <item>YY</item>
+        <item>龙珠</item>
+    </array>
 </resources>

@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.ui.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -112,9 +113,10 @@ class GroupFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_list_overlay -> {
-                (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
-                    viewModel.sortedAnchorList.value!!
-                )
+                if (isVisible)
+                    (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
+                        viewModel.sortedAnchorList.value!!
+                    )
             }
         }
         return super.onOptionsItemSelected(item)

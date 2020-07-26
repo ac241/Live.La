@@ -34,6 +34,7 @@ object PlatformDispatcher {
      * @return List<"platform,platformShowName">
      */
     fun getAllPlatform(): List<String> {
+
         val platformList = mutableListOf<String>()
         mMap.forEach {
             val platformShowName =

@@ -41,8 +41,15 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="@string/pref_key_additional_action_btn"
-        android:title="附加功能按钮（LPL赛程等..）"
+        android:title="@string/additional_action_hint"
         app:iconSpaceReserved="false" />
+    <MultiSelectListPreference
+        android:defaultValue="@array/platform"
+        android:entries="@array/platformName"
+        android:entryValues="@array/platform"
+        android:title="@string/cookie_mode_platform_showable"
+        android:key="@string/pref_key_cookie_mode_platform_showable"
+        app:iconSpaceReserved="false"/>
     <Preference
         android:key="@string/pref_key_clear_cookie"
         android:title="@string/clear_cookie"
@@ -51,4 +58,5 @@
         android:key="@string/pref_key_about_open_source"
         android:title="@string/open_source_licensed"
         app:iconSpaceReserved="false" />
+
 </PreferenceScreen>
