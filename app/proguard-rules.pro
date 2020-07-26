@@ -19,7 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
+-libraryjars 'C:\Program Files\Android\Android Studio\jre\jre\lib\rt.jar'
+-libraryjars 'C:\Users\acel\AppData\Local\Android\Sdk\platforms\android-29\android.jar'
 # Gson
 #-keepattributes Signature-keepattributes *Annotation*
 -keep class sun.misc.Unsafe { *; }
@@ -51,3 +52,6 @@
 -keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
   *** rewind();
 }
+#baidu mtj
+-keep class com.baidu.helios.** { *; }
+-keep class com.baidu.mobstat.** { *; }

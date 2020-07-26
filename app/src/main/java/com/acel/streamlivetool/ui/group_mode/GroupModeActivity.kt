@@ -21,7 +21,7 @@ import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.activity_group_mode.*
+import kotlinx.android.synthetic.main.fragment_group_mode.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 import permissions.dispatcher.*
 
@@ -37,7 +37,7 @@ class GroupModeActivity : BaseActivity(), GroupModeConstract.View, PlayOverlayFu
 
 
     override fun getResLayoutId(): Int {
-        return R.layout.activity_group_mode
+        return R.layout.fragment_group_mode
     }
 
     companion object {

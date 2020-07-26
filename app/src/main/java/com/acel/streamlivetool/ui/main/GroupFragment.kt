@@ -14,7 +14,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.ui.adapter.*
 import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.activity_group_mode.*
+import kotlinx.android.synthetic.main.fragment_group_mode.*
 import kotlinx.android.synthetic.main.fab_layout.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 
@@ -34,7 +34,7 @@ class GroupFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.activity_group_mode, container, false)
+        return inflater.inflate(R.layout.fragment_group_mode, container, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,9 +52,6 @@ class GroupFragment : Fragment() {
                 else
                     hideSwipeRefreshBtn()
             }
-        }
-        btn_fab.setOnClickListener {
-            fabClick()
         }
     }
 
@@ -121,10 +118,6 @@ class GroupFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun fabClick() {
-        (requireActivity() as MainActivity).toggleFragment()
     }
 
     companion object {

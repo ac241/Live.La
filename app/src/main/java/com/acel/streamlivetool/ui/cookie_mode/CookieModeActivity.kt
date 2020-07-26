@@ -21,13 +21,13 @@ import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.public_interface.PlayOverlayFunction
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_cookie_mode.*
+import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 import permissions.dispatcher.*
 
 @RuntimePermissions
 class CookieModeActivity : BaseActivity(), PlayOverlayFunction {
     override fun getResLayoutId(): Int {
-        return R.layout.activity_cookie_mode
+        return R.layout.fragment_cookie_mode
     }
 
     val platforms = mutableListOf<IPlatform>().also {
@@ -57,7 +57,7 @@ class CookieModeActivity : BaseActivity(), PlayOverlayFunction {
             window.statusBarColor = resources.getColor(android.R.color.background_light, null)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
-        viewPager.adapter = object : FragmentStateAdapter(this) {
+        cookie_viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
                 return platforms.size
             }
@@ -68,7 +68,7 @@ class CookieModeActivity : BaseActivity(), PlayOverlayFunction {
         }
         TabLayoutMediator(
             tabLayout,
-            viewPager,
+            cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
                 tab.text = resources.getString(platforms[position].platformShowNameRes)
             }

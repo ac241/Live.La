@@ -10,8 +10,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_cookie_mode.*
-import kotlinx.android.synthetic.main.fab_layout.*
+import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 class CookieFragment : Fragment() {
     val platforms = mutableListOf<IPlatform>().also {
@@ -35,12 +34,12 @@ class CookieFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.activity_cookie_mode, container, false)
+        return inflater.inflate(R.layout.fragment_cookie_mode, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewPager.adapter = object : FragmentStateAdapter(this) {
+        cookie_viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
                 return platforms.size
             }
@@ -51,19 +50,12 @@ class CookieFragment : Fragment() {
         }
         TabLayoutMediator(
             tabLayout,
-            viewPager,
+            cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
                 tab.text = resources.getString(platforms[position].platformShowNameRes)
             }
         ).attach()
 
-        btn_fab.setOnClickListener {
-            fabClick()
-        }
-    }
-
-    private fun fabClick() {
-        (requireActivity() as MainActivity).toggleFragment()
     }
 
     companion object {
