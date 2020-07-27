@@ -17,11 +17,15 @@
 package com.acel.streamlivetool.ui.custom_view
 
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.annotation.AttrRes
+import androidx.annotation.RequiresApi
+import androidx.annotation.StyleRes
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import kotlin.math.absoluteValue
@@ -38,6 +42,18 @@ import kotlin.math.sign
 class NestedScrollableHost : FrameLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int, @StyleRes defStyleRes:Int ) : super(
+        context,
+        attrs,
+        defStyleAttr,
+        defStyleRes
+    )
 
     private var touchSlop = 0
     private var initialX = 0f
