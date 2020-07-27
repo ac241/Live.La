@@ -12,8 +12,6 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
-import com.acel.streamlivetool.ui.cookie_mode.CookieModeActivity
-import com.acel.streamlivetool.ui.group_mode.GroupModeActivity
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor

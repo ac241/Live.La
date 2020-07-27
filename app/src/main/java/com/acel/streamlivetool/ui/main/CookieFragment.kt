@@ -15,12 +15,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 class CookieFragment : Fragment() {
-    val a = mutableListOf<IPlatform>().also {
-        for (entry in PlatformDispatcher.getAllPlatformInstance()) {
-            if (entry.value.supportCookieMode)
-                it.add(entry.value)
-        }
-    }
     val platforms by lazy {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)

@@ -2,9 +2,11 @@ package com.acel.streamlivetool.util
 
 import android.content.Context
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
+import com.acel.streamlivetool.util.ToastUtil.toast
 import com.baidu.mobstat.StatService
 import com.tencent.bugly.crashreport.CrashReport
 
@@ -17,13 +19,16 @@ class AppInitiation {
         }
     }
 
-    private val fullVersion: Boolean = true
+    private val fullVersion: Boolean = false
     private val buglyAppId = "ee4f2df64b"
 
     fun init() {
         firstTimeLaunch()
+        initPreference()
         initBugly()
         initMtj()
+        if (fullVersion)
+            toast("当前处于完整模式！")
     }
 
     /**
@@ -40,13 +45,12 @@ class AppInitiation {
     }
 
     private fun firstTimeLaunch() {
-        val firstKey = appContext.getString(R.string.string_first_time_launch)
-        val isFirst = defaultSharedPreferences.getBoolean(firstKey, true)
+        val firstTimeKey = appContext.getString(R.string.string_first_time_launch)
+        val isFirst = defaultSharedPreferences.getBoolean(firstTimeKey, true)
         if (isFirst) {
             initDefaultAnchor()
-            initPreference()
             initFullVersion()
-            defaultSharedPreferences.edit().putBoolean(firstKey, false).apply()
+            defaultSharedPreferences.edit().putBoolean(firstTimeKey, false).apply()
         }
     }
 
@@ -57,16 +61,17 @@ class AppInitiation {
     }
 
     private fun initPreference() {
-        defaultSharedPreferences.edit()
-            .putString(
-                appContext.getString(R.string.pref_key_item_click_action),
-                appContext.getString(R.string.string_open_app)
-            )
-            .putString(
-                appContext.getString(R.string.pref_key_second_button_click_action),
-                appContext.getString(R.string.string_overlay_player)
-            )
-            .apply()
+        val isInitialed = defaultSharedPreferences.getBoolean(
+            appContext.getString(R.string.string_preference_initialed),
+            false
+        )
+        if (!isInitialed) {
+            PreferenceManager.setDefaultValues(appContext, R.xml.pre_settings, false)
+            defaultSharedPreferences.edit().putBoolean(
+                appContext.getString(R.string.string_preference_initialed),
+                true
+            ).apply()
+        }
     }
 
     private fun initDefaultAnchor() {

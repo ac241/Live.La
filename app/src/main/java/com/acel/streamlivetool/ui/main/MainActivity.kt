@@ -8,14 +8,17 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 import permissions.dispatcher.*
 import kotlin.properties.Delegates
 
@@ -24,11 +27,30 @@ class MainActivity : BaseActivity() {
     private val groupFragment by lazy { GroupFragment.newInstance() }
     private val cookieFragment by lazy { CookieFragment.newInstance() }
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
+    private val useCookieMode by lazy {
+        val platforms = mutableListOf<IPlatform>()
+        val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
+        val showSet = defaultSharedPreferences.getStringSet(
+            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+            setOf()
+        )
+        if (showSet != null)
+            sortPlatformArray.forEach {
+                if (!showSet.contains(it))
+                    return@forEach
+                val platform = PlatformDispatcher.getPlatformImpl(it)
+                if (platform != null) {
+                    if (platform.supportCookieMode)
+                        platforms.add(platform)
+                }
+            }
+        platforms.size > 0
+    }
 
     override fun createdDo() {
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
-                return 2
+                return if (useCookieMode) 2 else 1
             }
 
             override fun createFragment(position: Int): Fragment {
@@ -39,12 +61,13 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-        TabLayoutMediator(
-            tabLayout,
-            viewPager,
-            TabLayoutMediator.TabConfigurationStrategy { _, _ ->
-            }
-        ).attach()
+        if (useCookieMode)
+            TabLayoutMediator(
+                tabLayout,
+                viewPager,
+                TabLayoutMediator.TabConfigurationStrategy { _, _ ->
+                }
+            ).attach()
     }
 
     override fun getResLayoutId(): Int {
@@ -90,7 +113,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.group_mode_activity_menu, menu)
+        menuInflater.inflate(R.menu.main_activity_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

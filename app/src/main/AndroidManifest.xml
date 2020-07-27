@@ -21,6 +21,7 @@
         tools:targetApi="m">
         <activity
             android:name=".ui.main.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.Acel">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,18 +35,8 @@
             android:name=".ui.login.LoginActivity"
             android:configChanges="orientation|screenSize" />
         <activity
-            android:name=".ui.cookie_mode.CookieModeActivity"
-            android:configChanges="orientation|screenSize"
-            android:launchMode="singleInstance" />
-        <activity
             android:name=".ui.open_source.OpenSourceActivity"
             android:theme="@style/Theme.Acel" />
-        <activity
-            android:name=".ui.group_mode.GroupModeActivity"
-            android:configChanges="orientation|screenSize"
-            android:launchMode="singleInstance"
-            android:theme="@style/Theme.Acel"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_setting"

@@ -6,6 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
+import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
 import com.acel.streamlivetool.util.TextUtil
@@ -26,7 +27,7 @@ class HuomaoImpl : IPlatform {
 
     override val platform: String = "huomao"
     override val platformShowNameRes: Int = R.string.huomao
-    override val supportCookieMode: Boolean = false
+    override val supportCookieMode: Boolean = true
     private val huomaoService: HuomaoApi = retrofit.create(HuomaoApi::class.java)
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
@@ -37,7 +38,7 @@ class HuomaoImpl : IPlatform {
                 platform,
                 UnicodeUtil.decodeUnicode(roomInfo.nickname),
                 roomInfo.roomNumber,
-                roomInfo.roomNumber
+                roomInfo.id
             )
         } else {
             null
@@ -62,7 +63,9 @@ class HuomaoImpl : IPlatform {
             AnchorAttribute(
                 queryAnchor,
                 roomInfo.isLive == 1,
-                UnicodeUtil.decodeUnicode(roomInfo.channel)
+                UnicodeUtil.decodeUnicode(roomInfo.channel),
+                roomInfo.headimg.big,
+                roomInfo.image
             )
         } else
             null
@@ -105,4 +108,39 @@ class HuomaoImpl : IPlatform {
         context.startActivity(intent)
     }
 
+    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+        if (readCookie().isEmpty())
+            return super.getAnchorsWithCookieMode()
+        val subscribe = huomaoService.getUsersSubscribe(readCookie()).execute().body()
+        subscribe?.let {
+            val list = subscribe.data.usersSubChannels
+            val anchorList = mutableListOf<Anchor>()
+            list.forEach {
+                anchorList.add(
+                    Anchor(
+                        platform,
+                        it.nickname,
+                        it.room_number,
+                        it.id,
+                        it.is_live == 1,
+                        it.channel,
+                        it.headimg.big,
+                        it.image
+                    )
+                )
+            }
+            return AnchorsCookieMode(true, anchorList)
+        }
+        return super.getAnchorsWithCookieMode()
+    }
+
+    override fun getLoginUrl(): String {
+        return "https://www.huomao.com/channel/all"
+    }
+
+    override fun checkLoginOk(cookie: String): Boolean {
+        return cookie.contains("user_")
+    }
+
+    override fun usePcAgent(): Boolean = true
 }

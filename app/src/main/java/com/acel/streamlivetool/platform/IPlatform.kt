@@ -28,6 +28,7 @@ interface IPlatform {
     /**
      *  支持cookie模式
      *  如果为true，需要复写 [getAnchorsWithCookieMode] [getLoginUrl] [checkLoginOk]
+     *  可能需要[usePcAgent]
      */
     val supportCookieMode: Boolean
 

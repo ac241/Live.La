@@ -2,15 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_cookie_anchor"
+        android:icon="@drawable/ic_add_white_24dp"
+        android:title="@string/add_anchor"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_main_setting"
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/setting"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_cookie_anchor"
-        android:icon="@drawable/ic_add_white_24dp"
-        android:title="@string/add_anchor"
-        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_list_overlay"
         android:icon="@drawable/ic_list_overlay"

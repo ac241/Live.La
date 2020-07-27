@@ -5,7 +5,6 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.splash.SplashActivity
 
 class SettingsActivity : BaseActivity() {
     var settingsChanges = false

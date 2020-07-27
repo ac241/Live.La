@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ListPreference
-        android:defaultValue="@string/group_mode"
-        android:entries="@array/pref_launch_activity_entries"
-        android:entryValues="@array/pref_launch_activity_entries_values"
-        android:key="@string/pref_key_launch_activity"
-        android:title="@string/launch_activity"
-        app:iconSpaceReserved="false" />
+<!--    <ListPreference-->
+<!--        android:defaultValue="@string/group_mode"-->
+<!--        android:entries="@array/pref_launch_activity_entries"-->
+<!--        android:entryValues="@array/pref_launch_activity_entries_values"-->
+<!--        android:key="@string/pref_key_launch_activity"-->
+<!--        android:title="@string/launch_activity"-->
+<!--        app:iconSpaceReserved="false" />-->
     <ListPreference
         android:defaultValue="@string/string_grid_view"
         android:entries="@array/pref_show_list_type_entries"
@@ -23,7 +23,13 @@
         android:key="@string/pref_key_cookie_mode_list_type"
         android:title="@string/cookie_mode_list_type"
         app:iconSpaceReserved="false" />
-
+    <MultiSelectListPreference
+        android:defaultValue="@array/platform"
+        android:entries="@array/platformName"
+        android:entryValues="@array/platform"
+        android:title="@string/cookie_mode_platform_showable"
+        android:key="@string/pref_key_cookie_mode_platform_showable"
+        app:iconSpaceReserved="false"/>
     <ListPreference
         android:defaultValue="@string/string_open_app"
         android:entries="@array/pref_click_action_entries"
@@ -43,13 +49,7 @@
         android:key="@string/pref_key_additional_action_btn"
         android:title="@string/additional_action_hint"
         app:iconSpaceReserved="false" />
-    <MultiSelectListPreference
-        android:defaultValue="@array/platform"
-        android:entries="@array/platformName"
-        android:entryValues="@array/platform"
-        android:title="@string/cookie_mode_platform_showable"
-        android:key="@string/pref_key_cookie_mode_platform_showable"
-        app:iconSpaceReserved="false"/>
+
     <Preference
         android:key="@string/pref_key_clear_cookie"
         android:title="@string/clear_cookie"

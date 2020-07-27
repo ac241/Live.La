@@ -12,10 +12,10 @@ object MainExecutor {
             try {
                 method.invoke()
             } catch (e: Exception) {
-                e.message?.let { toast(it) }
-                runOnUiThread{
-                    e.printStackTrace()
+                runOnUiThread {
+                    e.message?.let { toast(it) }
                 }
+                e.printStackTrace()
             }
         }
     }

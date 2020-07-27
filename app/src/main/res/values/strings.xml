@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">直播啦</string>
     <string name="title_activity_setting">设置</string>
-    <string name="add_anchor">新增直播间</string>
+    <string name="add_anchor">主页新增直播间</string>
     <string name="anchor_id">直播间号</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
@@ -20,13 +20,12 @@
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
     <string name="clear_cookie">清除cookie</string>
     <string name="pref_key_launch_activity">pref_key_launch_activity</string>
-    <string name="launch_activity">启动时界面</string>
-    <string name="add_to_group_mode">添加到聚合模式</string>
+    <string name="add_to_group_mode">添加到主页</string>
     <string name="live_image">直播图片</string>
     <string name="avatar">头像</string>
     <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
-    <string name="group_mode_list_type">聚合模式展示方式</string>
-    <string name="cookie_mode_list_type">Cookie模式展示方式</string>
+    <string name="group_mode_list_type">主页展示方式</string>
+    <string name="cookie_mode_list_type">分页展示方式</string>
     <!--  list preference  -->
     <array name="pref_click_action_entries">
         <item>打开app</item>
@@ -80,6 +79,8 @@
     <string name="not_living">未直播</string>
     <string name="additional_action_hint">附加功能按钮（LPL赛程等..）</string>
     <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
-    <string name="cookie_mode_platform_showable">cookie模式平台显示</string>
+    <string name="cookie_mode_platform_showable">分页显示平台</string>
+    <string name="string_preference_initialed">preference_initialed</string>
+    <string name="did_not_find_app">好像没有找到%sapp</string>
     <!--  list preference end  -->
 </resources>

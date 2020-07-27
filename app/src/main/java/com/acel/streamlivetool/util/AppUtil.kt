@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
+import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -13,28 +14,30 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 val defaultSharedPreferences: SharedPreferences by lazy {
     PreferenceManager.getDefaultSharedPreferences(MyApplication.application)
 }
+
 object AppUtil {
     fun runOnUiThread(todo: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
             todo.invoke()
         }
     }
+
     fun startApp(context: Context, anchor: Anchor) {
         MainExecutor.execute {
             val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
             try {
                 platformImpl?.startApp(context, anchor)
-            } catch (e: ActivityNotFoundException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
                     ToastUtil.toast(
-                        "没有找到" +
-                                platformImpl?.platformShowNameRes?.let { it1 ->
-                                    MyApplication.application.resources.getString(
-                                        it1
-                                    )
-                                }
-                                + " app..."
+                        MyApplication.application.resources.getString(
+                            R.string.did_not_find_app,
+                            platformImpl?.platformShowNameRes?.let { it1 ->
+                                MyApplication.application.resources.getString(
+                                    it1
+                                )
+                            })
                     )
                 }
             }

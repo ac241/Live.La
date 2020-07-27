@@ -11,8 +11,8 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
-import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -44,7 +44,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         initPreferencesSummary()
     }
@@ -94,7 +93,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
         }
     }
 
-
     private fun clearCookie() {
         val builder = context?.let { AlertDialog.Builder(it) }
         builder
@@ -128,4 +126,5 @@ class SettingsFragment : PreferenceFragmentCompat(),
         preferenceScreen.findPreference<Preference>(key)?.summary =
             values?.indexOf(value)?.let { entries?.get(it) }
     }
+
 }

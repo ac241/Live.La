@@ -1,7 +1,6 @@
 package com.acel.streamlivetool.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,7 +15,6 @@ import com.acel.streamlivetool.ui.adapter.*
 import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.fragment_group_mode.*
-import kotlinx.android.synthetic.main.fab_layout.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 
 class GroupFragment : Fragment() {
