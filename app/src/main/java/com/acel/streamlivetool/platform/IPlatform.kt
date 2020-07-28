@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
@@ -83,7 +84,7 @@ interface IPlatform {
             context.startActivity(intent)
         } else {
             runOnUiThread {
-                toast("获取直播流失败")
+                toast(context.getString(R.string.streaming_url_is_null))
             }
         }
     }

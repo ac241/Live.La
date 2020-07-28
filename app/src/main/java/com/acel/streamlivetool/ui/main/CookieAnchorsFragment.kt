@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.db.AnchorRepository
-import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.adapter.*
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
@@ -22,8 +22,12 @@ import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 import kotlinx.android.synthetic.main.layout_login_first.*
 
-class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
+private const val ARG_PARAM1 = "param1"
+
+class CookieAnchorsFragment : Fragment() {
+
     internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    var platform: String? = null
     private var layoutManagerType = ListItemType.Text
     private val viewModel by viewModels<CookieAnchorsViewModel> {
         CookieAnchorsViewModel.ViewModeFactory(this)
@@ -35,7 +39,11 @@ class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        arguments?.let {
+            platform = it.getString(ARG_PARAM1)
+        }
         setHasOptionsMenu(true)
+
     }
 
     override fun onCreateView(
@@ -102,7 +110,8 @@ class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
             viewStub_login_first.inflate()
             textView_login_first.setOnClickListener {
                 val intent = Intent(context, LoginActivity::class.java).also {
-                    it.putExtra("platform", platform.platform)
+                    it.putExtra("platform",
+                        platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
                 }
                 startActivity(intent)
             }
@@ -139,6 +148,16 @@ class CookieAnchorsFragment(val platform: IPlatform) : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(platform: String) =
+            CookieAnchorsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, platform)
+                }
+            }
     }
 
 }

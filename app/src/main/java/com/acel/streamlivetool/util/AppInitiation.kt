@@ -19,7 +19,7 @@ class AppInitiation {
         }
     }
 
-    private val fullVersion: Boolean = false
+    private val fullVersion: Boolean = true
     private val buglyAppId = "ee4f2df64b"
 
     fun init() {
@@ -28,7 +28,7 @@ class AppInitiation {
         initBugly()
         initMtj()
         if (fullVersion)
-            toast("当前处于完整模式！")
+            toast("当前处于测试模式！")
     }
 
     /**

@@ -38,10 +38,15 @@ object ActionClick {
                 startApp(context, anchor)
             }
             context.getString(R.string.string_outer_player) -> {
-                runOnUiThread {
-                    val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    MainExecutor.execute {
+                val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
+                MainExecutor.execute {
+                    try {
                         platformImpl?.callOuterPlayer(context, anchor)
+                    } catch (e: Exception) {
+                        runOnUiThread {
+                            toast(context.getString(R.string.get_streaming_failed))
+                        }
+                        e.printStackTrace()
                     }
                 }
             }

@@ -82,5 +82,8 @@
     <string name="cookie_mode_platform_showable">分页显示平台</string>
     <string name="string_preference_initialed">preference_initialed</string>
     <string name="did_not_find_app">好像没有找到%sapp</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="get_streaming_failed">获取直播流失败。</string>
+    <string name="streaming_url_is_null">直播流为空。</string>
     <!--  list preference end  -->
 </resources>

@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 class CookieFragment : Fragment() {
+
     val platforms by lazy {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
@@ -38,7 +39,7 @@ class CookieFragment : Fragment() {
 
     val fragments = mutableMapOf<IPlatform, CookieAnchorsFragment>().also {
         platforms.forEach { platform ->
-            it[platform] = CookieAnchorsFragment(platform)
+            it[platform] = CookieAnchorsFragment.newInstance(platform.platform)
         }
     }
 

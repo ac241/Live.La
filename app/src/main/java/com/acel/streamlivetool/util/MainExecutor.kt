@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.util
 
+import android.util.Log
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import java.lang.Exception
@@ -13,7 +14,7 @@ object MainExecutor {
                 method.invoke()
             } catch (e: Exception) {
                 runOnUiThread {
-                    e.message?.let { toast(it) }
+                    toast(e.javaClass.name)
                 }
                 e.printStackTrace()
             }
