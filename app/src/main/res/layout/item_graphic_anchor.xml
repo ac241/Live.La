@@ -94,12 +94,12 @@
             android:contentDescription="@string/additional_action"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:scaleType="center"
+            android:src="@drawable/ic_additional_button"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/grid_anchor_second_btn"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title"
-            tools:layout_editor_absoluteX="411dp" />
+            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title" />
 
         <ImageView
             android:id="@+id/grid_anchor_second_btn"

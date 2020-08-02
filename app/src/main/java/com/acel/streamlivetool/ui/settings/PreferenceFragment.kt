@@ -86,7 +86,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 resources.getString(R.string.pref_key_launch_activity),
                 resources.getString(R.string.pref_key_additional_action_btn),
                 resources.getString(R.string.pref_key_cookie_mode_list_type),
-                resources.getString(R.string.pref_key_cookie_mode_platform_showable)
+                resources.getString(R.string.pref_key_cookie_mode_platform_showable),
+                resources.getString(R.string.pref_key_mobile_data_only_text)
                 ->
                     (requireActivity() as SettingsActivity).settingsChanges = true
             }

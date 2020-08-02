@@ -19,7 +19,7 @@ interface HuyaApi {
 
     @GET("https://fw.huya.com/dispatch?do=subscribeList&page=1&pageSize=100")
     fun getSubscribe(
-        @Header("cookies") cookies: String,
+        @Header("Cookie") cookie: String,
         @Query("uid") uid: String
     ): Call<Subscribe>
 }

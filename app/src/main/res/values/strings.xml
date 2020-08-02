@@ -25,7 +25,7 @@
     <string name="avatar">头像</string>
     <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
     <string name="group_mode_list_type">主页展示方式</string>
-    <string name="cookie_mode_list_type">分页展示方式</string>
+    <string name="cookie_mode_list_type">平台展示方式</string>
     <array name="pref_click_action_entries">
         <item>打开app</item>
         <item>外置播放器</item>
@@ -78,10 +78,12 @@
     <string name="not_living">未直播</string>
     <string name="additional_action_hint">附加功能按钮（LPL赛程等..）</string>
     <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
-    <string name="cookie_mode_platform_showable">分页显示平台</string>
+    <string name="cookie_mode_platform_showable">显示的平台</string>
     <string name="string_preference_initialed">preference_initialed</string>
     <string name="did_not_find_app">好像没有找到%sapp</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="get_streaming_failed">获取直播流失败。</string>
     <string name="streaming_url_is_null">直播流为空。</string>
+    <string name="mobile_data_only_text">数据流量时使用无图模式</string>
+    <string name="pref_key_mobile_data_only_text">pref_key_mobile_data_only_text</string>
 </resources>

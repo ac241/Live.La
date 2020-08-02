@@ -16,6 +16,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -26,29 +27,41 @@ import kotlinx.android.synthetic.main.layout_login_first.*
 
 private const val ARG_PARAM1 = "param1"
 
-class CookieAnchorsFragment : Fragment() {
+class CookieFragment : Fragment() {
 
     internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
     var platform: String? = null
-    private var layoutManagerType =
+    internal var layoutManagerType =
         ListItemType.Text
-    private val viewModel by viewModels<CookieAnchorsViewModel> {
-        CookieAnchorsViewModel.ViewModeFactory(
+    internal val viewModel by viewModels<CookieViewModel> {
+        CookieViewModel.ViewModeFactory(
             this
         )
     }
-
-    enum class ListItemType {
-        Text, Graphic;
+    private val textAnchorAdapter by lazy{
+        TextAnchorAdapter(
+            requireContext(),
+            viewModel.anchorList,
+            MODE_COOKIE
+        )
     }
+
+    private val graphicAnchorAdapter by lazy {
+        GraphicAnchorAdapter(
+            requireContext(),
+            viewModel.anchorList,
+            MODE_COOKIE
+        )
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycle.addObserver(CookieLifecycle(this))
         arguments?.let {
             platform = it.getString(ARG_PARAM1)
         }
         setHasOptionsMenu(true)
-
     }
 
     override fun onCreateView(
@@ -63,9 +76,13 @@ class CookieAnchorsFragment : Fragment() {
         initPreference()
         initRecyclerView()
 
-        cookie_anchor_swipe_refresh.setOnRefreshListener {
+        cookie_swipe_refresh.setOnRefreshListener {
             viewModel.getAnchors()
         }
+    }
+
+    internal fun hideSwipeRefreshBtn() {
+        cookie_swipe_refresh.isRefreshing = false
     }
 
     private fun initPreference() {
@@ -84,29 +101,26 @@ class CookieAnchorsFragment : Fragment() {
     private fun initRecyclerView() {
         when (layoutManagerType) {
             ListItemType.Text -> {
-                recycler_view.layoutManager = LinearLayoutManager(requireContext())
-                val adapter = TextAnchorAdapter(
-                    requireContext(),
-                    viewModel.anchorList,
-                    MODE_COOKIE
-                )
-                recycler_view.adapter = adapter
-                nowAnchorAnchorAdapter = adapter
+                setTextAdapter()
             }
-
             ListItemType.Graphic -> {
-                recycler_view.layoutManager =
-                    StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-                val adapter = GraphicAnchorAdapter(
-                    requireContext(),
-                    viewModel.anchorList,
-                    MODE_COOKIE
-                )
-                recycler_view.adapter = adapter
-                nowAnchorAnchorAdapter = adapter
+                setGraphicAdapter()
             }
         }
         recycler_view.addOnScrollListener(AnchorListAddTitleListener())
+    }
+
+    internal fun setGraphicAdapter() {
+        recycler_view.layoutManager =
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        recycler_view.adapter = graphicAnchorAdapter
+        nowAnchorAnchorAdapter = graphicAnchorAdapter
+    }
+
+    fun setTextAdapter() {
+        recycler_view.layoutManager = LinearLayoutManager(requireContext())
+        recycler_view.adapter = textAnchorAdapter
+        nowAnchorAnchorAdapter = textAnchorAdapter
     }
 
 
@@ -121,12 +135,6 @@ class CookieAnchorsFragment : Fragment() {
                 startActivity(intent)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getAnchors()
-        (requireActivity() as MainActivity).setToolbarTitle("平台")
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -159,7 +167,7 @@ class CookieAnchorsFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(platform: String) =
-            CookieAnchorsFragment().apply {
+            CookieFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, platform)
                 }

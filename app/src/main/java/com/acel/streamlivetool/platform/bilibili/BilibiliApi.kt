@@ -19,7 +19,7 @@ interface BilibiliApi {
 
     @GET("https://api.live.bilibili.com/xlive/web-ucenter/user/following?page_size=29")
     fun getFollowing(
-        @Header("cookies") cookies: String,
+        @Header("Cookie") cookie: String,
         @Query("page") page: Int
     ): Call<Following>
 
@@ -30,7 +30,7 @@ interface BilibiliApi {
 
     @GET("https://api.live.bilibili.com/relation/v1/Feed/getList?page_size=10")
     fun getLivingList(
-        @Header("cookies") cookies: String,
+        @Header("Cookie") cookie: String,
         @Query("page") page: Int
     ): Call<LivingList>
 

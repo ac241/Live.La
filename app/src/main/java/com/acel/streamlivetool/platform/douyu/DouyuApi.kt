@@ -48,6 +48,6 @@ interface DouyuApi {
 
     @GET("https://www.douyu.com/wgapi/livenc/liveweb/follow/list")
     fun getFollowed(
-        @Header("cookies") cookies: String
+        @Header("Cookie") cookie: String
     ): Call<Followed>
 }

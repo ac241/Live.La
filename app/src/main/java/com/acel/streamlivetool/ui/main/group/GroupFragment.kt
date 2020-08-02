@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.ui.main.group
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -20,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_group_mode.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 
 class GroupFragment : Fragment() {
-    private var listItemType = when (defaultSharedPreferences.getString(
+    internal var listItemType = when (defaultSharedPreferences.getString(
         MyApplication.application.resources.getString(R.string.pref_key_group_mode_list_type),
         MyApplication.application.resources.getString(R.string.string_grid_view)
     )) {
@@ -29,7 +30,21 @@ class GroupFragment : Fragment() {
         else -> ListItemType.Text
     }
     val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory(this) }
-    private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    private val graphicAnchorAdapter by lazy {
+        GraphicAnchorAdapter(
+            requireContext(),
+            viewModel.sortedAnchorList.value!!,
+            MODE_GROUP
+        )
+    }
+    private val textAnchorAdapter by lazy {
+        TextAnchorAdapter(
+            requireContext(),
+            viewModel.sortedAnchorList.value!!,
+            MODE_GROUP
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,8 +61,9 @@ class GroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("onViewCreated", "z")
         initRecyclerView()
-        main_swipe_refresh.setOnRefreshListener {
+        group_swipe_refresh.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
                     viewModel.getAllAnchorsAttribute()
@@ -60,35 +76,30 @@ class GroupFragment : Fragment() {
     private fun initRecyclerView() {
         when (listItemType) {
             ListItemType.Text -> {
-                recycler_view.layoutManager = LinearLayoutManager(requireContext())
-                val adapter = TextAnchorAdapter(
-                    requireContext(),
-                    viewModel.sortedAnchorList.value!!,
-                    MODE_GROUP
-                )
-                recycler_view.adapter = adapter
-                nowAnchorAnchorAdapter = adapter
+                setTextAdapter()
             }
 
             ListItemType.Graphic -> {
-                val manager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-                recycler_view.layoutManager = manager
-                val adapter = GraphicAnchorAdapter(
-                    requireContext(),
-                    viewModel.sortedAnchorList.value!!,
-                    MODE_GROUP
-                )
-                recycler_view.adapter = adapter
-                nowAnchorAnchorAdapter = adapter
-//                recycler_view.addItemDecoration(GroupTitleDecoration())
+                setGraphicAdapter()
             }
         }
         recycler_view.addOnScrollListener(AnchorListAddTitleListener())
-
         //关闭刷新item时CardView的闪烁提示
         recycler_view.itemAnimator?.changeDuration = 0
     }
 
+    fun setGraphicAdapter() {
+        val manager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        recycler_view.layoutManager = manager
+        recycler_view.adapter = graphicAnchorAdapter
+        nowAnchorAnchorAdapter = graphicAnchorAdapter
+    }
+
+    fun setTextAdapter() {
+        recycler_view.layoutManager = LinearLayoutManager(requireContext())
+        recycler_view.adapter = textAnchorAdapter
+        nowAnchorAnchorAdapter = textAnchorAdapter
+    }
 
     @Synchronized
     fun refreshAnchorAttribute() {
@@ -96,9 +107,9 @@ class GroupFragment : Fragment() {
         hideSwipeRefreshBtn()
     }
 
-
-    private fun hideSwipeRefreshBtn() {
-        main_swipe_refresh.isRefreshing = false
+    @Synchronized
+    internal fun hideSwipeRefreshBtn() {
+        group_swipe_refresh.isRefreshing = false
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

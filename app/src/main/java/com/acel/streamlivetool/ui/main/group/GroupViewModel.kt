@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AnchorListHelper
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
 import java.util.*
 
@@ -77,6 +79,10 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                runOnUiThread {
+                    groupFragment.hideSwipeRefreshBtn()
+                }
             }
         }
     }

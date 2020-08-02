@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
-        android:id="@+id/main_swipe_refresh"
+        android:id="@+id/group_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

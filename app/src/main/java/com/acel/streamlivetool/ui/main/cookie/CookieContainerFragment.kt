@@ -37,9 +37,9 @@ class CookieContainerFragment : Fragment() {
         platforms
     }
 
-    val fragments = mutableMapOf<IPlatform, CookieAnchorsFragment>().also {
+    val fragments = mutableMapOf<IPlatform, CookieFragment>().also {
         platforms.forEach { platform ->
-            it[platform] = CookieAnchorsFragment.newInstance(platform.platform)
+            it[platform] = CookieFragment.newInstance(platform.platform)
         }
     }
 

@@ -49,7 +49,11 @@
         android:key="@string/pref_key_additional_action_btn"
         android:title="@string/additional_action_hint"
         app:iconSpaceReserved="false" />
-
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/pref_key_mobile_data_only_text"
+        android:title="@string/mobile_data_only_text"
+        app:iconSpaceReserved="false" />
     <Preference
         android:key="@string/pref_key_clear_cookie"
         android:title="@string/clear_cookie"

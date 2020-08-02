@@ -13,8 +13,8 @@ class RetrofitUtils {
         val okHttpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
                 //拦截器 动态切换baseUrl
-                .addInterceptor(AddCookiesInterceptor())
-                .retryOnConnectionFailure(true)
+//                .addInterceptor(AddCookiesInterceptor())
+                .retryOnConnectionFailure(false)
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .build()
         }

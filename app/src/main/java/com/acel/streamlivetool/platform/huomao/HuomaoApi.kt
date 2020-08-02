@@ -18,7 +18,7 @@ interface HuomaoApi {
     ): Call<LiveData>
 
     @GET("https://www.huomao.com/subscribe/getUsersSubscribe?page=1&page_size=100")
-    fun getUsersSubscribe(@Header("cookies") cookies: String): Call<UsersSubscribe>
+    fun getUsersSubscribe(@Header("Cookie") cookie: String): Call<UsersSubscribe>
 
 
 }

@@ -105,7 +105,6 @@ class GraphicAnchorAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolderStatusGroup)
             return
-
         val anchor: Anchor = anchorList[position]
         holder as ViewHolderGraphic
         holder.itemView.tag = if (anchor.status) STATUS_LIVING else STATUS_NOT_LIVING

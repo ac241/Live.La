@@ -16,5 +16,5 @@ interface EgameqqApi {
     fun getAnchor(@Query("param") id: String): Call<EgameQQAnchor>
 
     @GET("https://game.egame.qq.com/cgi-bin/pgg_async_fcgi?param={\"key\":{\"module\":\"pgg_user_profile_mt_svr\",\"method\":\"get_follow_list_mt\",\"param\":{\"uid\":0,\"page_no\":0,\"page_size\":5,\"flag\":1}}}")
-    fun getFollowList(@Header("cookies") cookies: String): Call<FollowList>
+    fun getFollowList(@Header("Cookie") cookie: String): Call<FollowList>
 }
