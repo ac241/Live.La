@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.cookie
 
 import android.view.View
 import androidx.lifecycle.ViewModel
@@ -17,7 +17,9 @@ class CookieAnchorsViewModel(private val cookieAnchorsFragment: CookieAnchorsFra
         ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return CookieAnchorsViewModel(cookieAnchorsFragment) as T
+            return CookieAnchorsViewModel(
+                cookieAnchorsFragment
+            ) as T
         }
     }
 

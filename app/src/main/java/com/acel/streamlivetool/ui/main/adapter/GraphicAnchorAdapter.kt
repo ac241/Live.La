@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.adapter
+package com.acel.streamlivetool.ui.main.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -14,8 +14,8 @@ import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
-import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener.Companion.STATUS_LIVING
-import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener.Companion.STATUS_NOT_LIVING
+import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Companion.STATUS_LIVING
+import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Companion.STATUS_NOT_LIVING
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor

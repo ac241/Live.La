@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.cookie
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.adapter.*
+import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.login.LoginActivity
+import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -28,9 +30,12 @@ class CookieAnchorsFragment : Fragment() {
 
     internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
     var platform: String? = null
-    private var layoutManagerType = ListItemType.Text
+    private var layoutManagerType =
+        ListItemType.Text
     private val viewModel by viewModels<CookieAnchorsViewModel> {
-        CookieAnchorsViewModel.ViewModeFactory(this)
+        CookieAnchorsViewModel.ViewModeFactory(
+            this
+        )
     }
 
     enum class ListItemType {
@@ -121,6 +126,7 @@ class CookieAnchorsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.getAnchors()
+        (requireActivity() as MainActivity).setToolbarTitle("平台")
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -159,5 +165,4 @@ class CookieAnchorsFragment : Fragment() {
                 }
             }
     }
-
 }

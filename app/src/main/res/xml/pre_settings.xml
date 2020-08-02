@@ -38,7 +38,7 @@
         android:title="@string/item_click_action_name"
         app:iconSpaceReserved="false" />
     <ListPreference
-        android:defaultValue="@string/string_outer_player"
+        android:defaultValue="@string/string_overlay_player"
         android:entries="@array/pref_click_action_entries"
         android:entryValues="@array/pref_click_action_entry_values"
         android:key="@string/pref_key_second_button_click_action"

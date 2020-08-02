@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.group
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.ui.adapter.*
+import com.acel.streamlivetool.ui.main.adapter.*
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
+import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.fragment_group_mode.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
@@ -26,7 +28,7 @@ class GroupFragment : Fragment() {
         MyApplication.application.resources.getString(R.string.string_grid_view) -> ListItemType.Graphic
         else -> ListItemType.Text
     }
-    private val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory(this) }
+    val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory(this) }
     private lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
 
     override fun onCreateView(
@@ -39,6 +41,7 @@ class GroupFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        lifecycle.addObserver(GroupLifecycle(this))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,4 +127,5 @@ class GroupFragment : Fragment() {
         @JvmStatic
         fun newInstance() = GroupFragment()
     }
+
 }

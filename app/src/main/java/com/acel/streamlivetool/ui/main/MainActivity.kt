@@ -2,8 +2,11 @@ package com.acel.streamlivetool.ui.main
 
 import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
@@ -12,6 +15,8 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.cookie.CookieContainerFragment
+import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
@@ -25,7 +30,7 @@ import kotlin.properties.Delegates
 @RuntimePermissions
 class MainActivity : BaseActivity() {
     private val groupFragment by lazy { GroupFragment.newInstance() }
-    private val cookieFragment by lazy { CookieFragment.newInstance() }
+    private val cookieFragment by lazy { CookieContainerFragment.newInstance() }
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
     private val useCookieMode by lazy {
         val platforms = mutableListOf<IPlatform>()
@@ -48,6 +53,14 @@ class MainActivity : BaseActivity() {
     }
 
     override fun createdDo() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.statusBarColor = resources.getColor(android.R.color.background_light, null)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        setSupportActionBar(toolbar)
+
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
                 return if (useCookieMode) 2 else 1
@@ -144,6 +157,10 @@ class MainActivity : BaseActivity() {
 
     override fun onBackPressed() {
         backPressedTime = System.currentTimeMillis()
+    }
+
+    fun setToolbarTitle(title: String) {
+        supportActionBar?.title = title
     }
 
 }

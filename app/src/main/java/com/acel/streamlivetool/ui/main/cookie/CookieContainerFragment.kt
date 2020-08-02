@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.cookie
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +14,7 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
-class CookieFragment : Fragment() {
+class CookieContainerFragment : Fragment() {
 
     val platforms by lazy {
         val platforms = mutableListOf<IPlatform>()
@@ -78,6 +78,7 @@ class CookieFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() = CookieFragment()
+        fun newInstance() =
+            CookieContainerFragment()
     }
 }

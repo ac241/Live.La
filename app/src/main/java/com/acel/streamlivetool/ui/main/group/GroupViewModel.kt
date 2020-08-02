@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.group
 
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
@@ -17,7 +17,9 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
     class ViewModeFactory(private val groupFragment: GroupFragment) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return GroupViewModel(groupFragment) as T
+            return GroupViewModel(
+                groupFragment
+            ) as T
         }
     }
 
@@ -38,13 +40,6 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             groupFragment.refreshAnchorAttribute()
         })
     }
-
-//    init {
-//        //初始化LiveData 观察
-//        sortedAnchorList.observe(groupFragment, Observer {
-//            groupFragment.refreshAnchorAttribute()
-//        })
-//    }
 
     /**
      * 更新主播属性
@@ -94,6 +89,5 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
 
     fun deleteAnchor(anchor: Anchor) {
         anchorRepository.deleteAnchor(anchor)
-
     }
 }

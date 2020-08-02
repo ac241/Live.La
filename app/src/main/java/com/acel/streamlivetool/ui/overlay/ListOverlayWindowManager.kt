@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.adapter.AnchorListAddTitleListener
-import com.acel.streamlivetool.ui.adapter.ListOverlayAdapter
+import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
+import com.acel.streamlivetool.ui.main.adapter.ListOverlayAdapter
 
 
 class ListOverlayWindowManager {

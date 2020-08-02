@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.adapter
+package com.acel.streamlivetool.ui.main.adapter
 
 import android.view.ContextMenu
 import android.view.View

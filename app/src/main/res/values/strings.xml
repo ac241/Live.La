@@ -26,7 +26,6 @@
     <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
     <string name="group_mode_list_type">主页展示方式</string>
     <string name="cookie_mode_list_type">分页展示方式</string>
-    <!--  list preference  -->
     <array name="pref_click_action_entries">
         <item>打开app</item>
         <item>外置播放器</item>
@@ -85,5 +84,4 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="get_streaming_failed">获取直播流失败。</string>
     <string name="streaming_url_is_null">直播流为空。</string>
-    <!--  list preference end  -->
 </resources>
