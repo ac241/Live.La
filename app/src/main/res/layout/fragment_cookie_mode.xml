@@ -2,23 +2,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/cookie_tabLayout"
+    <TextView
+        android:id="@+id/textView_login_first"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/login_first"
+        android:textColor="@color/colorPrimary"
+        android:visibility="gone" />
 
-    </com.google.android.material.tabs.TabLayout>
+    <TextView
+        android:id="@+id/textView_list_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone" />
 
-    <com.acel.streamlivetool.ui.custom_view.NestedScrollableHost
+    <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
+        android:id="@+id/cookie_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/cookie_viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </com.acel.streamlivetool.ui.custom_view.NestedScrollableHost>
+        <include layout="@layout/layout_anchor_recycler_view" />
+    </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
 </LinearLayout>

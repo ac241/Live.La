@@ -1,14 +1,13 @@
 package com.acel.streamlivetool.ui.main.cookie
 
-import android.view.View
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.MainExecutor
-import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
-import kotlinx.android.synthetic.main.layout_login_first.*
+import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 
 class CookieViewModel(private val cookieFragment: CookieFragment) :
@@ -30,33 +29,33 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
     internal fun getAnchors() {
         MainExecutor.execute {
             try {
-
-
                 val anchorsCookieMode =
                     cookieFragment.platform?.let {
                         PlatformDispatcher.getPlatformImpl(it)?.getAnchorsWithCookieMode()
                     }
                 if (anchorsCookieMode != null) {
                     if (!anchorsCookieMode.cookieOk) {
-                        if (cookieFragment.viewStub_login_first != null)
-                            cookieFragment.showLoginSub()
+                        cookieFragment.showLoginTextView()
+                        anchorList.clear()
+                        notifyDataChange()
                     } else {
                         with(anchorsCookieMode.anchors) {
                             if (this != null) {
+                                if (this.isEmpty()) {
+                                    cookieFragment.showListMsg("无数据")
+                                    Log.d("getAnchors", "no data")
+                                } else
+                                    cookieFragment.hideListMsg()
                                 anchorList.clear()
                                 anchorList.addAll(this)
                                 com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder(
                                     anchorList
                                 )
-                                AppUtil.runOnUiThread {
-                                    cookieFragment.nowAnchorAnchorAdapter.notifyAnchorsChange()
-                                }
+                                Log.d("getAnchors", "${anchorList.size}")
+                                notifyDataChange()
                             }
                         }
-                        if (cookieFragment.login_first_wrapper != null && cookieFragment.login_first_wrapper.visibility == View.VISIBLE)
-                            AppUtil.runOnUiThread {
-                                cookieFragment.login_first_wrapper.visibility = View.GONE
-                            }
+                        cookieFragment.hideLoginTextView()
                     }
                 }
             } catch (e: Exception) {
@@ -67,6 +66,12 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                 }
             }
 
+        }
+    }
+
+    private fun notifyDataChange() {
+        AppUtil.runOnUiThread {
+            cookieFragment.nowAnchorAnchorAdapter.notifyAnchorsChange()
         }
     }
 }

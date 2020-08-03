@@ -76,7 +76,6 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport:3.2.1'
     //noinspection GradleDependency
     implementation 'com.baidu.mobstat:mtj-sdk:latest.integration'
-
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     def room_version = "2.2.5"

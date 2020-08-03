@@ -34,11 +34,11 @@ class OpenSourceActivity : BaseActivity() {
     override fun createdDo() {
         open_source_title.setOnClickListener {
 //            setTitleColor()
-            titileAnimate()
+            titleAnimate()
             if (titleClickTimes >= if (fullVersion) 10 else 234) {
                 defaultSharedPreferences.edit()
                     .putBoolean(resources.getString(R.string.full_version), !fullVersion).apply()
-                toast("full version ${!fullVersion}")
+                toast("Full version ${!fullVersion}")
                 MyApplication.finishAllActivity()
                 startActivity(Intent(this, SplashActivity::class.java))
             } else
@@ -102,6 +102,16 @@ class OpenSourceActivity : BaseActivity() {
                 true
             )
         )
+        list.add(
+            Module(
+                "PermissionsDispatcher:4.7.0",
+                "org.permissionsdispatcher",
+                "https://github.com/permissions-dispatcher/PermissionsDispatcher",
+                "Copyright 2016 Shintaro Katafuchi, Marcel Schnelle, Yoshinori Isogai",
+                "Licensed under the Apache License, Version 2.0 (the \"License\")",
+                false
+            )
+        )
 
         list.forEach {
             addModuleToTextView(it)
@@ -110,7 +120,7 @@ class OpenSourceActivity : BaseActivity() {
         open_source_text.text = stringBuilder.toString()
     }
 
-    private fun titileAnimate() {
+    private fun titleAnimate() {
         val randomFloat = Random.nextDouble(0.99, 1.01)
         open_source_title.animate().setDuration(100).scaleX(randomFloat.toFloat())
             .scaleY(randomFloat.toFloat()).start()

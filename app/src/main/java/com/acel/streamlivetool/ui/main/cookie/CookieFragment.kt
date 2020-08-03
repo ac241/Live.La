@@ -21,9 +21,8 @@ import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.fragment_cookie_anchors.*
+import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
-import kotlinx.android.synthetic.main.layout_login_first.*
 
 private const val ARG_PARAM1 = "param1"
 
@@ -38,7 +37,7 @@ class CookieFragment : Fragment() {
             this
         )
     }
-    private val textAnchorAdapter by lazy{
+    private val textAnchorAdapter by lazy {
         TextAnchorAdapter(
             requireContext(),
             viewModel.anchorList,
@@ -54,7 +53,6 @@ class CookieFragment : Fragment() {
         )
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(CookieLifecycle(this))
@@ -68,7 +66,7 @@ class CookieFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_cookie_anchors, container, false)
+        return inflater.inflate(R.layout.fragment_cookie_mode, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,9 +122,9 @@ class CookieFragment : Fragment() {
     }
 
 
-    fun showLoginSub() {
+    fun showLoginTextView() {
         runOnUiThread {
-            viewStub_login_first.inflate()
+            textView_login_first.visibility = View.VISIBLE
             textView_login_first.setOnClickListener {
                 val intent = Intent(context, LoginActivity::class.java).also {
                     it.putExtra("platform",
@@ -135,6 +133,26 @@ class CookieFragment : Fragment() {
                 startActivity(intent)
             }
         }
+    }
+
+    fun hideLoginTextView() {
+        if (textView_login_first.visibility == View.VISIBLE)
+            runOnUiThread {
+                textView_login_first.visibility = View.GONE
+            }
+    }
+
+    fun showListMsg(s: String) {
+        runOnUiThread {
+            textView_list_msg.visibility = View.VISIBLE
+            textView_list_msg.text = s
+        }
+    }
+    fun hideListMsg() {
+        if (textView_list_msg.visibility == View.VISIBLE)
+            runOnUiThread {
+                textView_list_msg.visibility = View.GONE
+            }
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

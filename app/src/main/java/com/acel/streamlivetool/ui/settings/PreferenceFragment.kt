@@ -60,18 +60,12 @@ class SettingsFragment : PreferenceFragmentCompat(),
             clearCookie()
             false
         }
-        //隐藏preference
+        //隐藏完整版功能
         val fullVersion =
             defaultSharedPreferences.getBoolean(resources.getString(R.string.full_version), false)
-        if (!fullVersion) {
-            val hideList = arrayOf(
-                R.string.pref_key_item_click_action,
-                R.string.pref_key_second_button_click_action
-            )
-            hideList.forEach {
-                findPreference<Preference>(getString(it))?.isVisible = false
-            }
-        }
+        if (!fullVersion)
+            findPreference<Preference>(getString(R.string.pref_key_full_version_feature))?.isVisible =
+                false
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -97,8 +91,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
     private fun clearCookie() {
         val builder = context?.let { AlertDialog.Builder(it) }
         builder
-            ?.setTitle("要清除登录信息吗？")
-            ?.setPositiveButton("是") { _, _ ->
+            ?.setTitle(getString(R.string.clear_all_cookie_alert))
+            ?.setPositiveButton(getString(R.string.yes)) { _, _ ->
                 val platforms = mutableListOf<IPlatform>().also {
                     for (entry in PlatformDispatcher.getAllPlatformInstance()) {
                         if (entry.value.supportCookieMode)
@@ -108,9 +102,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 platforms.forEach {
                     it.clearCookie()
                 }
-                toast("清除cookie成功")
+                toast(getString(R.string.clear_all_cookie_ok))
             }
-            ?.setNegativeButton("否", null)
+            ?.setNegativeButton(getString(R.string.no), null)
             ?.show()
     }
 

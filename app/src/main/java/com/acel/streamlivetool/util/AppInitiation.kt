@@ -19,7 +19,7 @@ class AppInitiation {
         }
     }
 
-    private val fullVersion: Boolean = true
+    private val fullVersion: Boolean = false
     private val buglyAppId = "ee4f2df64b"
 
     fun init() {

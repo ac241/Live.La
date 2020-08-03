@@ -30,22 +30,24 @@ class AnchorListAddTitleListener : RecyclerView.OnScrollListener() {
     private var nowTitle = 0
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        val first = recyclerView.getChildAt(0)
-        (recyclerView.parent.parent as View).findViewById<FrameLayout>(R.id.group_title_wrapper)
-            .apply {
-                if (nowTitle != first.tag)
-                    when (first.tag) {
-                        STATUS_GROUP_TITLE_LIVING, STATUS_GROUP_TITLE_NOT_LIVING -> {
-                            hideTitle(first.tag)
+        if (recyclerView.childCount != 0) {
+            val first = recyclerView.getChildAt(0)
+            (recyclerView.parent.parent as View).findViewById<FrameLayout>(R.id.group_title_wrapper)
+                .apply {
+                    if (nowTitle != first.tag)
+                        when (first.tag) {
+                            STATUS_GROUP_TITLE_LIVING, STATUS_GROUP_TITLE_NOT_LIVING -> {
+                                hideTitle(first.tag)
+                            }
+                            STATUS_LIVING -> {
+                                showLivingTitle()
+                            }
+                            STATUS_NOT_LIVING -> {
+                                showNotLivingTitle()
+                            }
                         }
-                        STATUS_LIVING -> {
-                            showLivingTitle()
-                        }
-                        STATUS_NOT_LIVING -> {
-                            showNotLivingTitle()
-                        }
-                    }
-            }
+                }
+        }
     }
 
     private fun FrameLayout.hideTitle(tag: Any) {

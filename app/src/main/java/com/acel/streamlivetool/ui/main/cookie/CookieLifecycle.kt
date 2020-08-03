@@ -36,12 +36,12 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
                     cookieFragment.layoutManagerType == MainActivity.Companion.ListItemType.Graphic
                 ) {
                     cookieFragment.setGraphicAdapter()
-                    ToastUtil.toast("Wifi切换到有图模式")
+//                    ToastUtil.toast("Wifi切换到有图模式")
                 }
             } else {
                 if (cookieFragment.nowAnchorAnchorAdapter !is TextAnchorAdapter) {
                     cookieFragment.setTextAdapter()
-                    ToastUtil.toast("移动流量切换到无图模式")
+//                    ToastUtil.toast("移动流量切换到无图模式")
                 }
             }
         }

@@ -18,7 +18,7 @@
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
-    <string name="clear_cookie">清除cookie</string>
+    <string name="clear_all_cookie">清除所有登录信息</string>
     <string name="pref_key_launch_activity">pref_key_launch_activity</string>
     <string name="add_to_group_mode">添加到主页</string>
     <string name="live_image">直播图片</string>
@@ -86,4 +86,14 @@
     <string name="streaming_url_is_null">直播流为空。</string>
     <string name="mobile_data_only_text">数据流量时使用无图模式</string>
     <string name="pref_key_mobile_data_only_text">pref_key_mobile_data_only_text</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="clear_platform_cookie_alert">要清除%s的登录信息吗？</string>
+    <string name="clear_all_cookie_alert">要清除所有登录信息吗？</string>
+    <string name="clear_all_cookie_ok">清除所有登录信息成功</string>
+    <string name="platform_display">显示</string>
+    <string name="pref_key_platform_display">pref_key_platform_display</string>
+    <string name="full_version_feature">完整版功能</string>
+    <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
+    <string name="other">其他</string>
 </resources>
