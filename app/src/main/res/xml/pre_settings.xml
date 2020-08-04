@@ -54,7 +54,7 @@
         app:iconSpaceReserved="false"
         app:title="@string/other">
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="@string/pref_key_additional_action_btn"
             android:title="@string/additional_action_hint"
             app:iconSpaceReserved="false" />
