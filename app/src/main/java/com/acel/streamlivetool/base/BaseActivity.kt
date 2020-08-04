@@ -12,7 +12,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(getResLayoutId())
         MyApplication.addActivityToManageList(this)
-        createdDo()
+        createDo()
     }
 
     final override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -33,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     abstract fun getResLayoutId(): Int
 
-    open fun createdDo() {
+    open fun createDo() {
 
     }
 }

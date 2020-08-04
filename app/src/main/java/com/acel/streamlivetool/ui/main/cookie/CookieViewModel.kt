@@ -7,7 +7,6 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.MainExecutor
-import kotlinx.android.synthetic.main.fragment_cookie_mode.*
 
 
 class CookieViewModel(private val cookieFragment: CookieFragment) :
@@ -62,7 +61,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                 e.printStackTrace()
             } finally {
                 AppUtil.runOnUiThread {
-                    cookieFragment.cookie_swipe_refresh.isRefreshing = false
+                    cookieFragment.binding?.cookieSwipeRefresh?.isRefreshing = false
                 }
             }
 

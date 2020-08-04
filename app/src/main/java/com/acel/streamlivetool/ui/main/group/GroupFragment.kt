@@ -12,13 +12,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.ui.main.adapter.*
+import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
+import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.fragment_group_mode.*
-import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 
 class GroupFragment : Fragment() {
     internal var listItemType = when (defaultSharedPreferences.getString(
@@ -45,12 +44,22 @@ class GroupFragment : Fragment() {
             MODE_GROUP
         )
     }
+    private var _binding: FragmentGroupModeBinding? = null
+    private val binding
+        get() = _binding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_group_mode, container, false)
+        Log.d("onCreateView", "onCreateView")
+        _binding = FragmentGroupModeBinding.inflate(inflater, container, false)
+        return binding?.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,9 +70,8 @@ class GroupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("onViewCreated", "z")
         initRecyclerView()
-        group_swipe_refresh.setOnRefreshListener {
+        binding?.groupSwipeRefresh?.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
                     viewModel.getAllAnchorsAttribute()
@@ -83,21 +91,21 @@ class GroupFragment : Fragment() {
                 setGraphicAdapter()
             }
         }
-        recycler_view.addOnScrollListener(AnchorListAddTitleListener())
+        binding?.include?.recyclerView?.addOnScrollListener(AnchorListAddTitleListener())
         //关闭刷新item时CardView的闪烁提示
-        recycler_view.itemAnimator?.changeDuration = 0
+        binding?.include?.recyclerView?.itemAnimator?.changeDuration = 0
     }
 
     fun setGraphicAdapter() {
         val manager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        recycler_view.layoutManager = manager
-        recycler_view.adapter = graphicAnchorAdapter
+        binding?.include?.recyclerView?.layoutManager = manager
+        binding?.include?.recyclerView?.adapter = graphicAnchorAdapter
         nowAnchorAnchorAdapter = graphicAnchorAdapter
     }
 
     fun setTextAdapter() {
-        recycler_view.layoutManager = LinearLayoutManager(requireContext())
-        recycler_view.adapter = textAnchorAdapter
+        binding?.include?.recyclerView?.layoutManager = LinearLayoutManager(requireContext())
+        binding?.include?.recyclerView?.adapter = textAnchorAdapter
         nowAnchorAnchorAdapter = textAnchorAdapter
     }
 
@@ -109,7 +117,7 @@ class GroupFragment : Fragment() {
 
     @Synchronized
     internal fun hideSwipeRefreshBtn() {
-        group_swipe_refresh.isRefreshing = false
+        binding?.groupSwipeRefresh?.isRefreshing = false
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

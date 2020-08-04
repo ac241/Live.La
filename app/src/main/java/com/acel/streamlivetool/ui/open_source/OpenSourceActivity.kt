@@ -5,7 +5,7 @@ import android.graphics.Color
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.ui.splash.SplashActivity
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_open_source.*
@@ -16,11 +16,11 @@ class OpenSourceActivity : BaseActivity() {
         return R.layout.activity_open_source
     }
 
+    private val fullVersionClickTimes = 234
     private val fullVersion = defaultSharedPreferences.getBoolean(
         MyApplication.application.getString(R.string.full_version),
         false
     )
-
     private val stringBuilder = StringBuilder()
     private var titleClickTimes = 0
     private val colors =
@@ -31,16 +31,16 @@ class OpenSourceActivity : BaseActivity() {
         )
     private var colorIndex = 0
 
-    override fun createdDo() {
+    override fun createDo() {
         open_source_title.setOnClickListener {
 //            setTitleColor()
             titleAnimate()
-            if (titleClickTimes >= if (fullVersion) 10 else 234) {
+            if (titleClickTimes >= if (fullVersion) 10 else fullVersionClickTimes) {
                 defaultSharedPreferences.edit()
                     .putBoolean(resources.getString(R.string.full_version), !fullVersion).apply()
                 toast("Full version ${!fullVersion}")
                 MyApplication.finishAllActivity()
-                startActivity(Intent(this, SplashActivity::class.java))
+                startActivity(Intent(this, MainActivity::class.java))
             } else
                 titleClickTimes++
         }

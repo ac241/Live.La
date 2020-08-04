@@ -3,16 +3,18 @@ package com.acel.streamlivetool.ui.main
 import android.Manifest
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.cookie.CookieContainerFragment
@@ -23,12 +25,11 @@ import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.*
 import kotlin.properties.Delegates
 
 @RuntimePermissions
-class MainActivity : BaseActivity() {
+class MainActivity : AppCompatActivity() {
     private val groupFragment by lazy { GroupFragment.newInstance() }
     private val cookieFragment by lazy { CookieContainerFragment.newInstance() }
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
@@ -51,17 +52,31 @@ class MainActivity : BaseActivity() {
             }
         platforms.size > 0
     }
+    private lateinit var binding: ActivityMainBinding
 
-    override fun createdDo() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        createdDo()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        MyApplication.removeActivityFromManageList(this)
+    }
+
+    private fun createdDo() {
+        MyApplication.addActivityToManageList(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(android.R.color.background_light, null)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
-        viewPager.adapter = object : FragmentStateAdapter(this) {
+        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
                 return if (useCookieMode) 2 else 1
             }
@@ -76,15 +91,11 @@ class MainActivity : BaseActivity() {
         }
         if (useCookieMode)
             TabLayoutMediator(
-                tabLayout,
-                viewPager,
+                binding.tabLayout,
+                binding.viewPager,
                 TabLayoutMediator.TabConfigurationStrategy { _, _ ->
                 }
             ).attach()
-    }
-
-    override fun getResLayoutId(): Int {
-        return R.layout.activity_main
     }
 
     companion object {

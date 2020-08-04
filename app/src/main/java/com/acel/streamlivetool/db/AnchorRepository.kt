@@ -4,24 +4,23 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.util.MainExecutor
 
 class AnchorRepository {
 
     companion object {
-        private lateinit var thisContext: Context
         private val INSTANCE by lazy {
             AnchorRepository()
         }
 
-        fun getInstance(context: Context): AnchorRepository {
-            thisContext = context
+        fun getInstance(): AnchorRepository {
             return INSTANCE
         }
     }
 
-    private val anchorDatabase = AnchorDatabase.getInstance(thisContext.applicationContext)
+    private val anchorDatabase = AnchorDatabase.getInstance()
     private val anchorDao = anchorDatabase.getDao()
     internal val anchorList = getAllAnchors()
     private val insertList = mutableListOf<Anchor>()
@@ -37,9 +36,9 @@ class AnchorRepository {
                 MainExecutor.execute { anchorDao.insertAnchor(anchor) }
                 insertList.add(anchor)
                 Log.d("insertAnchor", "insert anchor $anchor")
-                Pair(true, thisContext.getString(R.string.add_anchor_success))
+                Pair(true, MyApplication.application.getString(R.string.add_anchor_success))
             } else {
-                Pair(false, thisContext.getString(R.string.anchor_already_exist))
+                Pair(false, MyApplication.application.getString(R.string.anchor_already_exist))
             }
         }
     }

@@ -4,18 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 
 @Database(entities = [Anchor::class], version = 1)
 abstract class AnchorDatabase : RoomDatabase() {
     companion object {
-        private lateinit var thisContext: Context
         private val INSTANCE: AnchorDatabase by lazy {
-            Room.databaseBuilder(thisContext, AnchorDatabase::class.java, "anchor_database").build()
+            Room.databaseBuilder(
+                MyApplication.application,
+                AnchorDatabase::class.java,
+                "anchor_database"
+            ).build()
         }
 
-        fun getInstance(context: Context): AnchorDatabase {
-            thisContext = context
+        fun getInstance(): AnchorDatabase {
             return INSTANCE
         }
     }

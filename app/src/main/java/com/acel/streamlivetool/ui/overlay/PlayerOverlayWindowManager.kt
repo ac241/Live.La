@@ -20,7 +20,10 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.video.VideoListener
+import kotlinx.android.synthetic.main.layout_player_overlay.view.*
 
 
 class PlayerOverlayWindowManager {
@@ -28,54 +31,125 @@ class PlayerOverlayWindowManager {
         val instance by lazy { PlayerOverlayWindowManager() }
     }
 
+    private val defaultSizeBigger = 240F
+    private val defaultSizeSmaller = 135F
+    private val sizeMultipleList = listOf(1F, 1.4F, 1.7F)
+    private var nowSizeMultiple = sizeMultipleList[0]
+    private var nowResolution: Pair<Float, Float> = Pair(defaultSizeBigger, defaultSizeSmaller)
     private var nowAnchor: Anchor? = null
     private var lastAnchor: Anchor? = null
     private var isShown = false
-    private val applicationContext: Context = MyApplication.application.applicationContext
     private val playerOverlayWindow: AbsOverlayWindow =
         PlayerOverlayWindow.instance.create().also { it.setMovable() }
-    private val playerOverlayView: View? = playerOverlayWindow.getLayout()
-    private val playerOverlay: SimpleExoPlayer? =
-        SimpleExoPlayer.Builder(applicationContext).build()
+    private val containerView: View? = playerOverlayWindow.getLayout()
     private val exoPlayerView: PlayerView? =
-        playerOverlayView?.findViewById(R.id.btn_player_overlay_video_view)
+        containerView?.findViewById(R.id.btn_player_overlay_video_view)
     private val processBar: ProgressBar? =
-        playerOverlayView?.findViewById(R.id.player_overlay_process_bar)
+        containerView?.findViewById(R.id.player_overlay_process_bar)
+    private val player: SimpleExoPlayer? =
+        SimpleExoPlayer.Builder(MyApplication.application).build()
 
     init {
-        exoPlayerView?.player = playerOverlay
+        exoPlayerView?.player = player
         exoPlayerView?.useController = false
-        playerOverlay?.playWhenReady = true
-        playerOverlay?.addListener(object : com.google.android.exoplayer2.Player.EventListener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying)
-                    processBar?.visibility = View.GONE
-                else
-                    processBar?.visibility = View.VISIBLE
+        player?.playWhenReady = true
+        player?.apply {
+            addListener(object : com.google.android.exoplayer2.Player.EventListener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    if (isPlaying)
+                        processBar?.visibility = View.GONE
+                    else
+                        processBar?.visibility = View.VISIBLE
+                }
+            })
+            addVideoListener(object : VideoListener {
+                override fun onVideoSizeChanged(
+                    width: Int,
+                    height: Int,
+                    unappliedRotationDegrees: Int,
+                    pixelWidthHeightRatio: Float
+                ) {
+                    super.onVideoSizeChanged(
+                        width,
+                        height,
+                        unappliedRotationDegrees,
+                        pixelWidthHeightRatio
+                    )
+                    val land = width > height
+                    val newWidth: Float
+                    val newHeight: Float
+                    if (land) {
+                        newWidth = defaultSizeBigger
+                        newHeight = height / (width / defaultSizeBigger)
+                    } else {
+                        newWidth = defaultSizeSmaller
+                        newHeight = height / (width / defaultSizeSmaller)
+                    }
+                    changeWindowSize(
+                        MyApplication.application,
+                        newWidth * nowSizeMultiple,
+                        newHeight * nowSizeMultiple
+                    )
+                    nowResolution = Pair(newWidth, newHeight)
+                }
             }
-        })
+
+            )
+        }
+
+        containerView?.setOnClickListener {
+            containerView.controllerView.apply {
+                when (visibility) {
+                    View.VISIBLE ->
+                        visibility = View.GONE
+                    View.GONE ->
+                        visibility = View.VISIBLE
+                }
+            }
+        }
 
         //关闭按钮
         val btnClose =
-            playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
+            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
         btnClose?.setOnClickListener {
             remove()
         }
         //改变大小按钮
         val resizeBtn =
-            playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
+            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
         resizeBtn?.setOnClickListener {
-            (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(applicationContext)
+            changeWindowSizeMultiple()
         }
         //打开APP按钮
         val btnStartApp =
-            playerOverlayView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
+            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
         btnStartApp?.setOnClickListener {
             nowAnchor?.let { anchor ->
-                startApp(applicationContext, anchor)
+                startApp(MyApplication.application, anchor)
                 remove()
             }
         }
+    }
+
+    /**
+     *  改变窗口大小倍数
+     */
+    private fun changeWindowSizeMultiple() {
+        val nowIndex = sizeMultipleList.indexOf(nowSizeMultiple)
+        nowSizeMultiple = if (nowIndex < sizeMultipleList.size - 1) sizeMultipleList[nowIndex + 1]
+        else sizeMultipleList[0]
+        changeWindowSize(
+            MyApplication.application,
+            nowResolution.first * nowSizeMultiple,
+            nowResolution.second * nowSizeMultiple
+        )
+
+    }
+
+    private fun changeWindowSize(context: Context, width: Float, height: Float) {
+        (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(
+            context, width, height
+        )
     }
 
 
@@ -91,7 +165,7 @@ class PlayerOverlayWindowManager {
      * 移除Player悬浮窗
      */
     private fun remove() {
-        playerOverlay?.stop()
+        player?.stop()
         playerOverlayWindow.remove()
         isShown = false
 
@@ -124,6 +198,7 @@ class PlayerOverlayWindowManager {
             val url =
                 PlatformDispatcher.getPlatformImpl(anchor.platform)
                     ?.getStreamingLiveUrl(anchor)
+            Log.d("playAnchorSteaming", "$url")
             if (url == null || url.isEmpty()) {
                 nowAnchor = lastAnchor
                 runOnUiThread {
@@ -133,8 +208,8 @@ class PlayerOverlayWindowManager {
                 return@execute
             }
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                applicationContext,
-                Util.getUserAgent(applicationContext, "com.acel.streamlivetool")
+                MyApplication.application,
+                Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
             )
             val uri = Uri.parse(url)
             val videoSource: MediaSource
@@ -146,7 +221,7 @@ class PlayerOverlayWindowManager {
                 ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(uri)
             runOnUiThread {
-                playerOverlay?.prepare(videoSource)
+                player?.prepare(videoSource)
             }
         }
     }

@@ -8,7 +8,6 @@ import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.TextAnchorAdapter
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObserver {

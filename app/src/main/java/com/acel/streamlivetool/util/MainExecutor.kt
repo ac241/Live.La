@@ -1,9 +1,7 @@
 package com.acel.streamlivetool.util
 
-import android.util.Log
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
-import java.lang.Exception
 import java.util.concurrent.Executors
 
 object MainExecutor {

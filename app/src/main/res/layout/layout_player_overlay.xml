@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:keepScreenOn="true">
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/btn_player_overlay_video_view"
@@ -9,16 +10,49 @@
         android:layout_height="match_parent"
         android:background="#55000000" />
 
-    <ImageView
-        android:id="@+id/btn_player_overlay_close"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_gravity="end|top"
-        android:alpha="0.5"
-        android:clickable="true"
-        android:contentDescription="@string/button_player_overlay_close"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_close_24" />
+    <FrameLayout
+        android:id="@+id/controllerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#55000000"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/btn_player_overlay_close"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="end|top"
+            android:alpha="0.5"
+            android:clickable="true"
+            android:contentDescription="@string/button_player_overlay_close"
+            android:focusable="true"
+            android:src="@drawable/ic_baseline_close_24"
+            android:tint="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/btn_player_overlay_resize"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="end|bottom"
+            android:alpha="0.8"
+            android:clickable="true"
+            android:contentDescription="@string/button_player_overlay_resize"
+            android:focusable="true"
+            android:src="@drawable/ic_baseline_zoom_out_map_24"
+            android:tint="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/btn_player_overlay_start_app"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="end|center_vertical"
+            android:alpha="0.8"
+            android:clickable="true"
+            android:contentDescription="@string/second_button"
+            android:focusable="true"
+            android:src="@drawable/ic_baseline_call_missed_outgoing_24"
+            android:tint="@android:color/white" />
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/player_overlay_process_bar"
@@ -26,25 +60,4 @@
         android:layout_height="40dp"
         android:layout_gravity="center" />
 
-    <ImageView
-        android:id="@+id/btn_player_overlay_resize"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_gravity="end|bottom"
-        android:alpha="0.8"
-        android:clickable="true"
-        android:contentDescription="@string/button_player_overlay_resize"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_zoom_out_map_24" />
-
-    <ImageView
-        android:id="@+id/btn_player_overlay_start_app"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_gravity="end|center_vertical"
-        android:alpha="0.8"
-        android:clickable="true"
-        android:contentDescription="@string/second_button"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_call_missed_outgoing_24" />
 </FrameLayout>

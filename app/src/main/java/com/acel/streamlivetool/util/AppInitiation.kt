@@ -76,7 +76,7 @@ class AppInitiation {
 
     private fun initDefaultAnchor() {
         Log.d("initDefaultAnchor", "init")
-        val anchorRepository = AnchorRepository.getInstance(appContext.applicationContext)
+        val anchorRepository = AnchorRepository.getInstance()
         val list = mutableListOf<Anchor>()
         list.add(Anchor("douyu", "即将拥有人鱼线的PDD", "101", "101"))
         list.add(Anchor("douyu", "英雄联盟赛事", "288016", "288016"))

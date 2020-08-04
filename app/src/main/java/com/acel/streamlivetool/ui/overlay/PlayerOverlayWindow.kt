@@ -4,16 +4,9 @@ import android.content.Context
 import android.view.WindowManager
 
 class PlayerOverlayWindow : AbsOverlayWindow() {
-    private val sizeList =
-        listOf(
-            Size(240F, 135F),
-            Size(320F, 180F),
-            Size(400F, 225F)
-        )
-    private var sizeIndex = 0
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_player_overlay
-    override val widthDp: Float = sizeList[0].widthDP
-    override val heightDp: Float = sizeList[0].heightDP
+    override val widthDp: Float = 240F
+    override val heightDp: Float = 135F
     override val x: Int = 200
     override val y: Int = 500
 
@@ -23,12 +16,9 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
         }
     }
 
-    fun changeWindowSize(context: Context) {
-        if (++sizeIndex >= sizeList.size)
-            sizeIndex = 0
-        val size = sizeList[sizeIndex]
-        layoutParams.width = dp2px(size.widthDP).toInt()
-        layoutParams.height = dp2px(size.heightDP).toInt()
+    fun changeWindowSize(context: Context, width: Float, height: Float) {
+        layoutParams.width = dp2px(width).toInt()
+        layoutParams.height = dp2px(height).toInt()
         if (isShown) {
             val windowManager =
                 context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.util
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.ConnectivityManager

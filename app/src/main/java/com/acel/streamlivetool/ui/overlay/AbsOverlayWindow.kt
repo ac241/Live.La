@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.view.*
 import com.acel.streamlivetool.base.MyApplication
+import kotlin.math.abs
 
 abstract class AbsOverlayWindow {
     private val applicationContext = MyApplication.application.applicationContext
@@ -85,7 +86,8 @@ abstract class AbsOverlayWindow {
             private var y = 0
             private var xOffset = 0
             private var yOffset = 0
-
+            private var downX = 0
+            private var downY = 0
             override fun onTouch(p0: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -93,6 +95,8 @@ abstract class AbsOverlayWindow {
                         y = event.rawY.toInt()
                         xOffset = event.x.toInt()
                         yOffset = event.y.toInt()
+                        downX = event.rawX.toInt()
+                        downY = event.rawY.toInt()
                     }
                     MotionEvent.ACTION_MOVE -> {
                         val nowX = event.rawX
@@ -115,7 +119,7 @@ abstract class AbsOverlayWindow {
                                 x = nowX.toInt()
                             }
                             val checkY =
-                                newY >= 0 &&  newY <= heightPixels - mLayout.height
+                                newY >= 0 && newY <= heightPixels - mLayout.height
                             if (checkY) {
                                 layoutParams.y = (newY).toInt()
                                 y = nowY.toInt()
@@ -125,9 +129,12 @@ abstract class AbsOverlayWindow {
                                 windowManager.updateViewLayout(p0, layoutParams)
                         }
                     }
+                    MotionEvent.ACTION_UP -> {
+                        if (abs(event.rawX - downX) < 5 && abs(event.rawY - downY) < 5)
+                            p0.performClick()
+                    }
                 }
-                p0.performClick()
-                return false
+                return true
             }
         })
     }

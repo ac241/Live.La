@@ -11,18 +11,17 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
+import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.fragment_cookie_mode.*
-import kotlinx.android.synthetic.main.layout_anchor_recycler_view.*
 
 private const val ARG_PARAM1 = "param1"
 
@@ -52,6 +51,9 @@ class CookieFragment : Fragment() {
             MODE_COOKIE
         )
     }
+    private var _binding: FragmentCookieModeBinding? = null
+    val binding
+        get() = _binding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +68,12 @@ class CookieFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_cookie_mode, container, false)
+        _binding = FragmentCookieModeBinding.inflate(inflater, container, false)
+        return binding?.root
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,13 +81,13 @@ class CookieFragment : Fragment() {
         initPreference()
         initRecyclerView()
 
-        cookie_swipe_refresh.setOnRefreshListener {
+        binding?.cookieSwipeRefresh?.setOnRefreshListener {
             viewModel.getAnchors()
         }
     }
 
     internal fun hideSwipeRefreshBtn() {
-        cookie_swipe_refresh.isRefreshing = false
+        binding?.cookieSwipeRefresh?.isRefreshing = false
     }
 
     private fun initPreference() {
@@ -105,27 +112,27 @@ class CookieFragment : Fragment() {
                 setGraphicAdapter()
             }
         }
-        recycler_view.addOnScrollListener(AnchorListAddTitleListener())
+        binding?.include?.recyclerView?.addOnScrollListener(AnchorListAddTitleListener())
     }
 
     internal fun setGraphicAdapter() {
-        recycler_view.layoutManager =
+        binding?.include?.recyclerView?.layoutManager =
             StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        recycler_view.adapter = graphicAnchorAdapter
+        binding?.include?.recyclerView?.adapter = graphicAnchorAdapter
         nowAnchorAnchorAdapter = graphicAnchorAdapter
     }
 
     fun setTextAdapter() {
-        recycler_view.layoutManager = LinearLayoutManager(requireContext())
-        recycler_view.adapter = textAnchorAdapter
+        binding?.include?.recyclerView?.layoutManager = LinearLayoutManager(requireContext())
+        binding?.include?.recyclerView?.adapter = textAnchorAdapter
         nowAnchorAnchorAdapter = textAnchorAdapter
     }
 
 
     fun showLoginTextView() {
         runOnUiThread {
-            textView_login_first.visibility = View.VISIBLE
-            textView_login_first.setOnClickListener {
+            binding?.textViewLoginFirst?.visibility = View.VISIBLE
+            binding?.textViewLoginFirst?.setOnClickListener {
                 val intent = Intent(context, LoginActivity::class.java).also {
                     it.putExtra("platform",
                         platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
@@ -136,22 +143,23 @@ class CookieFragment : Fragment() {
     }
 
     fun hideLoginTextView() {
-        if (textView_login_first.visibility == View.VISIBLE)
+        if (binding?.textViewLoginFirst?.visibility == View.VISIBLE)
             runOnUiThread {
-                textView_login_first.visibility = View.GONE
+                binding?.textViewLoginFirst?.visibility = View.GONE
             }
     }
 
     fun showListMsg(s: String) {
         runOnUiThread {
-            textView_list_msg.visibility = View.VISIBLE
-            textView_list_msg.text = s
+            binding?.textViewListMsg?.visibility = View.VISIBLE
+            binding?.textViewListMsg?.text = s
         }
     }
+
     fun hideListMsg() {
-        if (textView_list_msg.visibility == View.VISIBLE)
+        if (binding?.textViewListMsg?.visibility == View.VISIBLE)
             runOnUiThread {
-                textView_list_msg.visibility = View.GONE
+                binding?.textViewListMsg?.visibility = View.GONE
             }
     }
 
@@ -161,7 +169,7 @@ class CookieFragment : Fragment() {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
                         nowAnchorAnchorAdapter.getLongClickPosition()
-                    val result = AnchorRepository.getInstance(requireContext().applicationContext)
+                    val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)
                 }

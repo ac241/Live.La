@@ -19,7 +19,7 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
         }
     }
     private val anchorRepository =
-        AnchorRepository.getInstance(addAnchorFragment.requireContext().applicationContext)
+        AnchorRepository.getInstance()
 
 
     fun addAnchor(queryAnchor: Anchor) {

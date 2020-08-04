@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.ui.main.group
 
-import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -27,7 +26,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
 
     //数据库读取的anchorList
     private val anchorRepository =
-        AnchorRepository.getInstance(groupFragment.requireContext().applicationContext)
+        AnchorRepository.getInstance()
 
     //排序后的anchorList
     val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {

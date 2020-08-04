@@ -9,12 +9,15 @@ android {
         applicationId "com.acel.streamlivetool"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 6
-        versionName "0.0.6"
+        versionCode 10
+        versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
     buildTypes {
         debug {
             minifyEnabled false
@@ -30,7 +33,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildToolsVersion '30.0.0 rc1'
-    kotlinOptions{
+    kotlinOptions {
         jvmTarget = 1.8
     }
 
