@@ -57,6 +57,7 @@ abstract class AbsOverlayWindow {
     fun show() {
         if (isShown) {
             windowManager.updateViewLayout(mLayout, layoutParams)
+
         } else {
             windowManager.addView(mLayout, layoutParams)
             isShown = true

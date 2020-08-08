@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -13,6 +14,8 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
     private var resumeTimes = 0
+    var lastGetAnchorsTime = 0L
+    private val refreshDelayTime = 20000
     private val mobileDataTextOnly = defaultSharedPreferences.getBoolean(
         groupFragment.getString(R.string.pref_key_mobile_data_only_text),
         false
@@ -22,7 +25,12 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
     fun resume() {
         //获取数据
         if (resumeTimes != 0) {
-            groupFragment.viewModel.getAllAnchorsAttribute()
+            System.currentTimeMillis().apply {
+                if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
+                    groupFragment.viewModel.getAllAnchorsAttribute()
+                    lastGetAnchorsTime = this
+                }
+            }
         }
         resumeTimes++
         //设置toolbar文字

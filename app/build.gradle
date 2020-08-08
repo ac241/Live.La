@@ -44,7 +44,7 @@ android {
             def formattedDate = date.format('yyyyMMdd')
             if (variant.buildType.name == 'release') {
                 fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_release_${formattedDate}.apk"
-            } else if (variant.buildType.name == 'debug') {
+            } else {
                 fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionCode}_${variant.mergedFlavor.versionName}_debug_${formattedDate}.apk"
             }
             //noinspection GroovyVariableNotAssigned

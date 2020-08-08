@@ -159,6 +159,7 @@ class PlayerOverlayWindowManager {
     private fun show() {
         playerOverlayWindow.show()
         isShown = true
+        containerView?.controllerView?.visibility = View.GONE
     }
 
     /**
