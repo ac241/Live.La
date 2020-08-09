@@ -31,11 +31,18 @@ class PlayerOverlayWindowManager {
         val instance by lazy { PlayerOverlayWindowManager() }
     }
 
-    private val defaultSizeBigger = 240F
-    private val defaultSizeSmaller = 135F
-    private val sizeMultipleList = listOf(1F, 1.4F, 1.7F)
-    private var nowSizeMultiple = sizeMultipleList[0]
-    private var nowResolution: Pair<Float, Float> = Pair(defaultSizeBigger, defaultSizeSmaller)
+    //横屏参数
+    private val defaultWidthLand = 240F
+    private val defaultHeightLand = 135F
+    private val landSizeMultipleList = listOf(1F, 1.4F, 1.7F)
+
+    //竖屏参数
+    private val defaultWidthVertical = 135F
+    private val defaultHeightVertical = 240F
+    private val verticalMultipleList = listOf(1F, 1.7F, 2.5F)
+
+    private var nowSizeMultipleIndex = 0
+    private var nowResolution: Pair<Float, Float> = Pair(defaultWidthLand, defaultHeightLand)
     private var nowAnchor: Anchor? = null
     private var lastAnchor: Anchor? = null
     private var isShown = false
@@ -48,6 +55,9 @@ class PlayerOverlayWindowManager {
         containerView?.findViewById(R.id.player_overlay_process_bar)
     private val player: SimpleExoPlayer? =
         SimpleExoPlayer.Builder(MyApplication.application).build()
+
+    //上次控制器交互时间
+    var lastControllerInteraction = 0L
 
     init {
         exoPlayerView?.player = player
@@ -78,52 +88,59 @@ class PlayerOverlayWindowManager {
                     val land = width > height
                     val newWidth: Float
                     val newHeight: Float
-                    if (land) {
-                        newWidth = defaultSizeBigger
-                        newHeight = height / (width / defaultSizeBigger)
-                    } else {
-                        newWidth = defaultSizeSmaller
-                        newHeight = height / (width / defaultSizeSmaller)
-                    }
-                    changeWindowSize(
-                        MyApplication.application,
-                        newWidth * nowSizeMultiple,
-                        newHeight * nowSizeMultiple
-                    )
+                    val defaultWidth = if (land) defaultWidthLand else defaultWidthVertical
+                    newWidth = defaultWidth
+                    newHeight = height / (width / defaultWidth)
                     nowResolution = Pair(newWidth, newHeight)
+                    resizeWindowWithMultiple(
+                        MyApplication.application,
+                        newWidth,
+                        newHeight
+                    )
                 }
             }
-
             )
         }
 
         containerView?.setOnClickListener {
             containerView.controllerView.apply {
+                lastControllerInteraction = System.currentTimeMillis()
                 when (visibility) {
                     View.VISIBLE ->
                         visibility = View.GONE
-                    View.GONE ->
+                    View.GONE -> {
                         visibility = View.VISIBLE
+                        this.postDelayed({
+                            if (System.currentTimeMillis() - lastControllerInteraction >= 4500)
+                                visibility = View.GONE
+                        }, 5000)
+                    }
                 }
             }
         }
+        /**
+         * 控制器功能
+         */
 
         //关闭按钮
         val btnClose =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
         btnClose?.setOnClickListener {
+            lastControllerInteraction = System.currentTimeMillis()
             remove()
         }
         //改变大小按钮
         val resizeBtn =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
         resizeBtn?.setOnClickListener {
-            changeWindowSizeMultiple()
+            lastControllerInteraction = System.currentTimeMillis()
+            changeMultiple()
         }
         //打开APP按钮
         val btnStartApp =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
         btnStartApp?.setOnClickListener {
+            lastControllerInteraction = System.currentTimeMillis()
             nowAnchor?.let { anchor ->
                 startApp(MyApplication.application, anchor)
                 remove()
@@ -134,19 +151,27 @@ class PlayerOverlayWindowManager {
     /**
      *  改变窗口大小倍数
      */
-    private fun changeWindowSizeMultiple() {
-        val nowIndex = sizeMultipleList.indexOf(nowSizeMultiple)
-        nowSizeMultiple = if (nowIndex < sizeMultipleList.size - 1) sizeMultipleList[nowIndex + 1]
-        else sizeMultipleList[0]
-        changeWindowSize(
+    private fun changeMultiple() {
+        nowSizeMultipleIndex =
+            if (nowSizeMultipleIndex < landSizeMultipleList.size - 1)
+                nowSizeMultipleIndex + 1
+            else 0
+        resizeWindowWithMultiple(
             MyApplication.application,
-            nowResolution.first * nowSizeMultiple,
-            nowResolution.second * nowSizeMultiple
+            nowResolution.first,
+            nowResolution.second
         )
-
     }
 
-    private fun changeWindowSize(context: Context, width: Float, height: Float) {
+    private fun resizeWindowWithMultiple(context: Context, width: Float, height: Float) {
+        val land = nowResolution.first > nowResolution.second
+        val multiple =
+            if (land) landSizeMultipleList[nowSizeMultipleIndex]
+            else verticalMultipleList[nowSizeMultipleIndex]
+        resizeWindow(context, width * multiple, height * multiple)
+    }
+
+    private fun resizeWindow(context: Context, width: Float, height: Float) {
         (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(
             context, width, height
         )

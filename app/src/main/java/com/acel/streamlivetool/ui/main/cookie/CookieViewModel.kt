@@ -42,7 +42,6 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                             if (this != null) {
                                 if (this.isEmpty()) {
                                     cookieFragment.showListMsg("无数据")
-                                    Log.d("getAnchors", "no data")
                                 } else
                                     cookieFragment.hideListMsg()
                                 anchorList.clear()
@@ -50,7 +49,6 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                                 com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder(
                                     anchorList
                                 )
-                                Log.d("getAnchors", "${anchorList.size}")
                                 notifyDataChange()
                             }
                         }
