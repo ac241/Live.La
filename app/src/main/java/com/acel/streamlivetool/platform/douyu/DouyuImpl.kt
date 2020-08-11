@@ -148,25 +148,28 @@ class DouyuImpl : IPlatform {
                 return super.getAnchorsWithCookieMode()
             else {
                 val followed = douyuService.getFollowed(this).execute().body()
-                return if (followed != null) {
-                    val list = mutableListOf<Anchor>()
-                    followed.data.list.forEach {
-                        list.add(
-                            Anchor(
-                                platform = platform,
-                                nickname = it.nickname,
-                                showId = it.room_id.toString(),
-                                roomId = it.room_id.toString(),
-                                status = it.show_status == 1,
-                                title = it.room_name,
-                                avatar = it.avatar_small,
-                                keyFrame = it.room_src
+                if (followed?.error != 0)
+                    return AnchorsCookieMode(false, null, followed?.msg.toString())
+                else
+                    return run {
+                        val list = mutableListOf<Anchor>()
+                        followed.data.list.forEach {
+                            list.add(
+                                Anchor(
+                                    platform = platform,
+                                    nickname = it.nickname,
+                                    showId = it.room_id.toString(),
+                                    roomId = it.room_id.toString(),
+                                    status = it.show_status == 1,
+                                    title = it.room_name,
+                                    avatar = it.avatar_small,
+                                    keyFrame = it.room_src,
+                                    secondaryStatus = if (it.videoLoop == 1) "轮播中" else null
+                                )
                             )
-                        )
+                        }
+                        AnchorsCookieMode(true, list)
                     }
-                    AnchorsCookieMode(true, list)
-                } else
-                    super.getAnchorsWithCookieMode()
             }
         }
     }

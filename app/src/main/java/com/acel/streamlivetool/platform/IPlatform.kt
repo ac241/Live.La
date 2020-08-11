@@ -95,7 +95,7 @@ interface IPlatform {
      * @return AnchorsCookieMode
      */
     fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        return AnchorsCookieMode(false, null)
+        return AnchorsCookieMode(false, null,"")
     }
 
     /**

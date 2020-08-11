@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
+import com.acel.streamlivetool.util.ToastUtil.toast
 
 
 class CookieViewModel(private val cookieFragment: CookieFragment) :
@@ -37,11 +39,14 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                         cookieFragment.showLoginTextView()
                         anchorList.clear()
                         notifyDataChange()
+                        runOnUiThread{
+                            toast(if (anchorsCookieMode.message.isEmpty()) "请先登录" else anchorsCookieMode.message)
+                        }
                     } else {
                         with(anchorsCookieMode.anchors) {
                             if (this != null) {
                                 if (this.isEmpty()) {
-                                    cookieFragment.showListMsg("无数据")
+                                    cookieFragment.showListMsg(if (anchorsCookieMode.message.isEmpty()) "无数据" else anchorsCookieMode.message)
                                 } else
                                     cookieFragment.hideListMsg()
                                 anchorList.clear()

@@ -2,7 +2,8 @@ package com.acel.streamlivetool.platform.huya.bean
 
 data class Subscribe(
     val result: Result,
-    val status: Long
+    val status: Long,
+    val message: String = ""
 ) {
     data class Result(
         val list: List<Anchor>,

@@ -163,6 +163,15 @@ class GraphicAnchorAdapter(
             }
         } else
             holder.status.visibility = View.GONE
+        //二级状态
+        with(anchor.secondaryStatus) {
+            if (this != null && isNotEmpty()) {
+                holder.secondaryStatus.visibility = View.VISIBLE
+                holder.secondaryStatus.text = this
+            } else {
+                holder.secondaryStatus.visibility = View.GONE
+            }
+        }
 
         //直播间Id
 //        viewHolder.roomId.text = anchor.showId

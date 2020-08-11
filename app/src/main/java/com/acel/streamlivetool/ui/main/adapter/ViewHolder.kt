@@ -50,6 +50,7 @@ class ViewHolderGraphic(itemView: View, private val modeType: Int) :
     val secondBtn: ImageView = itemView.grid_anchor_second_btn
     val title: TextView = itemView.grid_anchor_title
     val additionBtn: ImageView = itemView.grid_anchor_addition_action
+    val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
 }
 
 class ViewHolderText(itemView: View, private val modeType: Int) :

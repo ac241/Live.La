@@ -22,12 +22,16 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun resume() {
         //获取数据
-        System.currentTimeMillis().apply {
-            if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
-                cookieFragment.viewModel.getAnchors()
-                lastGetAnchorsTime = this
+        if (cookieFragment.isLogining) {
+            cookieFragment.viewModel.getAnchors()
+            cookieFragment.loginFinish()
+        } else
+            System.currentTimeMillis().apply {
+                if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
+                    cookieFragment.viewModel.getAnchors()
+                    lastGetAnchorsTime = this
+                }
             }
-        }
 
         //设置toolbar文字
         (cookieFragment.requireActivity() as MainActivity).setToolbarTitle("平台")

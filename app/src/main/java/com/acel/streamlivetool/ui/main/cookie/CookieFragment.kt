@@ -54,6 +54,7 @@ class CookieFragment : Fragment() {
     private var _binding: FragmentCookieModeBinding? = null
     val binding
         get() = _binding
+    var isLogining = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +72,7 @@ class CookieFragment : Fragment() {
         _binding = FragmentCookieModeBinding.inflate(inflater, container, false)
         return binding?.root
     }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
@@ -138,8 +140,17 @@ class CookieFragment : Fragment() {
                         platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
                 }
                 startActivity(intent)
+                startLogin()
             }
         }
+    }
+
+    private fun startLogin() {
+        isLogining = true
+    }
+
+    internal fun loginFinish() {
+        isLogining = false
     }
 
     fun hideLoginTextView() {

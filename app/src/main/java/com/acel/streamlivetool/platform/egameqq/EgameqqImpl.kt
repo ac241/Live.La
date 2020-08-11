@@ -109,7 +109,9 @@ class EgameqqImpl : IPlatform {
         if (readCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
         val list = egameqqService.getFollowList(readCookie()).execute().body()
-        if (list != null) {
+        if (list?.data?.key?.retCode != 0)
+            return AnchorsCookieMode(false, null, list?.data?.key?.retMsg.toString())
+        else {
             val anchorList = mutableListOf<Anchor>()
             with(list.data.key.retBody.data.online_follow_list) {
                 this.forEach {
@@ -129,7 +131,6 @@ class EgameqqImpl : IPlatform {
             }
             return AnchorsCookieMode(true, anchorList)
         }
-        return super.getAnchorsWithCookieMode()
     }
 
     override fun getLoginUrl(): String {

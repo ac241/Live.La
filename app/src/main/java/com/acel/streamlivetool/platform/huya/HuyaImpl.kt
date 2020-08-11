@@ -90,7 +90,8 @@ class HuyaImpl : IPlatform {
             } else {
                 getHtml(queryAnchor)?.let { screenShotHtml ->
                     val screenshot =
-                        TextUtil.subString(screenShotHtml, "\"screenshot\":\"", "\",")?.replace("\\", "")
+                        TextUtil.subString(screenShotHtml, "\"screenshot\":\"", "\",")
+                            ?.replace("\\", "")
                     return AnchorAttribute(
                         queryAnchor,
                         state,
@@ -165,25 +166,27 @@ class HuyaImpl : IPlatform {
                     }
                 }
                 val subscribe = huyaService.getSubscribe(this, uid).execute().body()
-                return if (subscribe != null) {
-                    val list = mutableListOf<Anchor>()
-                    subscribe.result.list.forEach {
-                        list.add(
-                            Anchor(
-                                platform = platform,
-                                nickname = it.nick,
-                                showId = it.profileRoom.toString(),
-                                roomId = it.uid.toString(),
-                                status = it.isLive,
-                                title = it.intro,
-                                avatar = it.avatar180,
-                                keyFrame = it.screenshot
+                if (subscribe?.status != 1000L)
+                    return AnchorsCookieMode(false, null, subscribe?.message.toString())
+                else
+                    return run {
+                        val list = mutableListOf<Anchor>()
+                        subscribe.result.list.forEach {
+                            list.add(
+                                Anchor(
+                                    platform = platform,
+                                    nickname = it.nick,
+                                    showId = it.profileRoom.toString(),
+                                    roomId = it.uid.toString(),
+                                    status = it.isLive,
+                                    title = it.intro,
+                                    avatar = it.avatar180,
+                                    keyFrame = it.screenshot
+                                )
                             )
-                        )
+                        }
+                        AnchorsCookieMode(true, list)
                     }
-                    AnchorsCookieMode(true, list)
-                } else
-                    super.getAnchorsWithCookieMode()
             }
         }
     }
