@@ -56,6 +56,9 @@ class PlayerOverlayWindowManager {
     private val player: SimpleExoPlayer? =
         SimpleExoPlayer.Builder(MyApplication.application).build()
 
+    //控制器自动隐藏时间
+    val controllerHideTime = 3000L
+
     //上次控制器交互时间
     var lastControllerInteraction = 0L
 
@@ -104,16 +107,12 @@ class PlayerOverlayWindowManager {
 
         containerView?.setOnClickListener {
             containerView.controllerView.apply {
-                lastControllerInteraction = System.currentTimeMillis()
                 when (visibility) {
                     View.VISIBLE ->
                         visibility = View.GONE
                     View.GONE -> {
                         visibility = View.VISIBLE
-                        this.postDelayed({
-                            if (System.currentTimeMillis() - lastControllerInteraction >= 4500)
-                                visibility = View.GONE
-                        }, 5000)
+                        hideControllerDelay()
                     }
                 }
             }
@@ -126,25 +125,35 @@ class PlayerOverlayWindowManager {
         val btnClose =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
         btnClose?.setOnClickListener {
-            lastControllerInteraction = System.currentTimeMillis()
+            hideControllerDelay()
             remove()
         }
         //改变大小按钮
         val resizeBtn =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
         resizeBtn?.setOnClickListener {
-            lastControllerInteraction = System.currentTimeMillis()
+            hideControllerDelay()
             changeMultiple()
         }
         //打开APP按钮
         val btnStartApp =
             containerView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
         btnStartApp?.setOnClickListener {
-            lastControllerInteraction = System.currentTimeMillis()
+            hideControllerDelay()
             nowAnchor?.let { anchor ->
                 startApp(MyApplication.application, anchor)
                 remove()
             }
+        }
+    }
+
+    private fun hideControllerDelay() {
+        lastControllerInteraction = System.currentTimeMillis()
+        containerView?.controllerView?.apply {
+            postDelayed({
+                if (System.currentTimeMillis() - lastControllerInteraction >= controllerHideTime - 20)
+                    visibility = View.GONE
+            }, controllerHideTime)
         }
     }
 

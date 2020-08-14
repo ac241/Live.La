@@ -14,8 +14,8 @@ import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import kotlinx.android.synthetic.main.item_overlay_list.view.*
-import kotlinx.android.synthetic.main.item_recycler_anchor.view.anchor_name
-import kotlinx.android.synthetic.main.item_recycler_anchor.view.anchor_title
+import kotlinx.android.synthetic.main.item_text_anchor.view.anchor_name
+import kotlinx.android.synthetic.main.item_text_anchor.view.anchor_title
 
 
 class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :

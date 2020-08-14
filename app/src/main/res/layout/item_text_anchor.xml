@@ -67,6 +67,16 @@
             app:layout_constraintEnd_toStartOf="@+id/main_second_btn"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/main_anchor_secondary_status"
+            style="@style/main_recy_item_text"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/main_anchor_status"
+            app:layout_constraintEnd_toStartOf="@+id/main_anchor_status"
+            app:layout_constraintTop_toTopOf="@+id/main_anchor_status" />
+
         <ImageView
             android:id="@+id/main_second_btn"
             android:layout_width="50dp"

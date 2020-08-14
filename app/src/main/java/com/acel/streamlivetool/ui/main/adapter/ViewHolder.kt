@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
-import kotlinx.android.synthetic.main.item_recycler_anchor.view.*
+import kotlinx.android.synthetic.main.item_text_anchor.view.*
 
 
 class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -83,6 +83,7 @@ class ViewHolderText(itemView: View, private val modeType: Int) :
     val platform: TextView = itemView.main_anchor_platform
     val roomId: TextView = itemView.main_anchor_roomId
     val status: TextView = itemView.main_anchor_status
+    val secondaryStatus: TextView = itemView.main_anchor_secondary_status
     val secondBtn: ImageView = itemView.main_second_btn
     val title: TextView = itemView.anchor_title
     val additionBtn: ImageView = itemView.btn_addition_action

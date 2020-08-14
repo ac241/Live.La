@@ -18,7 +18,11 @@ import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
-class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>, private val modeType: Int) :
+class TextAnchorAdapter(
+    val context: Context,
+    val anchorList: List<Anchor>,
+    private val modeType: Int
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
 
@@ -58,7 +62,7 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>, priv
             else ->
                 holder = ViewHolderText(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_recycler_anchor, parent, false)
+                        .inflate(R.layout.item_text_anchor, parent, false)
                     , modeType
                 )
         }
@@ -108,6 +112,15 @@ class TextAnchorAdapter(val context: Context, val anchorList: List<Anchor>, priv
                     anchor.title
             } else
                 holder.status.visibility = View.GONE
+            //二级状态
+            anchor.secondaryStatus.apply {
+                if (this != null && isNotEmpty()) {
+                    holder.secondaryStatus.visibility = View.VISIBLE
+                    holder.secondaryStatus.text = this
+                } else {
+                    holder.secondaryStatus.visibility = View.GONE
+                }
+            }
 
             //主播名
             this.anchorName.text = anchor.nickname
