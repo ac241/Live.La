@@ -1,9 +1,6 @@
 package com.acel.streamlivetool.platform.douyu
 
-import com.acel.streamlivetool.platform.douyu.bean.Followed
-import com.acel.streamlivetool.platform.douyu.bean.H5Enc
-import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
-import com.acel.streamlivetool.platform.douyu.bean.RoomInfoMsg
+import com.acel.streamlivetool.platform.douyu.bean.*
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -50,4 +47,8 @@ interface DouyuApi {
     fun getFollowed(
         @Header("Cookie") cookie: String
     ): Call<Followed>
+
+    @GET("https://www.douyu.com/japi/search/api/getSearchRec")
+    fun search(@Query("kw") keyword: String): Call<SearchResult>
+
 }

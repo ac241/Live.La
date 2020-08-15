@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.huomao
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -106,6 +107,19 @@ class HuomaoImpl : IPlatform {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.action = "android.intent.action.VIEW"
         context.startActivity(intent)
+    }
+
+    override fun searchAnchor(keyword: String): List<Anchor>? {
+        val result =
+            UnicodeUtil.cnToUnicode(keyword)?.let { huomaoService.search(it).execute().body() }
+        val list = mutableListOf<Anchor>()
+        result?.apply {
+            val resultList = result.data.anchor.list
+            resultList.forEach {
+                list.add(Anchor(platform, it.nickname.replace("<i style=\"color: red;font-style: normal\">","").replace("</i>",""), it.room_number, it.cid))
+            }
+        }
+        return list
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {

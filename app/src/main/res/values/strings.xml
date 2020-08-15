@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">直播啦</string>
     <string name="title_activity_setting">设置</string>
-    <string name="add_anchor">主页新增直播间</string>
+    <string name="main_page_add_anchor">主页新增直播间</string>
     <string name="anchor_id">直播间号</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
@@ -94,4 +94,8 @@
     <string name="full_version_feature">完整版功能</string>
     <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
     <string name="other">其他</string>
+    <string name="search">搜索</string>
+    <string name="anchor_id_or_search_keyword">直播间号或搜索关键词</string>
+    <string name="add_anchor">添加直播间</string>
+    <string name="start_app">打开app</string>
 </resources>

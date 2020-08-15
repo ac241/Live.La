@@ -9,7 +9,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_anchor"
+        android:text="@string/main_page_add_anchor"
         android:textSize="20sp" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="true"
-            android:hint="@string/anchor_id"
+            android:hint="@string/anchor_id_or_search_keyword"
             android:inputType="text"
             android:selectAllOnFocus="true" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -39,5 +39,10 @@
         android:id="@+id/btn_confirm_add_anchor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/confirm" />
+        android:text="@string/add_anchor" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_search_anchor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search" />
 </LinearLayout>

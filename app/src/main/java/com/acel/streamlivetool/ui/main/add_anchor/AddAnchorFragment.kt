@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main
+package com.acel.streamlivetool.ui.main.add_anchor
 
 import android.content.Context
 import android.content.DialogInterface
@@ -70,6 +70,16 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
             val platform = tempList[radioIndex]
 
             viewModel.addAnchor(Anchor(platform, "", roomId, ""))
+        }
+        btn_search_anchor.setOnClickListener {
+            val keyword = edit_anchor_id_add_anchor.text.toString()
+            val radioIndex = chip_group_add_anchor.checkedChipId
+            if (radioIndex == -1) {
+                toast("请选择平台")
+                return@setOnClickListener
+            }
+            val platform = tempList[radioIndex]
+            viewModel.search(keyword, platform)
         }
     }
 

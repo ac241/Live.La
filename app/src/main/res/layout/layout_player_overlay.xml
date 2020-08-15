@@ -20,36 +20,24 @@
 
         <ImageView
             android:id="@+id/btn_player_overlay_close"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            style="@style/player_overlay_button"
             android:layout_gravity="end|top"
-            android:clickable="true"
             android:contentDescription="@string/button_player_overlay_close"
-            android:focusable="true"
-            android:src="@drawable/ic_baseline_close_24"
-            app:tint="@android:color/white" />
+            android:src="@drawable/ic_baseline_close_24" />
 
         <ImageView
             android:id="@+id/btn_player_overlay_resize"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            style="@style/player_overlay_button"
             android:layout_gravity="end|bottom"
-            android:clickable="true"
             android:contentDescription="@string/button_player_overlay_resize"
-            android:focusable="true"
-            android:src="@drawable/ic_baseline_zoom_out_map_24"
-            app:tint="@android:color/white" />
+            android:src="@drawable/ic_baseline_zoom_out_map_24" />
 
         <ImageView
             android:id="@+id/btn_player_overlay_start_app"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            style="@style/player_overlay_button"
             android:layout_gravity="end|center_vertical"
-            android:clickable="true"
-            android:contentDescription="@string/second_button"
-            android:focusable="true"
-            android:src="@drawable/ic_baseline_call_missed_outgoing_24"
-            app:tint="@android:color/white" />
+            android:contentDescription="@string/start_app"
+            android:src="@drawable/ic_baseline_call_missed_outgoing_24" />
     </FrameLayout>
 
     <ProgressBar

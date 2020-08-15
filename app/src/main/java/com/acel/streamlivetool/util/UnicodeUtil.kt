@@ -24,4 +24,21 @@ object UnicodeUtil {
         }
         return str
     }
+
+    //中文转Unicode
+    fun cnToUnicode(cn: String): String? {
+        val chars = cn.toCharArray()
+        var returnStr = ""
+        for (i in chars.indices) {
+            if (isChinese(chars[i]))
+                returnStr += "\\u" + chars[i].toInt().toString(16)
+            else
+                returnStr += chars[i]
+        }
+        return returnStr
+    }
+
+    private fun isChinese(c: Char): Boolean {
+        return c.toInt() in 0x4E00..0x9FA5 // 根据字节码判断
+    }
 }

@@ -88,6 +88,18 @@ class DouyuImpl : IPlatform {
         context.startActivity(intent)
     }
 
+    override fun searchAnchor(keyword: String): List<Anchor>? {
+        val result = douyuService.search(keyword).execute().body()
+        val list = mutableListOf<Anchor>()
+        result?.apply {
+            val resultList = this.data.roomResult
+            resultList.forEach {
+                list.add(Anchor(platform, it.nickName, it.rid.toString(), it.rid.toString()))
+            }
+        }
+        return list
+    }
+
     private fun getAnchorFromHtml(queryAnchor: Anchor): Anchor? {
         val html = douyuService.getRoomInfo(queryAnchor.showId).execute().body().toString()
         val nickname = TextUtil.subString(html, "\"nickname\":\"", "\",")

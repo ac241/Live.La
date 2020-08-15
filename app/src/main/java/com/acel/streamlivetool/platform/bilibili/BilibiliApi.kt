@@ -34,4 +34,9 @@ interface BilibiliApi {
         @Query("page") page: Int
     ): Call<LivingList>
 
+    @GET("https://api.bilibili.com/x/web-interface/search/type?context=&search_type=live_user")
+    fun search(
+        @Query("keyword") keyword: String
+    ): Call<SearchResult>
+
 }

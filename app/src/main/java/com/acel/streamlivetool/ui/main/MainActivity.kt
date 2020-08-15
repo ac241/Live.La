@@ -17,6 +17,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieContainerFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager

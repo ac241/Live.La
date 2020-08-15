@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_cookie_anchor"
         android:icon="@drawable/ic_add_white_24dp"
-        android:title="@string/add_anchor"
+        android:title="@string/main_page_add_anchor"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_main_setting"

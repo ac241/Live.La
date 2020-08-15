@@ -152,6 +152,18 @@ class HuyaImpl : IPlatform {
         context.startActivity(intent)
     }
 
+    override fun searchAnchor(keyword: String): List<Anchor>? {
+        val result = huyaService.search(keyword).execute().body()
+        val list = mutableListOf<Anchor>()
+        result?.apply {
+            val resultList = result.response.`1`.docs
+            resultList.forEach {
+                list.add(Anchor(platform, it.game_nick, it.room_id.toString(), it.uid.toString()))
+            }
+        }
+        return list
+    }
+
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
         readCookie().run {
             if (this.isEmpty())

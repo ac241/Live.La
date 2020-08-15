@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.platform.huya
 
+import com.acel.streamlivetool.platform.huya.bean.SearchResult
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import retrofit2.Call
 import retrofit2.http.GET
@@ -22,4 +23,7 @@ interface HuyaApi {
         @Header("Cookie") cookie: String,
         @Query("uid") uid: String
     ): Call<Subscribe>
+
+    @GET("https://search.cdn.huya.com/?m=Search&do=getSearchContent&typ=-5&rows=10")
+    fun search(@Query("q") keyword: String): Call<SearchResult>
 }

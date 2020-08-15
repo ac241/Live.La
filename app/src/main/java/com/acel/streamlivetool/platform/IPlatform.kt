@@ -65,12 +65,9 @@ interface IPlatform {
 
     /**
      * 搜索直播间
+     * @return 返回null表示不支持搜索，无数据返回空List
      */
-    @Nullable
-    @Deprecated("wait to do")
-    fun searchAnchor() {
-
-    }
+    fun searchAnchor(keyword: String): List<Anchor>? = null
 
     /**
      * 调用第三方播放器
@@ -95,7 +92,7 @@ interface IPlatform {
      * @return AnchorsCookieMode
      */
     fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        return AnchorsCookieMode(false, null,"")
+        return AnchorsCookieMode(false, null, "")
     }
 
     /**
@@ -146,4 +143,5 @@ interface IPlatform {
         defaultSharedPreferences.edit().remove("${platform}_cookie")
             .apply()
     }
+
 }

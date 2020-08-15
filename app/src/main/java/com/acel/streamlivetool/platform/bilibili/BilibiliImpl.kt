@@ -74,6 +74,25 @@ class BilibiliImpl : IPlatform {
         context.startActivity(intent)
     }
 
+    override fun searchAnchor(keyword: String): List<Anchor>? {
+        val result = bilibiliService.search(keyword).execute().body()
+        val list = mutableListOf<Anchor>()
+        result?.apply {
+            val resultList = result.data.result
+            resultList.forEach {
+                list.add(
+                    Anchor(
+                        platform,
+                        it.uname.replace("<em class=\"keyword\">", "").replace("</em>", ""),
+                        it.roomid.toString(),
+                        it.roomid.toString()
+                    )
+                )
+            }
+        }
+        return list
+    }
+
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
         readCookie().run {
             if (this.isEmpty())
