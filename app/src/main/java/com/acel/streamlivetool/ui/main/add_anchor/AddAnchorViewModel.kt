@@ -1,17 +1,13 @@
 package com.acel.streamlivetool.ui.main.add_anchor
 
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
 
 
@@ -87,7 +83,7 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    ToastUtil.toast("发生错误。")
+                    toast("发生错误。")
                 }
             }
         }

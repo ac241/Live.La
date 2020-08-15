@@ -57,10 +57,10 @@ class PlayerOverlayWindowManager {
         SimpleExoPlayer.Builder(MyApplication.application).build()
 
     //控制器自动隐藏时间
-    val controllerHideTime = 3000L
+    private val controllerHideTime = 3000L
 
     //上次控制器交互时间
-    var lastControllerInteraction = 0L
+    private var lastControllerInteraction = 0L
 
     init {
         exoPlayerView?.player = player

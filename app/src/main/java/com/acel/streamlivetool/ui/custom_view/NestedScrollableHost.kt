@@ -47,13 +47,6 @@ class NestedScrollableHost : FrameLayout {
         attrs,
         defStyleAttr
     )
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int, @StyleRes defStyleRes:Int ) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    )
 
     private var touchSlop = 0
     private var initialX = 0f

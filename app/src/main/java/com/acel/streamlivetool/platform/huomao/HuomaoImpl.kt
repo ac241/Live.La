@@ -3,7 +3,6 @@ package com.acel.streamlivetool.platform.huomao
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute

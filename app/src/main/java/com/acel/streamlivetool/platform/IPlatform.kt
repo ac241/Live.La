@@ -8,10 +8,9 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
-import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
-import org.jetbrains.annotations.Nullable
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import retrofit2.Retrofit
 
 interface IPlatform {

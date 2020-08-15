@@ -1,11 +1,9 @@
 package com.acel.streamlivetool.ui.main.cookie
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -63,7 +61,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                AppUtil.runOnUiThread {
+                runOnUiThread {
                     cookieFragment.binding?.cookieSwipeRefresh?.isRefreshing = false
                 }
             }
@@ -72,7 +70,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
     }
 
     private fun notifyDataChange() {
-        AppUtil.runOnUiThread {
+        runOnUiThread {
             cookieFragment.nowAnchorAnchorAdapter.notifyAnchorsChange()
         }
     }

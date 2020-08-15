@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.ui.main.cookie
 
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -12,7 +11,7 @@ import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObserver {
-    var lastGetAnchorsTime = 0L
+    private var lastGetAnchorsTime = 0L
     private val refreshDelayTime = 20000
     private val mobileDataTextOnly = defaultSharedPreferences.getBoolean(
         cookieFragment.getString(R.string.pref_key_mobile_data_only_text),

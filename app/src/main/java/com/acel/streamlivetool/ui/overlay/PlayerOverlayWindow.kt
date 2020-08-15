@@ -25,6 +25,4 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
             windowManager.updateViewLayout(getLayout(), layoutParams)
         }
     }
-
-    data class Size(val widthDP: Float, val heightDP: Float)
 }
