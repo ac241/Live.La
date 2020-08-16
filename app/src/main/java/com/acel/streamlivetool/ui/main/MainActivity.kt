@@ -62,13 +62,7 @@ class MainActivity : AppCompatActivity() {
         createdDo()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        MyApplication.removeActivityFromManageList(this)
-    }
-
     private fun createdDo() {
-        MyApplication.addActivityToManageList(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -158,8 +152,11 @@ class MainActivity : AppCompatActivity() {
         addAnchorFragment.show(supportFragmentManager, "add_anchor_fragment")
     }
 
+    /**
+     * 两次点击退出
+     */
     private var backPressedTime by Delegates.observable(0L) { _, old, new ->
-        // 2次的时间间隔小于2秒就退出
+        // 2次的时间间隔小于1秒就退出
         if (new - old < 1000) {
             finish()
         } else {

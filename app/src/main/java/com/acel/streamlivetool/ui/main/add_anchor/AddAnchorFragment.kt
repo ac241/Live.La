@@ -73,6 +73,10 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         }
         btn_search_anchor.setOnClickListener {
             val keyword = edit_anchor_id_add_anchor.text.toString()
+            keyword.ifEmpty {
+                edit_anchor_id_add_anchor.error = "搜索关键词不能为空"
+                return@setOnClickListener
+            }
             val radioIndex = chip_group_add_anchor.checkedChipId
             if (radioIndex == -1) {
                 toast("请选择平台")

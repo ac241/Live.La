@@ -90,4 +90,5 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.11.3'
+    implementation 'org.jsoup:jsoup:1.13.1'
 }

@@ -1,21 +1,17 @@
 package com.acel.streamlivetool.ui.open_source
 
-import android.content.Intent
 import android.graphics.Color
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.util.AppUtil.restartApp
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_open_source.*
 import kotlin.random.Random
 
-class OpenSourceActivity : BaseActivity() {
-    override fun getResLayoutId(): Int {
-        return R.layout.activity_open_source
-    }
-
+class OpenSourceActivity : AppCompatActivity() {
     private val fullVersionClickTimes = 234
     private val fullVersion = defaultSharedPreferences.getBoolean(
         MyApplication.application.getString(R.string.full_version),
@@ -31,7 +27,13 @@ class OpenSourceActivity : BaseActivity() {
         )
     private var colorIndex = 0
 
-    override fun createDo() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_open_source)
+        createDo()
+    }
+
+    private fun createDo() {
         open_source_title.setOnClickListener {
 //            setTitleColor()
             titleAnimate()
@@ -39,8 +41,8 @@ class OpenSourceActivity : BaseActivity() {
                 defaultSharedPreferences.edit()
                     .putBoolean(resources.getString(R.string.full_version), !fullVersion).apply()
                 toast("Full version ${!fullVersion}")
-                MyApplication.finishAllActivity()
-                startActivity(Intent(this, MainActivity::class.java))
+                restartApp()
+//                startActivity(Intent(this, MainActivity::class.java))
             } else
                 titleClickTimes++
         }
@@ -119,6 +121,7 @@ class OpenSourceActivity : BaseActivity() {
 
         open_source_text.text = stringBuilder.toString()
     }
+
 
     private fun titleAnimate() {
         val randomFloat = Random.nextDouble(0.99, 1.01)

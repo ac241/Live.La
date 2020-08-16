@@ -1,25 +1,26 @@
 package com.acel.streamlivetool.ui.settings
 
 import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.util.AppUtil.restartApp
 
-class SettingsActivity : BaseActivity() {
+class SettingsActivity : AppCompatActivity() {
     var settingsChanges = false
-    override fun getResLayoutId(): Int {
-        return R.layout.activity_setting
-    }
 
-    override fun createDo() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_setting)
         supportFragmentManager.beginTransaction().add(R.id.setting_layout, SettingsFragment())
             .commit()
     }
 
-    override fun destroyDo() {
+    override fun onDestroy() {
+        super.onDestroy()
         if (settingsChanges) {
-            MyApplication.finishAllActivity()
+            restartApp()
             startActivity(Intent(this, MainActivity::class.java))
         }
     }

@@ -189,7 +189,6 @@ class CookieFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         when (item.itemId) {
             R.id.action_list_overlay -> {
                 if (isVisible)
@@ -199,6 +198,10 @@ class CookieFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun scrollToTop() {
+        binding?.include?.recyclerView?.smoothScrollToPosition(0)
     }
 
     companion object {

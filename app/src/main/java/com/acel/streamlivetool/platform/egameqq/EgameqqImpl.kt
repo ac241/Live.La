@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -13,6 +14,8 @@ import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
+import kotlinx.coroutines.*
+import org.jsoup.Jsoup
 
 
 class EgameqqImpl : IPlatform {
@@ -35,17 +38,20 @@ class EgameqqImpl : IPlatform {
         val html = getHtml(queryAnchor)
         html?.let {
             val tempRoomId = TextUtil.subString(html, "channelId:\"", "\",")
-            val roomId = tempRoomId?.split("_")?.get(1)
-            queryAnchor.roomId = roomId.toString()
-            val anchor = getEgameAnchor(queryAnchor)
-            anchor?.let {
-                return Anchor(
-                    platform,
-                    it.data.key.retBody.data.nickName,
-                    it.data.key.retBody.data.aliasId.toString(),
-                    it.data.key.retBody.data.uid.toString()
-                )
+            tempRoomId?.apply {
+                val roomId = if (contains("_")) split("_")[1] else this
+                queryAnchor.roomId = roomId
+                val anchor = getEgameAnchor(queryAnchor)
+                anchor?.let {
+                    return Anchor(
+                        platform,
+                        it.data.key.retBody.data.nickName,
+                        it.data.key.retBody.data.aliasId.toString(),
+                        it.data.key.retBody.data.uid.toString()
+                    )
+                }
             }
+
         }
 
         return null
@@ -103,6 +109,34 @@ class EgameqqImpl : IPlatform {
         intent.action = Intent.ACTION_VIEW
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
+    }
+
+    @Suppress("DeferredResultUnused")
+    override fun searchAnchor(keyword: String): List<Anchor>? {
+        val result = egameqqService.search(keyword).execute().body()
+        val list = mutableListOf<Anchor>()
+        if (result != null)
+            result.apply {
+                val document = Jsoup.parse(this)
+                val anchors = document.getElementsByClass("gui-list-anchor")
+                runBlocking {
+                    anchors.forEachIndexed { index, element ->
+                        if (index >= 5)
+                            return@forEachIndexed
+                        async(Dispatchers.IO) {
+                            val id = element.getElementsByTag("a").attr("href").replace("/", "")
+                            getAnchor(id)?.let { list.add(it) }
+                        }
+                    }
+                }
+                return list
+            }
+        else
+            return list
+    }
+
+    private fun getAnchor(roomId: String): Anchor? {
+        return getAnchor(Anchor(platform, "", roomId, roomId))
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {

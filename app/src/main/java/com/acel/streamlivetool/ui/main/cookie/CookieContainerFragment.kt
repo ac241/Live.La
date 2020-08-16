@@ -11,9 +11,12 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_cookie_container.*
+import kotlin.properties.Delegates
 
 class CookieContainerFragment : Fragment() {
 
@@ -72,10 +75,18 @@ class CookieContainerFragment : Fragment() {
             cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
                 tab.text = resources.getString(platforms[position].platformShowNameRes)
+                tab.view.setOnClickListener {
+                    tabViewClick = Pair(position, System.currentTimeMillis())
+                }
                 tab.view.setOnLongClickListener {
                     //清除cookie
                     val dialogBuilder = AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.clear_platform_cookie_alert,getString(platforms[position].platformShowNameRes)))
+                        .setTitle(
+                            getString(
+                                R.string.clear_platform_cookie_alert,
+                                getString(platforms[position].platformShowNameRes)
+                            )
+                        )
                         .setPositiveButton(getString(R.string.yes)) { _, _ ->
                             platforms[position].clearCookie()
                             fragments[platforms[position]]?.viewModel?.getAnchors()
@@ -86,6 +97,18 @@ class CookieContainerFragment : Fragment() {
                 }
             }
         ).attach()
+    }
+
+    /**
+     * 两次点击回到顶部
+     * Pair<position,Time>
+     */
+    private var tabViewClick by Delegates.observable(Pair(0, 0L)) { _, old, new ->
+        if (old.first == new.first) {
+            if (new.second - old.second < 1000) {
+                fragments[platforms[new.first]]?.scrollToTop()
+            }
+        }
     }
 
     companion object {
