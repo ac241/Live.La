@@ -22,7 +22,7 @@ import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
-class GraphicAnchorAdapter(
+class  GraphicAnchorAdapter(
     private val context: Context,
     private val anchorList: List<Anchor>,
     private val modeType: Int
@@ -124,6 +124,9 @@ class GraphicAnchorAdapter(
 
         //title
         holder.title.text = anchor.title ?: "-"
+
+        //roomid
+        holder.roomId.text = anchor.showId
 
         //头像
         with(anchor.avatar) {

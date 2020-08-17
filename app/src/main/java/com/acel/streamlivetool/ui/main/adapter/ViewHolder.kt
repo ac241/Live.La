@@ -24,12 +24,14 @@ class ViewHolderGraphic(itemView: View, private val modeType: Int) :
         v: View?,
         menuInfo: ContextMenu.ContextMenuInfo?
     ) {
+        menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
         when (modeType) {
-            MODE_GROUP ->
+            MODE_GROUP -> {
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu,
                     menu
                 )
+            }
             MODE_COOKIE ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
                     R.menu.anchor_item_menu_cookie_mode,
@@ -51,6 +53,7 @@ class ViewHolderGraphic(itemView: View, private val modeType: Int) :
     val title: TextView = itemView.grid_anchor_title
     val additionBtn: ImageView = itemView.grid_anchor_addition_action
     val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
+    val roomId: TextView = itemView.grid_anchor_roomId
 }
 
 class ViewHolderText(itemView: View, private val modeType: Int) :
@@ -61,6 +64,7 @@ class ViewHolderText(itemView: View, private val modeType: Int) :
         v: View?,
         menuInfo: ContextMenu.ContextMenuInfo?
     ) {
+        menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
         when (modeType) {
             MODE_GROUP ->
                 (itemView.context as AppCompatActivity).menuInflater.inflate(
