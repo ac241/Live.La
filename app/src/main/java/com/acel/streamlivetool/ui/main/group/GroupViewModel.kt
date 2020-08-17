@@ -53,9 +53,10 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 with(it[index]) {
                     status = anchorAttribute.status
                     title = anchorAttribute.title
-                    avatar = anchorAttribute.avatar
-                    keyFrame = anchorAttribute.keyFrame
-
+                    anchorAttribute.avatar?.apply { avatar = this }
+                    anchorAttribute.keyFrame?.apply { keyFrame = this }
+                    anchorAttribute.secondaryStatus?.apply { secondaryStatus = this }
+                    anchorAttribute.typeName?.apply { typeName = this }
                 }
             }
         }

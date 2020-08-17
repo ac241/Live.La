@@ -63,7 +63,7 @@
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>
     <string name="open_source_module">开源组件</string>
-    <string name="lpl_match"><![CDATA[<html><h2>本周赛程</h3><ul>%s</ul></html>]]></string>
+    <string name="lpl_match"><![CDATA[<html><h2>本周LPL赛程</h3><ul>%s</ul></html>]]></string>
     <string name="additional_action">附加功能</string>
     <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
     <string name="list_overlay">列表悬浮窗</string>

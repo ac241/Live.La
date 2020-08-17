@@ -78,7 +78,8 @@ class EgameqqImpl : IPlatform {
                         .isLive == 1,
                     titleX,
                     anchor.data.key.retBody.data.faceUrl,
-                    coverPic
+                    coverPic,
+                    typeName = anchor.data.key.retBody.data.appname
                 )
             }
         }
@@ -158,7 +159,8 @@ class EgameqqImpl : IPlatform {
                             status = it.status == 1,
                             title = it.live_info.title,
                             avatar = it.live_info.anchor_face_url,
-                            keyFrame = it.live_info.video_info.url
+                            keyFrame = it.live_info.video_info.url,
+                            typeName = it.live_info.appname
                         )
                     )
                 }

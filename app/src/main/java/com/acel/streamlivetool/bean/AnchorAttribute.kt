@@ -6,5 +6,6 @@ class AnchorAttribute(
     val title: String,
     val avatar: String? = null,
     val keyFrame: String? = null,
-    val secondaryStatus: String? = null
+    val secondaryStatus: String? = null,
+    val typeName: String? = null
 )

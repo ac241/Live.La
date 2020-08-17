@@ -80,12 +80,14 @@ class HuyaImpl : IPlatform {
                 "<img src=\"",
                 "\""
             )
+            val typeName = TextUtil.subString(it, "<span class=\"title\">", "</span>")
             if (!state) {
                 return AnchorAttribute(
                     queryAnchor,
                     state,
                     title,
-                    avatar
+                    avatar,
+                    typeName = typeName
                 )
             } else {
                 getHtml(queryAnchor)?.let { screenShotHtml ->
@@ -97,7 +99,8 @@ class HuyaImpl : IPlatform {
                         state,
                         title,
                         avatar,
-                        screenshot
+                        screenshot,
+                        typeName = typeName
                     )
                 }
             }
@@ -193,7 +196,8 @@ class HuyaImpl : IPlatform {
                                     status = it.isLive,
                                     title = it.intro,
                                     avatar = it.avatar180,
-                                    keyFrame = it.screenshot
+                                    keyFrame = it.screenshot,
+                                    typeName = it.gameName
                                 )
                             )
                         }

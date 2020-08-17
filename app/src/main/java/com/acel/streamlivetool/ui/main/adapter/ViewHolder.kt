@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
 import kotlinx.android.synthetic.main.item_text_anchor.view.*
+import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 
 
 class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -16,7 +17,7 @@ class ViewHolderStatusGroup(itemView: View) : RecyclerView.ViewHolder(itemView)
 const val MODE_GROUP = 332
 const val MODE_COOKIE = 333
 
-class ViewHolderGraphic(itemView: View, private val modeType: Int) :
+class ViewHolderGraphic(itemView: View, val modeType: Int) :
     RecyclerView.ViewHolder(itemView),
     View.OnCreateContextMenuListener {
     override fun onCreateContextMenu(
@@ -54,6 +55,7 @@ class ViewHolderGraphic(itemView: View, private val modeType: Int) :
     val additionBtn: ImageView = itemView.grid_anchor_addition_action
     val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
     val roomId: TextView = itemView.grid_anchor_roomId
+    val typeName: TextView = itemView.grid_anchor_type_name
 }
 
 class ViewHolderText(itemView: View, private val modeType: Int) :

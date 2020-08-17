@@ -29,6 +29,12 @@ class Anchor() {
     @Ignore
     var secondaryStatus: String? = null
 
+    /**
+     * 直播类型
+     */
+    @Ignore
+    var typeName: String? = null
+
     constructor(
         platform: String,
         nickname: String,
@@ -53,7 +59,8 @@ class Anchor() {
         avatar: String,
         keyFrame: String,
         otherParams: String = "",
-        secondaryStatus: String? = null
+        secondaryStatus: String? = null,
+        typeName: String? = null
     ) : this() {
         this.platform = platform
         this.nickname = nickname
@@ -65,6 +72,7 @@ class Anchor() {
         this.avatar = avatar
         this.keyFrame = keyFrame
         this.secondaryStatus = secondaryStatus
+        this.typeName = typeName
     }
 
     override fun equals(other: Any?): Boolean {

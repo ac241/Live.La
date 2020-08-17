@@ -15,6 +15,7 @@ import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
+import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
@@ -160,16 +161,22 @@ class TextAnchorAdapter(
             if (defaultSharedPreferences.getBoolean(
                     context.getString(R.string.pref_key_additional_action_btn),
                     false
-                ) && additionalAction.check(anchor)
+                ) && additionalAction.match(anchor)
             ) {
-                this.additionBtn.visibility = View.VISIBLE
-                this.additionBtn.setOnClickListener {
+                val actionName = additionalAction.getActionName(anchor)
+                holder.additionBtn.contentDescription = actionName
+                holder.additionBtn.visibility = View.VISIBLE
+                holder.additionBtn.setOnClickListener {
                     MainExecutor.execute {
                         additionalAction.doAdditionalAction(anchor, context)
                     }
                 }
+                holder.additionBtn.setOnLongClickListener {
+                    ToastUtil.toast(actionName)
+                    return@setOnLongClickListener true
+                }
             } else {
-                this.additionBtn.visibility = View.GONE
+                holder.additionBtn.visibility = View.GONE
             }
         }
     }

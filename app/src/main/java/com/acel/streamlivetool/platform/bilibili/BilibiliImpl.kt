@@ -48,7 +48,8 @@ class BilibiliImpl : IPlatform {
                 roomStatus == 1,
                 staticRoomInfo.data.title,
                 staticRoomInfo.data.face,
-                staticRoomInfo.data.userCover
+                staticRoomInfo.data.userCover,
+                typeName = staticRoomInfo.data.areaName
             )
         } else
             null
@@ -119,7 +120,8 @@ class BilibiliImpl : IPlatform {
                                 status = it.live_status == 1,
                                 title = it.title,
                                 avatar = it.face,
-                                keyFrame = it.keyframe
+                                keyFrame = it.keyframe,
+                                typeName = it.area_v2_name
                             )
                         )
                     }

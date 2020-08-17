@@ -55,7 +55,8 @@ class DouyuImpl : IPlatform {
                 roomStatus == "1",
                 roomInfo.data.roomName,
                 roomInfo.data.avatar,
-                roomInfo.data.roomThumb
+                roomInfo.data.roomThumb,
+                typeName = roomInfo.data.cateName
             )
         } else
             null
@@ -176,7 +177,8 @@ class DouyuImpl : IPlatform {
                                     title = it.room_name,
                                     avatar = it.avatar_small,
                                     keyFrame = it.room_src,
-                                    secondaryStatus = if (it.videoLoop == 1) "轮播中" else null
+                                    secondaryStatus = if (it.videoLoop == 1) "轮播中" else null,
+                                    typeName = it.game_name
                                 )
                             )
                         }

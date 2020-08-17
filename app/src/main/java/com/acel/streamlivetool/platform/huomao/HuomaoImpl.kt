@@ -65,7 +65,8 @@ class HuomaoImpl : IPlatform {
                 roomInfo.isLive == 1,
                 UnicodeUtil.decodeUnicode(roomInfo.channel),
                 roomInfo.headimg.big,
-                roomInfo.image
+                roomInfo.image,
+                typeName = roomInfo.gameCname
             )
         } else
             null
@@ -115,7 +116,15 @@ class HuomaoImpl : IPlatform {
         result?.apply {
             val resultList = result.data.anchor.list
             resultList.forEach {
-                list.add(Anchor(platform, it.nickname.replace("<i style=\"color: red;font-style: normal\">","").replace("</i>",""), it.room_number, it.cid))
+                list.add(
+                    Anchor(
+                        platform,
+                        it.nickname.replace("<i style=\"color: red;font-style: normal\">", "")
+                            .replace("</i>", ""),
+                        it.room_number,
+                        it.cid
+                    )
+                )
             }
         }
         return list
@@ -138,7 +147,8 @@ class HuomaoImpl : IPlatform {
                         it.is_live == 1,
                         it.channel,
                         it.headimg.big,
-                        it.image
+                        it.image,
+                        typeName = it.gameCname
                     )
                 )
             }

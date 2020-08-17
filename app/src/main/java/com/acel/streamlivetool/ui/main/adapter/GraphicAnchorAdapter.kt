@@ -19,10 +19,11 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Compan
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
+import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 
-class  GraphicAnchorAdapter(
+class GraphicAnchorAdapter(
     private val context: Context,
     private val anchorList: List<Anchor>,
     private val modeType: Int
@@ -33,6 +34,7 @@ class  GraphicAnchorAdapter(
         const val VIEW_TYPE_NORMAL = 443
         const val VIEW_TYPE_LIVING_TITLE = 444
         const val VIEW_TYPE_NOT_LIVING_TITLE = 445
+        const val VIEW_TYPE_NORMAL_NOT_LIVING = 446
     }
 
     private var isScrolling = false
@@ -75,6 +77,15 @@ class  GraphicAnchorAdapter(
                                 AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
                         }
                 )
+            VIEW_TYPE_NORMAL_NOT_LIVING ->
+                holder = ViewHolderGraphic(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_graphic_anchor_not_living, parent, false)
+                        .also {
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
+                                .isFullSpan = true
+                        }, modeType
+                )
             else ->
                 holder = ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
@@ -95,8 +106,12 @@ class  GraphicAnchorAdapter(
                 VIEW_TYPE_LIVING_TITLE
             AnchorPlaceHolder.anchorNotLiving ->
                 VIEW_TYPE_NOT_LIVING_TITLE
-            else ->
-                VIEW_TYPE_NORMAL
+            else -> {
+                if (anchorList[position].status)
+                    VIEW_TYPE_NORMAL
+                else
+                    VIEW_TYPE_NORMAL_NOT_LIVING
+            }
         }
     }
 
@@ -119,8 +134,18 @@ class  GraphicAnchorAdapter(
             if (resInt != null)
                 platformName = context.getString(resInt)
         }
-        platformNameMap[anchor.platform] = platformName ?: "未知平台"
-        holder.platform.text = platformName
+        if (holder.modeType == MODE_GROUP) {
+            platformNameMap[anchor.platform] = platformName ?: "未知平台"
+            holder.platform.text = platformName
+        } else {
+            holder.platform.visibility = View.GONE
+        }
+
+        //直播类型
+        if (anchor.typeName != null)
+            holder.typeName.text = anchor.typeName
+        else
+            holder.typeName.visibility = View.GONE
 
         //title
         holder.title.text = anchor.title ?: "-"
@@ -141,17 +166,18 @@ class  GraphicAnchorAdapter(
             }
         }
 
-        //图片
-        with(anchor.keyFrame) {
-            if (this != null) {
-                ImageLoader.load(
-                    context,
-                    this,
-                    holder.image
-                )
-            } else
-                holder.image.setImageResource(R.drawable.ic_load_img_fail)
-        }
+        //图片    如果直播中则加载
+        if (getItemViewType(position) == VIEW_TYPE_NORMAL)
+            with(anchor.keyFrame) {
+                if (this != null) {
+                    ImageLoader.load(
+                        context,
+                        this,
+                        holder.image
+                    )
+                } else
+                    holder.image.setImageResource(R.drawable.ic_load_img_fail)
+            }
         //直播状态
         if (!anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
             && !anchorList.contains(AnchorPlaceHolder.anchorNotLiving)
@@ -202,13 +228,19 @@ class  GraphicAnchorAdapter(
         if (defaultSharedPreferences.getBoolean(
                 context.getString(R.string.pref_key_additional_action_btn),
                 false
-            ) && additionalAction.check(anchor)
+            ) && additionalAction.match(anchor)
         ) {
+            val actionName = additionalAction.getActionName(anchor)
+            holder.additionBtn.contentDescription = actionName
             holder.additionBtn.visibility = View.VISIBLE
             holder.additionBtn.setOnClickListener {
                 MainExecutor.execute {
                     additionalAction.doAdditionalAction(anchor, context)
                 }
+            }
+            holder.additionBtn.setOnLongClickListener {
+                toast(actionName)
+                return@setOnLongClickListener true
             }
         } else {
             holder.additionBtn.visibility = View.GONE

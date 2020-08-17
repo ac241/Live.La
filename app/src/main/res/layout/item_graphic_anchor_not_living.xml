@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="170dp"
+    android:layout_height="65dp"
     android:layout_marginHorizontal="3dp"
     android:layout_marginVertical="3dp"
     android:clickable="true"
@@ -13,74 +13,74 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="@+id/grid_anchor_name"
+        app:layout_constraintTop_toBottomOf="@+id/grid_anchor_name">
 
         <ImageView
             android:id="@+id/grid_anchor_image"
-            android:layout_width="match_parent"
-            android:layout_height="110dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:contentDescription="@string/live_image"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/grid_anchor_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#55000000"
-            android:padding="5dp"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="@+id/grid_anchor_image"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="SmallSp" />
-
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/grid_anchor_avatar"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="4dp"
-            android:contentDescription="@string/avatar"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
-            app:riv_corner_radius="30dip"
-            app:srcCompat="@mipmap/ic_launcher" />
-
-        <TextView
             android:id="@+id/grid_anchor_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="10dp"
             android:textColor="#555555"
             android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/grid_anchor_type_name"
+            app:layout_constraintBottom_toTopOf="@+id/grid_anchor_title"
             app:layout_constraintStart_toEndOf="@+id/grid_anchor_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:ignore="SmallSp" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <include
             layout="@layout/text_view_graphic_type_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@id/grid_anchor_secondary_status"
+            app:layout_constraintTop_toTopOf="@id/grid_anchor_name"
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_name" />
+
+        <TextView
+            android:id="@+id/grid_anchor_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="5dp"
+            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/grid_anchor_name"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_name" />
+            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_name"
+            tools:ignore="SmallSp" />
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/grid_anchor_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/avatar"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            app:riv_corner_radius="30dip"
+            app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/grid_anchor_platform"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
-            android:background="#55000000"
-            android:textColor="@android:color/white"
+            android:layout_marginEnd="5dp"
             android:textSize="8sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="SmallSp" />
 
@@ -101,13 +101,11 @@
             android:id="@+id/grid_anchor_secondary_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
             android:background="#88000000"
             android:textColor="@android:color/white"
             android:textSize="8sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/grid_anchor_status"
+            app:layout_constraintStart_toEndOf="@+id/grid_anchor_name"
+            app:layout_constraintTop_toTopOf="@+id/grid_anchor_name"
             tools:ignore="SmallSp" />
 
         <ImageView
@@ -122,8 +120,8 @@
             android:src="@drawable/ic_additional_button"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/grid_anchor_second_btn"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title" />
+            app:layout_constraintEnd_toStartOf="@id/grid_anchor_second_btn"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/grid_anchor_second_btn"
@@ -138,7 +136,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/grid_anchor_title" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/grid_anchor_roomId"
@@ -147,5 +145,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
