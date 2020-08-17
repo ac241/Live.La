@@ -12,6 +12,75 @@ import kotlinx.android.synthetic.main.activity_open_source.*
 import kotlin.random.Random
 
 class OpenSourceActivity : AppCompatActivity() {
+    val list = listOf(
+        Module(
+            "retrofit",
+            "com.squareup.retrofit2",
+            "https://github.com/square/retrofit",
+            "Copyright 2013 Square, Inc.",
+            "Licensed under the Apache License, Version 2.0 "
+        ),
+        Module(
+            "gson",
+            "com.google.code.gson",
+            "https://github.com/google/gson",
+            "Copyright 2008 Google Inc.",
+            "Licensed under the Apache License, Version 2.0 "
+        ),
+        Module(
+            "glide",
+            "com.github.bumptech.glide",
+            "https://github.com/bumptech/glide",
+            "bumptech",
+            "BSD, part MIT and Apache 2.0"
+        ),
+        Module(
+            "RoundedImageView",
+            "com.makeramen:roundedimageview",
+            "https://github.com/vinc3m1/RoundedImageView",
+            "Vincent Mi",
+            "Licensed under the Apache License, Version 2.0"
+        ),
+        Module(
+            "rhino:1.7.9",
+            "libs/rhino-1.7.9.jar",
+            "https://github.com/mozilla/rhino",
+            "Mozilla",
+            "licensed under the Mozilla Public License 2.0",
+            true
+        ),
+        Module(
+            "exoplayer:2.11.3",
+            "com.google.android.exoplayer",
+            "https://github.com/google/ExoPlayer",
+            "Copyright 2008 Google Inc.",
+            "Apache License Version 2.0, January 2004",
+            true
+        ),
+        Module(
+            "PermissionsDispatcher:4.7.0",
+            "org.permissionsdispatcher",
+            "https://github.com/permissions-dispatcher/PermissionsDispatcher",
+            "Copyright 2016 Shintaro Katafuchi, Marcel Schnelle, Yoshinori Isogai",
+            "Licensed under the Apache License, Version 2.0 (the \"License\")",
+            false
+        ),
+        Module(
+            "org.jsoup:jsoup:1.13.1",
+            "org.jsoup",
+            "https://jsoup.org/",
+            "Jonathan Hedley",
+            "The MIT License",
+            false
+        ),
+        Module(
+            "图标",
+            "iconfont.cn",
+            "https://www.iconfont.cn/user/detail?uid=133781",
+            "搞设计的搬运工",
+            "本app仅用于非商业用途"
+        )
+    )
     private val fullVersionClickTimes = 234
     private val fullVersion = defaultSharedPreferences.getBoolean(
         MyApplication.application.getString(R.string.full_version),
@@ -47,73 +116,7 @@ class OpenSourceActivity : AppCompatActivity() {
                 titleClickTimes++
         }
 
-        val list = mutableListOf<Module>()
-        list.add(
-            Module(
-                "retrofit",
-                "com.squareup.retrofit2",
-                "https://github.com/square/retrofit",
-                "Copyright 2013 Square, Inc.",
-                "Licensed under the Apache License, Version 2.0 "
-            )
-        )
-        list.add(
-            Module(
-                "gson",
-                "com.google.code.gson",
-                "https://github.com/google/gson",
-                "Copyright 2008 Google Inc.",
-                "Licensed under the Apache License, Version 2.0 "
-            )
-        )
-        list.add(
-            Module(
-                "glide",
-                "com.github.bumptech.glide",
-                "https://github.com/bumptech/glide",
-                "bumptech",
-                "BSD, part MIT and Apache 2.0"
-            )
-        )
-        list.add(
-            Module(
-                "RoundedImageView",
-                "com.makeramen:roundedimageview",
-                "https://github.com/vinc3m1/RoundedImageView",
-                "Vincent Mi",
-                "Licensed under the Apache License, Version 2.0"
-            )
-        )
-        list.add(
-            Module(
-                "rhino:1.7.9",
-                "libs/rhino-1.7.9.jar",
-                "https://github.com/mozilla/rhino",
-                "Mozilla",
-                "licensed under the Mozilla Public License 2.0",
-                true
-            )
-        )
-        list.add(
-            Module(
-                "exoplayer:2.11.3",
-                "com.google.android.exoplayer",
-                "https://github.com/google/ExoPlayer",
-                "Copyright 2008 Google Inc.",
-                "Apache License Version 2.0, January 2004",
-                true
-            )
-        )
-        list.add(
-            Module(
-                "PermissionsDispatcher:4.7.0",
-                "org.permissionsdispatcher",
-                "https://github.com/permissions-dispatcher/PermissionsDispatcher",
-                "Copyright 2016 Shintaro Katafuchi, Marcel Schnelle, Yoshinori Isogai",
-                "Licensed under the Apache License, Version 2.0 (the \"License\")",
-                false
-            )
-        )
+
 
         list.forEach {
             addModuleToTextView(it)
