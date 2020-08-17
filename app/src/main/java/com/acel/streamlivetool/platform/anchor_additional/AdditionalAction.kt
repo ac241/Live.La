@@ -8,18 +8,30 @@ class AdditionalAction {
         val instance by lazy { AdditionalAction() }
     }
 
-    private val anchorActionMap = mutableMapOf<Anchor, AdditionalActionInterface>().also {
-        it[Anchor("douyu", "英雄联盟赛事", "288016", "288016")] = GetLPLMatchAction.instance
-        it[Anchor("huya", "英雄联盟赛事", "660000", "1346609715")] = GetLPLMatchAction.instance
-        it[Anchor("bilibili", "哔哩哔哩英雄联盟赛事", "7734200", "7734200")] = GetLPLMatchAction.instance
-        it[Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257")] = GetLPLMatchAction.instance
-    }
+    private val actionList = listOf<AdditionalActionInterface>(
+        GetLPLMatchAction.instance
+    )
 
-    fun check(anchor: Anchor): Boolean {
-        return anchorActionMap.keys.contains(anchor)
+    fun match(anchor: Anchor): Boolean {
+        actionList.forEach {
+            if (it.match(anchor))
+                return true
+        }
+        return false
     }
 
     fun doAdditionalAction(anchor: Anchor, context: Context) {
-        anchorActionMap[anchor]?.doAction(context)
+        actionList.forEach {
+            if (it.match(anchor))
+                it.doAction(context, anchor)
+        }
+    }
+
+    fun getActionName(anchor: Anchor): String {
+        actionList.forEach {
+            if (it.match(anchor))
+                return it.actionName
+        }
+        return ""
     }
 }

@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.anchor_additional.bean.LPLMatch
 import com.acel.streamlivetool.util.AppUtil
@@ -27,8 +28,22 @@ class GetLPLMatchAction : AdditionalActionInterface {
         }
     }
 
+    override val actionName: String
+        get() = "本周LPL赛程"
+
+    val anchorList = listOf(
+        Anchor("douyu", "英雄联盟赛事", "288016", "288016"),
+        Anchor("douyu", "英雄联盟赛事", "664810", "664810"),
+        Anchor("douyu", "英雄联盟赛事", "522424", "522424"),
+        Anchor("huya", "英雄联盟赛事", "660000", "1346609715"),
+        Anchor("bilibili", "哔哩哔哩英雄联盟赛事", "7734200", "7734200"),
+        Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257")
+    )
+
+    override fun match(anchor: Anchor) = anchorList.contains(anchor)
+
     @SuppressLint("ResourceType")
-    override fun doAction(context: Context) {
+    override fun doAction(context: Context, anchor: Anchor) {
         val html = RetrofitUtils.okHttpClient.newCall(
             Request.Builder().get().url("https://www.scoregg.com/match_pc?tournamentID=172")
                 .build()
@@ -71,4 +86,6 @@ class GetLPLMatchAction : AdditionalActionInterface {
             }
         }
     }
+
+
 }
