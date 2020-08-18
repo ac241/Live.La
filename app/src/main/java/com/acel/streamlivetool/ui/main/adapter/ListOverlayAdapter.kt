@@ -22,7 +22,6 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
 
-
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -126,9 +125,5 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     override fun notifyAnchorsChange() {
         notifyDataSetChanged()
-    }
-
-    override fun setScrolling(boolean: Boolean) {
-
     }
 }

@@ -3,9 +3,13 @@ package com.acel.streamlivetool.ui.main.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
@@ -17,6 +21,7 @@ import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import kotlinx.android.synthetic.main.item_text_anchor.view.*
 
 
 class TextAnchorAdapter(
@@ -183,11 +188,44 @@ class TextAnchorAdapter(
 
 
     override fun getItemCount(): Int = anchorList.size
-
-
     override fun getLongClickPosition(): Int = mPosition
     override fun notifyAnchorsChange() = notifyDataSetChanged()
-    override fun setScrolling(boolean: Boolean) {
 
+    class ViewHolderText(itemView: View, private val modeType: Int) :
+        RecyclerView.ViewHolder(itemView),
+        View.OnCreateContextMenuListener {
+        override fun onCreateContextMenu(
+            menu: ContextMenu?,
+            v: View?,
+            menuInfo: ContextMenu.ContextMenuInfo?
+        ) {
+            menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
+            when (modeType) {
+                MODE_GROUP ->
+                    (itemView.context as AppCompatActivity).menuInflater.inflate(
+                        R.menu.anchor_item_menu,
+                        menu
+                    )
+                MODE_COOKIE ->
+                    (itemView.context as AppCompatActivity).menuInflater.inflate(
+                        R.menu.anchor_item_menu_cookie_mode,
+                        menu
+                    )
+            }
+        }
+
+        init {
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        val anchorName: TextView = itemView.anchor_name
+        val platform: TextView = itemView.main_anchor_platform
+        val roomId: TextView = itemView.main_anchor_roomId
+        val status: TextView = itemView.main_anchor_status
+        val secondaryStatus: TextView = itemView.main_anchor_secondary_status
+        val secondBtn: ImageView = itemView.main_second_btn
+        val title: TextView = itemView.anchor_title
+        val additionBtn: ImageView = itemView.btn_addition_action
     }
+
 }

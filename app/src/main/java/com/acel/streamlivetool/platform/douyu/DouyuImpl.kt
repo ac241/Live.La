@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
@@ -16,6 +17,7 @@ import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 import java.util.*
+import kotlin.math.log
 
 
 class DouyuImpl : IPlatform {
@@ -46,6 +48,22 @@ class DouyuImpl : IPlatform {
     }
 
     override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
+        Log.d("getAnchorAttribute", "$queryAnchor")
+        val roomInfo =
+            douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
+        return if (roomInfo != null) AnchorAttribute(
+            queryAnchor,
+            roomInfo.room.show_status == 1,
+            roomInfo.room.room_name,
+            roomInfo.room.avatar.big,
+            roomInfo.room.room_pic,
+            secondaryStatus = if (roomInfo.room.videoLoop == 1) "轮播中" else null,
+            typeName = roomInfo.game.tag_name
+        ) else null
+
+    }
+
+    fun getAnchorAttribute1Backup(queryAnchor: Anchor): AnchorAttribute? {
         val roomInfo: RoomInfo? =
             douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
         return if (roomInfo?.error == 0) {

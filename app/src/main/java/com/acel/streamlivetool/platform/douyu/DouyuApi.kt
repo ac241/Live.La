@@ -15,6 +15,9 @@ interface DouyuApi {
     @GET("https://open.douyucdn.cn/api/RoomApi/room/{id}")
     fun getRoomInfoMsg(@Path("id") id: String): Call<RoomInfoMsg>
 
+    @GET("https://www.douyu.com/betard/{id}")
+    fun getRoomInfoBetard(@Path("id") id: String): Call<BetardRoomInfo>
+
     @GET("https://www.douyu.com/swf_api/homeH5Enc")
     fun getH5Enc(@Query("rids") rids: String): Call<H5Enc>
 

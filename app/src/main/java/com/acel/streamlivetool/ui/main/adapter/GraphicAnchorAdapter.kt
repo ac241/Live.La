@@ -3,9 +3,13 @@ package com.acel.streamlivetool.ui.main.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
@@ -21,6 +25,8 @@ import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
+import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 
 
 class GraphicAnchorAdapter(
@@ -35,11 +41,6 @@ class GraphicAnchorAdapter(
         const val VIEW_TYPE_LIVING_TITLE = 444
         const val VIEW_TYPE_NOT_LIVING_TITLE = 445
         const val VIEW_TYPE_NORMAL_NOT_LIVING = 446
-    }
-
-    private var isScrolling = false
-    override fun setScrolling(boolean: Boolean) {
-        isScrolling = boolean
     }
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
@@ -250,5 +251,46 @@ class GraphicAnchorAdapter(
 
     override fun getLongClickPosition(): Int = mPosition
     override fun notifyAnchorsChange() = notifyDataSetChanged()
+
+    class ViewHolderGraphic(itemView: View, val modeType: Int) :
+        RecyclerView.ViewHolder(itemView),
+        View.OnCreateContextMenuListener {
+        override fun onCreateContextMenu(
+            menu: ContextMenu?,
+            v: View?,
+            menuInfo: ContextMenu.ContextMenuInfo?
+        ) {
+            menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
+            when (modeType) {
+                MODE_GROUP -> {
+                    (itemView.context as AppCompatActivity).menuInflater.inflate(
+                        R.menu.anchor_item_menu,
+                        menu
+                    )
+                }
+                MODE_COOKIE ->
+                    (itemView.context as AppCompatActivity).menuInflater.inflate(
+                        R.menu.anchor_item_menu_cookie_mode,
+                        menu
+                    )
+            }
+        }
+
+        init {
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        val anchorName: TextView = itemView.grid_anchor_name
+        val platform: TextView = itemView.grid_anchor_platform
+        val image: ImageView = itemView.grid_anchor_image
+        val avatar: ImageView = itemView.grid_anchor_avatar
+        val status: TextView = itemView.grid_anchor_status
+        val secondBtn: ImageView = itemView.grid_anchor_second_btn
+        val title: TextView = itemView.grid_anchor_title
+        val additionBtn: ImageView = itemView.grid_anchor_addition_action
+        val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
+        val roomId: TextView = itemView.grid_anchor_roomId
+        val typeName: TextView = itemView.grid_anchor_type_name
+    }
 
 }

@@ -3,7 +3,6 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
@@ -14,7 +13,9 @@ import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.jsoup.Jsoup
 
 

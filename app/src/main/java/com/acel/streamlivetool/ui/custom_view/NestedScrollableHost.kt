@@ -17,15 +17,12 @@
 package com.acel.streamlivetool.ui.custom_view
 
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import androidx.annotation.AttrRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StyleRes
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import kotlin.math.absoluteValue
