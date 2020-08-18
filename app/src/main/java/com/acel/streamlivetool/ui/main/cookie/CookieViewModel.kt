@@ -49,7 +49,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                                     cookieFragment.hideListMsg()
                                 anchorList.clear()
                                 anchorList.addAll(this)
-                                com.acel.streamlivetool.util.AnchorListHelper.insertStatusPlaceHolder(
+                                com.acel.streamlivetool.util.AnchorListUtil.insertStatusPlaceHolder(
                                     anchorList
                                 )
                                 notifyDataChange()

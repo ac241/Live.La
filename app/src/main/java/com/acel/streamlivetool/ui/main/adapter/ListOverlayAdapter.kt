@@ -72,7 +72,8 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             return
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]
-        holder.itemView.tag = if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
+        holder.itemView.tag =
+            if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
         with(holder) {
             this.title.text =
                 anchor.title ?: "-"
@@ -105,7 +106,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             this.platform.text = platformName ?: "未知平台"
             //item click
             this.itemView.setOnClickListener {
-                itemClick(context, anchor)
+                itemClick(context, anchor, anchorList)
             }
         }
     }

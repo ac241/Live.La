@@ -12,27 +12,32 @@ import com.acel.streamlivetool.util.ToastUtil.toast
 
 object ActionClick {
 
-    fun itemClick(context: Context, anchor: Anchor) {
+    fun itemClick(context: Context, anchor: Anchor, list: List<Anchor>) {
         actionWhenClick(
             context,
             defaultSharedPreferences.getString(
                 MyApplication.application.getString(R.string.pref_key_item_click_action),
                 ""
-            ), anchor
+            ), anchor, list
         )
     }
 
-    fun secondBtnClick(context: Context, anchor: Anchor) {
+    fun secondBtnClick(context: Context, anchor: Anchor, list: List<Anchor>) {
         actionWhenClick(
             context,
             defaultSharedPreferences.getString(
                 MyApplication.application.getString(R.string.pref_key_second_button_click_action),
                 ""
-            ), anchor
+            ), anchor, list
         )
     }
 
-    private fun actionWhenClick(context: Context, actionSecondBtn: String?, anchor: Anchor) {
+    private fun actionWhenClick(
+        context: Context,
+        actionSecondBtn: String?,
+        anchor: Anchor,
+        list: List<Anchor>
+    ) {
         when (actionSecondBtn) {
             context.getString(R.string.string_open_app) -> {
                 startApp(context, anchor)
@@ -51,7 +56,7 @@ object ActionClick {
                 }
             }
             context.getString(R.string.string_overlay_player) -> {
-                (context as MainActivity).playStream(anchor)
+                (context as MainActivity).playStream(anchor, list)
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")

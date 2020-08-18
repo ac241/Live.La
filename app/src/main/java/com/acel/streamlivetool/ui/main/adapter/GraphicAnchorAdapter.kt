@@ -208,7 +208,7 @@ class GraphicAnchorAdapter(
 
         //item click
         holder.itemView.setOnClickListener {
-            itemClick(context, anchor)
+            itemClick(context, anchor, anchorList)
         }
 
         //长按
@@ -221,7 +221,7 @@ class GraphicAnchorAdapter(
         if (fullVersion) {
             holder.secondBtn.visibility = View.VISIBLE
             holder.secondBtn.setOnClickListener {
-                secondBtnClick(context, anchor)
+                secondBtnClick(context, anchor, anchorList)
             }
         }
 
@@ -247,7 +247,6 @@ class GraphicAnchorAdapter(
             holder.additionBtn.visibility = View.GONE
         }
     }
-
 
     override fun getLongClickPosition(): Int = mPosition
     override fun notifyAnchorsChange() = notifyDataSetChanged()

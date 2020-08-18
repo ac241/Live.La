@@ -18,6 +18,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
+import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -146,7 +147,7 @@ class TextAnchorAdapter(
 
             //item click
             this.itemView.setOnClickListener {
-                itemClick(context, anchor)
+                itemClick(context, anchor, anchorList)
             }
 
             //长按菜单
@@ -159,7 +160,7 @@ class TextAnchorAdapter(
             if (fullVersion) {
                 this.secondBtn.visibility = View.VISIBLE
                 this.secondBtn.setOnClickListener {
-                    secondBtnClick(context, anchor)
+                    secondBtnClick(context, anchor, anchorList)
                 }
             }
             //附加功能按钮

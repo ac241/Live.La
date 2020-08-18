@@ -3,7 +3,7 @@ package com.acel.streamlivetool.util
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorPlaceHolder
 
-object AnchorListHelper {
+object AnchorListUtil {
     /**
      * 对anchor list排序
      */
@@ -57,5 +57,16 @@ object AnchorListHelper {
                 if (list.contains(AnchorPlaceHolder.anchorIsLiving)) sleepingIndex + 1 else sleepingIndex,
                 AnchorPlaceHolder.anchorNotLiving
             )
+    }
+    /**
+     * 获取直播中的主播
+     */
+    fun getLivingAnchors(anchorList: List<Anchor>): List<Anchor> {
+        val list = mutableListOf<Anchor>()
+        anchorList.forEach {
+            if (it.status)
+                list.add(it)
+        }
+        return list
     }
 }

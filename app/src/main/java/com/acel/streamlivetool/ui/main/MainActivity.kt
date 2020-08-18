@@ -23,6 +23,7 @@ import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
+import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
@@ -108,8 +109,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
-    fun showPlayerOverlayWindow(anchor: Anchor) {
-        PlayerOverlayWindowManager.instance.play(anchor)
+    fun showPlayerOverlayWindow(anchor: Anchor, anchorList: List<Anchor>) {
+        val livingAnchors = getLivingAnchors(anchorList)
+        PlayerOverlayWindowManager.instance.playList(anchor, livingAnchors)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -127,8 +129,11 @@ class MainActivity : AppCompatActivity() {
         onActivityResult(requestCode)
     }
 
-    fun playStream(anchor: Anchor) {
-        showPlayerOverlayWindowWithPermissionCheck(anchor)
+    fun playStream(
+        anchor: Anchor,
+        list: List<Anchor>
+    ) {
+        showPlayerOverlayWindowWithPermissionCheck(anchor, list as MutableList<Anchor>)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

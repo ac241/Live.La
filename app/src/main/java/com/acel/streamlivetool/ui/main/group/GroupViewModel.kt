@@ -8,7 +8,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AnchorListHelper
+import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
 import java.util.*
@@ -60,8 +60,8 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 }
             }
         }
-        AnchorListHelper.sortAnchorListByStatus(sortedAnchorList.value!!)
-        AnchorListHelper.insertStatusPlaceHolder(sortedAnchorList.value!!)
+        AnchorListUtil.sortAnchorListByStatus(sortedAnchorList.value!!)
+        AnchorListUtil.insertStatusPlaceHolder(sortedAnchorList.value!!)
         sortedAnchorList.postValue(sortedAnchorList.value)
     }
 

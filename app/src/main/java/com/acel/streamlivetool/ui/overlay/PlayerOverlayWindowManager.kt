@@ -3,8 +3,8 @@ package com.acel.streamlivetool.ui.overlay
 import android.content.Context
 import android.net.Uri
 import android.view.View
-import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -43,8 +43,6 @@ class PlayerOverlayWindowManager {
 
     private var nowSizeMultipleIndex = 0
     private var nowResolution: Pair<Float, Float> = Pair(defaultWidthLand, defaultHeightLand)
-    private var nowAnchor: Anchor? = null
-    private var lastAnchor: Anchor? = null
     private var isShown = false
     private val playerOverlayWindow: AbsOverlayWindow =
         PlayerOverlayWindow.instance.create().also { it.setMovable() }
@@ -55,6 +53,91 @@ class PlayerOverlayWindowManager {
         containerView?.findViewById(R.id.player_overlay_process_bar)
     private val player: SimpleExoPlayer? =
         SimpleExoPlayer.Builder(MyApplication.application).build()
+    private val controllerView = containerView?.controllerView
+
+    private var nowPlayList: List<Anchor>? = null
+    private val nowAnchor = MutableLiveData<Anchor>().also {
+        it.observeForever { anchor ->
+            controllerView?.textView_controller_title?.text = anchor.nickname
+            if (nowPlayList != null) {
+                nowPlayList?.apply {
+                    if (size > 1) {
+                        when (indexOf(anchor)) {
+                            -1 ->
+                                hideListProgressController()
+                            0 ->
+                                playListFirstOne()
+                            size - 1 ->
+                                playListLastOne()
+                            else ->
+                                playListCenterOne()
+                        }
+                    } else {
+                        hideListProgressController()
+                    }
+                }
+            } else {
+                hideListProgressController()
+            }
+        }
+    }
+
+    private fun playListCenterOne() {
+        showListProgressController()
+        controllerView?.btn_player_overlay_previous?.setImageResource(R.drawable.ic_controller_previous_enable)
+        controllerView?.btn_player_overlay_next?.setImageResource(R.drawable.ic_controller_next_enable)
+    }
+
+    private fun playListLastOne() {
+        showListProgressController()
+        nextUnable()
+    }
+
+    private fun playListFirstOne() {
+        showListProgressController()
+        previousUnable()
+    }
+
+    private fun previousEnable() {
+        controllerView?.btn_player_overlay_previous?.apply {
+            setImageResource(R.drawable.ic_controller_previous_enable)
+            isEnabled = true
+        }
+    }
+
+    private fun previousUnable() {
+        controllerView?.btn_player_overlay_previous?.apply {
+            setImageResource(R.drawable.ic_controller_previous_unable)
+            isEnabled = false
+        }
+    }
+
+    private fun nextEnable() {
+        controllerView?.btn_player_overlay_next?.apply {
+            setImageResource(R.drawable.ic_controller_next_enable)
+            isEnabled = true
+        }
+    }
+
+    private fun nextUnable() {
+        controllerView?.btn_player_overlay_next?.apply {
+            setImageResource(R.drawable.ic_controller_next_unable)
+            isEnabled = false
+        }
+    }
+
+
+    private fun showListProgressController() {
+        previousEnable()
+        nextEnable()
+        controllerView?.textView_controller_progress?.text =
+            "${nowPlayList?.indexOf(nowAnchor.value)?.plus(1)}/${nowPlayList?.size}"
+    }
+
+    private fun hideListProgressController() {
+        controllerView?.btn_player_overlay_next?.visibility = View.GONE
+        controllerView?.btn_player_overlay_previous?.visibility = View.GONE
+    }
 
     //控制器自动隐藏时间
     private val controllerHideTime = 3000L
@@ -106,7 +189,7 @@ class PlayerOverlayWindowManager {
         }
 
         containerView?.setOnClickListener {
-            containerView.controllerView.apply {
+            controllerView?.apply {
                 when (visibility) {
                     View.VISIBLE ->
                         visibility = View.GONE
@@ -122,28 +205,30 @@ class PlayerOverlayWindowManager {
          */
 
         //关闭按钮
-        val btnClose =
-            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_close)
-        btnClose?.setOnClickListener {
+        controllerView?.btn_player_overlay_close?.setOnClickListener {
             hideControllerDelay()
             remove()
         }
         //改变大小按钮
-        val resizeBtn =
-            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_resize)
-        resizeBtn?.setOnClickListener {
+        controllerView?.btn_player_overlay_resize?.setOnClickListener {
             hideControllerDelay()
             changeMultiple()
         }
         //打开APP按钮
-        val btnStartApp =
-            containerView?.findViewById<ImageView>(R.id.btn_player_overlay_start_app)
-        btnStartApp?.setOnClickListener {
+        controllerView?.btn_player_overlay_start_app?.setOnClickListener {
             hideControllerDelay()
-            nowAnchor?.let { anchor ->
+            nowAnchor.value?.let { anchor ->
                 startApp(MyApplication.application, anchor)
                 remove()
             }
+        }
+        //播放上一个anchor
+        controllerView?.btn_player_overlay_previous?.setOnClickListener {
+            playPrevious()
+        }
+        //播放下一个anchor
+        controllerView?.btn_player_overlay_next?.setOnClickListener {
+            playNext()
         }
     }
 
@@ -214,14 +299,36 @@ class PlayerOverlayWindowManager {
         }
     }
 
-    internal fun play(anchor: Anchor) {
-        lastAnchor = nowAnchor
-        nowAnchor = anchor
+    private fun play(anchor: Anchor) {
+        nowAnchor.postValue(anchor)
         if (isShown) {
             playAnchorSteaming(anchor)
         } else {
             show()
             playAnchorSteaming(anchor)
+        }
+    }
+
+    internal fun playList(anchor: Anchor, list: List<Anchor>) {
+        nowPlayList = list
+        play(anchor)
+    }
+
+    private fun playPrevious() {
+        nowPlayList?.apply {
+            var nowIndex = this.indexOf(nowAnchor.value)
+            if (nowIndex > 0) {
+                play(this[--nowIndex])
+            }
+        }
+    }
+
+    private fun playNext() {
+        nowPlayList?.apply {
+            var nowIndex = this.indexOf(nowAnchor.value)
+            if (nowIndex < size - 1) {
+                play(this[++nowIndex])
+            }
         }
     }
 
@@ -235,10 +342,8 @@ class PlayerOverlayWindowManager {
                     ?.getStreamingLiveUrl(anchor)
             Log.d("playAnchorSteaming", "$url")
             if (url == null || url.isEmpty()) {
-                nowAnchor = lastAnchor
                 runOnUiThread {
                     ToastUtil.toast("bad stream url")
-                    remove()
                 }
                 return@execute
             }
