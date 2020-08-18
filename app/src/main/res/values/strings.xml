@@ -98,4 +98,5 @@
     <string name="anchor_id_or_search_keyword">直播间号或搜索关键词</string>
     <string name="add_anchor">添加直播间</string>
     <string name="start_app">打开app</string>
+    <string name="player_overlay_progress">%d/%d</string>
 </resources>

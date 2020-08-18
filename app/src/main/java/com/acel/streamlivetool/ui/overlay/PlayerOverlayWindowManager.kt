@@ -100,6 +100,7 @@ class PlayerOverlayWindowManager {
 
     private fun previousEnable() {
         controllerView?.btn_player_overlay_previous?.apply {
+            visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_previous_enable)
             isEnabled = true
         }
@@ -107,6 +108,7 @@ class PlayerOverlayWindowManager {
 
     private fun previousUnable() {
         controllerView?.btn_player_overlay_previous?.apply {
+            visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_previous_unable)
             isEnabled = false
         }
@@ -114,6 +116,7 @@ class PlayerOverlayWindowManager {
 
     private fun nextEnable() {
         controllerView?.btn_player_overlay_next?.apply {
+            visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_next_enable)
             isEnabled = true
         }
@@ -121,6 +124,7 @@ class PlayerOverlayWindowManager {
 
     private fun nextUnable() {
         controllerView?.btn_player_overlay_next?.apply {
+            visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_next_unable)
             isEnabled = false
         }
@@ -130,13 +134,19 @@ class PlayerOverlayWindowManager {
     private fun showListProgressController() {
         previousEnable()
         nextEnable()
+        controllerView?.textView_controller_progress?.visibility = View.VISIBLE
         controllerView?.textView_controller_progress?.text =
-            "${nowPlayList?.indexOf(nowAnchor.value)?.plus(1)}/${nowPlayList?.size}"
+            MyApplication.application.getString(
+                R.string.player_overlay_progress,
+                nowPlayList?.indexOf(nowAnchor.value)?.plus(1),
+                nowPlayList?.size
+            )
     }
 
     private fun hideListProgressController() {
         controllerView?.btn_player_overlay_next?.visibility = View.GONE
         controllerView?.btn_player_overlay_previous?.visibility = View.GONE
+        controllerView?.textView_controller_progress?.visibility = View.GONE
     }
 
     //控制器自动隐藏时间
@@ -338,6 +348,7 @@ class PlayerOverlayWindowManager {
      * 播放流
      */
     private fun playAnchorSteaming(anchor: Anchor) {
+        player?.stop(true)
         MainExecutor.execute {
             val url =
                 PlatformDispatcher.getPlatformImpl(anchor.platform)
