@@ -224,10 +224,12 @@ class PlayerOverlayWindowManager {
         }
         //播放上一个anchor
         controllerView?.btn_player_overlay_previous?.setOnClickListener {
+            hideControllerDelay()
             playPrevious()
         }
         //播放下一个anchor
         controllerView?.btn_player_overlay_next?.setOnClickListener {
+            hideControllerDelay()
             playNext()
         }
     }
