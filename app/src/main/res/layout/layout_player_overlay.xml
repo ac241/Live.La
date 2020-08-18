@@ -76,7 +76,7 @@
                 style="@style/player_overlay_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="50dp"
                 android:contentDescription="@string/button_player_overlay_resize"
                 android:src="@drawable/ic_controller_next_enable" />
         </LinearLayout>
