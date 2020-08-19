@@ -27,7 +27,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
-            GraphicAnchorAdapter.VIEW_TYPE_LIVING_TITLE ->
+            VIEW_TYPE_LIVING_GROUP_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_overlay_status_living, parent, false)
@@ -36,7 +36,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                                 AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
                         }
                 )
-            GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING_TITLE ->
+            VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_overlay_status_not_living, parent, false)
@@ -57,11 +57,11 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     override fun getItemViewType(position: Int): Int {
         return when (anchorList[position]) {
             AnchorPlaceHolder.anchorIsLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_LIVING_TITLE
+                VIEW_TYPE_LIVING_GROUP_TITLE
             AnchorPlaceHolder.anchorNotLiving ->
-                GraphicAnchorAdapter.VIEW_TYPE_NOT_LIVING_TITLE
+                VIEW_TYPE_NOT_LIVING_GROUP_TITLE
             else ->
-                GraphicAnchorAdapter.VIEW_TYPE_NORMAL
+                VIEW_TYPE_ANCHOR
         }
     }
 

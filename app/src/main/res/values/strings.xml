@@ -1,4 +1,33 @@
 <resources>
+    <!--  preference start -->
+    <string name="pref_key_item_click_action">pref_key_item_click_action</string>
+    <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
+    <string name="pref_key_about_open_source">pref_key_about_open_source</string>
+    <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
+    <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
+    <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
+    <string name="pref_key_show_anchor_image_when_mobile_data">pref_key_show_image_when_mobile_data</string>
+    <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
+    <string name="pref_key_show_anchor_image">pref_key_show_anchor_image</string>
+    <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
+
+    <array name="pref_click_action_entries">
+        <item>打开app</item>
+        <item>外置播放器</item>
+        <item>悬浮窗播放</item>
+    </array>
+    <array name="pref_click_action_entry_values">
+        <item name="value_open_app">@string/string_open_app</item>
+        <item name="value_outer_player">@string/string_outer_player</item>
+        <item name="value_overlay_player">@string/string_overlay_player</item>
+    </array>
+    <string name="string_overlay_player">overlay_player</string>
+    <string name="string_open_app">open_app</string>
+    <string name="string_outer_player">outer_player</string>
+    <string name="string_first_time_launch">first_time_launch</string>
+    <string name="string_preference_initialed">preference_initialed</string>
+    <!--  preference end -->
+
     <string name="app_name">直播啦</string>
     <string name="title_activity_setting">设置</string>
     <string name="main_page_add_anchor">主页新增直播间</string>
@@ -7,84 +36,36 @@
     <string name="delete">删除</string>
     <string name="setting">设置</string>
     <string name="second_button">第二按钮</string>
-    <string name="pref_key_item_click_action">pref_key_item_click_action</string>
     <string name="item_click_action_name">点击条目时</string>
-    <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
     <string name="second_button_action_name">点击侧边键时</string>
-    <string name="pref_key_about_open_source">pref_key_about_open_source</string>
-    <string name="string_open_app">open_app</string>
-    <string name="string_outer_player">outer_player</string>
     <string name="open_source_licensed">开放源代码许可</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
-    <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
     <string name="clear_all_cookie">清除所有登录信息</string>
-    <string name="pref_key_launch_activity">pref_key_launch_activity</string>
     <string name="add_to_group_mode">添加到主页</string>
     <string name="live_image">直播图片</string>
     <string name="avatar">头像</string>
-    <string name="pref_key_group_mode_list_type">pref_key_group_mode_list_type</string>
     <string name="group_mode_list_type">主页展示方式</string>
     <string name="cookie_mode_list_type">平台展示方式</string>
-    <array name="pref_click_action_entries">
-        <item>打开app</item>
-        <item>外置播放器</item>
-        <item>悬浮窗播放</item>
-    </array>
-
-    <array name="pref_click_action_entry_values">
-        <item name="value_open_app">@string/string_open_app</item>
-        <item name="value_outer_player">@string/string_outer_player</item>
-        <item name="value_overlay_player">@string/string_overlay_player</item>
-    </array>
-
-    <array name="pref_launch_activity_entries">
-        <item>聚合模式</item>
-        <item>分页模式</item>
-    </array>
-    <array name="pref_launch_activity_entries_values">
-        <item name="value_group_activity">@string/group_mode</item>
-        <item name="value_cookie_activity">@string/cookie_mode</item>
-    </array>
-    <string name="group_mode">group_mode</string>
-    <string name="cookie_mode">cookie_mode</string>
-
-    <array name="pref_show_list_type_entries">
-        <item>无图</item>
-        <item>有图</item>
-    </array>
-    <array name="pref_show_list_type_entries_values">
-        <item name="value_recycler_view_type">@string/string_recycler_view</item>
-        <item name="value_grid_view_type">@string/string_grid_view</item>
-    </array>
-    <string name="string_recycler_view">recycler_view</string>
-    <string name="string_grid_view">grid_view</string>
     <string name="full_version">full_version</string>
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>
     <string name="open_source_module">开源组件</string>
     <string name="lpl_match"><![CDATA[<html><h2>本周LPL赛程</h3><ul>%s</ul></html>]]></string>
     <string name="additional_action">附加功能</string>
-    <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
     <string name="list_overlay">列表悬浮窗</string>
     <string name="button_list_overlay_close">列表悬浮窗关闭按钮</string>
     <string name="button_list_overlay_movable">列表悬浮窗可移动按钮</string>
     <string name="button_player_overlay_close">悬浮窗播放器关闭</string>
-    <string name="string_overlay_player">overlay_player</string>
-    <string name="string_first_time_launch">first_time_launch</string>
     <string name="button_player_overlay_resize">改变大小</string>
-    <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
     <string name="is_living">直播中</string>
     <string name="not_living">未直播</string>
     <string name="additional_action_hint">附加功能按钮（LPL赛程等..）</string>
-    <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
     <string name="cookie_mode_platform_showable">显示的平台</string>
-    <string name="string_preference_initialed">preference_initialed</string>
     <string name="did_not_find_app">好像没有找到%sapp</string>
     <string name="get_streaming_failed">获取直播流失败。</string>
     <string name="streaming_url_is_null">直播流为空。</string>
-    <string name="mobile_data_only_text">数据流量时使用无图模式</string>
-    <string name="pref_key_mobile_data_only_text">pref_key_mobile_data_only_text</string>
+    <string name="show_anchor_image_when_mobile_data">数据流量时显示图片</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="clear_platform_cookie_alert">要清除%s的登录信息吗？</string>
@@ -92,11 +73,11 @@
     <string name="clear_all_cookie_ok">清除所有登录信息成功</string>
     <string name="platform_display">显示</string>
     <string name="full_version_feature">完整版功能</string>
-    <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
     <string name="other">其他</string>
     <string name="search">搜索</string>
     <string name="anchor_id_or_search_keyword">直播间号或搜索关键词</string>
     <string name="add_anchor">添加直播间</string>
     <string name="start_app">打开app</string>
     <string name="player_overlay_progress">%d/%d</string>
+    <string name="show_anchor_image">是否显示图片</string>
 </resources>

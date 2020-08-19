@@ -16,6 +16,14 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
+    private val restartWhenChangeArray by lazy {
+        arrayOf(
+            resources.getString(R.string.pref_key_additional_action_btn),
+            resources.getString(R.string.pref_key_cookie_mode_platform_showable),
+            resources.getString(R.string.pref_key_show_anchor_image_when_mobile_data),
+            resources.getString(R.string.pref_key_show_anchor_image)
+        )
+    }
     private val entriesMap =
         mutableMapOf<String, Pair<Array<String>, Array<String>>>().also {
             MyApplication.application.resources.let { res ->
@@ -26,18 +34,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 it[res.getString(R.string.pref_key_second_button_click_action)] = Pair(
                     res.getStringArray(R.array.pref_click_action_entries),
                     res.getStringArray(R.array.pref_click_action_entry_values)
-                )
-                it[res.getString(R.string.pref_key_launch_activity)] = Pair(
-                    res.getStringArray(R.array.pref_launch_activity_entries),
-                    res.getStringArray(R.array.pref_launch_activity_entries_values)
-                )
-                it[res.getString(R.string.pref_key_group_mode_list_type)] = Pair(
-                    res.getStringArray(R.array.pref_show_list_type_entries),
-                    res.getStringArray(R.array.pref_show_list_type_entries_values)
-                )
-                it[res.getString(R.string.pref_key_cookie_mode_list_type)] = Pair(
-                    res.getStringArray(R.array.pref_show_list_type_entries),
-                    res.getStringArray(R.array.pref_show_list_type_entries_values)
                 )
             }
         }
@@ -75,15 +71,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     setListPreferenceSummary(key)
             }
             //设置后重启应用
-            when (key) {
-                resources.getString(R.string.pref_key_group_mode_list_type),
-                resources.getString(R.string.pref_key_launch_activity),
-                resources.getString(R.string.pref_key_additional_action_btn),
-                resources.getString(R.string.pref_key_cookie_mode_list_type),
-                resources.getString(R.string.pref_key_cookie_mode_platform_showable),
-                resources.getString(R.string.pref_key_mobile_data_only_text)
-                ->
-                    (requireActivity() as SettingsActivity).settingsChanges = true
+            if (restartWhenChangeArray.contains(key)) {
+                (requireActivity() as SettingsActivity).settingsChanges = true
             }
         }
     }

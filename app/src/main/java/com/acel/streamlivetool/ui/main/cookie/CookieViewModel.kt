@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.main.cookie
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
@@ -59,7 +60,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${e.javaClass.name}")
             } finally {
                 runOnUiThread {
                     cookieFragment.binding?.cookieSwipeRefresh?.isRefreshing = false
@@ -71,7 +72,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
 
     private fun notifyDataChange() {
         runOnUiThread {
-            cookieFragment.nowAnchorAnchorAdapter.notifyAnchorsChange()
+            cookieFragment.nowAnchorAdapter.notifyAnchorsChange()
         }
     }
 }

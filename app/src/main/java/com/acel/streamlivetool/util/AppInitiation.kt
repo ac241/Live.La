@@ -23,8 +23,8 @@ class AppInitiation {
     private val buglyAppId = "ee4f2df64b"
 
     fun init() {
-        firstTimeLaunch()
         initPreference()
+        firstTimeLaunch()
         initBugly()
         initMtj()
         if (fullVersion)
@@ -61,17 +61,11 @@ class AppInitiation {
     }
 
     private fun initPreference() {
-        val isInitialed = defaultSharedPreferences.getBoolean(
+        PreferenceManager.setDefaultValues(appContext, R.xml.pre_settings, false)
+        defaultSharedPreferences.edit().putBoolean(
             appContext.getString(R.string.string_preference_initialed),
-            false
-        )
-        if (!isInitialed) {
-            PreferenceManager.setDefaultValues(appContext, R.xml.pre_settings, false)
-            defaultSharedPreferences.edit().putBoolean(
-                appContext.getString(R.string.string_preference_initialed),
-                true
-            ).apply()
-        }
+            true
+        ).apply()
     }
 
     private fun initDefaultAnchor() {

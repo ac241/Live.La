@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -78,7 +79,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                     updateAnchorAttribute(anchorAttribute)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.d("GetAnchorAttribute", "获取主播属性失败：cause:${e.javaClass.name}------$anchor")
             } finally {
                 runOnUiThread {
                     groupFragment.hideSwipeRefreshBtn()

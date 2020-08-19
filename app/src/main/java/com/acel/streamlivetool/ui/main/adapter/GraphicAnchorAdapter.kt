@@ -23,6 +23,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Compan
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
+import com.acel.streamlivetool.util.PreferenceConstant.fullVersion
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
@@ -32,32 +33,20 @@ import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 class GraphicAnchorAdapter(
     private val context: Context,
     private val anchorList: List<Anchor>,
-    private val modeType: Int
+    private val modeType: Int,
+    private val showAnchorImage: Boolean
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
-    companion object {
-        const val VIEW_TYPE_NORMAL = 443
-        const val VIEW_TYPE_LIVING_TITLE = 444
-        const val VIEW_TYPE_NOT_LIVING_TITLE = 445
-        const val VIEW_TYPE_NORMAL_NOT_LIVING = 446
-    }
 
     private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
-    private val fullVersion by lazy {
-        defaultSharedPreferences.getBoolean(
-            context.getString(R.string.full_version),
-            false
-        )
-    }
-
     private val additionalAction = AdditionalAction.instance
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
-            VIEW_TYPE_LIVING_TITLE ->
+            VIEW_TYPE_LIVING_GROUP_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_status_title_living, parent, false)
@@ -67,7 +56,7 @@ class GraphicAnchorAdapter(
                             it.tag = AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
                         }
                 )
-            VIEW_TYPE_NOT_LIVING_TITLE ->
+            VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
                 holder = ViewHolderStatusGroup(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_status_title_not_living, parent, false)
@@ -78,20 +67,27 @@ class GraphicAnchorAdapter(
                                 AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
                         }
                 )
-            VIEW_TYPE_NORMAL_NOT_LIVING ->
+            VIEW_TYPE_ANCHOR_SIMPLIFY ->
                 holder = ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_graphic_anchor_not_living, parent, false)
+                        .inflate(R.layout.item_graphic_anchor_simplify, parent, false)
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
-                        }, modeType
+                        }
                 )
             else ->
-                holder = ViewHolderGraphic(
+                //是否显示图片
+                holder = if (showAnchorImage) ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_graphic_anchor, parent, false)
-                    , modeType
+                ) else ViewHolderGraphic(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_graphic_anchor_simplify, parent, false)
+                        .also {
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
+                                .isFullSpan = true
+                        }
                 )
         }
         return holder
@@ -102,17 +98,22 @@ class GraphicAnchorAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (anchorList[position]) {
-            AnchorPlaceHolder.anchorIsLiving ->
-                VIEW_TYPE_LIVING_TITLE
-            AnchorPlaceHolder.anchorNotLiving ->
-                VIEW_TYPE_NOT_LIVING_TITLE
-            else -> {
-                if (anchorList[position].status)
-                    VIEW_TYPE_NORMAL
-                else
-                    VIEW_TYPE_NORMAL_NOT_LIVING
+        try {
+            return when (anchorList[position]) {
+                AnchorPlaceHolder.anchorIsLiving ->
+                    VIEW_TYPE_LIVING_GROUP_TITLE
+                AnchorPlaceHolder.anchorNotLiving ->
+                    VIEW_TYPE_NOT_LIVING_GROUP_TITLE
+                else -> {
+                    if (anchorList[position].status)
+                        VIEW_TYPE_ANCHOR
+                    else
+                        VIEW_TYPE_ANCHOR_SIMPLIFY
+                }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return VIEW_TYPE_ANCHOR
         }
     }
 
@@ -135,7 +136,7 @@ class GraphicAnchorAdapter(
             if (resInt != null)
                 platformName = context.getString(resInt)
         }
-        if (holder.modeType == MODE_GROUP) {
+        if (modeType == MODE_GROUP) {
             platformNameMap[anchor.platform] = platformName ?: "未知平台"
             holder.platform.text = platformName
         } else {
@@ -168,7 +169,7 @@ class GraphicAnchorAdapter(
         }
 
         //图片    如果直播中则加载
-        if (getItemViewType(position) == VIEW_TYPE_NORMAL)
+        if (getItemViewType(position) == VIEW_TYPE_ANCHOR)
             with(anchor.keyFrame) {
                 if (this != null) {
                     ImageLoader.load(
@@ -251,7 +252,7 @@ class GraphicAnchorAdapter(
     override fun getLongClickPosition(): Int = mPosition
     override fun notifyAnchorsChange() = notifyDataSetChanged()
 
-    class ViewHolderGraphic(itemView: View, val modeType: Int) :
+    inner class ViewHolderGraphic(itemView: View) :
         RecyclerView.ViewHolder(itemView),
         View.OnCreateContextMenuListener {
         override fun onCreateContextMenu(

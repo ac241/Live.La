@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
@@ -16,41 +15,52 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.MainActivity.Companion.ListItemType
-import com.acel.streamlivetool.ui.main.adapter.*
+import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
+import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
+import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
+import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.PreferenceConstant
 import com.acel.streamlivetool.util.ToastUtil.toast
-import com.acel.streamlivetool.util.defaultSharedPreferences
 
 private const val ARG_PARAM1 = "param1"
 
 class CookieFragment : Fragment() {
 
-    internal lateinit var nowAnchorAnchorAdapter: AnchorAdapterWrapper
+    internal lateinit var nowAnchorAdapter: AnchorAdapterWrapper
     var platform: String? = null
-    internal var layoutManagerType =
-        ListItemType.Text
+
     internal val viewModel by viewModels<CookieViewModel> {
         CookieViewModel.ViewModeFactory(
             this
         )
     }
-    private val textAnchorAdapter by lazy {
-        TextAnchorAdapter(
-            requireContext(),
-            viewModel.anchorList,
-            MODE_COOKIE
-        )
-    }
 
-    private val graphicAnchorAdapter by lazy {
+    private val adapterShowAnchorImage by lazy {
         GraphicAnchorAdapter(
             requireContext(),
             viewModel.anchorList,
-            MODE_COOKIE
+            MODE_COOKIE, true
         )
     }
+    private val adapterNotShowAnchorImage by lazy {
+        GraphicAnchorAdapter(
+            requireContext(),
+            viewModel.anchorList,
+            MODE_COOKIE, true
+        )
+    }
+
+    fun setShowImage(boolean: Boolean) {
+        nowAnchorAdapter = if (boolean) adapterShowAnchorImage else adapterNotShowAnchorImage
+        setGraphicAdapter()
+    }
+
+    fun isShowImage(): Boolean {
+        return nowAnchorAdapter == adapterShowAnchorImage
+    }
+
     private var _binding: FragmentCookieModeBinding? = null
     val binding
         get() = _binding
@@ -80,7 +90,6 @@ class CookieFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initPreference()
         initRecyclerView()
 
         binding?.cookieSwipeRefresh?.setOnRefreshListener {
@@ -92,44 +101,21 @@ class CookieFragment : Fragment() {
         binding?.cookieSwipeRefresh?.isRefreshing = false
     }
 
-    private fun initPreference() {
-        val type = defaultSharedPreferences.getString(
-            resources.getString(R.string.pref_key_cookie_mode_list_type),
-            resources.getString(R.string.string_grid_view)
-        )
-
-        layoutManagerType = when (type) {
-            resources.getString(R.string.string_recycler_view) -> ListItemType.Text
-            resources.getString(R.string.string_grid_view) -> ListItemType.Graphic
-            else -> ListItemType.Graphic
-        }
-    }
 
     private fun initRecyclerView() {
-        when (layoutManagerType) {
-            ListItemType.Text -> {
-                setTextAdapter()
-            }
-            ListItemType.Graphic -> {
-                setGraphicAdapter()
-            }
-        }
+        binding?.include?.recyclerView?.layoutManager =
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
+            adapterShowAnchorImage
+        else
+            adapterNotShowAnchorImage
+        setGraphicAdapter()
         binding?.include?.recyclerView?.addOnScrollListener(AnchorListAddTitleListener())
     }
 
-    internal fun setGraphicAdapter() {
-        binding?.include?.recyclerView?.layoutManager =
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        binding?.include?.recyclerView?.adapter = graphicAnchorAdapter
-        nowAnchorAnchorAdapter = graphicAnchorAdapter
+    private fun setGraphicAdapter() {
+        binding?.include?.recyclerView?.adapter = nowAnchorAdapter as GraphicAnchorAdapter
     }
-
-    fun setTextAdapter() {
-        binding?.include?.recyclerView?.layoutManager = LinearLayoutManager(requireContext())
-        binding?.include?.recyclerView?.adapter = textAnchorAdapter
-        nowAnchorAnchorAdapter = textAnchorAdapter
-    }
-
 
     fun showLoginTextView() {
         runOnUiThread {
@@ -179,7 +165,7 @@ class CookieFragment : Fragment() {
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
-                        nowAnchorAnchorAdapter.getLongClickPosition()
+                        nowAnchorAdapter.getLongClickPosition()
                     val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)

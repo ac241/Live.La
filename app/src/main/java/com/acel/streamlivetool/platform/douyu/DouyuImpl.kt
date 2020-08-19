@@ -48,7 +48,6 @@ class DouyuImpl : IPlatform {
     }
 
     override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
-        Log.d("getAnchorAttribute", "$queryAnchor")
         val roomInfo =
             douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
         return if (roomInfo != null) AnchorAttribute(
