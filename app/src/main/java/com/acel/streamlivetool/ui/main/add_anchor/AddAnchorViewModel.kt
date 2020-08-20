@@ -58,7 +58,7 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
                     choiceAnchor?.apply { insertAnchor(this) }
                 }
                 builder.setNegativeButton("取消", null)
-                builder.setTitle("$keyword@${addAnchorFragment.getString(platformImpl.platformShowNameRes)} 的搜索结果：")
+                builder.setTitle("$keyword@${platformImpl.platformName} 的搜索结果：")
                 runOnUiThread {
                     builder.show()
                 }

@@ -1,34 +1,46 @@
 package com.acel.streamlivetool.platform
 
+import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.bilibili.BilibiliImpl
 import com.acel.streamlivetool.platform.douyu.DouyuImpl
 import com.acel.streamlivetool.platform.egameqq.EgameqqImpl
 import com.acel.streamlivetool.platform.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
+import com.acel.streamlivetool.platform.longzhu.LongzhuImpl
+import com.acel.streamlivetool.platform.yy.YYImpl
 
 object PlatformDispatcher {
-    private val mMap = mutableMapOf<String, IPlatform>()
+    private val platformMap = mutableMapOf<String, IPlatform>()
 
     init {
-        mMap["douyu"] = DouyuImpl.INSTANCE
-        mMap["bilibili"] = BilibiliImpl.INSTANCE
-        mMap["huya"] = HuyaImpl.INSTANCE
-        mMap["egameqq"] = EgameqqImpl.INSTANCE
-        mMap["huomao"] = HuomaoImpl.INSTANCE
-//        mMap["yy"] = YYImpl.INSTANCE
-//        mMap["longzhu"] = LongzhuImpl.INSTANCE
+        val instanceMap = mapOf(
+            Pair("douyu", DouyuImpl.INSTANCE),
+            Pair("bilibili", BilibiliImpl.INSTANCE),
+            Pair("huya", HuyaImpl.INSTANCE),
+            Pair("egameqq", EgameqqImpl.INSTANCE),
+            Pair("huomao", HuomaoImpl.INSTANCE),
+            Pair("yy", YYImpl.INSTANCE),
+            Pair("longzhu", LongzhuImpl.INSTANCE)
+        )
+
+        val platformArray =
+            MyApplication.application.resources.getStringArray(R.array.platform)
+        platformArray.forEach { source ->
+            val instance = instanceMap[source]
+            instance?.let { platformMap[source] = instance }
+        }
     }
 
     fun getPlatformImpl(platform: String): IPlatform? {
-        return mMap[platform]
+        return platformMap[platform]
     }
 
     /**
      * @return Map<platform name ,Platform Instance>
      */
     fun getAllPlatformInstance(): Map<String, IPlatform> {
-        return mMap
+        return platformMap
     }
 
     /**
@@ -37,11 +49,9 @@ object PlatformDispatcher {
     fun getAllPlatform(): List<String> {
 
         val platformList = mutableListOf<String>()
-        mMap.forEach {
-            val platformShowName =
-                MyApplication.application.resources.getString(it.value.platformShowNameRes)
+        platformMap.forEach {
             val platform = it.value.platform
-            platformList.add("$platform,$platformShowName")
+            platformList.add("$platform,${it.value.platformName}")
         }
         return platformList
     }

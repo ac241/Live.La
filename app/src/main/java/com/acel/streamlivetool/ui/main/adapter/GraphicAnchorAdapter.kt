@@ -3,7 +3,6 @@ package com.acel.streamlivetool.ui.main.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -38,8 +37,6 @@ class GraphicAnchorAdapter(
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
-
-    private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
     private val additionalAction = AdditionalAction.instance
 
@@ -128,17 +125,9 @@ class GraphicAnchorAdapter(
         //主播名
         holder.anchorName.text = anchor.nickname
         //平台名
-        var platformName: String? =
-            platformNameMap[anchor.platform]
-        if (platformName == null) {
-            val resInt =
-                PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
-            if (resInt != null)
-                platformName = context.getString(resInt)
-        }
         if (modeType == MODE_GROUP) {
-            platformNameMap[anchor.platform] = platformName ?: "未知平台"
-            holder.platform.text = platformName
+            holder.platform.text =
+                PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformName ?: "unknown"
         } else {
             holder.platform.visibility = View.GONE
         }

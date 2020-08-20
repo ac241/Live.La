@@ -128,7 +128,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
 
     private fun alertCookieInvalid(platform: IPlatform) {
         val builder = AlertDialog.Builder(groupFragment.requireContext())
-        builder.setTitle(groupFragment.getString(platform.platformShowNameRes) + "的Cookie无效")
+        builder.setTitle("${platform.platformName} 的Cookie无效")
         builder.setMessage("是否登录？")
         builder.setPositiveButton("是") { _, _ ->
             val intent = Intent(groupFragment.requireContext(), LoginActivity::class.java).also {

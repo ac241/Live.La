@@ -34,11 +34,8 @@ object AppUtil {
                     ToastUtil.toast(
                         MyApplication.application.resources.getString(
                             R.string.did_not_find_app,
-                            platformImpl?.platformShowNameRes?.let { it1 ->
-                                MyApplication.application.resources.getString(
-                                    it1
-                                )
-                            })
+                            platformImpl?.platformName
+                        )
                     )
                 }
             }

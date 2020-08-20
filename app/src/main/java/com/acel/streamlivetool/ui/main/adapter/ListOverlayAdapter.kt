@@ -21,7 +21,6 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
 
-    private val platformNameMap: MutableMap<String, String> = mutableMapOf()
     private var mPosition: Int = -1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
@@ -94,15 +93,8 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             //主播名
             this.anchorName.text = anchor.nickname
             //平台名
-            var platformName: String? =
-                platformNameMap[anchor.platform]
-            if (platformName == null) {
-                val resInt =
-                    PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformShowNameRes
-                if (resInt != null)
-                    platformName = context.getString(resInt)
-            }
-            this.platform.text = platformName ?: "未知平台"
+            this.platform.text =
+                PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformName ?: "unknown"
             //item click
             this.itemView.setOnClickListener {
                 itemClick(context, anchor, anchorList)

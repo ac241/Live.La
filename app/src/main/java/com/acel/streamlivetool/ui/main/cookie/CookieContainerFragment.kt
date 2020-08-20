@@ -72,7 +72,7 @@ class CookieContainerFragment : Fragment() {
             cookie_tabLayout,
             cookie_viewPager,
             TabLayoutMediator.TabConfigurationStrategy { tab, position ->
-                tab.text = resources.getString(platforms[position].platformShowNameRes)
+                tab.text = platforms[position].platformName
                 tab.view.setOnClickListener {
                     tabViewClick = Pair(position, System.currentTimeMillis())
                 }
@@ -83,7 +83,7 @@ class CookieContainerFragment : Fragment() {
                         .setTitle(
                             getString(
                                 R.string.clear_platform_cookie_alert,
-                                getString(platforms[position].platformShowNameRes)
+                                platforms[position].platformName
                             )
                         )
                         .setPositiveButton(getString(R.string.yes)) { _, _ ->

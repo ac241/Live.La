@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
@@ -27,6 +28,9 @@ interface IPlatform {
      * 平台显示名resId，例如：R.string.douyu
      */
     val platformShowNameRes: Int
+
+    val platformName
+        get() = MyApplication.application.getString(platformShowNameRes)
 
     /**
      *  支持cookie模式
@@ -74,6 +78,7 @@ interface IPlatform {
     fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
         title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
     }
+
     /**
      * 设置提醒词
      */
