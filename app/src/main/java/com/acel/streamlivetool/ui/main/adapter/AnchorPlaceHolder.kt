@@ -1,4 +1,6 @@
-package com.acel.streamlivetool.bean
+package com.acel.streamlivetool.ui.main.adapter
+
+import com.acel.streamlivetool.bean.Anchor
 
 object AnchorPlaceHolder {
     val anchorIsLiving = Anchor(

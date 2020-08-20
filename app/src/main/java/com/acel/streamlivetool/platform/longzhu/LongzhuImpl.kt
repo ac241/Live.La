@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.util.TextUtil
 
@@ -40,17 +39,18 @@ class LongzhuImpl : IPlatform {
         return null
     }
 
-    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
-        val roomStatus = longzhuService.roomStatus(queryAnchor.roomId).execute().body()
-        roomStatus?.let {
-            return AnchorAttribute(
-                queryAnchor,
-                roomStatus.IsBroadcasting,
-                roomStatus.BaseRoomInfo.BoardCastTitle
-            )
-        }
-        return null
-    }
+    override fun updateAnchorData(queryAnchor: Anchor): Boolean = false
+//    {
+////        val roomStatus = longzhuService.roomStatus(queryAnchor.roomId).execute().body()
+////        roomStatus?.let {
+////            return AnchorAttribute(
+////                queryAnchor,
+////                roomStatus.IsBroadcasting,
+////                roomStatus.BaseRoomInfo.BoardCastTitle
+////            )
+////        }
+////        return null
+//    }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val liveStream = longzhuService.liveStream(queryAnchor.roomId).execute().body()

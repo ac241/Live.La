@@ -25,5 +25,13 @@ object PreferenceConstant {
                 MyApplication.application.resources.getString(R.string.full_version),
                 false
             )
+
+    val groupModeUseCookie
+        get() =
+            defaultSharedPreferences.getBoolean(
+                MyApplication.application.resources.getString(R.string.pref_key_group_mode_use_cookie),
+                false
+            )
+
     
 }

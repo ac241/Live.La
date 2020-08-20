@@ -39,4 +39,14 @@ interface BilibiliApi {
         @Query("keyword") keyword: String
     ): Call<SearchResult>
 
+    @GET("https://api.live.bilibili.com/xlive/app-interface/v1/relation/liveAnchor")
+    fun liveAnchor(
+        @Header("Cookie") cookie: String
+    ): Call<LiveAnchor>
+
+    @GET("https://api.live.bilibili.com/xlive/app-interface/v1/relation/unliveAnchor?page=1&pagesize=500")
+    fun unLiveAnchor(
+        @Header("Cookie") cookie: String
+    ): Call<UnliveAnchor>
+
 }

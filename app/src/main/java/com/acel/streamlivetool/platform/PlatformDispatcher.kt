@@ -6,8 +6,6 @@ import com.acel.streamlivetool.platform.douyu.DouyuImpl
 import com.acel.streamlivetool.platform.egameqq.EgameqqImpl
 import com.acel.streamlivetool.platform.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
-import com.acel.streamlivetool.platform.longzhu.LongzhuImpl
-import com.acel.streamlivetool.platform.yy.YYImpl
 
 object PlatformDispatcher {
     private val mMap = mutableMapOf<String, IPlatform>()
@@ -18,14 +16,17 @@ object PlatformDispatcher {
         mMap["huya"] = HuyaImpl.INSTANCE
         mMap["egameqq"] = EgameqqImpl.INSTANCE
         mMap["huomao"] = HuomaoImpl.INSTANCE
-        mMap["yy"] = YYImpl.INSTANCE
-        mMap["longzhu"] = LongzhuImpl.INSTANCE
+//        mMap["yy"] = YYImpl.INSTANCE
+//        mMap["longzhu"] = LongzhuImpl.INSTANCE
     }
 
     fun getPlatformImpl(platform: String): IPlatform? {
         return mMap[platform]
     }
 
+    /**
+     * @return Map<platform name ,Platform Instance>
+     */
     fun getAllPlatformInstance(): Map<String, IPlatform> {
         return mMap
     }

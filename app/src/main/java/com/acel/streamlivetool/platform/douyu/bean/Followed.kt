@@ -9,7 +9,7 @@ data class Followed(
         val allColumn: List<AllColumn>,
         val has_special: Int,
         val limit: Int,
-        val list: List<Anchor>,
+        val list: List<AnchorX>,
         val nowPage: Int,
         val pageCount: Int,
         val total: Int
@@ -24,7 +24,7 @@ data class Followed(
         val short_name: String
     )
 
-    data class Anchor(
+    data class AnchorX(
         val avatar_small: String,
         val cate_id: Int,
         val child_id: Int,

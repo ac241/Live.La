@@ -4,7 +4,7 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/platform_display">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="@string/pref_key_show_anchor_image"
             android:title="@string/show_anchor_image"
@@ -45,6 +45,12 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/other">
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/pref_key_group_mode_use_cookie"
+            android:title="@string/group_mode_use_cookie"
+            android:summary="@string/group_mode_use_cookie_summary"
+            app:iconSpaceReserved="false" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="@string/pref_key_additional_action_btn"

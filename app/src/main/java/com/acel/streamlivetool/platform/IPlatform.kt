@@ -5,15 +5,18 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
+import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import retrofit2.Retrofit
 
 interface IPlatform {
+    companion object {
+        private const val FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR = "关注列表中没有这个主播，请关注该主播或关闭cookie方式"
+    }
 
     /**
      * 平台名，例如"Douyu"
@@ -48,7 +51,37 @@ interface IPlatform {
      * 获取直播状态
      * @return AnchorStatus if fail return null
      */
-    fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute?
+    fun updateAnchorData(queryAnchor: Anchor): Boolean
+
+    /**
+     * 是否支持updateAnchorsByCookie
+     */
+    fun supportUpdateAnchorsByCookie() = false
+
+    /**
+     * 主页以cookie方式获取主播列表
+     * dependency [supportUpdateAnchorsByCookie],it must return true
+     * use [getCookie] to get cookie string
+     * 如果关注列表中不包含请求anchor，调用[setHintWhenFollowListDidNotContainsTheAnchor]设置提醒
+     * @return 如果成功，返回对象的第一个参数应该为true
+     */
+    fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie =
+        ResultUpdateAnchorByCookie(false)
+
+    /**
+     * 设置提醒词
+     */
+    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
+        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+    }
+    /**
+     * 设置提醒词
+     */
+    fun List<Anchor>.setHintWhenFollowListDidNotContainsTheAnchor() {
+        forEach {
+            it.title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+        }
+    }
 
     /**
      * 获取直播流
@@ -87,11 +120,15 @@ interface IPlatform {
 
     /**
      * cookie方式获取列表
-     * Use [readCookie] to get saved cookie
+     * Use [getCookie] to get saved cookie
      * @return AnchorsCookieMode
      */
     fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        return AnchorsCookieMode(false, null, "")
+        return AnchorsCookieMode(
+            false,
+            null,
+            ""
+        )
     }
 
     /**
@@ -127,7 +164,7 @@ interface IPlatform {
     /**
      * 读取cookie
      */
-    fun readCookie(): String {
+    fun getCookie(): String {
         val cookie = defaultSharedPreferences.getString(
             "${platform}_cookie",
             ""
@@ -142,5 +179,4 @@ interface IPlatform {
         defaultSharedPreferences.edit().remove("${platform}_cookie")
             .apply()
     }
-
 }

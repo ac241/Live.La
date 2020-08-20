@@ -1,17 +1,22 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
 import com.acel.streamlivetool.db.AnchorRepository
+import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
+import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
 import java.util.*
 
 class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
@@ -36,65 +41,110 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             it.value?.clear()
             it.value?.addAll(sourceList)
             it.postValue(it.value)
-            getAllAnchorsAttribute()
+            updateAllAnchor()
         }
         it.observe(groupFragment, Observer {
             groupFragment.refreshAnchorAttribute()
         })
     }
 
-    /**
-     * 更新主播属性
-     */
     @Synchronized
-    fun updateAnchorAttribute(anchorAttribute: AnchorAttribute) {
-        sortedAnchorList.value?.let {
-            val index = it.indexOf(anchorAttribute.anchor)
-            if (index != -1) {
-                with(it[index]) {
-                    status = anchorAttribute.status
-                    title = anchorAttribute.title
-                    anchorAttribute.avatar?.apply { avatar = this }
-                    anchorAttribute.keyFrame?.apply { keyFrame = this }
-                    anchorAttribute.secondaryStatus?.apply { secondaryStatus = this }
-                    anchorAttribute.typeName?.apply { typeName = this }
-                }
-            }
-        }
+    private fun notifyAnchorListChange() {
         AnchorListUtil.sortAnchorListByStatus(sortedAnchorList.value!!)
         AnchorListUtil.insertStatusPlaceHolder(sortedAnchorList.value!!)
         sortedAnchorList.postValue(sortedAnchorList.value)
     }
 
-    private fun getAnchorsAttribute(anchor: Anchor) {
-        MainExecutor.execute(GetAnchorAttributeRunnable(anchor))
-    }
-
-    inner class GetAnchorAttributeRunnable(val anchor: Anchor) : Runnable {
-        override fun run() {
+    private fun updateAnchor(anchor: Anchor) {
+        MainExecutor.execute {
             try {
                 val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                val anchorAttribute = platformImpl?.getAnchorAttribute(anchor)
-                if (anchorAttribute != null) {
-                    updateAnchorAttribute(anchorAttribute)
+                platformImpl?.let {
+                    val result = platformImpl.updateAnchorData(anchor)
+                    if (result)
+                        notifyAnchorListChange()
                 }
             } catch (e: Exception) {
-                Log.d("GetAnchorAttribute", "获取主播属性失败：cause:${e.javaClass.name}------$anchor")
+                Log.d("updateAnchor", "更新主播信息失败：cause:${e.javaClass.name}------$anchor")
             } finally {
-                runOnUiThread {
-                    groupFragment.hideSwipeRefreshBtn()
+                hideRefreshBtn()
+            }
+        }
+    }
+
+    fun updateAllAnchor() {
+        if (groupModeUseCookie)
+            updateAllAnchorByCookie()
+        else
+            sortedAnchorList.value?.forEach { anchor ->
+                updateAnchor(anchor)
+            }
+    }
+
+    fun deleteAnchor(anchor: Anchor) {
+        anchorRepository.deleteAnchor(anchor)
+    }
+
+    private fun updateAllAnchorByCookie() {
+        val platforms = PlatformDispatcher.getAllPlatformInstance()
+        platforms.forEach { platform ->
+            val list = mutableListOf<Anchor>()
+            sortedAnchorList.value?.forEach {
+                if (it.platform == platform.key)
+                    list.add(it)
+            }
+            if (list.size > 0) {
+                //平台支持该功能
+                if (platform.value.supportUpdateAnchorsByCookie()) {
+                    MainExecutor.execute {
+                        try {
+                            val result = platform.value.updateAnchorsDataByCookie(list)
+                            if (result.cookieOk) {
+                                notifyAnchorListChange()
+                            } else
+                                runOnUiThread {
+                                    alertCookieInvalid(platform.value)
+                                }
+                        } catch (e: Exception) {
+                            Log.d(
+                                "updateAllAnchorByCookie",
+                                "更新主播信息失败：cause:${e.javaClass.name}------"
+                            )
+                            e.printStackTrace()
+                        } finally {
+                            hideRefreshBtn()
+                        }
+                    }
+                }
+                //不支持该功能，使用常规方式
+                else {
+                    list.forEach {
+                        updateAnchor(it)
+                    }
                 }
             }
         }
     }
 
-    fun getAllAnchorsAttribute() {
-        sortedAnchorList.value?.forEach { anchor ->
-            getAnchorsAttribute(anchor)
+    private fun alertCookieInvalid(platform: IPlatform) {
+        val builder = AlertDialog.Builder(groupFragment.requireContext())
+        builder.setTitle(groupFragment.getString(platform.platformShowNameRes) + "的Cookie无效")
+        builder.setMessage("是否登录？")
+        builder.setPositiveButton("是") { _, _ ->
+            val intent = Intent(groupFragment.requireContext(), LoginActivity::class.java).also {
+                it.putExtra(
+                    "platform",
+                    platform.platform
+                )
+            }
+            groupFragment.startActivity(intent)
         }
+        builder.show()
     }
 
-    fun deleteAnchor(anchor: Anchor) {
-        anchorRepository.deleteAnchor(anchor)
+    private fun hideRefreshBtn() {
+        runOnUiThread {
+            groupFragment.hideSwipeRefreshBtn()
+        }
     }
 }

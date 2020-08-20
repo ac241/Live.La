@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.util
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorPlaceHolder
+import com.acel.streamlivetool.ui.main.adapter.AnchorPlaceHolder
 
 object AnchorListUtil {
     /**
@@ -58,6 +58,7 @@ object AnchorListUtil {
                 AnchorPlaceHolder.anchorNotLiving
             )
     }
+
     /**
      * 获取直播中的主播
      */

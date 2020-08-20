@@ -4,20 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
-import android.util.Log
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 import java.util.*
-import kotlin.math.log
 
 
 class DouyuImpl : IPlatform {
@@ -47,36 +45,61 @@ class DouyuImpl : IPlatform {
         }
     }
 
-    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
+    override fun updateAnchorData(queryAnchor: Anchor): Boolean {
         val roomInfo =
             douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
-        return if (roomInfo != null) AnchorAttribute(
-            queryAnchor,
-            roomInfo.room.show_status == 1,
-            roomInfo.room.room_name,
-            roomInfo.room.avatar.big,
-            roomInfo.room.room_pic,
-            secondaryStatus = if (roomInfo.room.videoLoop == 1) "轮播中" else null,
-            typeName = roomInfo.game.tag_name
-        ) else null
-
+        return if (roomInfo != null) {
+            queryAnchor.apply {
+                status = roomInfo.room.show_status == 1
+                title = roomInfo.room.room_name
+                avatar = roomInfo.room.avatar.big
+                keyFrame = roomInfo.room.room_pic
+                if (roomInfo.room.videoLoop == 1) secondaryStatus = "轮播中"
+                typeName = roomInfo.game.tag_name
+            }
+            true
+        } else false
     }
 
-    fun getAnchorAttribute1Backup(queryAnchor: Anchor): AnchorAttribute? {
-        val roomInfo: RoomInfo? =
-            douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
-        return if (roomInfo?.error == 0) {
-            val roomStatus = roomInfo.data.roomStatus
-            AnchorAttribute(
-                queryAnchor,
-                roomStatus == "1",
-                roomInfo.data.roomName,
-                roomInfo.data.avatar,
-                roomInfo.data.roomThumb,
-                typeName = roomInfo.data.cateName
-            )
-        } else
-            null
+    override fun supportUpdateAnchorsByCookie(): Boolean = true
+
+    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
+        getCookie().run {
+            if (this.isEmpty())
+                return super.updateAnchorsDataByCookie(queryList)
+            else {
+                val followed = douyuService.getFollowed(this).execute().body()
+                followed?.apply {
+                    if (followed.error != 0)
+                        return ResultUpdateAnchorByCookie(
+                            false,
+                            followed.msg
+                        )
+                    val failedList = mutableListOf<Anchor>().also {
+                        it.addAll(queryList)
+                    }
+                    queryList.forEach goOn@{ anchor ->
+                        followed.data.list.forEach { anchorX ->
+                            if (anchor.roomId == anchorX.room_id.toString()) {
+                                anchor.apply {
+                                    status = anchorX.show_status == 1
+                                    title = anchorX.room_name
+                                    avatar = anchorX.avatar_small
+                                    keyFrame = anchorX.room_src
+                                    secondaryStatus = if (anchorX.videoLoop == 1) "轮播中" else null
+                                    typeName = anchorX.game_name
+                                }
+                                failedList.remove(anchor)
+                                return@goOn
+                            }
+                        }
+                    }
+                    failedList.setHintWhenFollowListDidNotContainsTheAnchor()
+                    return ResultUpdateAnchorByCookie(true)
+                }
+                return super.updateAnchorsDataByCookie(queryList)
+            }
+        }
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
@@ -173,13 +196,17 @@ class DouyuImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        readCookie().run {
+        getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)
-                    return AnchorsCookieMode(false, null, followed?.msg.toString())
+                    return AnchorsCookieMode(
+                        false,
+                        null,
+                        followed?.msg.toString()
+                    )
                 else
                     return run {
                         val list = mutableListOf<Anchor>()
@@ -199,7 +226,10 @@ class DouyuImpl : IPlatform {
                                 )
                             )
                         }
-                        AnchorsCookieMode(true, list)
+                        AnchorsCookieMode(
+                            true,
+                            list
+                        )
                     }
             }
         }

@@ -5,9 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
@@ -57,19 +57,46 @@ class HuomaoImpl : IPlatform {
             null
     }
 
-    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
+    override fun updateAnchorData(queryAnchor: Anchor): Boolean {
         val roomInfo: RoomInfo? = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
-            AnchorAttribute(
-                queryAnchor,
-                roomInfo.isLive == 1,
-                UnicodeUtil.decodeUnicode(roomInfo.channel),
-                roomInfo.headimg.big,
-                roomInfo.image,
+            queryAnchor.apply {
+                status = roomInfo.isLive == 1
+                title = UnicodeUtil.decodeUnicode(roomInfo.channel)
+                avatar = roomInfo.headimg.big
+                keyFrame = roomInfo.image
                 typeName = roomInfo.gameCname
-            )
-        } else
-            null
+            }
+            true
+        } else false
+    }
+
+    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return super.updateAnchorsDataByCookie(queryList)
+            val subscribe = huomaoService.getUsersSubscribe(getCookie()).execute().body()
+            val list = subscribe?.data?.usersSubChannels ?: return super.updateAnchorsDataByCookie(queryList)
+            val failedList = mutableListOf<Anchor>().also { it.addAll(queryList) }
+            queryList.forEach goOn@{ anchor ->
+                list.forEach {
+                    if (it.id == anchor.roomId) {
+                        anchor.apply {
+                            status = it.is_live == 1
+                            title = it.channel
+                            avatar = it.headimg.big
+                            keyFrame = it.image
+                            typeName = it.gameCname
+                        }
+                        failedList.remove(anchor)
+                        return@goOn
+                    }
+                }
+            }
+            failedList.setHintWhenFollowListDidNotContainsTheAnchor()
+            return ResultUpdateAnchorByCookie(true)
+        }
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
@@ -131,9 +158,9 @@ class HuomaoImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        if (readCookie().isEmpty())
+        if (getCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
-        val subscribe = huomaoService.getUsersSubscribe(readCookie()).execute().body()
+        val subscribe = huomaoService.getUsersSubscribe(getCookie()).execute().body()
         subscribe?.let {
             val list = subscribe.data.usersSubChannels
             val anchorList = mutableListOf<Anchor>()
@@ -152,7 +179,10 @@ class HuomaoImpl : IPlatform {
                     )
                 )
             }
-            return AnchorsCookieMode(true, anchorList)
+            return AnchorsCookieMode(
+                true,
+                anchorList
+            )
         }
         return super.getAnchorsWithCookieMode()
     }

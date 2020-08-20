@@ -5,9 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
@@ -52,9 +52,7 @@ class EgameqqImpl : IPlatform {
                     )
                 }
             }
-
         }
-
         return null
     }
 
@@ -64,27 +62,53 @@ class EgameqqImpl : IPlatform {
         return egameqqService.getAnchor(Gson().toJson(param)).execute().body()
     }
 
-    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
-        val anchor = getEgameAnchor(queryAnchor)
-
-        anchor?.let { anchorX ->
+    override fun updateAnchorData(queryAnchor: Anchor): Boolean {
+        val anchorResult = getEgameAnchor(queryAnchor)
+        return if (anchorResult != null) {
             val html = getHtml(queryAnchor)
             val title = html?.let { it1 -> TextUtil.subString(it1, "title:\"", "\",") }
             val coverPic = html?.let { it1 -> TextUtil.subString(it1, "\"coverpic\":\"", "\",") }
+            queryAnchor.apply {
+                status = anchorResult.data.key.retBody.data.isLive == 1
+                this.title = title
+                avatar = anchorResult.data.key.retBody.data.faceUrl
+                keyFrame = coverPic
+                typeName = anchorResult.data.key.retBody.data.appname
+            }
+            true
+        } else false
+    }
 
-            return title?.let { titleX ->
-                AnchorAttribute(
-                    queryAnchor,
-                    anchorX.data.key.retBody.data
-                        .isLive == 1,
-                    titleX,
-                    anchor.data.key.retBody.data.faceUrl,
-                    coverPic,
-                    typeName = anchor.data.key.retBody.data.appname
-                )
+    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return super.updateAnchorsDataByCookie(queryList)
+            val list = egameqqService.getFollowList(getCookie()).execute().body()
+            list?.let { followList ->
+                if (followList.data.key.retCode != 0)
+                    return ResultUpdateAnchorByCookie(false, followList.data.key.retMsg)
+                val follows = list.data.key.retBody.data.online_follow_list
+                val failedList = mutableListOf<Anchor>().also {
+                    it.addAll(queryList)
+                }
+                queryList.forEach goOn@{ anchor ->
+                    follows.forEach {
+                        anchor.apply {
+                            status = it.status == 1
+                            title = it.live_info.title
+                            avatar = it.live_info.anchor_face_url
+                            keyFrame = it.live_info.video_info.url
+                            typeName = it.live_info.appname
+                        }
+                        failedList.remove(anchor)
+                    }
+                }
+                failedList.setHintWhenFollowListDidNotContainsTheAnchor()
+                return ResultUpdateAnchorByCookie(true)
             }
         }
-        return null
+        return super.updateAnchorsDataByCookie(queryList)
     }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
@@ -142,11 +166,15 @@ class EgameqqImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        if (readCookie().isEmpty())
+        if (getCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
-        val list = egameqqService.getFollowList(readCookie()).execute().body()
+        val list = egameqqService.getFollowList(getCookie()).execute().body()
         if (list?.data?.key?.retCode != 0)
-            return AnchorsCookieMode(false, null, list?.data?.key?.retMsg.toString())
+            return AnchorsCookieMode(
+                false,
+                null,
+                list?.data?.key?.retMsg.toString()
+            )
         else {
             val anchorList = mutableListOf<Anchor>()
             with(list.data.key.retBody.data.online_follow_list) {
@@ -166,7 +194,10 @@ class EgameqqImpl : IPlatform {
                     )
                 }
             }
-            return AnchorsCookieMode(true, anchorList)
+            return AnchorsCookieMode(
+                true,
+                anchorList
+            )
         }
     }
 

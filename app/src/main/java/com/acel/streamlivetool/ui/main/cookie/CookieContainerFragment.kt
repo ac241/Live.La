@@ -77,6 +77,7 @@ class CookieContainerFragment : Fragment() {
                     tabViewClick = Pair(position, System.currentTimeMillis())
                 }
                 tab.view.setOnLongClickListener {
+                    cookie_viewPager.setCurrentItem(position, true)
                     //清除cookie
                     val dialogBuilder = AlertDialog.Builder(requireContext())
                         .setTitle(

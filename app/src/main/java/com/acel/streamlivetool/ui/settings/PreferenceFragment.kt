@@ -21,7 +21,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
             resources.getString(R.string.pref_key_additional_action_btn),
             resources.getString(R.string.pref_key_cookie_mode_platform_showable),
             resources.getString(R.string.pref_key_show_anchor_image_when_mobile_data),
-            resources.getString(R.string.pref_key_show_anchor_image)
+            resources.getString(R.string.pref_key_show_anchor_image),
+            resources.getString(R.string.pref_key_group_mode_use_cookie)
         )
     }
     private val entriesMap =

@@ -20,7 +20,7 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
         if (resumeTimes != 0) {
             System.currentTimeMillis().apply {
                 if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
-                    groupFragment.viewModel.getAllAnchorsAttribute()
+                    groupFragment.viewModel.updateAllAnchor()
                     lastGetAnchorsTime = this
                 }
             }

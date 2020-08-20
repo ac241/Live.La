@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.main.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorPlaceHolder
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
@@ -142,11 +142,11 @@ class GraphicAnchorAdapter(
         } else {
             holder.platform.visibility = View.GONE
         }
-
         //直播类型
-        if (anchor.typeName != null)
+        if (anchor.typeName != null) {
             holder.typeName.text = anchor.typeName
-        else
+            holder.typeName.visibility = View.VISIBLE
+        } else
             holder.typeName.visibility = View.GONE
 
         //title

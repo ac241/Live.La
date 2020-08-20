@@ -5,9 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.AnchorAttribute
-import com.acel.streamlivetool.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
+import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 import java.net.URLEncoder
@@ -48,86 +49,67 @@ class HuyaImpl : IPlatform {
         return null
     }
 
-    private fun getAnchorBackup1(queryAnchor: Anchor): Anchor? {
-        val html: String? = getHtml(queryAnchor)
-        html?.let {
-            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
-            if (showId != null && showId.isNotEmpty()) {
-                val nickname =
-                    TextUtil.subString(it, "\"nick\":\"", "\",")
-                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
-                val uid = TextUtil.subString(it, "\"lp\":", ",")?.replace("\"", "")
-                return Anchor(platform, nickname.toString(), showId, uid.toString())
-            }
-        }
-        return null
-    }
-
-    override fun getAnchorAttribute(queryAnchor: Anchor): AnchorAttribute? {
+    override fun updateAnchorData(queryAnchor: Anchor): Boolean {
         val html: String? = getMHtml(queryAnchor)
-        html?.let { it ->
-            //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
-            val state = TextUtil.subString(it, "ISLIVE =", ";")?.trim() == "true"
-            val title = TextUtil.subStringAfterWhat(
-                it,
-                "class=\"live-info-desc\"",
-                "<h1>",
-                "</h1>"
-            ) ?: "获取标题失败"
-            val avatar = TextUtil.subStringAfterWhat(
-                it,
-                "class=\"live-info-img\"",
-                "<img src=\"",
-                "\""
-            )
-            val typeName = TextUtil.subString(it, "<span class=\"title\">", "</span>")
-            if (!state) {
-                return AnchorAttribute(
-                    queryAnchor,
-                    state,
-                    title,
-                    avatar,
-                    typeName = typeName
+        return if (html != null) {
+            queryAnchor.apply {
+                val tempStatus = TextUtil.subString(html, "ISLIVE =", ";")?.trim() == "true"
+                status = tempStatus
+                title = TextUtil.subStringAfterWhat(
+                    html,
+                    "class=\"live-info-desc\"",
+                    "<h1>",
+                    "</h1>"
+                ) ?: "获取标题失败"
+                avatar = TextUtil.subStringAfterWhat(
+                    html,
+                    "class=\"live-info-img\"",
+                    "<img src=\"",
+                    "\""
                 )
-            } else {
-                getHtml(queryAnchor)?.let { screenShotHtml ->
-                    val screenshot =
-                        TextUtil.subString(screenShotHtml, "\"screenshot\":\"", "\",")
+                typeName = TextUtil.subString(html, "<span class=\"title\">", "</span>")
+
+                if (!tempStatus)
+                    getHtml(queryAnchor)?.let { screenShotHtml ->
+                        keyFrame = TextUtil.subString(screenShotHtml, "\"screenshot\":\"", "\",")
                             ?.replace("\\", "")
-                    return AnchorAttribute(
-                        queryAnchor,
-                        state,
-                        title,
-                        avatar,
-                        screenshot,
-                        typeName = typeName
-                    )
-                }
+                    }
             }
-        }
-        return null
+            true
+        } else false
     }
 
-    fun getAnchorAttributeBackup1(queryAnchor: Anchor): AnchorAttribute? {
-        val html: String? = getHtml(queryAnchor)
-        html?.let {
-            //            val showId = TextUtil.subString(it, "\"profileRoom\":\"", "\",")
-            val state = TextUtil.subString(it, "\"state\":\"", "\",")
-            val title = TextUtil.subString(it, "\"introduction\":\"", "\",")
-            val avatar = TextUtil.subStringAfterWhat(it, "TT_META_DATA", "\"avatar\":\"", "\",")
-                ?.replace("\\", "")
-            val screenshot = TextUtil.subString(it, "\"screenshot\":\"", "\",")?.replace("\\", "")
-            if (state != null && title != null && state.isNotEmpty())
-                return AnchorAttribute(
-                    queryAnchor,
-                    state == "ON",
-                    UnicodeUtil.decodeUnicode(title),
-                    avatar,
-                    if (screenshot != null && screenshot.isNotEmpty()) screenshot else null
-                )
+    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return super.updateAnchorsDataByCookie(queryList)
+            val subscribe = getSubscribe(cookie)
+            subscribe?.let { sub ->
+                if (sub.status != 1000L)
+                    return ResultUpdateAnchorByCookie(false, sub.message)
+                val failedList = mutableListOf<Anchor>().also { it.addAll(queryList) }
+                subscribe.result.list.forEach { subAnchor ->
+                    queryList.forEach goOn@{ anchor ->
+                        if (subAnchor.uid.toString() == anchor.roomId) {
+                            anchor.apply {
+                                status = subAnchor.isLive
+                                title = subAnchor.intro
+                                avatar = subAnchor.avatar180
+                                keyFrame = subAnchor.screenshot
+                                typeName = subAnchor.gameName
+                            }
+                            failedList.remove(anchor)
+                        }
+                    }
+                }
+                failedList.setHintWhenFollowListDidNotContainsTheAnchor()
+                return ResultUpdateAnchorByCookie(true)
+            }
         }
-        return null
+        return super.updateAnchorsDataByCookie(queryList)
     }
+
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val html = getMHtml(queryAnchor)
@@ -168,21 +150,17 @@ class HuyaImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        readCookie().run {
+        getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
-                val cs = this.split(";")
-                var uid = ""
-                cs.forEach {
-                    if (it.contains("yyuid")) {
-                        val yyuid = it.split("=")
-                        uid = yyuid[1]
-                    }
-                }
-                val subscribe = huyaService.getSubscribe(this, uid).execute().body()
+                val subscribe = getSubscribe(this)
                 if (subscribe?.status != 1000L)
-                    return AnchorsCookieMode(false, null, subscribe?.message.toString())
+                    return AnchorsCookieMode(
+                        false,
+                        null,
+                        subscribe?.message.toString()
+                    )
                 else
                     return run {
                         val list = mutableListOf<Anchor>()
@@ -201,10 +179,25 @@ class HuyaImpl : IPlatform {
                                 )
                             )
                         }
-                        AnchorsCookieMode(true, list)
+                        AnchorsCookieMode(
+                            true,
+                            list
+                        )
                     }
             }
         }
+    }
+
+    private fun getSubscribe(cookie: String): Subscribe? {
+        val cs = cookie.split(";")
+        var uid = ""
+        cs.forEach {
+            if (it.contains("yyuid")) {
+                val yyuid = it.split("=")
+                uid = yyuid[1]
+            }
+        }
+        return huyaService.getSubscribe(cookie, uid).execute().body()
     }
 
     override fun checkLoginOk(cookie: String): Boolean {

@@ -66,7 +66,7 @@ class GroupFragment : Fragment() {
         binding?.groupSwipeRefresh?.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
-                    viewModel.getAllAnchorsAttribute()
+                    viewModel.updateAllAnchor()
                 else
                     hideSwipeRefreshBtn()
             }
