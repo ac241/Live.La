@@ -27,6 +27,7 @@ import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.*
 import kotlin.properties.Delegates
 
@@ -38,13 +39,13 @@ class MainActivity : AppCompatActivity() {
     private val useCookieMode by lazy {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
-        val showSet = defaultSharedPreferences.getStringSet(
+        val showablePlatformSet = defaultSharedPreferences.getStringSet(
             MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
             setOf()
         )
-        if (showSet != null)
+        if (showablePlatformSet != null)
             sortPlatformArray.forEach {
-                if (!showSet.contains(it))
+                if (!showablePlatformSet.contains(it))
                     return@forEach
                 val platform = PlatformDispatcher.getPlatformImpl(it)
                 if (platform != null) {
@@ -55,6 +56,24 @@ class MainActivity : AppCompatActivity() {
         platforms.size > 0
     }
     private lateinit var binding: ActivityMainBinding
+
+    /**
+     * toolbar双击切换viewPager页面
+     */
+    private var toolbarClickTime by Delegates.observable(0L) { _, old, new ->
+        if (new - old < 500) {
+            val size = viewPager.adapter?.itemCount
+            size?.let {
+                if (it > 0) {
+                    var index = viewPager.currentItem
+                    index++
+                    if (index > size - 1)
+                        index = 0
+                    viewPager.setCurrentItem(index, true)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +90,10 @@ class MainActivity : AppCompatActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
         setSupportActionBar(binding.toolbar)
+
+        binding.toolbar.setOnClickListener {
+            toolbarClickTime = System.currentTimeMillis()
+        }
 
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
@@ -92,12 +115,6 @@ class MainActivity : AppCompatActivity() {
                 TabLayoutMediator.TabConfigurationStrategy { _, _ ->
                 }
             ).attach()
-    }
-
-    companion object {
-        enum class ListItemType {
-            Text, Graphic;
-        }
     }
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
