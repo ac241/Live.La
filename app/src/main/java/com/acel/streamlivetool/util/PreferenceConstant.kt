@@ -8,7 +8,7 @@ object PreferenceConstant {
         get() =
             defaultSharedPreferences.getBoolean(
                 MyApplication.application.resources.getString(R.string.pref_key_show_anchor_image),
-                false
+                true
             )
 
     val showAnchorImageWhenMobileData
@@ -33,5 +33,5 @@ object PreferenceConstant {
                 false
             )
 
-    
+
 }

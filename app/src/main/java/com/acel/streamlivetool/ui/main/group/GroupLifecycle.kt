@@ -33,13 +33,13 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
 
         //数据流量切换adapter
         if (showAnchorImage)
-            if (showAnchorImageWhenMobileData) {
-                if (AppUtil.isWifiConnected()) {
-                    if (!groupFragment.isShowImage()) {
-                        groupFragment.setShowImage(true)
-                        ToastUtil.toast("Wifi切换到有图模式")
-                    }
-                } else {
+            if (AppUtil.isWifiConnected()) {
+                if (!groupFragment.isShowImage()) {
+                    groupFragment.setShowImage(true)
+                    ToastUtil.toast("Wifi切换到有图模式")
+                }
+            } else {
+                if (!showAnchorImageWhenMobileData) {
                     if (groupFragment.isShowImage()) {
                         groupFragment.setShowImage(false)
                         ToastUtil.toast("移动流量切换到无图模式")

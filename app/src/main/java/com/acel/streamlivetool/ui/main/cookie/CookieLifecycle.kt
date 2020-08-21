@@ -34,13 +34,15 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
 
         //数据流量切换adapter
         if (PreferenceConstant.showAnchorImage)
-            if (PreferenceConstant.showAnchorImageWhenMobileData) {
-                if (AppUtil.isWifiConnected()) {
-                    if (!cookieFragment.isShowImage())
-                        cookieFragment.setShowImage(true)
-                } else {
-                    if (cookieFragment.isShowImage())
+            if (AppUtil.isWifiConnected()) {
+                if (!cookieFragment.isShowImage()) {
+                    cookieFragment.setShowImage(true)
+                }
+            } else {
+                if (!PreferenceConstant.showAnchorImageWhenMobileData) {
+                    if (cookieFragment.isShowImage()) {
                         cookieFragment.setShowImage(false)
+                    }
                 }
             }
     }
