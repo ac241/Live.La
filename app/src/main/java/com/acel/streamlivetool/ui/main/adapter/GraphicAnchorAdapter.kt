@@ -26,6 +26,7 @@ import com.acel.streamlivetool.util.PreferenceConstant.fullVersion
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
+import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 
 

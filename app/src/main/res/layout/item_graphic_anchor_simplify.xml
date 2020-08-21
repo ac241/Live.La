@@ -43,9 +43,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            app:layout_constraintStart_toEndOf="@id/grid_anchor_secondary_status"
-            app:layout_constraintTop_toTopOf="@id/grid_anchor_name"
-            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_name" />
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_name"
+            app:layout_constraintStart_toEndOf="@id/grid_anchor_name"
+            app:layout_constraintTop_toTopOf="@id/grid_anchor_name" />
+
+        <include
+            layout="@layout/text_view_graphic_secondary_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_name"
+            app:layout_constraintStart_toEndOf="@id/grid_anchor_type_name"
+            app:layout_constraintTop_toTopOf="@id/grid_anchor_name" />
 
         <TextView
             android:id="@+id/grid_anchor_title"
@@ -97,17 +106,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="SmallSp" />
 
-        <TextView
-            android:id="@+id/grid_anchor_secondary_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#88000000"
-            android:textColor="@android:color/white"
-            android:textSize="8sp"
-            app:layout_constraintStart_toEndOf="@+id/grid_anchor_name"
-            app:layout_constraintTop_toTopOf="@+id/grid_anchor_name"
-            tools:ignore="SmallSp" />
-
         <ImageView
             android:id="@+id/grid_anchor_addition_action"
             android:layout_width="35dp"
@@ -121,7 +119,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/grid_anchor_second_btn"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute" />
 
         <ImageView
             android:id="@+id/grid_anchor_second_btn"
@@ -136,7 +135,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UnusedAttribute" />
 
         <TextView
             android:id="@+id/grid_anchor_roomId"
