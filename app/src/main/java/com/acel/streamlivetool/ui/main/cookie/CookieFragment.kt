@@ -48,7 +48,7 @@ class CookieFragment : Fragment() {
         GraphicAnchorAdapter(
             requireContext(),
             viewModel.anchorList,
-            MODE_COOKIE, true
+            MODE_COOKIE, false
         )
     }
 
