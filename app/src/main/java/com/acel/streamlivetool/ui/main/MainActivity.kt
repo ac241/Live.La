@@ -194,4 +194,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = title
     }
 
+    fun gotoMainPage() {
+        viewPager.setCurrentItem(0, true)
+    }
 }

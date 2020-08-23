@@ -13,6 +13,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
@@ -108,6 +109,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
     fun addAnchorSuccess(anchor: Anchor) {
         runOnUiThread {
             toast("添加成功${anchor.nickname}")
+            (requireActivity() as MainActivity).gotoMainPage()
         }
     }
 
