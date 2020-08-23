@@ -18,6 +18,7 @@ package com.acel.streamlivetool.ui.custom_view
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -78,6 +79,11 @@ class NestedScrollableHost : FrameLayout {
     }
 
     private fun handleInterceptTouchEvent(e: MotionEvent) {
+        //双指拦截
+        if (e.pointerCount == 2) {
+            parent.requestDisallowInterceptTouchEvent(false)
+            return
+        }
         val orientation = parentViewPager?.orientation ?: return
 
         // Early return if child can't scroll in same direction as parent
