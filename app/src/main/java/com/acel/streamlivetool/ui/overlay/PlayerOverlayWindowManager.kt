@@ -12,7 +12,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.ToastUtil
+import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -350,31 +350,38 @@ class PlayerOverlayWindowManager {
     private fun playAnchorSteaming(anchor: Anchor) {
         player?.stop(true)
         MainExecutor.execute {
-            val url =
-                PlatformDispatcher.getPlatformImpl(anchor.platform)
-                    ?.getStreamingLiveUrl(anchor)
-            Log.d("playAnchorSteaming", "$url")
-            if (url == null || url.isEmpty()) {
-                runOnUiThread {
-                    ToastUtil.toast("bad stream url")
+            try {
+                val url =
+                    PlatformDispatcher.getPlatformImpl(anchor.platform)
+                        ?.getStreamingLiveUrl(anchor)
+                Log.d("playAnchorSteaming", "$url")
+                if (url == null || url.isEmpty()) {
+                    runOnUiThread {
+                        toast("bad stream url")
+                    }
+                    return@execute
                 }
-                return@execute
-            }
-            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                MyApplication.application,
-                Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
-            )
-            val uri = Uri.parse(url)
-            val videoSource: MediaSource
+                val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
+                    MyApplication.application,
+                    Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
+                )
+                val uri = Uri.parse(url)
+                val videoSource: MediaSource
 
-            videoSource = if (url.contains(".m3u8"))
-                HlsMediaSource.Factory(dataSourceFactory).setAllowChunklessPreparation(true)
-                    .createMediaSource(uri)
-            else
-                ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(uri)
-            runOnUiThread {
-                player?.prepare(videoSource)
+                videoSource = if (url.contains(".m3u8"))
+                    HlsMediaSource.Factory(dataSourceFactory).setAllowChunklessPreparation(true)
+                        .createMediaSource(uri)
+                else
+                    ProgressiveMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(uri)
+                runOnUiThread {
+                    player?.prepare(videoSource)
+                }
+            }catch (e:Exception){
+                runOnUiThread {
+                    toast("获取直播流失败：${e.javaClass.name}")
+                }
+                e.printStackTrace()
             }
         }
     }
