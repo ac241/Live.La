@@ -162,62 +162,41 @@ class BilibiliImpl : IPlatform {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
+                var cookieOk = true
                 val list = mutableListOf<Anchor>()
-                val roomsResult = getLivingRooms(this)
-                roomsResult?.apply {
-                    if (roomsResult.first.first) {
-                        roomsResult.second.forEach {
-                            list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.uname,
-                                    showId = it.roomid.toString(),
-                                    roomId = it.roomid.toString(),
-                                    status = it.live_status == 1,
-                                    title = it.title,
-                                    avatar = it.face,
-                                    keyFrame = it.keyframe,
-                                    typeName = it.area_v2_name
-                                )
+                var page = 1
+                while (true) {
+                    if (page >= 10)
+                        break
+                    val livingList = bilibiliService.getLivingList(this, page).execute().body()
+                    if (livingList?.code == 401) {
+                        cookieOk = false
+                        break
+                    }
+                    livingList?.data?.rooms?.forEach {
+                        list.add(
+                            Anchor(
+                                platform = platform,
+                                nickname = it.uname,
+                                showId = it.roomid.toString(),
+                                roomId = it.roomid.toString(),
+                                status = it.live_status == 1,
+                                title = it.title,
+                                avatar = it.face,
+                                keyFrame = it.keyframe,
+                                typeName = it.area_v2_name
                             )
-                        }
-                        return AnchorsCookieMode(
-                            this.first.first,
-                            if (list.isNotEmpty()) list else null,
-                            this.first.second
                         )
                     }
+                    val count = livingList?.data?.count
+                    if (count != null)
+                        if (list.size >= count)
+                            break
+                    page++
                 }
+                return AnchorsCookieMode(cookieOk, list)
             }
         }
-        return super.getAnchorsWithCookieMode()
-    }
-
-    /**
-     * @return Pair<Pair<cookie是否可用,message>,room list>>
-     */
-    private fun getLivingRooms(cookie: String): Pair<Pair<Boolean, String>, List<LivingList.Room>>? {
-        var cookieOk = true
-        var page = 1
-        val rooms = mutableListOf<LivingList.Room>()
-        var message = ""
-        while (true) {
-            if (page >= 10)
-                break
-            val livingList = bilibiliService.getLivingList(cookie, page).execute().body()
-            if (livingList?.code == 401) {
-                cookieOk = false
-                message = livingList.message
-                break
-            }
-            livingList?.data?.rooms?.let { rooms.addAll(it) }
-            val count = livingList?.data?.count
-            if (count != null)
-                if (rooms.size >= count)
-                    break
-            page++
-        }
-        return Pair(Pair(cookieOk, message), rooms)
     }
 
     override fun checkLoginOk(cookie: String): Boolean {
