@@ -13,6 +13,7 @@ import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -51,6 +52,7 @@ class PlayerOverlayWindowManager {
         containerView?.findViewById(R.id.btn_player_overlay_video_view)
     private val processBar: ProgressBar? =
         containerView?.findViewById(R.id.player_overlay_process_bar)
+    private val textErrorMsg = containerView?.textView_player_error_msg
     private val player: SimpleExoPlayer? =
         SimpleExoPlayer.Builder(MyApplication.application).build()
     private val controllerView = containerView?.controllerView
@@ -162,10 +164,22 @@ class PlayerOverlayWindowManager {
         player?.apply {
             addListener(object : com.google.android.exoplayer2.Player.EventListener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    if (isPlaying)
+                    if (isPlaying) {
                         processBar?.visibility = View.GONE
-                    else
+                        textErrorMsg?.visibility = View.GONE
+                    } else
                         processBar?.visibility = View.VISIBLE
+                }
+
+                override fun onLoadingChanged(isLoading: Boolean) {
+                    if (isLoading) {
+                        processBar?.visibility = View.VISIBLE
+                        textErrorMsg?.visibility = View.GONE
+                    }
+                }
+
+                override fun onPlayerError(error: ExoPlaybackException) {
+                    showPlayFailedMsg()
                 }
             })
             addVideoListener(object : VideoListener {
@@ -242,6 +256,17 @@ class PlayerOverlayWindowManager {
             hideControllerDelay()
             playNext()
         }
+        controllerView?.btn_player_overlay_replay?.setOnClickListener {
+            nowAnchor.value?.let {
+                play(it)
+            }
+        }
+    }
+
+    private fun showPlayFailedMsg(msg: String = MyApplication.application.getString(R.string.play_failed)) {
+        processBar?.visibility = View.GONE
+        textErrorMsg?.visibility = View.VISIBLE
+        textErrorMsg?.text = msg
     }
 
     private fun hideControllerDelay() {
@@ -357,7 +382,8 @@ class PlayerOverlayWindowManager {
                 Log.d("playAnchorSteaming", "$url")
                 if (url == null || url.isEmpty()) {
                     runOnUiThread {
-                        toast("bad stream url")
+                        showPlayFailedMsg("直播流为空")
+                        toast("直播流为空")
                     }
                     return@execute
                 }
@@ -377,8 +403,9 @@ class PlayerOverlayWindowManager {
                 runOnUiThread {
                     player?.prepare(videoSource)
                 }
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 runOnUiThread {
+                    showPlayFailedMsg("获取直播流失败")
                     toast("获取直播流失败：${e.javaClass.name}")
                 }
                 e.printStackTrace()

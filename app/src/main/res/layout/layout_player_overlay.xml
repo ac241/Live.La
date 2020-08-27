@@ -58,6 +58,13 @@
             android:contentDescription="@string/start_app"
             android:src="@drawable/ic_baseline_call_missed_outgoing_24" />
 
+        <ImageView
+            android:id="@+id/btn_player_overlay_replay"
+            style="@style/player_overlay_button"
+            android:layout_gravity="start|bottom"
+            android:contentDescription="@string/button_replay"
+            android:src="@drawable/ic_baseline_replay_24" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,7 +75,7 @@
                 style="@style/player_overlay_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:contentDescription="@string/button_player_overlay_resize"
+                android:contentDescription="@string/button_play_previous"
                 android:src="@drawable/ic_controller_previous_enable" />
 
             <ImageView
@@ -77,7 +84,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="50dp"
-                android:contentDescription="@string/button_player_overlay_resize"
+                android:contentDescription="@string/button_play_next"
                 android:src="@drawable/ic_controller_next_enable" />
         </LinearLayout>
     </FrameLayout>
@@ -87,5 +94,15 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/textView_player_error_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.6"
+        android:background="@android:color/black"
+        android:padding="5dp"
+        android:textColor="@android:color/white" />
 
 </FrameLayout>
