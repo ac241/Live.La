@@ -87,4 +87,5 @@
     <string name="button_play_next">播放下一个</string>
     <string name="button_replay">重新加载</string>
     <string name="play_failed">播放失败。</string>
+    <string name="video_looping">录播</string>
 </resources>

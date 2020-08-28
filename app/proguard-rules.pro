@@ -52,6 +52,12 @@
 -keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
   *** rewind();
 }
+
+#tencent mta
+-keep class com.tencent.stat.*{*;}
+-keep class com.tencent.mid.*{*;}
+
 #baidu mtj
 -keep class com.baidu.helios.** { *; }
 -keep class com.baidu.mobstat.** { *; }
+

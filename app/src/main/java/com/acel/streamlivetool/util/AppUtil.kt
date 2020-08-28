@@ -6,11 +6,16 @@ import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import androidx.preference.PreferenceManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import java.io.BufferedReader
+import java.io.FileReader
+import java.io.IOException
+
 
 val defaultSharedPreferences: SharedPreferences by lazy {
     PreferenceManager.getDefaultSharedPreferences(MyApplication.application)
@@ -62,4 +67,32 @@ object AppUtil {
         val activeNetInfo = connectivityManager.activeNetworkInfo
         return activeNetInfo != null && activeNetInfo.type == ConnectivityManager.TYPE_WIFI
     }
+
+    /**
+     * 获取进程号对应的进程名
+     *
+     * @param pid 进程号
+     * @return 进程名
+     */
+    internal fun getProcessName(pid: Int): String? {
+        var reader: BufferedReader? = null
+        try {
+            reader = BufferedReader(FileReader("/proc/$pid/cmdline"))
+            var processName: String = reader.readLine()
+            if (!TextUtils.isEmpty(processName)) {
+                processName = processName.trim { it <= ' ' }
+            }
+            return processName
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+        } finally {
+            try {
+                reader?.close()
+            } catch (exception: IOException) {
+                exception.printStackTrace()
+            }
+        }
+        return null
+    }
+
 }

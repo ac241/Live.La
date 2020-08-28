@@ -1,6 +1,8 @@
 package com.acel.streamlivetool.base
 
 import android.app.Application
+import android.content.Context
+import androidx.multidex.MultiDex
 import com.acel.streamlivetool.util.AppInitiation
 
 class MyApplication : Application() {
@@ -11,7 +13,11 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         application = this
-        AppInitiation.getInstance(this).init()
+        AppInitiation.getInstance().init()
     }
 
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(base)
+    }
 }

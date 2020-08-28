@@ -1,51 +1,68 @@
 package com.acel.streamlivetool.util
 
-import android.content.Context
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.baidu.mobstat.StatService
-import com.tencent.bugly.crashreport.CrashReport
+import com.tencent.stat.StatConfig
+import com.tencent.stat.StatService.registerActivityLifecycleCallbacks
 
+
+/**
+ * 初始化工具
+ */
 class AppInitiation {
     companion object {
-        lateinit var appContext: Context
-        fun getInstance(context: Context): AppInitiation {
-            appContext = context
+        fun getInstance(): AppInitiation {
             return AppInitiation()
         }
     }
 
-    private val fullVersion: Boolean = false
+    private val isDebug: Boolean = false
     private val buglyAppId = "ee4f2df64b"
+
 
     fun init() {
         initPreference()
         firstTimeLaunch()
-        initBugly()
-        initMtj()
-        if (fullVersion)
+//        initBugly()
+        initTencentMta()
+        initBaiduMtj()
+        if (isDebug)
             toast("当前处于测试模式！")
+    }
+
+    private fun initTencentMta() {
+        StatConfig.setDebugEnable(isDebug);
+        // 基础统计API
+        registerActivityLifecycleCallbacks(MyApplication.application);
     }
 
     /**
      * 百度统计
      */
-    private fun initMtj() {
-        StatService.setAuthorizedState(appContext, false)
-        StatService.start(appContext)
+    private fun initBaiduMtj() {
+        StatService.setAuthorizedState(MyApplication.application, false)
+        StatService.start(MyApplication.application)
     }
 
-    private fun initBugly() {
-        val strategy = CrashReport.UserStrategy(appContext)
-        CrashReport.initCrashReport(appContext, buglyAppId, false, strategy)
-    }
+//    private fun initBugly() {
+//        // 获取当前包名
+//        val packageName = MyApplication.application.packageName
+//        // 获取当前进程名
+//        val processName = AppUtil.getProcessName(Process.myPid())
+//        // 设置是否为上报进程
+//        val strategy = UserStrategy(MyApplication.application)
+//        strategy.isUploadProcess = processName == null || processName == packageName
+//        Bugly.init(MyApplication.application, buglyAppId, isDebug, strategy)
+//    }
 
     private fun firstTimeLaunch() {
-        val firstTimeKey = appContext.getString(R.string.string_first_time_launch)
+        val firstTimeKey = MyApplication.application.getString(R.string.string_first_time_launch)
         val isFirst = defaultSharedPreferences.getBoolean(firstTimeKey, true)
         if (isFirst) {
             initDefaultAnchor()
@@ -57,13 +74,16 @@ class AppInitiation {
     private fun initFullVersion() {
         //是否使用完整版
         defaultSharedPreferences.edit()
-            .putBoolean(appContext.resources.getString(R.string.full_version), fullVersion).apply()
+            .putBoolean(
+                MyApplication.application.resources.getString(R.string.full_version),
+                isDebug
+            ).apply()
     }
 
     private fun initPreference() {
-        PreferenceManager.setDefaultValues(appContext, R.xml.pre_settings, false)
+        PreferenceManager.setDefaultValues(MyApplication.application, R.xml.pre_settings, false)
         defaultSharedPreferences.edit().putBoolean(
-            appContext.getString(R.string.string_preference_initialed),
+            MyApplication.application.getString(R.string.string_preference_initialed),
             true
         ).apply()
     }
@@ -84,4 +104,5 @@ class AppInitiation {
             anchorRepository.insertAnchor(it)
         }
     }
+
 }
