@@ -5,7 +5,6 @@
     <string name="pref_key_about_open_source">pref_key_about_open_source</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
     <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
-    <string name="pref_key_cookie_mode_list_type">pref_key_cookie_mode_list_type</string>
     <string name="pref_key_show_anchor_image_when_mobile_data">pref_key_show_image_when_mobile_data</string>
     <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
     <string name="pref_key_show_anchor_image">pref_key_show_anchor_image</string>
@@ -31,7 +30,6 @@
     <string name="app_name">直播啦</string>
     <string name="title_activity_setting">设置</string>
     <string name="main_page_add_anchor">主页新增直播间</string>
-    <string name="anchor_id">直播间号</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
     <string name="setting">设置</string>
@@ -45,8 +43,6 @@
     <string name="add_to_group_mode">添加到主页</string>
     <string name="live_image">直播图片</string>
     <string name="avatar">头像</string>
-    <string name="group_mode_list_type">主页展示方式</string>
-    <string name="cookie_mode_list_type">平台展示方式</string>
     <string name="full_version">full_version</string>
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>

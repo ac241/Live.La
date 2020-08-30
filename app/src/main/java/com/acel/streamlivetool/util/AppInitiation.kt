@@ -37,9 +37,9 @@ class AppInitiation {
     }
 
     private fun initTencentMta() {
-        StatConfig.setDebugEnable(isDebug);
+        StatConfig.setDebugEnable(isDebug)
         // 基础统计API
-        registerActivityLifecycleCallbacks(MyApplication.application);
+        registerActivityLifecycleCallbacks(MyApplication.application)
     }
 
     /**
