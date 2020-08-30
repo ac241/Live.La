@@ -5,10 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
-import com.acel.streamlivetool.platform.bilibili.bean.LivingList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -67,7 +66,9 @@ class BilibiliImpl : IPlatform {
                 return super.updateAnchorsDataByCookie(queryList)
             var cookieOk = true
             var message = ""
-            val failedList = Collections.synchronizedList(mutableListOf<Anchor>())
+            val failedList = Collections.synchronizedList(mutableListOf<Anchor>()).also {
+                it.addAll(queryList)
+            }
             runBlocking {
                 async(Dispatchers.IO) {
                     val result = bilibiliService.liveAnchor(cookie).execute().body()
