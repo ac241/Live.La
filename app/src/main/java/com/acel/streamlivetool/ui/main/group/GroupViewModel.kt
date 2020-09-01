@@ -128,9 +128,9 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                     var completeSize = 0
                     process.map.forEach { map ->
                         if (map.value == ProcessStatus.WAIT || map.value == ProcessStatus.SUCCESS)
-                            processStringBuilder.append("${map.key.platformName}：${map.value.getValue()}；")
+                            processStringBuilder.append("[ ${map.key.platformName}：${map.value.getValue()} ] ")
                         else
-                            processStringBuilder.append("${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span>；")
+                            processStringBuilder.append("[ ${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span> ] ")
 
                         if (map.value != ProcessStatus.WAIT) completeSize++
                     }
@@ -223,6 +223,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun showUpdateProcess(text: String) {
         updateProcessAnimate?.cancel()
         runOnUiThread {
