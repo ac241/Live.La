@@ -1,21 +1,24 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.animation.Animator
 import android.app.AlertDialog
 import android.content.Intent
 import android.util.Log
-import androidx.lifecycle.MediatorLiveData
+import android.view.View
+import android.view.ViewPropertyAnimator
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
+import com.acel.streamlivetool.ui.main.public_class.ProcessStatus
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
+import kotlinx.android.synthetic.main.text_view_process_update_anchors.*
 import java.util.*
 
 class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
@@ -33,6 +36,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
     private val anchorRepository =
         AnchorRepository.getInstance()
 
+
     //排序后的anchorList
     val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {
         it.value = Collections.synchronizedList(mutableListOf())
@@ -46,6 +50,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             groupFragment.refreshAnchorAttribute()
         })
     }
+    private var updateProcessAnimate: ViewPropertyAnimator? = null
 
     @Synchronized
     private fun notifyAnchorListChange() {
@@ -84,9 +89,56 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
         anchorRepository.deleteAnchor(anchor)
     }
 
+    private fun MutableLiveData<Process>.update(platform: IPlatform, status: ProcessStatus) {
+        value?.apply {
+            map[platform] = status
+            postValue(value)
+        }
+    }
+
+    private fun MutableLiveData<Process>.insert(
+        platform: IPlatform
+    ) {
+        value?.apply {
+            map[platform] = ProcessStatus.WAIT
+            postValue(value)
+        }
+    }
+
+    private fun MutableLiveData<Process>.allAdded() {
+        value?.apply {
+            this.isAllAdded = true
+        }
+    }
+
     private fun updateAllAnchorByCookie() {
         val platforms = PlatformDispatcher.getAllPlatformInstance()
+        //进度 liveData
+        val processLiveData =
+            MutableLiveData<Process>().also { liveData ->
+                liveData.value = Process(mutableMapOf(), false)
+                liveData.observe(groupFragment) { process ->
+                    val processStringBuilder = StringBuilder().also {
+                        it.append("更新数据... ")
+                    }
+                    var completeSize = 0
+                    process.map.forEach { map ->
+                        processStringBuilder.append("${map.key.platformName}：${map.value.getValue()}；")
+                        if (map.value != ProcessStatus.WAIT) completeSize++
+                    }
+                    showUpdateProcess(processStringBuilder.toString())
+                    if (completeSize == process.map.size && process.isAllAdded) {
+                        completeUpdateProcess()
+                        liveData.removeObservers(groupFragment)
+                    }
+                }
+            }
+
+        var added = 0
         platforms.forEach { platform ->
+            if (++added == platforms.size)
+                processLiveData.allAdded()
+            //同平台的anchor
             val list = mutableListOf<Anchor>()
             sortedAnchorList.value?.forEach {
                 if (it.platform == platform.key)
@@ -94,21 +146,31 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             }
             if (list.size > 0) {
                 //平台支持该功能
+                processLiveData.insert(platform.value)
                 if (platform.value.supportUpdateAnchorsByCookie()) {
                     MainExecutor.execute {
                         try {
                             val result = platform.value.updateAnchorsDataByCookie(list)
                             if (result.cookieOk) {
                                 notifyAnchorListChange()
-                            } else
+                                processLiveData.update(platform.value, ProcessStatus.SUCCESS)
+                            } else {
                                 runOnUiThread {
                                     alertCookieInvalid(platform.value)
                                 }
+                                processLiveData.update(platform.value, ProcessStatus.COOKIE_INVALID)
+                            }
                         } catch (e: Exception) {
                             Log.d(
                                 "updateAllAnchorByCookie",
                                 "更新主播信息失败：cause:${e.javaClass.name}------"
                             )
+                            val processStatus = when (e) {
+                                is java.net.SocketTimeoutException -> ProcessStatus.NET_TIME_OUT
+                                is java.net.UnknownHostException -> ProcessStatus.NET_TIME_OUT
+                                else -> ProcessStatus.NET_TIME_OUT
+                            }
+                            processLiveData.update(platform.value, processStatus)
                             e.printStackTrace()
                         } finally {
                             hideRefreshBtn()
@@ -117,6 +179,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 }
                 //不支持该功能，使用常规方式
                 else {
+                    processLiveData.update(platform.value, ProcessStatus.CAN_NOT_TRACK)
                     list.forEach {
                         updateAnchor(it)
                     }
@@ -124,6 +187,11 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             }
         }
     }
+
+    private data class Process(
+        var map: MutableMap<IPlatform, ProcessStatus>,
+        var isAllAdded: Boolean
+    )
 
     private fun alertCookieInvalid(platform: IPlatform) {
         val builder = AlertDialog.Builder(groupFragment.requireContext())
@@ -146,4 +214,33 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             groupFragment.hideSwipeRefreshBtn()
         }
     }
+
+    private fun showUpdateProcess(text: String) {
+        updateProcessAnimate?.cancel()
+        runOnUiThread {
+            groupFragment.textView_process_update_anchors.apply {
+                this.text = text
+                visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun completeUpdateProcess() {
+        groupFragment.textView_process_update_anchors.apply {
+            updateProcessAnimate = animate().alpha(0f).setDuration(2000)
+                .setListener(object : Animator.AnimatorListener {
+                    override fun onAnimationEnd(p0: Animator?) {
+                        visibility = View.GONE
+                        alpha = 0.5f
+                    }
+
+                    override fun onAnimationCancel(p0: Animator?) {
+                        alpha = 0.5f
+                    }
+                    override fun onAnimationRepeat(p0: Animator?) {}
+                    override fun onAnimationStart(p0: Animator?) {}
+                }).setStartDelay(3000)
+        }
+    }
+
 }

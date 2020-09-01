@@ -1,32 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView_login_first"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/login_first"
-        android:textColor="@color/colorPrimary"
-        android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textView_list_msg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/textView_login_first"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/login_first"
+            android:textColor="@color/colorPrimary"
+            android:visibility="gone" />
 
-    <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
-        android:id="@+id/cookie_swipe_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/textView_list_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone" />
 
-        <include
-            android:id="@+id/include"
-            layout="@layout/layout_anchor_recycler_view" />
-    </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
-</LinearLayout>
+        <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
+            android:id="@+id/cookie_swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/include"
+                layout="@layout/layout_anchor_recycler_view" />
+        </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
+
+
+    </LinearLayout>
+
+    <include layout="@layout/text_view_process_update_anchors" />
+</FrameLayout>

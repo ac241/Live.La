@@ -66,7 +66,7 @@ interface IPlatform {
      * 主页以cookie方式获取主播列表
      * dependency [supportUpdateAnchorsByCookie],it must return true
      * use [getCookie] to get cookie string
-     * 如果关注列表中不包含请求anchor，调用[setHintWhenFollowListDidNotContainsTheAnchor]设置提醒
+     * 必须调用[setHintWhenFollowListDidNotContainsTheAnchor]给列表中不含的anchor设置提醒
      * @return 如果成功，返回对象的第一个参数应该为true
      */
     fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie =

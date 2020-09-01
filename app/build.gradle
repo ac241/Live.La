@@ -9,8 +9,8 @@ android {
         applicationId "com.acel.streamlivetool"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 21
-        versionName "0.2.1"
+        versionCode 23
+        versionName "0.2.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         ndk {
@@ -53,9 +53,9 @@ android {
             def date = new Date()
             def formattedDate = date.format('yyyyMMdd')
             if (variant.buildType.name == 'release') {
-                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}_vc${variant.mergedFlavor.versionCode}_release_${formattedDate}.apk"
+                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}.${variant.mergedFlavor.versionCode}_release_${formattedDate}.apk"
             } else {
-                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}_vc${variant.mergedFlavor.versionCode}__debug_${formattedDate}.apk"
+                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}.${variant.mergedFlavor.versionCode}__debug_${formattedDate}.apk"
             }
             //noinspection GroovyVariableNotAssigned
             outputFileName = fileName
