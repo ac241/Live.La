@@ -91,7 +91,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
     }
 
     private fun showUpdateProcess(status: ProcessStatus) {
-        if (showProcessToast)
+        if (!showProcessToast)
             return
         updateProcessAnimate?.cancel()
         runOnUiThread {
@@ -103,7 +103,7 @@ class CookieViewModel(private val cookieFragment: CookieFragment) :
     }
 
     private fun completeUpdateProcess(status: ProcessStatus) {
-        if (showProcessToast)
+        if (!showProcessToast)
             return
         showUpdateProcess(status)
         cookieFragment.textView_process_update_anchors.apply {

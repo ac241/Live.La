@@ -11,7 +11,6 @@ import com.acel.streamlivetool.util.ToastUtil
 
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
     private var resumeTimes = 0
-    private var lastGetAnchorsTime = 0L
     private val refreshDelayTime = 20000
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -19,9 +18,10 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
         //获取数据
         if (resumeTimes != 0) {
             System.currentTimeMillis().apply {
-                if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
-                    groupFragment.viewModel.updateAllAnchor()
-                    lastGetAnchorsTime = this
+                groupFragment.viewModel.lastGetAnchorsTime.let {
+                    if (it == 0L || this - it > refreshDelayTime) {
+                        groupFragment.viewModel.updateAllAnchor()
+                    }
                 }
             }
         }

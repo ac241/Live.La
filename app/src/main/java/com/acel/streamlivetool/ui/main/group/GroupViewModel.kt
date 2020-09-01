@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.main.group
 import android.animation.Animator
 import android.app.AlertDialog
 import android.content.Intent
+import android.text.Html
 import android.util.Log
 import android.view.View
 import android.view.ViewPropertyAnimator
@@ -51,6 +52,8 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
         })
     }
     private var updateProcessAnimate: ViewPropertyAnimator? = null
+    var lastGetAnchorsTime = 0L
+    val processViewAlpha = 0.7f
 
     @Synchronized
     private fun notifyAnchorListChange() {
@@ -83,6 +86,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
             sortedAnchorList.value?.forEach { anchor ->
                 updateAnchor(anchor)
             }
+        lastGetAnchorsTime = System.currentTimeMillis()
     }
 
     fun deleteAnchor(anchor: Anchor) {
@@ -123,7 +127,11 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                     }
                     var completeSize = 0
                     process.map.forEach { map ->
-                        processStringBuilder.append("${map.key.platformName}：${map.value.getValue()}；")
+                        if (map.value == ProcessStatus.WAIT || map.value == ProcessStatus.SUCCESS)
+                            processStringBuilder.append("${map.key.platformName}：${map.value.getValue()}；")
+                        else
+                            processStringBuilder.append("${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span>；")
+
                         if (map.value != ProcessStatus.WAIT) completeSize++
                     }
                     showUpdateProcess(processStringBuilder.toString())
@@ -219,7 +227,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
         updateProcessAnimate?.cancel()
         runOnUiThread {
             groupFragment.textView_process_update_anchors.apply {
-                this.text = text
+                this.text = Html.fromHtml(text)
                 visibility = View.VISIBLE
             }
         }
@@ -231,12 +239,13 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 .setListener(object : Animator.AnimatorListener {
                     override fun onAnimationEnd(p0: Animator?) {
                         visibility = View.GONE
-                        alpha = 0.5f
+                        alpha = processViewAlpha
                     }
 
                     override fun onAnimationCancel(p0: Animator?) {
-                        alpha = 0.5f
+                        alpha = processViewAlpha
                     }
+
                     override fun onAnimationRepeat(p0: Animator?) {}
                     override fun onAnimationStart(p0: Animator?) {}
                 }).setStartDelay(3000)
