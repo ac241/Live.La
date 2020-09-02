@@ -72,11 +72,13 @@ class BilibiliImpl : IPlatform {
             runBlocking {
                 async(Dispatchers.IO) {
                     val result = bilibiliService.liveAnchor(cookie).execute().body()
-                    result?.let {
+                    result?.let liveLet@{
                         if (result.code != 0) {
                             cookieOk = false
                             message = result.message
                         }
+                        if (it.data.total_count == 0)
+                            return@liveLet
                         val rooms = result.data.rooms
                         queryList.forEach goOn@{ anchor ->
                             rooms.forEach { room ->
@@ -97,6 +99,8 @@ class BilibiliImpl : IPlatform {
                 }
                 async(Dispatchers.IO) {
                     val result = bilibiliService.unLiveAnchor(cookie).execute().body()
+                    if (result?.data?.total_count == 0)
+                        return@async
                     val rooms = result?.data?.rooms
                     queryList.forEach goOn@{ anchor ->
                         rooms?.forEach { room ->

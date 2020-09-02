@@ -53,7 +53,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
     }
     private var updateProcessAnimate: ViewPropertyAnimator? = null
     var lastGetAnchorsTime = 0L
-    val processViewAlpha = 0.7f
+    val processViewAlpha = 0.5f
 
     @Synchronized
     private fun notifyAnchorListChange() {
@@ -73,6 +73,7 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.d("updateAnchor", "更新主播信息失败：cause:${e.javaClass.name}------$anchor")
+                Log.d("updateAllAnchorByCookie", "${e.printStackTrace()}")
             } finally {
                 hideRefreshBtn()
             }
@@ -173,10 +174,11 @@ class GroupViewModel(private val groupFragment: GroupFragment) : ViewModel() {
                                 "updateAllAnchorByCookie",
                                 "更新主播信息失败：cause:${e.javaClass.name}------"
                             )
+                            Log.d("updateAllAnchorByCookie", "${e.printStackTrace()}")
                             val processStatus = when (e) {
                                 is java.net.SocketTimeoutException -> ProcessStatus.NET_TIME_OUT
-                                is java.net.UnknownHostException -> ProcessStatus.NET_TIME_OUT
-                                else -> ProcessStatus.NET_TIME_OUT
+                                is java.net.UnknownHostException -> ProcessStatus.NET_ERROR
+                                else -> ProcessStatus.ERROR
                             }
                             processLiveData.update(platform.value, processStatus)
                             e.printStackTrace()
