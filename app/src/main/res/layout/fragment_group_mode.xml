@@ -13,6 +13,8 @@
             layout="@layout/layout_anchor_recycler_view" />
     </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
 
-    <include layout="@layout/text_view_process_update_anchors" />
+    <include
+        android:id="@+id/include_process_toast"
+        layout="@layout/text_view_process_update_anchors" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

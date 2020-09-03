@@ -1,6 +1,8 @@
 package com.acel.streamlivetool.ui.main.add_anchor
 
+import android.app.Activity
 import android.app.AlertDialog
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
@@ -11,27 +13,33 @@ import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 
 
-class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : ViewModel() {
+class AddAnchorViewModel : ViewModel() {
 
-    class ViewModeFactory(private val addAnchorFragment: AddAnchorFragment) :
+    class ViewModeFactory :
         ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return AddAnchorViewModel(
-                addAnchorFragment
-            ) as T
+            return AddAnchorViewModel() as T
         }
     }
 
     private val anchorRepository =
         AnchorRepository.getInstance()
 
+    private val _liveDataResultSuccessed = MutableLiveData<String?>().also { it.value = null }
+    val liveDataResultSuccessed
+        get() = _liveDataResultSuccessed
+
+    private val _liveDataResultFailed = MutableLiveData<String?>().also { it.value = null }
+    val liveDataResultFailed
+        get() = _liveDataResultFailed
+
 
     fun addAnchor(queryAnchor: Anchor) {
         MainExecutor.execute(AddAnchorRunnable(queryAnchor))
     }
 
-    fun search(keyword: String, platform: String) {
+    fun search(activity: Activity, keyword: String, platform: String) {
         MainExecutor.execute {
             val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
             val list = platformImpl?.searchAnchor(keyword)
@@ -42,7 +50,7 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
                     runOnUiThread { toast("搜索结果为空。") }
                     return@execute
                 }
-                val builder = AlertDialog.Builder(addAnchorFragment.requireContext())
+                val builder = AlertDialog.Builder(activity)
                 val arrayList = arrayListOf<String>()
                 forEach {
                     arrayList.add("${it.nickname},${it.roomId}")
@@ -75,10 +83,10 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
                     if (anchorRepository.anchorList.value!!.indexOf(anchor) == -1) {
                         insertAnchor(anchor)
                     } else {
-                        addAnchorFragment.addAnchorFailed("该直播间已存在——${anchor.nickname}")
+                        _liveDataResultFailed.postValue("该直播间已存在——${anchor.nickname}")
                     }
                 } else {
-                    addAnchorFragment.addAnchorFailed("找不到该直播间")
+                    _liveDataResultFailed.postValue("找不到该直播间")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -92,9 +100,9 @@ class AddAnchorViewModel(private val addAnchorFragment: AddAnchorFragment) : Vie
     private fun insertAnchor(anchor: Anchor) {
         val result = anchorRepository.insertAnchor(anchor)
         if (result.first)
-            addAnchorFragment.addAnchorSuccess(anchor)
+            _liveDataResultSuccessed.postValue(anchor.nickname)
         else
-            addAnchorFragment.addAnchorFailed(result.second)
+            _liveDataResultFailed.postValue(result.second)
     }
 }
 

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
@@ -23,12 +24,20 @@ import kotlinx.android.synthetic.main.fragment_add_anchor.*
 class AddAnchorFragment : BottomSheetDialogFragment() {
     private lateinit var platformList: List<String>
     private val viewModel by viewModels<AddAnchorViewModel> {
-        AddAnchorViewModel.ViewModeFactory(this)
+        AddAnchorViewModel.ViewModeFactory()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
+        viewModel.apply {
+            liveDataResultSuccessed.observe(this@AddAnchorFragment, Observer {
+                it?.let { addAnchorSuccess(it) }
+            })
+            liveDataResultFailed.observe(this@AddAnchorFragment, Observer {
+                it?.let { addAnchorFailed(it) }
+            })
+        }
     }
 
     override fun onCreateView(
@@ -84,7 +93,8 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
             val platform = tempList[radioIndex]
-            viewModel.search(keyword, platform)
+            viewModel.search(requireActivity(),keyword, platform)
+
         }
     }
 
@@ -106,9 +116,9 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun addAnchorSuccess(anchor: Anchor) {
+    fun addAnchorSuccess(name: String) {
         runOnUiThread {
-            toast("添加成功${anchor.nickname}")
+            toast("添加成功$name")
             (requireActivity() as MainActivity).gotoMainPage()
         }
     }

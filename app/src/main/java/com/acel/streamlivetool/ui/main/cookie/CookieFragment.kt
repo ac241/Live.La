@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
@@ -20,7 +21,6 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.acel.streamlivetool.util.ToastUtil.toast
 
@@ -28,13 +28,10 @@ private const val ARG_PARAM1 = "param1"
 
 class CookieFragment : Fragment() {
 
-    internal lateinit var nowAnchorAdapter: AnchorAdapterWrapper
-    var platform: String? = null
+    private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
 
     internal val viewModel by viewModels<CookieViewModel> {
-        CookieViewModel.ViewModeFactory(
-            this
-        )
+        CookieViewModel.ViewModeFactory()
     }
 
     private val adapterShowAnchorImage by lazy {
@@ -62,7 +59,7 @@ class CookieFragment : Fragment() {
     }
 
     private var _binding: FragmentCookieModeBinding? = null
-    val binding
+    private val binding
         get() = _binding
     var isLogining = false
 
@@ -70,9 +67,26 @@ class CookieFragment : Fragment() {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(CookieLifecycle(this))
         arguments?.let {
-            platform = it.getString(ARG_PARAM1)
+            viewModel.platform = it.getString(ARG_PARAM1)
         }
         setHasOptionsMenu(true)
+        viewModel.apply {
+            liveDataUpdateState.observe(this@CookieFragment, Observer {
+                if (it == CookieViewModel.UpdateState.PREPARE || it == CookieViewModel.UpdateState.FINISH)
+                    hideSwipeRefreshBtn()
+            })
+            liveDataDataChanged.observe(this@CookieFragment, Observer {
+                nowAnchorAdapter.notifyAnchorsChange()
+            })
+            liveDataShowLoginText.observe(this@CookieFragment, Observer {
+                if (it) showLoginTextView()
+                else hideLoginTextView()
+            })
+            liveDataUpdateAnchorMsg.observe(this@CookieFragment, Observer {
+                if (it.show) it.msg?.let { it1 -> showListMsg(it1) }
+                else hideListMsg()
+            })
+        }
     }
 
     override fun onCreateView(
@@ -117,17 +131,15 @@ class CookieFragment : Fragment() {
         binding?.include?.recyclerView?.adapter = nowAnchorAdapter as GraphicAnchorAdapter
     }
 
-    fun showLoginTextView() {
-        runOnUiThread {
-            binding?.textViewLoginFirst?.visibility = View.VISIBLE
-            binding?.textViewLoginFirst?.setOnClickListener {
-                val intent = Intent(context, LoginActivity::class.java).also {
-                    it.putExtra("platform",
-                        platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
-                }
-                startActivity(intent)
-                startLogin()
+    private fun showLoginTextView() {
+        binding?.textViewLoginFirst?.visibility = View.VISIBLE
+        binding?.textViewLoginFirst?.setOnClickListener {
+            val intent = Intent(context, LoginActivity::class.java).also {
+                it.putExtra("platform",
+                    viewModel.platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
             }
+            startActivity(intent)
+            startLogin()
         }
     }
 
@@ -139,25 +151,19 @@ class CookieFragment : Fragment() {
         isLogining = false
     }
 
-    fun hideLoginTextView() {
+    private fun hideLoginTextView() {
         if (binding?.textViewLoginFirst?.visibility == View.VISIBLE)
-            runOnUiThread {
-                binding?.textViewLoginFirst?.visibility = View.GONE
-            }
+            binding?.textViewLoginFirst?.visibility = View.GONE
     }
 
-    fun showListMsg(s: String) {
-        runOnUiThread {
-            binding?.textViewListMsg?.visibility = View.VISIBLE
-            binding?.textViewListMsg?.text = s
-        }
+    private fun showListMsg(s: String) {
+        binding?.textViewListMsg?.visibility = View.VISIBLE
+        binding?.textViewListMsg?.text = s
     }
 
-    fun hideListMsg() {
+    private fun hideListMsg() {
         if (binding?.textViewListMsg?.visibility == View.VISIBLE)
-            runOnUiThread {
-                binding?.textViewListMsg?.visibility = View.GONE
-            }
+            binding?.textViewListMsg?.visibility = View.GONE
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

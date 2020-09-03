@@ -1,15 +1,20 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.animation.Animator
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.text.Html
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
+import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
 import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
@@ -20,7 +25,7 @@ import com.acel.streamlivetool.util.PreferenceConstant
 
 class GroupFragment : Fragment() {
 
-    val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory(this) }
+    val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory() }
     private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
     private val adapterShowAnchorImage by lazy {
         GraphicAnchorAdapter(
@@ -37,9 +42,13 @@ class GroupFragment : Fragment() {
         )
     }
 
+
     private var _binding: FragmentGroupModeBinding? = null
     private val binding
         get() = _binding
+
+    private var updateProcessAnimate: ViewPropertyAnimator? = null
+    var processViewAlpha: Float = 0.5f
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,6 +67,47 @@ class GroupFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         lifecycle.addObserver(GroupLifecycle(this))
+//        observe liveData
+        viewModel.apply {
+            sortedAnchorList.observe(this@GroupFragment, Observer {
+                refreshAnchorAttribute()
+            })
+            liveDataUpdateState.observe(this@GroupFragment, Observer {
+                if (it == GroupViewModel.UpdateState.PREPARE || it == GroupViewModel.UpdateState.FINISH)
+                    hideSwipeRefreshBtn()
+            })
+            liveDataUpdateAnchorResult.observe(this@GroupFragment, Observer { result ->
+                result.result?.let {
+                    if (!result.complete)
+                        showUpdateProcess(it)
+                    else
+                        completeUpdateProcess(it)
+                }
+            })
+            liveDataCookieInvalid.observe(this@GroupFragment, Observer {
+                if (it != null) {
+                    alertCookieInvalid(it)
+                }
+            })
+        }
+    }
+
+
+    private fun alertCookieInvalid(platform: String) {
+        val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("${platformImpl?.platformName} 的Cookie无效")
+        builder.setMessage("是否登录？")
+        builder.setPositiveButton("是") { _, _ ->
+            val intent = Intent(MyApplication.application, LoginActivity::class.java).also {
+                it.putExtra(
+                    "platform",
+                    platformImpl?.platform
+                )
+            }
+            MyApplication.application.startActivity(intent)
+        }
+        builder.show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,6 +121,7 @@ class GroupFragment : Fragment() {
                     hideSwipeRefreshBtn()
             }
         }
+        processViewAlpha = binding?.includeProcessToast?.textViewProcessUpdateAnchors?.alpha ?: 0.5f
     }
 
     private fun initRecyclerView() {
@@ -128,6 +179,36 @@ class GroupFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun showUpdateProcess(text: String) {
+        updateProcessAnimate?.cancel()
+        binding?.includeProcessToast?.textViewProcessUpdateAnchors?.apply {
+            this.text = Html.fromHtml(text)
+            visibility = View.VISIBLE
+
+        }
+    }
+
+    private fun completeUpdateProcess(text: String) {
+        showUpdateProcess(text)
+        binding?.includeProcessToast?.textViewProcessUpdateAnchors?.apply {
+            updateProcessAnimate = animate().alpha(0f).setDuration(1500)
+                .setListener(object : Animator.AnimatorListener {
+                    override fun onAnimationEnd(p0: Animator?) {
+                        visibility = View.GONE
+                        alpha = processViewAlpha
+                    }
+
+                    override fun onAnimationCancel(p0: Animator?) {
+                        alpha = processViewAlpha
+                    }
+
+                    override fun onAnimationRepeat(p0: Animator?) {}
+                    override fun onAnimationStart(p0: Animator?) {}
+                }).setStartDelay(1500)
+        }
     }
 
     companion object {
