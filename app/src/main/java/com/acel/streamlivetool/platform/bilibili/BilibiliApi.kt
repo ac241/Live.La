@@ -9,13 +9,13 @@ import retrofit2.http.Query
 interface BilibiliApi {
 
     @GET("https://api.live.bilibili.com/room/v1/Room/get_info")
-    fun getRoomInfo(@Query("room_id") id: String): Call<RoomInfo>
+    fun getRoomInfo(@Query("room_id") id: String): Call<String>
 
     @GET("https://api.live.bilibili.com/room/v1/Room/playUrl")
     fun getPlayUrl(@Query("cid") cid: String): Call<PlayUrl>
 
     @GET("https://api.live.bilibili.com/room/v1/RoomStatic/get_room_static_info")
-    fun getStaticInfo(@Query("room_id") id: Int): Call<StaticRoomInfo>
+    fun getStaticInfo(@Query("room_id") id: Long): Call<StaticRoomInfo>
 
     @GET("https://api.live.bilibili.com/xlive/web-ucenter/user/following?page_size=29")
     fun getFollowing(
@@ -49,4 +49,6 @@ interface BilibiliApi {
         @Header("Cookie") cookie: String
     ): Call<UnliveAnchor>
 
+    @GET("https://api.live.bilibili.com/xlive/web-room/v1/index/getH5InfoByRoom")
+    fun getH5InfoByRoom(@Query("room_id") id: Long): Call<H5Info>
 }

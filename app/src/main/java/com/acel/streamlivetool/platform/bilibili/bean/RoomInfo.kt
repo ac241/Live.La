@@ -1,113 +1,91 @@
 package com.acel.streamlivetool.platform.bilibili.bean
 
-import com.google.gson.annotations.SerializedName
-
-
 data class RoomInfo(
-    @SerializedName("code")
     val code: Int,
-    @SerializedName("data")
-    val `data`: Data,
-    @SerializedName("message")
+    var `data`: Data?,
     val message: String,
-    @SerializedName("msg")
     val msg: String
 ) {
     data class Data(
-        @SerializedName("allow_change_area_time")
-        val allowChangeAreaTime: Int,
-        @SerializedName("allow_upload_cover_time")
-        val allowUploadCoverTime: Int,
-        @SerializedName("area_id")
-        val areaId: Int,
-        @SerializedName("area_name")
-        val areaName: String,
-        @SerializedName("area_pendants")
-        val areaPendants: String,
-        @SerializedName("attention")
+        val allow_change_area_time: Int,
+        val allow_upload_cover_time: Int,
+        val area_id: Int,
+        val area_name: String,
+        val area_pendants: String,
         val attention: Int,
-        @SerializedName("background")
         val background: String,
-        @SerializedName("description")
+        val battle_id: Int,
         val description: String,
-        @SerializedName("hot_words")
-        val hotWords: List<String>,
-        @SerializedName("hot_words_status")
-        val hotWordsStatus: Int,
-        @SerializedName("is_anchor")
-        val isAnchor: Int,
-        @SerializedName("is_portrait")
-        val isPortrait: Boolean,
-        @SerializedName("is_strict_room")
-        val isStrictRoom: Boolean,
-        @SerializedName("keyframe")
+        val hot_words: List<String>,
+        val hot_words_status: Int,
+        val is_anchor: Int,
+        val is_portrait: Boolean,
+        val is_strict_room: Boolean,
         val keyframe: String,
-        @SerializedName("live_status")
-        val liveStatus: Int,
-        @SerializedName("live_time")
-        val liveTime: String,
-        @SerializedName("new_pendants")
-        val newPendants: NewPendants,
-        @SerializedName("old_area_id")
-        val oldAreaId: Int,
-        @SerializedName("online")
+        val live_status: Int,
+        val live_time: String,
+        val new_pendants: NewPendants,
+        val old_area_id: Int,
         val online: Int,
-        @SerializedName("parent_area_id")
-        val parentAreaId: Int,
-        @SerializedName("parent_area_name")
-        val parentAreaName: String,
-        @SerializedName("pendants")
+        val parent_area_id: Int,
+        val parent_area_name: String,
         val pendants: String,
-        @SerializedName("pk_id")
-        val pkId: Int,
-        @SerializedName("pk_status")
-        val pkStatus: Int,
-        @SerializedName("room_id")
-        val roomId: Int,
-        @SerializedName("room_silent_level")
-        val roomSilentLevel: Int,
-        @SerializedName("room_silent_second")
-        val roomSilentSecond: Int,
-        @SerializedName("room_silent_type")
-        val roomSilentType: String,
-        @SerializedName("short_id")
-        val shortId: Int,
-        @SerializedName("tags")
+        val pk_id: Int,
+        val pk_status: Int,
+        val room_id: Int,
+        val room_silent_level: Int,
+        val room_silent_second: Int,
+        val room_silent_type: String,
+        val short_id: Int,
+        val studio_info: StudioInfo,
         val tags: String,
-        @SerializedName("title")
         val title: String,
-        @SerializedName("uid")
         val uid: Int,
-        @SerializedName("up_session")
-        val upSession: String,
-        @SerializedName("user_cover")
-        val userCover: String,
-        @SerializedName("verify")
+        val up_session: String,
+        val user_cover: String,
         val verify: String
-    ) {
-        data class NewPendants(
-            @SerializedName("badge")
-            val badge: Badge,
-            @SerializedName("frame")
-            val frame: Any,
-            @SerializedName("mobile_badge")
-            val mobileBadge: Any,
-            @SerializedName("mobile_frame")
-            val mobileFrame: Any
-        ) {
-            data class Badge(
-                @SerializedName("desc")
-                val desc: String,
-                @SerializedName("name")
-                val name: String,
-                @SerializedName("position")
-                val position: Int,
-                @SerializedName("value")
-                val value: String
-            )
-        }
-    }
+    )
+
+    data class NewPendants(
+        val badge: Badge,
+        val frame: Frame,
+        val mobile_badge: Any,
+        val mobile_frame: MobileFrame
+    )
+
+    data class StudioInfo(
+        val master_list: List<Any>,
+        val status: Int
+    )
+
+    data class Badge(
+        val desc: String,
+        val name: String,
+        val position: Int,
+        val value: String
+    )
+
+    data class Frame(
+        val area: Int,
+        val area_old: Int,
+        val bg_color: String,
+        val bg_pic: String,
+        val desc: String,
+        val name: String,
+        val position: Int,
+        val use_old_area: Boolean,
+        val value: String
+    )
+
+    data class MobileFrame(
+        val area: Int,
+        val area_old: Int,
+        val bg_color: String,
+        val bg_pic: String,
+        val desc: String,
+        val name: String,
+        val position: Int,
+        val use_old_area: Boolean,
+        val value: String
+    )
 }
-
-
-
