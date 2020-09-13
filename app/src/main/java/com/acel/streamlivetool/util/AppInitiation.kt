@@ -32,8 +32,14 @@ class AppInitiation {
 //        initBugly()
         initTencentMta()
         initBaiduMtj()
-        if (isDebug)
+        if (isDebug) {
             toast("当前处于测试模式！")
+            defaultSharedPreferences.edit()
+                .putBoolean(
+                    MyApplication.application.resources.getString(R.string.full_version),
+                    true
+                ).apply()
+        }
     }
 
     private fun initTencentMta() {
