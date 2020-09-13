@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.overlay
+package com.acel.streamlivetool.ui.overlay.list
 
 import android.content.Context
 import android.view.View
@@ -9,7 +9,6 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
-import com.acel.streamlivetool.ui.main.adapter.ListOverlayAdapter
 
 
 class ListOverlayWindowManager {
@@ -45,7 +44,11 @@ class ListOverlayWindowManager {
         context: Context,
         anchorList: List<Anchor>
     ) {
-        recyclerViewListOverlay?.adapter = ListOverlayAdapter(context, anchorList)
+        recyclerViewListOverlay?.adapter =
+            ListOverlayAdapter(
+                context,
+                anchorList
+            )
         listOverlayWindow.show()
         isShown = true
     }

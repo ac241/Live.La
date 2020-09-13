@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.overlay
+package com.acel.streamlivetool.ui.overlay.player
 
 import android.content.Context
 import android.net.Uri
@@ -9,6 +9,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.MainExecutor
@@ -42,7 +43,7 @@ class PlayerOverlayWindowManager {
     private val defaultHeightVertical = 240F
     private val verticalMultipleList = listOf(1F, 1.7F, 2.5F)
 
-    private var nowSizeMultipleIndex = 0
+    private var nowSizeMultipleIndex = landSizeMultipleList.lastIndex
     private var nowResolution: Pair<Float, Float> = Pair(defaultWidthLand, defaultHeightLand)
     private var isShown = false
     private val playerOverlayWindow: AbsOverlayWindow =
@@ -61,12 +62,13 @@ class PlayerOverlayWindowManager {
     private val nowAnchor = MutableLiveData<Anchor>().also {
         it.observeForever { anchor ->
             controllerView?.textView_controller_title?.text = anchor.nickname
+            controllerView?.textView_controller_secondary_title?.text = anchor.title
             if (nowPlayList != null) {
                 nowPlayList?.apply {
                     if (size > 1) {
                         when (indexOf(anchor)) {
                             -1 ->
-                                hideListProgressController()
+                                hideAnchorListProcess()
                             0 ->
                                 playListFirstOne()
                             size - 1 ->
@@ -75,80 +77,13 @@ class PlayerOverlayWindowManager {
                                 playListCenterOne()
                         }
                     } else {
-                        hideListProgressController()
+                        hideAnchorListProcess()
                     }
                 }
             } else {
-                hideListProgressController()
+                hideAnchorListProcess()
             }
         }
-    }
-
-    private fun playListCenterOne() {
-        showListProgressController()
-        controllerView?.btn_player_overlay_previous?.setImageResource(R.drawable.ic_controller_previous_enable)
-        controllerView?.btn_player_overlay_next?.setImageResource(R.drawable.ic_controller_next_enable)
-    }
-
-    private fun playListLastOne() {
-        showListProgressController()
-        nextUnable()
-    }
-
-    private fun playListFirstOne() {
-        showListProgressController()
-        previousUnable()
-    }
-
-    private fun previousEnable() {
-        controllerView?.btn_player_overlay_previous?.apply {
-            visibility = View.VISIBLE
-            setImageResource(R.drawable.ic_controller_previous_enable)
-            isEnabled = true
-        }
-    }
-
-    private fun previousUnable() {
-        controllerView?.btn_player_overlay_previous?.apply {
-            visibility = View.VISIBLE
-            setImageResource(R.drawable.ic_controller_previous_unable)
-            isEnabled = false
-        }
-    }
-
-    private fun nextEnable() {
-        controllerView?.btn_player_overlay_next?.apply {
-            visibility = View.VISIBLE
-            setImageResource(R.drawable.ic_controller_next_enable)
-            isEnabled = true
-        }
-    }
-
-    private fun nextUnable() {
-        controllerView?.btn_player_overlay_next?.apply {
-            visibility = View.VISIBLE
-            setImageResource(R.drawable.ic_controller_next_unable)
-            isEnabled = false
-        }
-    }
-
-
-    private fun showListProgressController() {
-        previousEnable()
-        nextEnable()
-        controllerView?.textView_controller_progress?.visibility = View.VISIBLE
-        controllerView?.textView_controller_progress?.text =
-            MyApplication.application.getString(
-                R.string.player_overlay_progress,
-                nowPlayList?.indexOf(nowAnchor.value)?.plus(1),
-                nowPlayList?.size
-            )
-    }
-
-    private fun hideListProgressController() {
-        controllerView?.btn_player_overlay_next?.visibility = View.GONE
-        controllerView?.btn_player_overlay_previous?.visibility = View.GONE
-        controllerView?.textView_controller_progress?.visibility = View.GONE
     }
 
     //控制器自动隐藏时间
@@ -161,6 +96,9 @@ class PlayerOverlayWindowManager {
         exoPlayerView?.player = player
         exoPlayerView?.useController = false
         player?.playWhenReady = true
+        /**
+         * 播放器监听
+         */
         player?.apply {
             addListener(object : com.google.android.exoplayer2.Player.EventListener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -203,7 +141,6 @@ class PlayerOverlayWindowManager {
                     newHeight = height / (width / defaultWidth)
                     nowResolution = Pair(newWidth, newHeight)
                     resizeWindowWithMultiple(
-                        MyApplication.application,
                         newWidth,
                         newHeight
                     )
@@ -212,6 +149,9 @@ class PlayerOverlayWindowManager {
             )
         }
 
+        /**
+         * 控制器显示/隐藏
+         */
         containerView?.setOnClickListener {
             controllerView?.apply {
                 when (visibility) {
@@ -263,6 +203,104 @@ class PlayerOverlayWindowManager {
         }
     }
 
+
+    private fun playListCenterOne() {
+        showAnchorListProcess()
+        controllerView?.btn_player_overlay_previous?.setImageResource(R.drawable.ic_controller_previous_enable)
+        controllerView?.btn_player_overlay_next?.setImageResource(R.drawable.ic_controller_next_enable)
+    }
+
+    private fun playListLastOne() {
+        showAnchorListProcess()
+        nextButtonUnable()
+    }
+
+    private fun playListFirstOne() {
+        showAnchorListProcess()
+        previousButtonUnable()
+    }
+
+    /**
+     * 上一个功能开启
+     */
+    private fun previousButtonEnable() {
+        controllerView?.btn_player_overlay_previous?.apply {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_controller_previous_enable)
+            isEnabled = true
+        }
+        controllerView?.textView_previous_anchor_name?.apply {
+            visibility = View.VISIBLE
+            val nowIndex = nowPlayList?.indexOf(nowAnchor.value)
+            nowIndex?.let {
+                if (nowIndex != -1 && nowIndex != 0)
+                    text = nowPlayList?.get(it - 1)?.nickname
+            }
+        }
+    }
+
+    /**
+     * 上一个功能关闭
+     */
+    private fun previousButtonUnable() {
+        controllerView?.btn_player_overlay_previous?.apply {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_controller_previous_unable)
+            isEnabled = false
+        }
+        controllerView?.textView_previous_anchor_name?.visibility = View.GONE
+    }
+
+    /**
+     * 下一个功能开启
+     */
+    private fun nextButtonEnable() {
+        controllerView?.btn_player_overlay_next?.apply {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_controller_next_enable)
+            isEnabled = true
+        }
+        controllerView?.textView_next_anchor_name?.visibility = View.VISIBLE
+        controllerView?.textView_next_anchor_name?.apply {
+            visibility = View.VISIBLE
+            val nowIndex = nowPlayList?.indexOf(nowAnchor.value)
+            nowIndex?.let {
+                if (nowIndex != -1 && nowIndex < nowPlayList!!.size - 1)
+                    text = nowPlayList?.get(it + 1)?.nickname
+            }
+        }
+    }
+
+    /**
+     * 下一个功能关闭
+     */
+    private fun nextButtonUnable() {
+        controllerView?.btn_player_overlay_next?.apply {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_controller_next_unable)
+            isEnabled = false
+        }
+        controllerView?.textView_next_anchor_name?.visibility = View.GONE
+    }
+
+    private fun showAnchorListProcess() {
+        previousButtonEnable()
+        nextButtonEnable()
+        controllerView?.textView_anchor_list_process?.visibility = View.VISIBLE
+        controllerView?.textView_anchor_list_process?.text =
+            MyApplication.application.getString(
+                R.string.player_overlay_progress,
+                nowPlayList?.indexOf(nowAnchor.value)?.plus(1),
+                nowPlayList?.size
+            )
+    }
+
+    private fun hideAnchorListProcess() {
+        controllerView?.previous_group?.visibility = View.GONE
+        controllerView?.next_group?.visibility = View.GONE
+        controllerView?.textView_anchor_list_process?.visibility = View.GONE
+    }
+
     private fun showPlayFailedMsg(msg: String = MyApplication.application.getString(R.string.play_failed)) {
         processBar?.visibility = View.GONE
         textErrorMsg?.visibility = View.VISIBLE
@@ -288,23 +326,22 @@ class PlayerOverlayWindowManager {
                 nowSizeMultipleIndex + 1
             else 0
         resizeWindowWithMultiple(
-            MyApplication.application,
             nowResolution.first,
             nowResolution.second
         )
     }
 
-    private fun resizeWindowWithMultiple(context: Context, width: Float, height: Float) {
+    private fun resizeWindowWithMultiple(width: Float, height: Float) {
         val land = nowResolution.first > nowResolution.second
         val multiple =
             if (land) landSizeMultipleList[nowSizeMultipleIndex]
             else verticalMultipleList[nowSizeMultipleIndex]
-        resizeWindow(context, width * multiple, height * multiple)
+        resizeWindow(width * multiple, height * multiple)
     }
 
-    private fun resizeWindow(context: Context, width: Float, height: Float) {
+    private fun resizeWindow(width: Float, height: Float) {
         (playerOverlayWindow as PlayerOverlayWindow).changeWindowSize(
-            context, width, height
+            MyApplication.application, width, height
         )
     }
 
@@ -314,6 +351,7 @@ class PlayerOverlayWindowManager {
      */
     private fun show() {
         playerOverlayWindow.show()
+        resizeWindowWithMultiple(nowResolution.first, nowResolution.second)
         isShown = true
         containerView?.controllerView?.visibility = View.GONE
     }
@@ -382,6 +420,7 @@ class PlayerOverlayWindowManager {
                 Log.d("playAnchorSteaming", "$url")
                 if (url == null || url.isEmpty()) {
                     runOnUiThread {
+                        player?.stop(true)
                         showPlayFailedMsg("直播流为空")
                         toast("直播流为空")
                     }
@@ -405,6 +444,7 @@ class PlayerOverlayWindowManager {
                 }
             } catch (e: Exception) {
                 runOnUiThread {
+                    player?.stop(true)
                     showPlayFailedMsg("获取直播流失败")
                     toast("获取直播流失败：${e.javaClass.name}")
                 }

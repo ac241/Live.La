@@ -20,8 +20,8 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieContainerFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
-import com.acel.streamlivetool.ui.overlay.ListOverlayWindowManager
-import com.acel.streamlivetool.ui.overlay.PlayerOverlayWindowManager
+import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
+import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.ToastUtil.toast

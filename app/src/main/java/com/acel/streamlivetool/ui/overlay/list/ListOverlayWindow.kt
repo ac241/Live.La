@@ -1,4 +1,6 @@
-package com.acel.streamlivetool.ui.overlay
+package com.acel.streamlivetool.ui.overlay.list
+
+import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 
 class ListOverlayWindow : AbsOverlayWindow() {
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_list_overlay

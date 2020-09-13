@@ -9,8 +9,9 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.public_class.ProcessStatus
 import com.acel.streamlivetool.util.AnchorListUtil
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class GroupViewModel : ViewModel() {
@@ -76,18 +77,17 @@ class GroupViewModel : ViewModel() {
     }
 
     private fun updateAnchor(anchor: Anchor) {
-        MainExecutor.execute {
-            try {
+        viewModelScope.launch(Dispatchers.IO) {
+            kotlin.runCatching {
                 val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                 platformImpl?.let {
                     val result = platformImpl.updateAnchorData(anchor)
                     if (result)
                         notifyAnchorListChange()
                 }
-            } catch (e: Exception) {
-                Log.d("updateAnchor", "更新主播信息失败：cause:${e.javaClass.name}------$anchor")
-                Log.d("updateAllAnchorByCookie", "${e.printStackTrace()}")
-            } finally {
+                hideRefreshBtn()
+            }.onFailure {
+                Log.d("updateAnchor", "更新主播信息失败：cause:${it.javaClass.name}------$anchor")
                 hideRefreshBtn()
             }
         }
@@ -139,40 +139,7 @@ class GroupViewModel : ViewModel() {
     private fun updateAllAnchorByCookie() {
         val platforms = PlatformDispatcher.getAllPlatformInstance()
         //进度 liveData
-        val processLiveData =
-            MutableLiveData<UpdateProcessByCookie>().also { liveData ->
-                val observer = object : Observer<UpdateProcessByCookie> {
-                    override fun onChanged(process: UpdateProcessByCookie) {
-                        val processStringBuilder = StringBuilder()
-                        var completeSize = 0
-                        var index = 0
-                        process.map.forEach { map ->
-                            index++
-                            if (map.value == ProcessStatus.WAIT || map.value == ProcessStatus.SUCCESS)
-                                processStringBuilder.append(
-                                    " [ ${map.key.platformName}：${map.value.getValue()} ]" +
-                                            if (index != process.map.size) "<br/>" else ""
-                                )
-                            else
-                                processStringBuilder.append(
-                                    " [ ${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span> ]" +
-                                            if (index != process.map.size) "<br/>" else ""
-                                )
-                            if (map.value != ProcessStatus.WAIT) completeSize++
-                        }
-                        _liveDataUpdateAnchorResult.update(false, processStringBuilder.toString())
-                        if (completeSize == process.map.size && process.isAllAdded) {
-                            _liveDataUpdateAnchorResult.update(
-                                true,
-                                processStringBuilder.toString()
-                            )
-                            liveData.removeObserver(this)
-                        }
-                    }
-                }
-                liveData.value = UpdateProcessByCookie(mutableMapOf(), false)
-                liveData.observeForever(observer)
-            }
+        val processLiveData = processLiveDataByCookie()
 
         var added = 0
         platforms.forEach { platform ->
@@ -188,30 +155,33 @@ class GroupViewModel : ViewModel() {
                 processLiveData.insert(platform.value)
                 //平台支持该功能
                 if (platform.value.supportUpdateAnchorsByCookie()) {
-                    MainExecutor.execute {
-                        try {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        kotlin.runCatching {
                             val result = platform.value.updateAnchorsDataByCookie(list)
                             if (result.cookieOk) {
                                 notifyAnchorListChange()
                                 processLiveData.update(platform.value, ProcessStatus.SUCCESS)
                             } else {
                                 _liveDataCookieInvalid.postValue(platform.value.platform)
-                                processLiveData.update(platform.value, ProcessStatus.COOKIE_INVALID)
+                                processLiveData.update(
+                                    platform.value,
+                                    ProcessStatus.COOKIE_INVALID
+                                )
                             }
-                        } catch (e: Exception) {
+                        }.onFailure {
                             Log.d(
                                 "updateAllAnchorByCookie",
-                                "更新主播信息失败：cause:${e.javaClass.name}------"
+                                "更新主播信息失败：cause:${it.javaClass.name}------"
                             )
-                            Log.d("updateAllAnchorByCookie", "${e.printStackTrace()}")
-                            val processStatus = when (e) {
+                            val processStatus = when (it) {
                                 is java.net.SocketTimeoutException -> ProcessStatus.NET_TIME_OUT
                                 is java.net.UnknownHostException -> ProcessStatus.NET_ERROR
                                 else -> ProcessStatus.ERROR
                             }
                             processLiveData.update(platform.value, processStatus)
-                            e.printStackTrace()
-                        } finally {
+                            it.printStackTrace()
+                            hideRefreshBtn()
+                        }.onSuccess {
                             hideRefreshBtn()
                         }
                     }
@@ -224,6 +194,46 @@ class GroupViewModel : ViewModel() {
                     }
                 }
             }
+        }
+    }
+
+
+    /**
+     * 用于cookie方式更新信息时显示进度。
+     */
+    private fun processLiveDataByCookie(): MutableLiveData<UpdateProcessByCookie> {
+        return MutableLiveData<UpdateProcessByCookie>().also { liveData ->
+            val observer = object : Observer<UpdateProcessByCookie> {
+                override fun onChanged(process: UpdateProcessByCookie) {
+                    val processStringBuilder = StringBuilder()
+                    var completeSize = 0
+                    var index = 0
+                    process.map.forEach { map ->
+                        index++
+                        if (map.value == ProcessStatus.WAIT || map.value == ProcessStatus.SUCCESS)
+                            processStringBuilder.append(
+                                " [ ${map.key.platformName}：${map.value.getValue()} ]" +
+                                        if (index != process.map.size) "<br/>" else ""
+                            )
+                        else
+                            processStringBuilder.append(
+                                " [ ${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span> ]" +
+                                        if (index != process.map.size) "<br/>" else ""
+                            )
+                        if (map.value != ProcessStatus.WAIT) completeSize++
+                    }
+                    _liveDataUpdateAnchorResult.update(false, processStringBuilder.toString())
+                    if (completeSize == process.map.size && process.isAllAdded) {
+                        _liveDataUpdateAnchorResult.update(
+                            true,
+                            processStringBuilder.toString()
+                        )
+                        liveData.removeObserver(this)
+                    }
+                }
+            }
+            liveData.value = UpdateProcessByCookie(mutableMapOf(), false)
+            liveData.observeForever(observer)
         }
     }
 

@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main.adapter
+package com.acel.streamlivetool.ui.overlay.list
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,36 +11,37 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import kotlinx.android.synthetic.main.item_overlay_list.view.*
 
 
 class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    AnchorAdapterWrapper {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var mPosition: Int = -1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
             VIEW_TYPE_LIVING_GROUP_TITLE ->
-                holder = ViewHolderStatusGroup(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_overlay_status_living, parent, false)
-                        .also {
-                            it.tag =
-                                AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
-                        }
-                )
+                holder =
+                    ViewHolderStatusGroup(
+                        LayoutInflater.from(parent.context)
+                            .inflate(R.layout.item_overlay_status_living, parent, false)
+                            .also {
+                                it.tag =
+                                    AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
+                            }
+                    )
             VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
-                holder = ViewHolderStatusGroup(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_overlay_status_not_living, parent, false)
-                        .also {
-                            it.tag =
-                                AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
-                        }
-                )
+                holder =
+                    ViewHolderStatusGroup(
+                        LayoutInflater.from(parent.context)
+                            .inflate(R.layout.item_overlay_status_not_living, parent, false)
+                            .also {
+                                it.tag =
+                                    AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
+                            }
+                    )
             else ->
                 holder = ViewHolder(
                     LayoutInflater.from(parent.context)
@@ -109,11 +110,4 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
         val title: TextView = itemView.anchor_title
     }
 
-    override fun getLongClickPosition(): Int {
-        return mPosition
-    }
-
-    override fun notifyAnchorsChange() {
-        notifyDataSetChanged()
-    }
 }
