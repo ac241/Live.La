@@ -22,6 +22,8 @@ import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_main.*
 
 class GroupFragment : Fragment() {
 
@@ -67,7 +69,9 @@ class GroupFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         lifecycle.addObserver(GroupLifecycle(this))
-//        observe liveData
+        /**
+         * observe liveData
+         */
         viewModel.apply {
             sortedAnchorList.observe(this@GroupFragment, Observer {
                 refreshAnchorAttribute()
@@ -82,6 +86,13 @@ class GroupFragment : Fragment() {
                         showUpdateProcess(it)
                     else
                         completeUpdateProcess(it)
+                }
+            })
+            snackBarMsg.observe(this@GroupFragment, Observer {
+                it?.let {
+                    if (it.isNotEmpty()) {
+                        Snackbar.make(requireActivity().main_container, it, 5000).show()
+                    }
                 }
             })
             liveDataCookieInvalid.observe(this@GroupFragment, Observer {

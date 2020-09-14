@@ -54,6 +54,10 @@ class GroupViewModel : ViewModel() {
     val liveDataUpdateAnchorResult: LiveData<UpdateAnchorResult>
         get() = _liveDataUpdateAnchorResult
 
+    private val _snackBarMsg = MutableLiveData<String>().also { it.value = "" }
+    val snackBarMsg
+        get() = _snackBarMsg
+
     data class UpdateAnchorResult(var complete: Boolean, var result: String?)
 
     private fun MutableLiveData<UpdateAnchorResult>.update(complete: Boolean, result: String) {
@@ -205,6 +209,11 @@ class GroupViewModel : ViewModel() {
         return MutableLiveData<UpdateProcessByCookie>().also { liveData ->
             val observer = object : Observer<UpdateProcessByCookie> {
                 override fun onChanged(process: UpdateProcessByCookie) {
+                    showSnackBar(process)
+//                    showDetails(process)
+                }
+
+                private fun showDetails(process: UpdateProcessByCookie) {
                     val processStringBuilder = StringBuilder()
                     var completeSize = 0
                     var index = 0
@@ -230,6 +239,27 @@ class GroupViewModel : ViewModel() {
                         )
                         liveData.removeObserver(this)
                     }
+                }
+
+                private fun showSnackBar(process: UpdateProcessByCookie) {
+                    var stringBuilder:StringBuilder? = null
+                    var completeSize = 0
+                    var failedSize = 0
+                    var index = 0
+                    process.map.forEach { map ->
+                        index++
+                        if (map.value != ProcessStatus.WAIT) {
+                            completeSize++
+                            if (map.value != ProcessStatus.SUCCESS) {
+                                if (stringBuilder==null)
+                                    stringBuilder = StringBuilder().also { it.append("主页 获取数据失败：") }
+                                failedSize++
+                                stringBuilder?.append("${map.key.platformName}:${map.value.getValue()}; ")
+                            }
+                        }
+                    }
+                    if (failedSize > 0)
+                        _snackBarMsg.postValue(stringBuilder.toString())
                 }
             }
             liveData.value = UpdateProcessByCookie(mutableMapOf(), false)
