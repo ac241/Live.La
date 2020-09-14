@@ -16,9 +16,9 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.platform.anchor_additional.AdditionalAction
-import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Companion.STATUS_LIVING
-import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener.Companion.STATUS_NOT_LIVING
+import com.acel.streamlivetool.ui.main.adapter.anchor_additional.AdditionalActionManager
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
@@ -39,7 +39,7 @@ class GraphicAnchorAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
     private var mPosition: Int = -1
-    private val additionalAction = AdditionalAction.instance
+    private val additionalAction = AdditionalActionManager.instance
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
@@ -51,7 +51,7 @@ class GraphicAnchorAdapter(
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
-                            it.tag = AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
+                            it.tag = AnchorGroupingListener.STATUS_GROUP_TITLE_LIVING
                         }
                 )
             VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
@@ -62,7 +62,7 @@ class GraphicAnchorAdapter(
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
                             it.tag =
-                                AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
+                                AnchorGroupingListener.STATUS_GROUP_TITLE_NOT_LIVING
                         }
                 )
             VIEW_TYPE_ANCHOR_SIMPLIFY ->
@@ -98,9 +98,9 @@ class GraphicAnchorAdapter(
     override fun getItemViewType(position: Int): Int {
         try {
             return when (anchorList[position]) {
-                AnchorPlaceHolder.anchorIsLiving ->
+                AnchorStatusGroup.LIVING_GROUP ->
                     VIEW_TYPE_LIVING_GROUP_TITLE
-                AnchorPlaceHolder.anchorNotLiving ->
+                AnchorStatusGroup.NOT_LIVING_GROUP ->
                     VIEW_TYPE_NOT_LIVING_GROUP_TITLE
                 else -> {
                     if (anchorList[position].status)
@@ -171,8 +171,8 @@ class GraphicAnchorAdapter(
                     holder.image.setImageResource(R.drawable.ic_load_img_fail)
             }
         //直播状态
-        if (!anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
-            && !anchorList.contains(AnchorPlaceHolder.anchorNotLiving)
+        if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
+            && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
         ) {
             holder.status.visibility = View.VISIBLE
             if (anchor.status) {

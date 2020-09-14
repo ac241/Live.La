@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 
-class AnchorListAddTitleListener : RecyclerView.OnScrollListener() {
+class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     companion object {
         const val STATUS_GROUP_TITLE_LIVING = 996
         const val STATUS_GROUP_TITLE_NOT_LIVING = 997

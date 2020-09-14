@@ -39,11 +39,11 @@ class GroupViewModel : ViewModel() {
         }
     }
 
-    private val _liveDataUpdateState = MutableLiveData<UpdateState>().also {
+    private val _liveDataUpdateDetails = MutableLiveData<UpdateState>().also {
         it.value = UpdateState.PREPARE
     }
-    val liveDataUpdateState: LiveData<UpdateState>
-        get() = _liveDataUpdateState
+    val liveDataUpdateDetails: LiveData<UpdateState>
+        get() = _liveDataUpdateDetails
 
     enum class UpdateState {
         PREPARE, UPDATING, FINISH
@@ -98,7 +98,7 @@ class GroupViewModel : ViewModel() {
     }
 
     fun updateAllAnchor() {
-        _liveDataUpdateState.postValue(UpdateState.UPDATING)
+        _liveDataUpdateDetails.postValue(UpdateState.UPDATING)
         if (groupModeUseCookie)
             updateAllAnchorByCookie()
         else
@@ -276,6 +276,6 @@ class GroupViewModel : ViewModel() {
     )
 
     private fun hideRefreshBtn() {
-        _liveDataUpdateState.postValue(UpdateState.FINISH)
+        _liveDataUpdateDetails.postValue(UpdateState.FINISH)
     }
 }

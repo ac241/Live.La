@@ -55,9 +55,9 @@ class Anchor() {
         showId: String,
         roomId: String,
         status: Boolean,
-        title: String,
-        avatar: String,
-        keyFrame: String,
+        title: String? = null,
+        avatar: String? = null,
+        keyFrame: String? = null,
         otherParams: String = "",
         secondaryStatus: String? = null,
         typeName: String? = null

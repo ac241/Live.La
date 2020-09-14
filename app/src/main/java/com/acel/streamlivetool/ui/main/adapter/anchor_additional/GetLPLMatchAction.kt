@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.acel.streamlivetool.platform.anchor_additional
+package com.acel.streamlivetool.ui.main.adapter.anchor_additional
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,7 +12,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.RetrofitUtils
-import com.acel.streamlivetool.platform.anchor_additional.bean.LPLMatch
+import com.acel.streamlivetool.ui.main.adapter.anchor_additional.bean.LPLMatch
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson

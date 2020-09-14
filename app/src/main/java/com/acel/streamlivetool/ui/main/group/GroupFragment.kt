@@ -3,8 +3,10 @@ package com.acel.streamlivetool.ui.main.group
 import android.animation.Animator
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,7 +19,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
-import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
@@ -60,6 +62,11 @@ class GroupFragment : Fragment() {
         return binding?.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("ffraonResume", "resume")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
@@ -76,16 +83,16 @@ class GroupFragment : Fragment() {
             sortedAnchorList.observe(this@GroupFragment, Observer {
                 refreshAnchorAttribute()
             })
-            liveDataUpdateState.observe(this@GroupFragment, Observer {
+            liveDataUpdateDetails.observe(this@GroupFragment, Observer {
                 if (it == GroupViewModel.UpdateState.PREPARE || it == GroupViewModel.UpdateState.FINISH)
                     hideSwipeRefreshBtn()
             })
             liveDataUpdateAnchorResult.observe(this@GroupFragment, Observer { result ->
                 result.result?.let {
                     if (!result.complete)
-                        showUpdateProcess(it)
+                        showUpdateDetails(it)
                     else
-                        completeUpdateProcess(it)
+                        completeUpdateDetails(it)
                 }
             })
             snackBarMsg.observe(this@GroupFragment, Observer {
@@ -132,7 +139,7 @@ class GroupFragment : Fragment() {
                     hideSwipeRefreshBtn()
             }
         }
-        processViewAlpha = binding?.includeProcessToast?.textViewProcessUpdateAnchors?.alpha ?: 0.5f
+        processViewAlpha = binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.alpha ?: 0.5f
     }
 
     private fun initRecyclerView() {
@@ -143,7 +150,7 @@ class GroupFragment : Fragment() {
         else
             adapterNotShowAnchorImage
         setGraphicAdapter()
-        binding?.include?.recyclerView?.addOnScrollListener(AnchorListAddTitleListener())
+        binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
     }
 
     private fun setGraphicAdapter() {
@@ -193,18 +200,20 @@ class GroupFragment : Fragment() {
     }
 
     @Suppress("DEPRECATION")
-    private fun showUpdateProcess(text: String) {
+    private fun showUpdateDetails(text: String) {
         updateProcessAnimate?.cancel()
-        binding?.includeProcessToast?.textViewProcessUpdateAnchors?.apply {
-            this.text = Html.fromHtml(text)
+        binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                this.text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY)
+            else
+                this.text = Html.fromHtml(text)
             visibility = View.VISIBLE
-
         }
     }
 
-    private fun completeUpdateProcess(text: String) {
-        showUpdateProcess(text)
-        binding?.includeProcessToast?.textViewProcessUpdateAnchors?.apply {
+    private fun completeUpdateDetails(text: String) {
+        showUpdateDetails(text)
+        binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {
             updateProcessAnimate = animate().alpha(0f).setDuration(1500)
                 .setListener(object : Animator.AnimatorListener {
                     override fun onAnimationEnd(p0: Animator?) {

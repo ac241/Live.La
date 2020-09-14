@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 
 
 class ListOverlayWindowManager {
@@ -28,7 +28,7 @@ class ListOverlayWindowManager {
     init {
         recyclerViewListOverlay?.alpha = 0.7f
         recyclerViewListOverlay?.layoutManager = LinearLayoutManager(applicationContext)
-        recyclerViewListOverlay?.addOnScrollListener(AnchorListAddTitleListener())
+        recyclerViewListOverlay?.addOnScrollListener(AnchorGroupingListener())
 
         //关闭按钮
         val btnClose = listOverlayView?.findViewById<ImageView>(R.id.btn_list_overlay_close)

@@ -12,9 +12,10 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.*
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_GROUP_TITLE_LIVING
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_GROUP_TITLE_NOT_LIVING
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import kotlinx.android.synthetic.main.item_overlay_list.view.*
-
 
 class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(){
@@ -29,7 +30,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                             .inflate(R.layout.item_overlay_status_living, parent, false)
                             .also {
                                 it.tag =
-                                    AnchorListAddTitleListener.STATUS_GROUP_TITLE_LIVING
+                                    STATUS_GROUP_TITLE_LIVING
                             }
                     )
             VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
@@ -39,7 +40,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                             .inflate(R.layout.item_overlay_status_not_living, parent, false)
                             .also {
                                 it.tag =
-                                    AnchorListAddTitleListener.STATUS_GROUP_TITLE_NOT_LIVING
+                                    STATUS_GROUP_TITLE_NOT_LIVING
                             }
                     )
             else ->
@@ -53,9 +54,9 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     override fun getItemViewType(position: Int): Int {
         return when (anchorList[position]) {
-            AnchorPlaceHolder.anchorIsLiving ->
+            AnchorStatusGroup.LIVING_GROUP ->
                 VIEW_TYPE_LIVING_GROUP_TITLE
-            AnchorPlaceHolder.anchorNotLiving ->
+            AnchorStatusGroup.NOT_LIVING_GROUP ->
                 VIEW_TYPE_NOT_LIVING_GROUP_TITLE
             else ->
                 VIEW_TYPE_ANCHOR
@@ -70,13 +71,13 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]
         holder.itemView.tag =
-            if (anchor.status) AnchorListAddTitleListener.STATUS_LIVING else AnchorListAddTitleListener.STATUS_NOT_LIVING
+            if (anchor.status) AnchorGroupingListener.STATUS_LIVING else AnchorGroupingListener.STATUS_NOT_LIVING
         with(holder) {
             this.title.text =
                 anchor.title ?: "-"
             //直播状态
-            if (!anchorList.contains(AnchorPlaceHolder.anchorIsLiving)
-                && !anchorList.contains(AnchorPlaceHolder.anchorNotLiving)
+            if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
+                && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
             ) {
                 holder.status.visibility = View.VISIBLE
                 if (anchor.status) {

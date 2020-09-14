@@ -3,7 +3,7 @@
  * @author acel
  */
 
-package com.acel.streamlivetool.platform.anchor_additional
+package com.acel.streamlivetool.ui.main.adapter.anchor_additional
 
 import android.content.Context
 import com.acel.streamlivetool.bean.Anchor

@@ -32,6 +32,4 @@ object PreferenceConstant {
                 MyApplication.application.resources.getString(R.string.pref_key_group_mode_use_cookie),
                 false
             )
-
-
 }

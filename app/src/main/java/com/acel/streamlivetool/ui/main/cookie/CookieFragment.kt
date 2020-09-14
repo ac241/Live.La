@@ -17,7 +17,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
-import com.acel.streamlivetool.ui.main.adapter.AnchorListAddTitleListener
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
@@ -124,7 +124,7 @@ class CookieFragment : Fragment() {
         else
             adapterNotShowAnchorImage
         setGraphicAdapter()
-        binding?.include?.recyclerView?.addOnScrollListener(AnchorListAddTitleListener())
+        binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
     }
 
     private fun setGraphicAdapter() {

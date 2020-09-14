@@ -3,7 +3,6 @@ package com.acel.streamlivetool.base
 import android.app.Application
 import android.content.Context
 import androidx.multidex.MultiDex
-import com.acel.streamlivetool.util.AppInitiation
 
 class MyApplication : Application() {
     companion object {

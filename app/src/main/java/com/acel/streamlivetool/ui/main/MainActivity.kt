@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -62,10 +63,10 @@ class MainActivity : AppCompatActivity() {
      */
     private var toolbarClickTime by Delegates.observable(0L) { _, old, new ->
         if (new - old < 500) {
-            val size = viewPager.adapter?.itemCount
+            val size = binding.viewPager.adapter?.itemCount
             size?.let {
                 if (it > 0) {
-                    var index = viewPager.currentItem
+                    var index = binding.viewPager.currentItem
                     index++
                     if (index > size - 1)
                         index = 0
@@ -75,6 +76,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("onResume", "resume")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -82,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         createdDo()
     }
 
+    @Suppress("DEPRECATION")
     private fun createdDo() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -195,6 +202,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun gotoMainPage() {
-        viewPager.setCurrentItem(0, true)
+        binding.viewPager.setCurrentItem(0, true)
     }
 }

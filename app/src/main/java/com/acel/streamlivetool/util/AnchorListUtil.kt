@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.util
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.main.adapter.AnchorPlaceHolder
+import com.acel.streamlivetool.ui.main.adapter.AnchorStatusGroup
 
 object AnchorListUtil {
     /**
@@ -35,8 +35,8 @@ object AnchorListUtil {
      * 插入直播状态分组提示
      */
     fun insertStatusPlaceHolder(list: MutableList<Anchor>) {
-        list.remove(AnchorPlaceHolder.anchorIsLiving)
-        list.remove(AnchorPlaceHolder.anchorNotLiving)
+        list.remove(AnchorStatusGroup.LIVING_GROUP)
+        list.remove(AnchorStatusGroup.NOT_LIVING_GROUP)
         var livingIndex: Int = -1
         var sleepingIndex: Int = -1
         run breaking@{
@@ -51,11 +51,11 @@ object AnchorListUtil {
             }
         }
         if (livingIndex != -1)
-            list.add(livingIndex, AnchorPlaceHolder.anchorIsLiving)
+            list.add(livingIndex, AnchorStatusGroup.LIVING_GROUP)
         if (sleepingIndex != -1)
             list.add(
-                if (list.contains(AnchorPlaceHolder.anchorIsLiving)) sleepingIndex + 1 else sleepingIndex,
-                AnchorPlaceHolder.anchorNotLiving
+                if (list.contains(AnchorStatusGroup.LIVING_GROUP)) sleepingIndex + 1 else sleepingIndex,
+                AnchorStatusGroup.NOT_LIVING_GROUP
             )
     }
 
