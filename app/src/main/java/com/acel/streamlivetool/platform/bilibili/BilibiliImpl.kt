@@ -179,7 +179,9 @@ class BilibiliImpl : IPlatform {
                         platform,
                         it.uname.replace("<em class=\"keyword\">", "").replace("</em>", ""),
                         it.roomid.toString(),
-                        it.roomid.toString()
+                        it.roomid.toString(),
+                        it.is_live,
+                        avatar = "http:${it.uface}"
                     )
                 )
             }

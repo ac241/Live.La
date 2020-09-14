@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) 2020.
+ * @author acel
+ */
+
 package com.acel.streamlivetool.platform.anchor_additional
 
 import android.content.Context
 import com.acel.streamlivetool.bean.Anchor
 
-class AdditionalAction {
+class AdditionalActionManager {
     companion object {
-        val instance by lazy { AdditionalAction() }
+        val instance by lazy { AdditionalActionManager() }
     }
 
     private val actionList = listOf<AdditionalActionInterface>(

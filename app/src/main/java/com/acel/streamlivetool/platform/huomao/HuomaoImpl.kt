@@ -77,7 +77,9 @@ class HuomaoImpl : IPlatform {
             if (cookie.isEmpty())
                 return super.updateAnchorsDataByCookie(queryList)
             val subscribe = huomaoService.getUsersSubscribe(getCookie()).execute().body()
-            val list = subscribe?.data?.usersSubChannels ?: return super.updateAnchorsDataByCookie(queryList)
+            val list = subscribe?.data?.usersSubChannels ?: return super.updateAnchorsDataByCookie(
+                queryList
+            )
             val failedList = mutableListOf<Anchor>().also { it.addAll(queryList) }
             queryList.forEach goOn@{ anchor ->
                 list.forEach {
@@ -149,7 +151,9 @@ class HuomaoImpl : IPlatform {
                         it.nickname.replace("<i style=\"color: red;font-style: normal\">", "")
                             .replace("</i>", ""),
                         it.room_number,
-                        it.cid
+                        it.cid,
+                        it.is_live == 1,
+                        avatar = it.img.big
                     )
                 )
             }

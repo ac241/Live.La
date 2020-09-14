@@ -55,13 +55,13 @@ class HuyaImpl : IPlatform {
             queryAnchor.apply {
                 val tempStatus = TextUtil.subString(html, "ISLIVE =", ";")?.trim() == "true"
                 status = tempStatus
-                title = TextUtil.subStringAfterWhat(
+                title = TextUtil.subStringAfterAny(
                     html,
                     "class=\"live-info-desc\"",
                     "<h1>",
                     "</h1>"
                 ) ?: "获取标题失败"
-                avatar = TextUtil.subStringAfterWhat(
+                avatar = TextUtil.subStringAfterAny(
                     html,
                     "class=\"live-info-img\"",
                     "<img src=\"",
@@ -143,7 +143,14 @@ class HuyaImpl : IPlatform {
         result?.apply {
             val resultList = result.response.`1`.docs
             resultList.forEach {
-                list.add(Anchor(platform, it.game_nick, it.room_id.toString(), it.uid.toString()))
+                list.add(
+                    Anchor(
+                        platform, it.game_nick, it.room_id.toString(),
+                        it.uid.toString(),
+                        it.gameLiveOn,
+                        avatar = it.game_avatarUrl52
+                    )
+                )
             }
         }
         return list

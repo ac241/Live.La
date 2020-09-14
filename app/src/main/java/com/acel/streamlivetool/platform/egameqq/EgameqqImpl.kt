@@ -44,12 +44,16 @@ class EgameqqImpl : IPlatform {
                 queryAnchor.roomId = roomId
                 val anchor = getEgameAnchor(queryAnchor)
                 anchor?.let {
-                    return Anchor(
-                        platform,
-                        it.data.key.retBody.data.nickName,
-                        it.data.key.retBody.data.aliasId.toString(),
-                        it.data.key.retBody.data.uid.toString()
-                    )
+                    it.data.key.retBody.data.apply {
+                        return Anchor(
+                            platform,
+                            nickName,
+                            aliasId.toString(),
+                            uid.toString(),
+                            isLive == 1,
+                            avatar = faceUrl
+                        )
+                    }
                 }
             }
         }
@@ -148,7 +152,7 @@ class EgameqqImpl : IPlatform {
                 runBlocking {
                     anchors.forEachIndexed { index, element ->
                         if (index >= 5)
-                            return@forEachIndexed
+                            return@runBlocking
                         async(Dispatchers.IO) {
                             val id = element.getElementsByTag("a").attr("href").replace("/", "")
                             getAnchor(id)?.let { list.add(it) }

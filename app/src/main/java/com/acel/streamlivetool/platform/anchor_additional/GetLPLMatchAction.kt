@@ -49,7 +49,7 @@ class GetLPLMatchAction : AdditionalActionInterface {
                 .build()
         ).execute().body()?.string()
         if (html != null) {
-            val jsonStr = TextUtil.subStringAfterWhat(
+            val jsonStr = TextUtil.subStringAfterAny(
                 html,
                 "<div class=\"match-wrap\">",
                 "<script>var t_data = ",
@@ -86,6 +86,4 @@ class GetLPLMatchAction : AdditionalActionInterface {
             }
         }
     }
-
-
 }

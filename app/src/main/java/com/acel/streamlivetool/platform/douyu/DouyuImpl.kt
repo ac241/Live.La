@@ -54,7 +54,8 @@ class DouyuImpl : IPlatform {
                 title = roomInfo.room.room_name
                 avatar = roomInfo.room.avatar.big
                 keyFrame = roomInfo.room.room_pic
-                if (roomInfo.room.videoLoop == 1) secondaryStatus = MyApplication.application.getString(R.string.video_looping)
+                if (roomInfo.room.videoLoop == 1) secondaryStatus =
+                    MyApplication.application.getString(R.string.video_looping)
                 typeName = roomInfo.game.tag_name
             }
             true
@@ -86,7 +87,10 @@ class DouyuImpl : IPlatform {
                                     title = anchorX.room_name
                                     avatar = anchorX.avatar_small
                                     keyFrame = anchorX.room_src
-                                    secondaryStatus = if (anchorX.videoLoop == 1) MyApplication.application.getString(R.string.video_looping) else null
+                                    secondaryStatus =
+                                        if (anchorX.videoLoop == 1) MyApplication.application.getString(
+                                            R.string.video_looping
+                                        ) else null
                                     typeName = anchorX.game_name
                                 }
                                 failedList.remove(anchor)
@@ -135,7 +139,16 @@ class DouyuImpl : IPlatform {
         result?.apply {
             val resultList = this.data.roomResult
             resultList.forEach {
-                list.add(Anchor(platform, it.nickName, it.rid.toString(), it.rid.toString()))
+                list.add(
+                    Anchor(
+                        platform,
+                        it.nickName,
+                        it.rid.toString(),
+                        it.rid.toString(),
+                        status = it.isLive == 1,
+                        avatar = it.avatar
+                    )
+                )
             }
         }
         return list
@@ -221,7 +234,9 @@ class DouyuImpl : IPlatform {
                                     title = it.room_name,
                                     avatar = it.avatar_small,
                                     keyFrame = it.room_src,
-                                    secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(R.string.video_looping) else null,
+                                    secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
+                                        R.string.video_looping
+                                    ) else null,
                                     typeName = it.game_name
                                 )
                             )
