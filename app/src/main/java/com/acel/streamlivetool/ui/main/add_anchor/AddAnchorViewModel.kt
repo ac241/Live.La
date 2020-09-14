@@ -42,26 +42,23 @@ class AddAnchorViewModel : ViewModel() {
     fun search(activity: Activity, keyword: String, platform: String) {
         MainExecutor.execute {
             val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
-            val list = platformImpl?.searchAnchor(keyword)
-            if (list == null)
+            val anchorList = platformImpl?.searchAnchor(keyword)
+            if (anchorList == null)
                 runOnUiThread { toast("该平台暂不支持搜索功能") }
-            list?.apply {
-                if (list.isEmpty()) {
+            anchorList?.apply {
+                if (anchorList.isEmpty()) {
                     runOnUiThread { toast("搜索结果为空。") }
                     return@execute
                 }
                 val builder = AlertDialog.Builder(activity)
-                val arrayList = arrayListOf<String>()
-                forEach {
-                    arrayList.add("${it.nickname},${it.roomId}")
-                }
-                var choiceAnchor: Anchor? = list[0]
-                builder.setSingleChoiceItems(
-                    arrayList.toTypedArray(),
-                    0
-                ) { _, which ->
+                var choiceAnchor: Anchor? = anchorList[0]
+                val adapter = SearchListAdapter(anchorList)
+                builder.setSingleChoiceItems(adapter, 0)
+                { _, which ->
                     choiceAnchor = get(which)
+                    adapter.setChecked(which)
                 }
+
                 builder.setPositiveButton("添加") { _, _ ->
                     choiceAnchor?.apply { insertAnchor(this) }
                 }
@@ -103,6 +100,11 @@ class AddAnchorViewModel : ViewModel() {
             _liveDataResultSuccessed.postValue(anchor.nickname)
         else
             _liveDataResultFailed.postValue(result.second)
+    }
+
+    fun restoreLiveData() {
+        _liveDataResultSuccessed.value = null
+        _liveDataResultFailed.value = null
     }
 }
 

@@ -1,7 +1,6 @@
 package com.acel.streamlivetool.ui.main.add_anchor
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +10,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
@@ -30,6 +29,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
+//        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         viewModel.apply {
             liveDataResultSuccessed.observe(this@AddAnchorFragment, Observer {
                 it?.let { addAnchorSuccess(it) }
@@ -63,9 +63,6 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
             chip_group_add_anchor.addView(chop)
         }
         chip_group_add_anchor.isSingleSelection = true
-//        edit_anchor_id_add_anchor.requestFocus()
-//        edit_anchor_id_add_anchor.selectAll()
-
         btn_confirm_add_anchor.setOnClickListener {
             val roomId = edit_anchor_id_add_anchor.text.toString()
             roomId.ifEmpty {
@@ -93,30 +90,28 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
             val platform = tempList[radioIndex]
-            viewModel.search(requireActivity(),keyword, platform)
-
+            viewModel.search(requireActivity(), keyword, platform)
         }
     }
 
     private fun hideKeyboard() {
         val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (imm.isActive) {
-            imm.hideSoftInputFromWindow(activity?.window?.decorView?.applicationWindowToken, 0)
-        }
+        imm.hideSoftInputFromWindow(dialog?.window?.decorView?.applicationWindowToken, 0)
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.restoreLiveData()
         hideKeyboard()
-        super.onDismiss(dialog)
     }
 
-    fun addAnchorFailed(reason: String) {
+    private fun addAnchorFailed(reason: String) {
         runOnUiThread {
             toast("添加失败：$reason")
         }
     }
 
-    fun addAnchorSuccess(name: String) {
+    private fun addAnchorSuccess(name: String) {
         runOnUiThread {
             toast("添加成功$name")
             (requireActivity() as MainActivity).gotoMainPage()
