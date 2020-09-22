@@ -13,6 +13,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
 
+
 class LoginActivity : AppCompatActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()
 
@@ -48,21 +49,25 @@ class LoginActivity : AppCompatActivity() {
         webView.webChromeClient = object : WebChromeClient() {
 
         }
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-
-        if (platformImpl.usePcAgent()) {
-            webView.settings.setSupportZoom(true)
-            webView.settings.builtInZoomControls = true
-            webView.settings.loadWithOverviewMode = true
-            // 设置出现缩放工具
-            //扩大比例的缩放
-            webView.settings.useWideViewPort = true
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+        webView.apply {
+            settings.apply {
+                javaScriptEnabled = true
+                domStorageEnabled = true
+                if (platformImpl.usePcAgent()) {
+                    setSupportMultipleWindows(true)
+                    //缩放
+                    setSupportZoom(true)
+                    builtInZoomControls = true
+                    displayZoomControls = false
+                    //自适应
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                        layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+                    userAgentString =
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+                }
             }
-            webView.settings.userAgentString =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
         }
         webView.loadUrl(platformImpl.getLoginUrl())
     }

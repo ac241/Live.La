@@ -1,22 +1,19 @@
 package com.acel.streamlivetool.ui.main.group
 
 import android.animation.Animator
-import android.app.AlertDialog
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.*
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
-import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
@@ -25,6 +22,7 @@ import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*
 
 class GroupFragment : Fragment() {
@@ -98,34 +96,29 @@ class GroupFragment : Fragment() {
             snackBarMsg.observe(this@GroupFragment, Observer {
                 it?.let {
                     if (it.isNotEmpty()) {
-                        Snackbar.make(requireActivity().main_container, it, 5000).show()
+                        val snackbar = Snackbar.make(requireActivity().main_container, it, 5000)
+                        snackbar.setSpanClickable()
+                        snackbar.show()
                     }
-                }
-            })
-            liveDataCookieInvalid.observe(this@GroupFragment, Observer {
-                if (it != null) {
-                    alertCookieInvalid(it)
                 }
             })
         }
     }
 
-
-    private fun alertCookieInvalid(platform: String) {
-        val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
-        val builder = AlertDialog.Builder(requireActivity())
-        builder.setTitle("${platformImpl?.platformName} 的Cookie无效")
-        builder.setMessage("是否登录？")
-        builder.setPositiveButton("是") { _, _ ->
-            val intent = Intent(MyApplication.application, LoginActivity::class.java).also {
-                it.putExtra(
-                    "platform",
-                    platformImpl?.platform
-                )
-            }
-            MyApplication.application.startActivity(intent)
+    /**
+     * 反射设置snackbar文字可点击
+     */
+    private fun Snackbar.setSpanClickable() {
+        val snackbarContentLayout =
+            ((view as Snackbar.SnackbarLayout).getChildAt(0) as SnackbarContentLayout)
+        try {
+            val controller = snackbarContentLayout::class.java.getDeclaredField("messageView")
+            controller.isAccessible = true
+            val messageView = controller.get(snackbarContentLayout) as TextView
+            messageView.movementMethod = LinkMovementMethod.getInstance()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        builder.show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -237,3 +230,5 @@ class GroupFragment : Fragment() {
     }
 
 }
+
+

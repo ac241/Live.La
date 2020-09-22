@@ -1,12 +1,23 @@
 package com.acel.streamlivetool.ui.main.group
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.ClickableSpan
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
+import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.public_class.ProcessStatus
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
@@ -49,12 +60,14 @@ class GroupViewModel : ViewModel() {
         PREPARE, UPDATING, FINISH
     }
 
+    //右上角窗口提示更新进度
     private val _liveDataUpdateAnchorResult =
         MutableLiveData<UpdateAnchorResult>().also { it.value = UpdateAnchorResult(false, null) }
     val liveDataUpdateAnchorResult: LiveData<UpdateAnchorResult>
         get() = _liveDataUpdateAnchorResult
 
-    private val _snackBarMsg = MutableLiveData<String>().also { it.value = "" }
+    //snackBar通知live data
+    private val _snackBarMsg = MutableLiveData<SpannableStringBuilder>()
     val snackBarMsg
         get() = _snackBarMsg
 
@@ -66,9 +79,6 @@ class GroupViewModel : ViewModel() {
         this.postValue(value)
     }
 
-    private val _liveDataCookieInvalid = MutableLiveData<String?>().also { it.value = null }
-    val liveDataCookieInvalid: LiveData<String?>
-        get() = _liveDataCookieInvalid
 //    live data end
 
     var lastGetAnchorsTime = 0L
@@ -112,7 +122,7 @@ class GroupViewModel : ViewModel() {
         anchorRepository.deleteAnchor(anchor)
     }
 
-    private fun MutableLiveData<UpdateProcessByCookie>.update(
+    private fun MutableLiveData<UpdateAnchorsByCookieResult>.update(
         platform: IPlatform,
         status: ProcessStatus
     ) {
@@ -122,7 +132,7 @@ class GroupViewModel : ViewModel() {
         }
     }
 
-    private fun MutableLiveData<UpdateProcessByCookie>.insert(
+    private fun MutableLiveData<UpdateAnchorsByCookieResult>.insert(
         platform: IPlatform
     ) {
         value?.apply {
@@ -131,7 +141,7 @@ class GroupViewModel : ViewModel() {
         }
     }
 
-    private fun MutableLiveData<UpdateProcessByCookie>.allAdded() {
+    private fun MutableLiveData<UpdateAnchorsByCookieResult>.allAdded() {
         value?.apply {
             this.isAllAdded = true
         }
@@ -166,7 +176,6 @@ class GroupViewModel : ViewModel() {
                                 notifyAnchorListChange()
                                 processLiveData.update(platform.value, ProcessStatus.SUCCESS)
                             } else {
-                                _liveDataCookieInvalid.postValue(platform.value.platform)
                                 processLiveData.update(
                                     platform.value,
                                     ProcessStatus.COOKIE_INVALID
@@ -205,15 +214,15 @@ class GroupViewModel : ViewModel() {
     /**
      * 用于cookie方式更新信息时显示进度。
      */
-    private fun processLiveDataByCookie(): MutableLiveData<UpdateProcessByCookie> {
-        return MutableLiveData<UpdateProcessByCookie>().also { liveData ->
-            val observer = object : Observer<UpdateProcessByCookie> {
-                override fun onChanged(process: UpdateProcessByCookie) {
+    private fun processLiveDataByCookie(): MutableLiveData<UpdateAnchorsByCookieResult> {
+        return MutableLiveData<UpdateAnchorsByCookieResult>().also { liveData ->
+            val observer = object : Observer<UpdateAnchorsByCookieResult> {
+                override fun onChanged(process: UpdateAnchorsByCookieResult) {
                     showSnackBar(process)
 //                    showDetails(process)
                 }
 
-                private fun showDetails(process: UpdateProcessByCookie) {
+                private fun showDetails(process: UpdateAnchorsByCookieResult) {
                     val processStringBuilder = StringBuilder()
                     var completeSize = 0
                     var index = 0
@@ -241,36 +250,80 @@ class GroupViewModel : ViewModel() {
                     }
                 }
 
-                private fun showSnackBar(process: UpdateProcessByCookie) {
-                    var stringBuilder:StringBuilder? = null
+                private fun showSnackBar(result: UpdateAnchorsByCookieResult) {
+                    var builder: SpannableStringBuilder? = null
                     var completeSize = 0
                     var failedSize = 0
                     var index = 0
-                    process.map.forEach { map ->
+                    result.map.forEach { map ->
                         index++
                         if (map.value != ProcessStatus.WAIT) {
                             completeSize++
-                            if (map.value != ProcessStatus.SUCCESS) {
-                                if (stringBuilder==null)
-                                    stringBuilder = StringBuilder().also { it.append("主页 获取数据失败：") }
-                                failedSize++
-                                stringBuilder?.append("${map.key.platformName}:${map.value.getValue()}; ")
+                            when (map.value) {
+                                ProcessStatus.SUCCESS -> {
+                                }
+                                ProcessStatus.COOKIE_INVALID -> {
+                                    if (builder == null)
+                                        builder =
+                                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
+                                    failedSize++
+                                    val startIndex =
+                                        if (builder!!.isNotEmpty()) builder!!.length - 1 else 0
+                                    val platformName = "${map.key.platformName}: "
+                                    val status = "${map.value.getValue()}"
+                                    builder?.append("$platformName$status；")
+                                    builder?.setSpan(
+                                        LoginClickSpan(map.key),
+                                        startIndex + platformName.length,
+                                        startIndex + platformName.length + status.length+1,
+                                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                    )
+                                    //为什么要+1？
+                                }
+                                else -> {
+                                    if (builder == null)
+                                        builder =
+                                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
+                                    failedSize++
+                                    builder?.append("${map.key.platformName}:${map.value.getValue()}； ")
+                                }
                             }
+
                         }
                     }
-                    if (failedSize > 0)
-                        _snackBarMsg.postValue(stringBuilder.toString())
+                    if (failedSize > 0 && completeSize == result.map.size && result.isAllAdded)
+                        _snackBarMsg.postValue(builder)
                 }
             }
-            liveData.value = UpdateProcessByCookie(mutableMapOf(), false)
+            liveData.value = UpdateAnchorsByCookieResult(mutableMapOf(), false)
             liveData.observeForever(observer)
+        }
+    }
+
+    private class LoginClickSpan(val platform: IPlatform) : ClickableSpan() {
+        @SuppressLint("ResourceType")
+        override fun updateDrawState(ds: TextPaint) {
+            super.updateDrawState(ds)
+            ds.color = Color.parseColor(MyApplication.application.getString(R.color.colorPrimary))
+            ds.isUnderlineText = false
+        }
+
+        override fun onClick(widget: View) {
+            val intent = Intent(MyApplication.application, LoginActivity::class.java).also {
+                it.putExtra(
+                    "platform",
+                    platform.platform
+                )
+            }
+            MyApplication.application.startActivity(intent)
         }
     }
 
     /**
      * 更新主播信息的进度
+     * @property map 平台，更新信息
      */
-    private data class UpdateProcessByCookie(
+    private data class UpdateAnchorsByCookieResult(
         var map: MutableMap<IPlatform, ProcessStatus>,
         var isAllAdded: Boolean
     )
