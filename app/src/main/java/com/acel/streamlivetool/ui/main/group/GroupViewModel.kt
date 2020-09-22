@@ -289,19 +289,10 @@ class GroupViewModel : ViewModel() {
                                                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                                             )
                                         }
+                                        //为什么要+1？？？
                                     }
-
-                                    //为什么要+1？
                                 }
-//                                else -> {
-//                                    if (builder == null)
-//                                        builder =
-//                                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
-//                                    failedSize++
-//                                    builder?.append("${map.key.platformName}:${map.value.getValue()}； ")
-//                                }
                             }
-
                         }
                     }
                     if (failedSize > 0 && completeSize == result.map.size && result.isAllAdded)
@@ -322,12 +313,9 @@ class GroupViewModel : ViewModel() {
         }
 
         override fun onClick(widget: View) {
-            val intent = Intent(MyApplication.application, LoginActivity::class.java).also {
-                it.putExtra(
-                    "platform",
-                    platform.platform
-                )
-            }
+            val intent = Intent(MyApplication.application, LoginActivity::class.java)
+                .also { it.putExtra("platform", platform.platform) }
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             MyApplication.application.startActivity(intent)
         }
     }

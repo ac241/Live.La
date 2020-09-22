@@ -53,11 +53,4 @@
   *** rewind();
 }
 
-#tencent mta
--keep class com.tencent.stat.*{*;}
--keep class com.tencent.mid.*{*;}
-
-#baidu mtj
--keep class com.baidu.helios.** { *; }
--keep class com.baidu.mobstat.** { *; }
-
+-keep class com.google.android.material.snackbar.SnackbarContentLayout { *; }
