@@ -262,7 +262,7 @@ class GroupViewModel : ViewModel() {
                             when (map.value) {
                                 ProcessStatus.SUCCESS -> {
                                 }
-                                ProcessStatus.COOKIE_INVALID -> {
+                                else -> {
                                     if (builder == null)
                                         builder =
                                             SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
@@ -272,21 +272,34 @@ class GroupViewModel : ViewModel() {
                                     val platformName = "${map.key.platformName}: "
                                     val status = "${map.value.getValue()}"
                                     builder?.append("$platformName$status；")
-                                    builder?.setSpan(
-                                        LoginClickSpan(map.key),
-                                        startIndex + platformName.length,
-                                        startIndex + platformName.length + status.length+1,
-                                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                                    )
+                                    when (map.value) {
+                                        ProcessStatus.COOKIE_INVALID -> {
+                                            builder?.setSpan(
+                                                LoginClickSpan(map.key),
+                                                startIndex + platformName.length,
+                                                startIndex + platformName.length + status.length + 1,
+                                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                            )
+                                        }
+                                        else -> {
+                                            builder?.setSpan(
+                                                ErrorColorSpan(),
+                                                startIndex + platformName.length,
+                                                startIndex + platformName.length + status.length + 1,
+                                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                            )
+                                        }
+                                    }
+
                                     //为什么要+1？
                                 }
-                                else -> {
-                                    if (builder == null)
-                                        builder =
-                                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
-                                    failedSize++
-                                    builder?.append("${map.key.platformName}:${map.value.getValue()}； ")
-                                }
+//                                else -> {
+//                                    if (builder == null)
+//                                        builder =
+//                                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
+//                                    failedSize++
+//                                    builder?.append("${map.key.platformName}:${map.value.getValue()}； ")
+//                                }
                             }
 
                         }
@@ -317,6 +330,16 @@ class GroupViewModel : ViewModel() {
             }
             MyApplication.application.startActivity(intent)
         }
+    }
+
+    private class ErrorColorSpan : ClickableSpan() {
+        override fun updateDrawState(ds: TextPaint) {
+            super.updateDrawState(ds)
+            ds.color = Color.RED
+            ds.isUnderlineText = false
+        }
+
+        override fun onClick(widget: View) {}
     }
 
     /**
