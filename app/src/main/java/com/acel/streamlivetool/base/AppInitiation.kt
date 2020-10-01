@@ -19,7 +19,7 @@ class AppInitiation {
     }
 
     private val isDebug: Boolean = false
-    private val isFullVersion: Boolean = false
+    private val isFullVersion: Boolean = true
 
 
     fun init() {

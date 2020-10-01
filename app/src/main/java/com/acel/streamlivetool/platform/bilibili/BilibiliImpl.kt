@@ -9,6 +9,7 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
+import com.acel.streamlivetool.util.AnchorUtil
 import com.google.gson.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -114,6 +115,7 @@ class BilibiliImpl : IPlatform {
                                         avatar = room.face
                                         keyFrame = room.cover
                                         typeName = room.live_tag_name
+                                        online = AnchorUtil.formatOnlineNumber(room.online)
                                     }
                                     failedList.remove(anchor)
                                     return@goOn
@@ -216,7 +218,8 @@ class BilibiliImpl : IPlatform {
                                 title = it.title,
                                 avatar = it.face,
                                 keyFrame = it.keyframe,
-                                typeName = it.area_v2_name
+                                typeName = it.area_v2_name,
+                                online = AnchorUtil.formatOnlineNumber(it.online)
                             )
                         )
                     }

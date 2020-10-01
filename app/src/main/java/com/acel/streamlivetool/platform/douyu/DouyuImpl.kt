@@ -92,6 +92,8 @@ class DouyuImpl : IPlatform {
                                             R.string.video_looping
                                         ) else null
                                     typeName = anchorX.game_name
+                                    if (anchorX.online != "0")
+                                        online = anchorX.online
                                 }
                                 failedList.remove(anchor)
                                 return@goOn
@@ -237,7 +239,8 @@ class DouyuImpl : IPlatform {
                                     secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
                                         R.string.video_looping
                                     ) else null,
-                                    typeName = it.game_name
+                                    typeName = it.game_name,
+                                    online = it.online
                                 )
                             )
                         }

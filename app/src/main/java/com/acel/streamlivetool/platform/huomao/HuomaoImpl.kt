@@ -90,6 +90,7 @@ class HuomaoImpl : IPlatform {
                             avatar = it.headimg.big
                             keyFrame = it.image
                             typeName = it.gameCname
+                            online = it.views
                         }
                         failedList.remove(anchor)
                         return@goOn
@@ -179,7 +180,8 @@ class HuomaoImpl : IPlatform {
                         it.channel,
                         it.headimg.big,
                         it.image,
-                        typeName = it.gameCname
+                        typeName = it.gameCname,
+                        online = it.views
                     )
                 )
             }

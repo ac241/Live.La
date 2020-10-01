@@ -9,6 +9,7 @@ import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
+import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 import java.net.URLEncoder
@@ -98,6 +99,7 @@ class HuyaImpl : IPlatform {
                                 avatar = subAnchor.avatar180
                                 keyFrame = subAnchor.screenshot
                                 typeName = subAnchor.gameName
+                                online = AnchorUtil.formatOnlineNumber(subAnchor.totalCount.toInt())
                             }
                             failedList.remove(anchor)
                         }
@@ -182,7 +184,8 @@ class HuyaImpl : IPlatform {
                                     title = it.intro,
                                     avatar = it.avatar180,
                                     keyFrame = it.screenshot,
-                                    typeName = it.gameName
+                                    typeName = it.gameName,
+                                    online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt())
                                 )
                             )
                         }
