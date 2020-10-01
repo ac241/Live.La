@@ -78,7 +78,7 @@
     <string name="show_anchor_image">是否显示图片</string>
     <string name="pref_key_group_mode_use_cookie">pref_key_group_mode_use_cookie</string>
     <string name="group_mode_use_cookie">主页使用Cookie方式</string>
-    <string name="group_mode_use_cookie_summary">推荐使用。并发低，更节省流量，但需要登录并且关注主播。</string>
+    <string name="group_mode_use_cookie_summary">推荐使用。Cookie方式成功率更高，更节省流量，但需要登录并且关注主播。常规方式可能部分功能受限</string>
     <string name="button_play_previous">播放上一个</string>
     <string name="button_play_next">播放下一个</string>
     <string name="button_replay">重新加载</string>

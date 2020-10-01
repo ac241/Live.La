@@ -3,6 +3,10 @@ package com.acel.streamlivetool.ui.main.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.DynamicDrawableSpan
+import android.text.style.ImageSpan
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +20,9 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.main.adapter.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
+import com.acel.streamlivetool.ui.main.adapter.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
@@ -40,6 +44,8 @@ class GraphicAnchorAdapter(
     AnchorAdapterWrapper {
     private var mPosition: Int = -1
     private val additionalAction = AdditionalActionManager.instance
+    private val onlineImageSpan =
+        ImageSpan(context, R.drawable.ic_online_hot)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
@@ -157,9 +163,9 @@ class GraphicAnchorAdapter(
                 holder.avatar.setImageResource(R.drawable.ic_load_img_fail)
             }
         }
-
-        //图片    如果直播中则加载
-        if (getItemViewType(position) == VIEW_TYPE_ANCHOR)
+        //如果是显图类型
+        if (getItemViewType(position) == VIEW_TYPE_ANCHOR) {
+            //图片
             with(anchor.keyFrame) {
                 if (this != null) {
                     ImageLoader.load(
@@ -170,6 +176,15 @@ class GraphicAnchorAdapter(
                 } else
                     holder.image.setImageResource(R.drawable.ic_load_img_fail)
             }
+            //热度
+            anchor.online?.apply {
+                if (isNotEmpty()) {
+                    val span = SpannableString("  $this")
+                    span.setSpan(onlineImageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    holder.online?.text = span
+                }
+            }
+        }
         //直播状态
         if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
             && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
@@ -281,6 +296,7 @@ class GraphicAnchorAdapter(
         val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
         val roomId: TextView = itemView.grid_anchor_roomId
         val typeName: TextView = itemView.grid_anchor_type_name
+        val online: TextView? = itemView.grid_anchor_online ?: null
     }
 
 }

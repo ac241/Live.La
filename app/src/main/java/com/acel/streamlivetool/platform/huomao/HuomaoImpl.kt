@@ -9,6 +9,7 @@ import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
+import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 import com.google.gson.Gson
@@ -66,6 +67,7 @@ class HuomaoImpl : IPlatform {
                 avatar = roomInfo.headimg.big
                 keyFrame = roomInfo.image
                 typeName = roomInfo.gameCname
+                online = AnchorUtil.formatOnlineNumber(roomInfo.views)
             }
             true
         } else false
@@ -90,6 +92,7 @@ class HuomaoImpl : IPlatform {
                             avatar = it.headimg.big
                             keyFrame = it.image
                             typeName = it.gameCname
+                            online = it.views
                         }
                         failedList.remove(anchor)
                         return@goOn
@@ -179,7 +182,8 @@ class HuomaoImpl : IPlatform {
                         it.channel,
                         it.headimg.big,
                         it.image,
-                        typeName = it.gameCname
+                        typeName = it.gameCname,
+                        online = it.views
                     )
                 )
             }

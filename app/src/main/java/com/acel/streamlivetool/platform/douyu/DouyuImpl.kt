@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -13,8 +14,12 @@ import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
+import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 
@@ -46,20 +51,32 @@ class DouyuImpl : IPlatform {
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
-        val roomInfo =
-            douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
-        return if (roomInfo != null) {
-            queryAnchor.apply {
-                status = roomInfo.room.show_status == 1
-                title = roomInfo.room.room_name
-                avatar = roomInfo.room.avatar.big
-                keyFrame = roomInfo.room.room_pic
-                if (roomInfo.room.videoLoop == 1) secondaryStatus =
-                    MyApplication.application.getString(R.string.video_looping)
-                typeName = roomInfo.game.tag_name
+        return runBlocking {
+            val info = async(Dispatchers.IO) {
+                val roomInfo =
+                    douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
+                if (roomInfo != null) {
+                    queryAnchor.apply {
+                        status = roomInfo.room.show_status == 1
+                        title = roomInfo.room.room_name
+                        avatar = roomInfo.room.avatar.big
+                        keyFrame = roomInfo.room.room_pic
+                        if (roomInfo.room.videoLoop == 1) secondaryStatus =
+                            MyApplication.application.getString(R.string.video_looping)
+                        typeName = roomInfo.game.tag_name
+                    }
+                    true
+                } else false
             }
-            true
-        } else false
+            val online = async(Dispatchers.IO) {
+                val roomInfo = douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
+                if (roomInfo?.data?.online != null) {
+                    queryAnchor.online = AnchorUtil.formatOnlineNumber(roomInfo.data.online)
+                    true
+                } else false
+            }
+            info.await() && online.await()
+        }
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
@@ -92,6 +109,8 @@ class DouyuImpl : IPlatform {
                                             R.string.video_looping
                                         ) else null
                                     typeName = anchorX.game_name
+                                    if (anchorX.online != "0")
+                                        online = anchorX.online
                                 }
                                 failedList.remove(anchor)
                                 return@goOn
@@ -237,7 +256,8 @@ class DouyuImpl : IPlatform {
                                     secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
                                         R.string.video_looping
                                     ) else null,
-                                    typeName = it.game_name
+                                    typeName = it.game_name,
+                                    online = it.online
                                 )
                             )
                         }

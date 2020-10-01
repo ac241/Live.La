@@ -5,12 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
+import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -98,14 +99,18 @@ class EgameqqImpl : IPlatform {
                 }
                 queryList.forEach goOn@{ anchor ->
                     follows.forEach {
-                        anchor.apply {
-                            status = it.status == 1
-                            title = it.live_info.title
-                            avatar = it.live_info.anchor_face_url
-                            keyFrame = it.live_info.video_info.url
-                            typeName = it.live_info.appname
+                        if (anchor.roomId == it.live_info.anchor_id.toString()) {
+                            anchor.apply {
+                                status = it.status == 1
+                                title = it.live_info.title
+                                avatar = it.live_info.anchor_face_url
+                                keyFrame = it.live_info.video_info.url
+                                typeName = it.live_info.appname
+                                online = AnchorUtil.formatOnlineNumber(it.live_info.online)
+                            }
+                            failedList.remove(anchor)
+                            return@forEach
                         }
-                        failedList.remove(anchor)
                     }
                 }
                 failedList.setHintWhenFollowListDidNotContainsTheAnchor()
@@ -193,7 +198,8 @@ class EgameqqImpl : IPlatform {
                             title = it.live_info.title,
                             avatar = it.live_info.anchor_face_url,
                             keyFrame = it.live_info.video_info.url,
-                            typeName = it.live_info.appname
+                            typeName = it.live_info.appname,
+                            online = AnchorUtil.formatOnlineNumber(it.live_info.online)
                         )
                     )
                 }

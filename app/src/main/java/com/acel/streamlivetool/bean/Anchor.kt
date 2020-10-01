@@ -35,6 +35,12 @@ class Anchor() {
     @Ignore
     var typeName: String? = null
 
+    /**
+     * 热度
+     */
+    @Ignore
+    var online: String? = null
+
     constructor(
         platform: String,
         nickname: String,
@@ -60,7 +66,8 @@ class Anchor() {
         keyFrame: String? = null,
         otherParams: String = "",
         secondaryStatus: String? = null,
-        typeName: String? = null
+        typeName: String? = null,
+        online: String? = null
     ) : this() {
         this.platform = platform
         this.nickname = nickname
@@ -73,6 +80,7 @@ class Anchor() {
         this.keyFrame = keyFrame
         this.secondaryStatus = secondaryStatus
         this.typeName = typeName
+        this.online = online
     }
 
     override fun equals(other: Any?): Boolean {

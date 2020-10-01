@@ -26,13 +26,15 @@
 
         <TextView
             android:id="@+id/grid_anchor_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
             android:background="#55000000"
-            android:padding="5dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="5dp"
             android:textColor="@android:color/white"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="@+id/grid_anchor_image"
+            app:layout_constraintEnd_toStartOf="@id/grid_anchor_online"
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="SmallSp" />
 
@@ -145,5 +147,18 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/grid_anchor_online"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:background="#55000000"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="5dp"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_image"
+            app:layout_constraintEnd_toEndOf="@id/grid_anchor_image"
+            tools:ignore="SmallSp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
