@@ -12,6 +12,6 @@ object AnchorUtil {
     fun formatOnlineNumber(int: Int): String {
         return if (int > 9999) {
             "${df.format(int.toFloat() / 10000)}万"
-        } else this.toString()
+        } else int.toString()
     }
 }
