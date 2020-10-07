@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -34,8 +33,8 @@ import kotlin.properties.Delegates
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
-    private val groupFragment by lazy { GroupFragment.newInstance() }
-    private val cookieFragment by lazy { CookieContainerFragment.newInstance() }
+//    private val groupFragment by lazy { GroupFragment.newInstance() }
+//    private val cookieFragment by lazy { CookieContainerFragment.newInstance() }
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
     private val useCookieMode by lazy {
         val platforms = mutableListOf<IPlatform>()
@@ -58,6 +57,10 @@ class MainActivity : AppCompatActivity() {
     }
     private lateinit var binding: ActivityMainBinding
 
+    object OnNewIntentAction {
+        const val PREF_CHANGED = "pref_changed"
+    }
+
     /**
      * toolbar双击切换viewPager页面
      */
@@ -76,9 +79,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("onResume", "resume")
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        when (intent?.action) {
+            OnNewIntentAction.PREF_CHANGED -> {
+                initViewPager()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,19 +109,7 @@ class MainActivity : AppCompatActivity() {
             toolbarClickTime = System.currentTimeMillis()
         }
 
-        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun getItemCount(): Int {
-                return if (useCookieMode) 2 else 1
-            }
-
-            override fun createFragment(position: Int): Fragment {
-                return when (position) {
-                    0 -> groupFragment
-                    1 -> cookieFragment
-                    else -> groupFragment
-                }
-            }
-        }
+        initViewPager()
         if (useCookieMode)
             TabLayoutMediator(
                 binding.tabLayout,
@@ -122,6 +117,22 @@ class MainActivity : AppCompatActivity() {
                 TabLayoutMediator.TabConfigurationStrategy { _, _ ->
                 }
             ).attach()
+    }
+
+    private fun initViewPager() {
+        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
+            override fun getItemCount(): Int {
+                return if (useCookieMode) 2 else 1
+            }
+
+            override fun createFragment(position: Int): Fragment {
+                return when (position) {
+                    0 -> GroupFragment.newInstance()
+                    1 -> CookieContainerFragment.newInstance()
+                    else -> GroupFragment.newInstance()
+                }
+            }
+        }
     }
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)

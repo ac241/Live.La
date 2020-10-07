@@ -60,11 +60,6 @@ class GroupFragment : Fragment() {
         return binding?.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("ffraonResume", "resume")
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         _binding = null

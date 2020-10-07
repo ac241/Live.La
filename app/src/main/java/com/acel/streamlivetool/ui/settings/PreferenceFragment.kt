@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -16,12 +17,16 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
+    /**
+     * 设置后重启
+     */
     private val restartWhenChangeArray by lazy {
         arrayOf(
             resources.getString(R.string.pref_key_additional_action_btn),
             resources.getString(R.string.pref_key_cookie_mode_platform_showable),
             resources.getString(R.string.pref_key_show_anchor_image_when_mobile_data),
             resources.getString(R.string.pref_key_show_anchor_image),
+            resources.getString(R.string.pref_key_group_mode_use_cookie),
             resources.getString(R.string.pref_key_group_mode_use_cookie)
         )
     }

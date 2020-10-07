@@ -1,9 +1,12 @@
 package com.acel.streamlivetool.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil.restartApp
+import com.acel.streamlivetool.util.ToastUtil.toast
 
 class SettingsActivity : AppCompatActivity() {
     var settingsChanges = false
@@ -18,7 +21,10 @@ class SettingsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (settingsChanges) {
-            restartApp()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.action = MainActivity.OnNewIntentAction.PREF_CHANGED
+            startActivity(intent)
+//            restartApp()
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.util
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -11,6 +13,8 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.MainActivity
+import kotlin.system.exitProcess
 
 
 val defaultSharedPreferences: SharedPreferences by lazy {
@@ -51,6 +55,20 @@ object AppUtil {
             MyApplication.application.packageManager.getLaunchIntentForPackage(MyApplication.application.packageName)
         intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         MyApplication.application.startActivity(intent)
+    }
+    
+    fun restartAppBackup(){
+        val mStartActivity = Intent(MyApplication.application, MainActivity::class.java)
+        val mPendingIntentId = 123456
+        val mPendingIntent = PendingIntent.getActivity(
+            MyApplication.application,
+            mPendingIntentId,
+            mStartActivity,
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        val arm = MyApplication.application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        arm[AlarmManager.RTC, System.currentTimeMillis() + 100] = mPendingIntent
+        exitProcess(0)
     }
 
     /**

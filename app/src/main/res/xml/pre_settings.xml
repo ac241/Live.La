@@ -62,7 +62,12 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="@string/pref_key_about_open_source"
-            android:title="@string/open_source_licensed"
+            android:title="@string/open_source_modules"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="@string/pref_key_app_open_source_url"
+            android:title="@string/app_open_source_url"
+            android:summary="@string/app_open_source_description"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>

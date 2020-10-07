@@ -2,10 +2,11 @@ package com.acel.streamlivetool.ui.open_source
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Html
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.util.AppUtil.restartApp
+import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_open_source.*
@@ -81,7 +82,7 @@ class OpenSourceActivity : AppCompatActivity() {
             "本app仅用于非商业用途"
         )
     )
-    private val fullVersionClickTimes = 234
+    private val fullVersionClickTimes = 10
     private val fullVersion = defaultSharedPreferences.getBoolean(
         MyApplication.application.getString(R.string.full_version),
         false
@@ -110,19 +111,15 @@ class OpenSourceActivity : AppCompatActivity() {
                 defaultSharedPreferences.edit()
                     .putBoolean(resources.getString(R.string.full_version), !fullVersion).apply()
                 toast("Full version ${!fullVersion}")
-                restartApp()
-//                startActivity(Intent(this, MainActivity::class.java))
+                AppUtil.restartApp()
             } else
                 titleClickTimes++
         }
 
-
-
         list.forEach {
             addModuleToTextView(it)
         }
-
-        open_source_text.text = stringBuilder.toString()
+        module_text.text = stringBuilder.toString()
     }
 
 
