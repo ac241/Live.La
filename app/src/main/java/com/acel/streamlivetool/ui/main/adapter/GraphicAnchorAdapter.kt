@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.view.ContextMenu
 import android.view.LayoutInflater
@@ -17,17 +16,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
-import com.acel.streamlivetool.ui.main.adapter.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.util.ActionClick.itemClick
 import com.acel.streamlivetool.util.ActionClick.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.PreferenceConstant.fullVersion
-import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
@@ -43,7 +41,7 @@ class GraphicAnchorAdapter(
     RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     AnchorAdapterWrapper {
     private var mPosition: Int = -1
-    private val additionalAction = AdditionalActionManager.instance
+    private val additionalActionManager = AdditionalActionManager.instance
     private val onlineImageSpan =
         ImageSpan(context, R.drawable.ic_online_hot)
 
@@ -232,22 +230,17 @@ class GraphicAnchorAdapter(
         }
 
         //附加功能按钮
-        if (defaultSharedPreferences.getBoolean(
+        if (
+            defaultSharedPreferences.getBoolean(
                 context.getString(R.string.pref_key_additional_action_btn),
                 false
-            ) && additionalAction.match(anchor)
+            ) && additionalActionManager.match(anchor) != null
         ) {
-            val actionName = additionalAction.getActionName(anchor)
-            holder.additionBtn.contentDescription = actionName
             holder.additionBtn.visibility = View.VISIBLE
             holder.additionBtn.setOnClickListener {
                 MainExecutor.execute {
-                    additionalAction.doAdditionalAction(anchor, context)
+                    additionalActionManager.doActions(anchor, context)
                 }
-            }
-            holder.additionBtn.setOnLongClickListener {
-                toast(actionName)
-                return@setOnLongClickListener true
             }
         } else {
             holder.additionBtn.visibility = View.GONE

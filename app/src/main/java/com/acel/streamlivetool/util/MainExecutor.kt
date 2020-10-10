@@ -12,7 +12,7 @@ object MainExecutor {
                 method.invoke()
             } catch (e: Exception) {
                 runOnUiThread {
-                    toast(e.javaClass.name)
+                    toast("${e.message}")
                 }
                 e.printStackTrace()
             }

@@ -211,6 +211,7 @@ class PlayerOverlayWindowManager {
 
     private fun playListLastOne() {
         showAnchorListProcess()
+        previousButtonEnable()
         nextButtonUnable()
     }
 

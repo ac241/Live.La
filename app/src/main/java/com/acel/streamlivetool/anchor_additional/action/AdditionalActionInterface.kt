@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main.adapter.anchor_additional
+package com.acel.streamlivetool.anchor_additional.action
 
 import android.content.Context
 import com.acel.streamlivetool.bean.Anchor

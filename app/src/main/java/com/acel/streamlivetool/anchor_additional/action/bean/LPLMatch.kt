@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main.adapter.anchor_additional.bean
+package com.acel.streamlivetool.anchor_additional.action.bean
 
 data class LPLMatch(
     val this_week_match: List<ThisWeekMatch>
