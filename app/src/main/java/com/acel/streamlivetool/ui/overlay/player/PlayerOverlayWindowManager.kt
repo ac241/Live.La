@@ -73,7 +73,7 @@ class PlayerOverlayWindowManager {
                             size - 1 ->
                                 playListLastOne()
                             else ->
-                                playListCenterOne()
+                                playListMiddleOne()
                         }
                     } else {
                         hideAnchorListProcess()
@@ -203,7 +203,7 @@ class PlayerOverlayWindowManager {
     }
 
 
-    private fun playListCenterOne() {
+    private fun playListMiddleOne() {
         showAnchorListProcess()
         controllerView?.btn_player_overlay_previous?.setImageResource(R.drawable.ic_controller_previous_enable)
         controllerView?.btn_player_overlay_next?.setImageResource(R.drawable.ic_controller_next_enable)
