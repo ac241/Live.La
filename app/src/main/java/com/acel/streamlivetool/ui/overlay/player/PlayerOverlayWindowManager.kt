@@ -62,26 +62,31 @@ class PlayerOverlayWindowManager {
         it.observeForever { anchor ->
             controllerView?.textView_controller_title?.text = anchor.nickname
             controllerView?.textView_controller_secondary_title?.text = anchor.title
-            if (nowPlayList != null) {
-                nowPlayList?.apply {
-                    if (size > 1) {
-                        when (indexOf(anchor)) {
-                            -1 ->
-                                hideAnchorListProcess()
-                            0 ->
-                                playListFirstOne()
-                            size - 1 ->
-                                playListLastOne()
-                            else ->
-                                playListMiddleOne()
-                        }
-                    } else {
-                        hideAnchorListProcess()
+            toggleController(anchor)
+        }
+    }
+
+    private fun toggleController(anchor: Anchor) {
+        if (nowPlayList != null) {
+            nowPlayList?.apply {
+                if (size > 1) {
+                    showListController()
+                    when (indexOf(anchor)) {
+                        -1 ->
+                            hideListController()
+                        0 ->
+                            playFirstInList()
+                        size - 1 ->
+                            playLastInList()
+                        else ->
+                            playMiddleInList()
                     }
+                } else {
+                    hideListController()
                 }
-            } else {
-                hideAnchorListProcess()
             }
+        } else {
+            hideListController()
         }
     }
 
@@ -203,20 +208,19 @@ class PlayerOverlayWindowManager {
     }
 
 
-    private fun playListMiddleOne() {
-        showAnchorListProcess()
-        controllerView?.btn_player_overlay_previous?.setImageResource(R.drawable.ic_controller_previous_enable)
-        controllerView?.btn_player_overlay_next?.setImageResource(R.drawable.ic_controller_next_enable)
+    private fun playMiddleInList() {
+        previousButtonEnable()
+        nextButtonEnable()
     }
 
-    private fun playListLastOne() {
-        showAnchorListProcess()
+    private fun playLastInList() {
         previousButtonEnable()
         nextButtonUnable()
     }
 
-    private fun playListFirstOne() {
-        showAnchorListProcess()
+    private fun playFirstInList() {
+//        showListController()
+        nextButtonEnable()
         previousButtonUnable()
     }
 
@@ -225,6 +229,7 @@ class PlayerOverlayWindowManager {
      */
     private fun previousButtonEnable() {
         controllerView?.btn_player_overlay_previous?.apply {
+            Log.d("previousButtonEnable", "show")
             visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_previous_enable)
             isEnabled = true
@@ -283,9 +288,11 @@ class PlayerOverlayWindowManager {
         controllerView?.textView_next_anchor_name?.visibility = View.GONE
     }
 
-    private fun showAnchorListProcess() {
-        previousButtonEnable()
-        nextButtonEnable()
+
+    private fun showListController() {
+        controllerView?.previous_group?.visibility = View.VISIBLE
+        controllerView?.next_group?.visibility = View.VISIBLE
+
         controllerView?.textView_anchor_list_process?.visibility = View.VISIBLE
         controllerView?.textView_anchor_list_process?.text =
             MyApplication.application.getString(
@@ -295,9 +302,13 @@ class PlayerOverlayWindowManager {
             )
     }
 
-    private fun hideAnchorListProcess() {
+    /**
+     * 隐藏上一个下一个
+     */
+    private fun hideListController() {
         controllerView?.previous_group?.visibility = View.GONE
         controllerView?.next_group?.visibility = View.GONE
+
         controllerView?.textView_anchor_list_process?.visibility = View.GONE
     }
 
