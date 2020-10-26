@@ -7,13 +7,13 @@
         android:title="@string/main_page_add_anchor"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_list_overlay"
+        android:icon="@drawable/ic_list_overlay"
+        android:title="@string/list_overlay"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_main_setting"
         android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/setting"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_list_overlay"
-        android:icon="@drawable/ic_list_overlay"
-        android:title="@string/list_overlay"
-        app:showAsAction="ifRoom" />
 </menu>

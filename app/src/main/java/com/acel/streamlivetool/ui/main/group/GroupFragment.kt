@@ -218,6 +218,10 @@ class GroupFragment : Fragment() {
         }
     }
 
+    fun scrollToTop() {
+        binding?.include?.recyclerView?.smoothScrollToPosition(0)
+    }
+
     companion object {
         @JvmStatic
         fun newInstance() = GroupFragment()
