@@ -6,7 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
@@ -192,7 +192,70 @@ class BilibiliImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return super.getAnchorsWithCookieMode()
+            var cookieOk = true
+            var message = ""
+            val anchorList = mutableListOf<Anchor>()
+            runBlocking {
+                val liveList = async(Dispatchers.IO) {
+                    val result = bilibiliService.liveAnchor(cookie).execute().body()
+                    result?.let {
+                        val list = mutableListOf<Anchor>()
+                        if (result.code != 0) {
+                            cookieOk = false
+                            message = result.message
+                        }
+                        val rooms = result.data.rooms
+                        rooms.forEach {
+                            list.add(
+                                Anchor(
+                                    platform = platform,
+                                    nickname = it.uname,
+                                    showId = it.roomid.toString(),
+                                    roomId = it.roomid.toString(),
+                                    status = true,
+                                    title = it.title,
+                                    avatar = it.face,
+                                    keyFrame = it.cover,
+                                    typeName = it.area_v2_name,
+                                    online = AnchorUtil.formatOnlineNumber(it.online)
+                                )
+                            )
+                        }
+                        list
+                    }
+                }
+                val unLiveList = async(Dispatchers.IO) {
+                    val result = bilibiliService.unLiveAnchor(cookie).execute().body()
+                    val list = mutableListOf<Anchor>()
+                    val rooms = result?.data?.rooms
+                    rooms?.forEach {
+                        list.add(
+                            Anchor(
+                                platform = platform,
+                                nickname = it.uname,
+                                showId = it.roomid.toString(),
+                                roomId = it.roomid.toString(),
+                                status = false,
+                                title = "${it.live_desc} 直播了 ${it.area_v2_name}",
+                                avatar = it.face,
+                                typeName = it.area_v2_name
+                            )
+                        )
+                    }
+                    list
+                }
+                anchorList.addAll(liveList.await() as Collection<Anchor>)
+                anchorList.addAll(unLiveList.await() as Collection<Anchor>)
+            }
+            return ResultGetAnchorListByCookieMode(cookieOk, anchorList)
+        }
+    }
+
+    fun getAnchorsWithCookieModeBackup(): ResultGetAnchorListByCookieMode {
         getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
@@ -230,7 +293,7 @@ class BilibiliImpl : IPlatform {
                             break
                     page++
                 }
-                return AnchorsCookieMode(cookieOk, list)
+                return ResultGetAnchorListByCookieMode(cookieOk, list)
             }
         }
     }

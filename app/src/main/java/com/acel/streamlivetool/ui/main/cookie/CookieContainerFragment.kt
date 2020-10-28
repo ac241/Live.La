@@ -88,7 +88,7 @@ class CookieContainerFragment : Fragment() {
                         )
                         .setPositiveButton(getString(R.string.yes)) { _, _ ->
                             platforms[position].clearCookie()
-                            fragments[platforms[position]]?.viewModel?.getAnchors()
+                            fragments[platforms[position]]?.viewModel?.updateAnchorList()
                         }
                         .setNegativeButton(getString(R.string.no), null)
                     dialogBuilder.show()

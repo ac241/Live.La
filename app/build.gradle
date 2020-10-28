@@ -43,9 +43,9 @@ android {
             def date = new Date()
             def formattedDate = date.format('yyyyMMdd')
             if (variant.buildType.name == 'release') {
-                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}.${variant.mergedFlavor.versionCode}_release_${formattedDate}.apk"
+                fileName = "${variant.properties.applicationId}_v${variant.properties.versionName}.${variant.properties.versionCode}_release_${formattedDate}.apk"
             } else {
-                fileName = "${variant.mergedFlavor.applicationId}_v${variant.mergedFlavor.versionName}.${variant.mergedFlavor.versionCode}__debug_${formattedDate}.apk"
+                fileName = "${variant.properties.applicationId}_v${variant.properties.versionName}.${variant.properties.versionCode}__debug_${formattedDate}.apk"
             }
             //noinspection GroovyVariableNotAssigned
             outputFileName = fileName
@@ -96,7 +96,4 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.11.3'
     //jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
-    //fastjson
-//    implementation 'com.alibaba:fastjson:1.1.72.android'
-//    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }

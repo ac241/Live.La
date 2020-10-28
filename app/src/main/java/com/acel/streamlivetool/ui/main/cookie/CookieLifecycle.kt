@@ -15,12 +15,12 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
     fun resume() {
         //获取数据
         if (cookieFragment.isLogining) {
-            cookieFragment.viewModel.getAnchors()
+            cookieFragment.viewModel.updateAnchorList()
             cookieFragment.loginFinish()
         } else
             System.currentTimeMillis().apply {
                 if (lastGetAnchorsTime == 0L || this - lastGetAnchorsTime > refreshDelayTime) {
-                    cookieFragment.viewModel.getAnchors()
+                    cookieFragment.viewModel.updateAnchorList()
                     lastGetAnchorsTime = this
                 }
             }

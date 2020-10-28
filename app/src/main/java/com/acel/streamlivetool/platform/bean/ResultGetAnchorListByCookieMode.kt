@@ -2,8 +2,8 @@ package com.acel.streamlivetool.platform.bean
 
 import com.acel.streamlivetool.bean.Anchor
 
-data class AnchorsCookieMode(
-    val cookieOk: Boolean,
-    val anchors: List<Anchor>?,
+data class ResultGetAnchorListByCookieMode(
+    val isCookieOk: Boolean,
+    val anchorList: List<Anchor>?,
     val message: String = ""
 )

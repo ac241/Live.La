@@ -18,14 +18,17 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
-import com.acel.streamlivetool.ui.main.public_class.ProcessStatus
+import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
+import kotlin.math.log
 
 class GroupViewModel : ViewModel() {
+    companion object {
+        private const val FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR = "关注列表中没有这个主播，请关注该主播或关闭cookie方式"
+    }
 
     class ViewModeFactory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -34,9 +37,11 @@ class GroupViewModel : ViewModel() {
         }
     }
 
-    //数据库读取的anchorList
+    //数据库读取的主页anchorList
     private val anchorRepository =
         AnchorRepository.getInstance()
+
+    private val anchorListManager = AnchorListManager.instance
 
     //    live data start
     //排序后的anchorList
@@ -82,6 +87,7 @@ class GroupViewModel : ViewModel() {
 //    live data end
 
     var lastGetAnchorsTime = 0L
+    var nowUpdateTask: Job? = null
 
     @Synchronized
     private fun notifyAnchorListChange() {
@@ -102,6 +108,7 @@ class GroupViewModel : ViewModel() {
                 hideRefreshBtn()
             }.onFailure {
                 Log.d("updateAnchor", "更新主播信息失败：cause:${it.javaClass.name}------$anchor")
+                it.printStackTrace()
                 hideRefreshBtn()
             }
         }
@@ -124,7 +131,7 @@ class GroupViewModel : ViewModel() {
 
     private fun MutableLiveData<UpdateAnchorsByCookieResult>.update(
         platform: IPlatform,
-        status: ProcessStatus
+        status: ResultType
     ) {
         value?.apply {
             map[platform] = status
@@ -136,7 +143,7 @@ class GroupViewModel : ViewModel() {
         platform: IPlatform
     ) {
         value?.apply {
-            map[platform] = ProcessStatus.WAIT
+            map[platform] = ResultType.WAIT
             postValue(value)
         }
     }
@@ -151,7 +158,50 @@ class GroupViewModel : ViewModel() {
      * 以cookie方式更新所有主播信息
      */
     private fun updateAllAnchorByCookie() {
+        nowUpdateTask?.let {
+            Log.d("updateAllAnchorByCookie", "isActive:${it.isActive}")
+            it.cancel()
+        }
+        Log.d("updateAllAnchorByCookie", "update cookie")
         val platforms = PlatformDispatcher.getAllPlatformInstance()
+        Log.d("updateAllAnchorByCookie", "0")
+        nowUpdateTask = viewModelScope.launch{
+            Log.d("updateAllAnchorByCookie", "0.5")
+            val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
+            platforms.forEach { platformEntry ->
+                //同平台的anchor列表
+                val samePlatformAnchorList = mutableListOf<Anchor>()
+                Log.d("updateAllAnchorByCookie", "1")
+                sortedAnchorList.value?.forEach {
+                    if (it.platform == platformEntry.key)
+                        samePlatformAnchorList.add(it)
+                }
+                Log.d("updateAllAnchorByCookie", "2")
+                if (samePlatformAnchorList.size > 0) {
+                    if (platformEntry.value.supportUpdateAnchorsByCookie()) {
+                        //支持cookie方式
+                        val task = async(Dispatchers.IO)  {
+                            updatePlatformAnchorList(platformEntry.value, samePlatformAnchorList)
+                        }
+                        updateTaskList.add(task)
+                    } else {
+                        // TODO: 2020/10/28 删除
+                        //不支持cookie方式，使用逐条更新
+                        samePlatformAnchorList.forEach {
+                            updateAnchor(it)
+                        }
+                    }
+                }
+            }
+            hideRefreshBtn()
+            val resultList = mutableListOf<UpdateResult>()
+            updateTaskList.forEach {
+                resultList.add(it.await())
+            }
+            showUpdateResult(resultList)
+        }
+        //todo --------------
+        return
         //进度 liveData
         val processLiveData = processLiveDataByCookie()
 
@@ -167,18 +217,18 @@ class GroupViewModel : ViewModel() {
             }
             if (list.size > 0) {
                 processLiveData.insert(platform.value)
-                //平台支持该功能
+                //平台支持cookie方式
                 if (platform.value.supportUpdateAnchorsByCookie()) {
                     viewModelScope.launch(Dispatchers.IO) {
                         kotlin.runCatching {
                             val result = platform.value.updateAnchorsDataByCookie(list)
                             if (result.cookieOk) {
                                 notifyAnchorListChange()
-                                processLiveData.update(platform.value, ProcessStatus.SUCCESS)
+                                processLiveData.update(platform.value, ResultType.SUCCESS)
                             } else {
                                 processLiveData.update(
                                     platform.value,
-                                    ProcessStatus.COOKIE_INVALID
+                                    ResultType.COOKIE_INVALID
                                 )
                             }
                         }.onFailure {
@@ -187,9 +237,9 @@ class GroupViewModel : ViewModel() {
                                 "更新主播信息失败：cause:${it.javaClass.name}------"
                             )
                             val processStatus = when (it) {
-                                is java.net.SocketTimeoutException -> ProcessStatus.NET_TIME_OUT
-                                is java.net.UnknownHostException -> ProcessStatus.NET_ERROR
-                                else -> ProcessStatus.ERROR
+                                is java.net.SocketTimeoutException -> ResultType.NET_TIME_OUT
+                                is java.net.UnknownHostException -> ResultType.NET_ERROR
+                                else -> ResultType.ERROR
                             }
                             processLiveData.update(platform.value, processStatus)
                             it.printStackTrace()
@@ -199,13 +249,135 @@ class GroupViewModel : ViewModel() {
                         }
                     }
                 }
-                //不支持该功能，使用常规方式
+                //不支持cookie方式，使用逐条更新
                 else {
-                    processLiveData.update(platform.value, ProcessStatus.CAN_NOT_TRACK)
+                    processLiveData.update(platform.value, ResultType.CAN_NOT_TRACK)
                     list.forEach {
                         updateAnchor(it)
                     }
                 }
+            }
+        }
+    }
+
+    private fun showUpdateResult(list: MutableList<UpdateResult>) {
+        var builder: SpannableStringBuilder? = null
+        var failed = 0
+        list.forEach { result ->
+            if (!result.isSuccess) {
+                if (builder == null)
+                    builder =
+                        SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
+                failed++
+                val startIndex =
+                    if (builder!!.isNotEmpty()) builder!!.length - 1 else 0
+                val platformName = "${result.iPlatform.platformName}: "
+                val status = "${result.resultType.getValue()}"
+                builder?.append("$platformName$status；")
+                when (result.resultType) {
+                    ResultType.COOKIE_INVALID -> {
+                        builder?.setSpan(
+                            LoginClickSpan(result.iPlatform),
+                            startIndex + platformName.length,
+                            startIndex + platformName.length + status.length + 1,
+                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    else -> {
+                        builder?.setSpan(
+                            ErrorColorSpan(),
+                            startIndex + platformName.length,
+                            startIndex + platformName.length + status.length + 1,
+                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    //为什么要+1？？？
+                }
+            }
+        }
+        if (failed > 0)
+            _snackBarMsg.postValue(builder)
+    }
+
+    /**
+     * 更新主页中某平台的anchor list
+     */
+    private fun updatePlatformAnchorList(
+        iPlatform: IPlatform,
+        anchorList: MutableList<Anchor>
+    ): UpdateResult {
+        Log.d("updatePlatformAnchor", "${iPlatform.platformName}更新中")
+        var updateResult =
+            UpdateResult(isSuccess = false, resultType = ResultType.ERROR, iPlatform = iPlatform)
+        runCatching {
+            //更新平台anchor list
+            val result = anchorListManager.updateAnchorList(iPlatform)
+            result?.apply {
+                updateResult = if (isCookieOk) {
+                    val targetList = anchorListManager.getAnchorList(iPlatform)
+                    anchorList.forEach {
+                        val index = targetList.indexOf(it)
+                        if (index == -1)
+                            it.setNonExistentHint()
+                        else {
+                            it.update(targetList[index])
+                        }
+                    }
+                    notifyAnchorListChange()
+                    UpdateResult(
+                        isSuccess = true,
+                        resultType = ResultType.SUCCESS,
+                        iPlatform = iPlatform
+                    )
+                } else {
+                    UpdateResult(
+                        isSuccess = false,
+                        resultType = ResultType.COOKIE_INVALID,
+                        iPlatform = iPlatform
+                    )
+                }
+            }
+        }.onFailure {
+            Log.d(
+                "updateAllAnchorByCookie",
+                "更新主播信息失败：cause:${it.javaClass.name}------"
+            )
+            val resultType = when (it) {
+                is java.net.SocketTimeoutException -> ResultType.NET_TIME_OUT
+                is java.net.UnknownHostException -> ResultType.NET_ERROR
+                is java.net.ConnectException -> ResultType.NET_ERROR
+                else -> ResultType.ERROR
+            }
+            updateResult = UpdateResult(
+                isSuccess = false,
+                resultType = resultType,
+                iPlatform = iPlatform
+            )
+            it.printStackTrace()
+            hideRefreshBtn()
+        }
+        return updateResult
+    }
+
+    data class UpdateResult(
+        val isSuccess: Boolean,
+        val resultType: ResultType,
+        val iPlatform: IPlatform
+    )
+
+    enum class ResultType {
+        WAIT, SUCCESS, FAILED, COOKIE_INVALID, CAN_NOT_TRACK, ERROR, NET_TIME_OUT, NET_ERROR;
+
+        fun getValue(): String? {
+            return when (this) {
+                WAIT -> "等待"
+                SUCCESS -> "完成"
+                FAILED -> "失败"
+                ERROR -> "发生错误"
+                COOKIE_INVALID -> "未登录"
+                NET_TIME_OUT -> "超时"
+                CAN_NOT_TRACK -> "无法追踪"
+                NET_ERROR -> "网络错误"
             }
         }
     }
@@ -228,7 +400,7 @@ class GroupViewModel : ViewModel() {
                     var index = 0
                     process.map.forEach { map ->
                         index++
-                        if (map.value == ProcessStatus.WAIT || map.value == ProcessStatus.SUCCESS)
+                        if (map.value == ResultType.WAIT || map.value == ResultType.SUCCESS)
                             processStringBuilder.append(
                                 " [ ${map.key.platformName}：${map.value.getValue()} ]" +
                                         if (index != process.map.size) "<br/>" else ""
@@ -238,7 +410,7 @@ class GroupViewModel : ViewModel() {
                                 " [ ${map.key.platformName}：<span style='color:red'>${map.value.getValue()}</span> ]" +
                                         if (index != process.map.size) "<br/>" else ""
                             )
-                        if (map.value != ProcessStatus.WAIT) completeSize++
+                        if (map.value != ResultType.WAIT) completeSize++
                     }
                     _liveDataUpdateAnchorResult.update(false, processStringBuilder.toString())
                     if (completeSize == process.map.size && process.isAllAdded) {
@@ -257,10 +429,10 @@ class GroupViewModel : ViewModel() {
                     var index = 0
                     result.map.forEach { map ->
                         index++
-                        if (map.value != ProcessStatus.WAIT) {
+                        if (map.value != ResultType.WAIT) {
                             completeSize++
                             when (map.value) {
-                                ProcessStatus.SUCCESS -> {
+                                ResultType.SUCCESS -> {
                                 }
                                 else -> {
                                     if (builder == null)
@@ -273,7 +445,7 @@ class GroupViewModel : ViewModel() {
                                     val status = "${map.value.getValue()}"
                                     builder?.append("$platformName$status；")
                                     when (map.value) {
-                                        ProcessStatus.COOKIE_INVALID -> {
+                                        ResultType.COOKIE_INVALID -> {
                                             builder?.setSpan(
                                                 LoginClickSpan(map.key),
                                                 startIndex + platformName.length,
@@ -313,6 +485,7 @@ class GroupViewModel : ViewModel() {
         }
 
         override fun onClick(widget: View) {
+            Log.d("onClick", "click")
             val intent = Intent(MyApplication.application, LoginActivity::class.java)
                 .also { it.putExtra("platform", platform.platform) }
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -335,11 +508,29 @@ class GroupViewModel : ViewModel() {
      * @property map 平台，更新信息
      */
     private data class UpdateAnchorsByCookieResult(
-        var map: MutableMap<IPlatform, ProcessStatus>,
+        var map: MutableMap<IPlatform, ResultType>,
         var isAllAdded: Boolean
     )
 
     private fun hideRefreshBtn() {
         _liveDataUpdateDetails.postValue(UpdateState.FINISH)
     }
+
+    private fun Anchor.setNonExistentHint() {
+        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+    }
+
+    private fun Anchor.update(newAnchor: Anchor) {
+        title = newAnchor.title
+        otherParams = newAnchor.otherParams
+        status = newAnchor.status
+        title = newAnchor.title
+        avatar = newAnchor.avatar
+        keyFrame = newAnchor.keyFrame
+        secondaryStatus = newAnchor.secondaryStatus
+        typeName = newAnchor.typeName
+        online = newAnchor.online
+    }
+
 }
+

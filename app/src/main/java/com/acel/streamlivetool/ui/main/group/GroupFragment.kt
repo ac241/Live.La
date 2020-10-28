@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020.
+ * @author acel
+ * 主页
+ */
+
 package com.acel.streamlivetool.ui.main.group
 
 import android.animation.Animator
@@ -5,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -42,7 +49,6 @@ class GroupFragment : Fragment() {
             MODE_GROUP, false
         )
     }
-
 
     private var _binding: FragmentGroupModeBinding? = null
     private val binding
@@ -118,6 +124,7 @@ class GroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
+        Log.d("onViewCreated", "lisn")
         binding?.groupSwipeRefresh?.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())

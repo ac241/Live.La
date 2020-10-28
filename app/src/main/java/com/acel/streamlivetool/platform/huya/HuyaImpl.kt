@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
@@ -164,14 +164,14 @@ class HuyaImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
         getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
                 val subscribe = getSubscribe(this)
                 if (subscribe?.status != 1000L)
-                    return AnchorsCookieMode(
+                    return ResultGetAnchorListByCookieMode(
                         false,
                         null,
                         subscribe?.message.toString()
@@ -195,7 +195,7 @@ class HuyaImpl : IPlatform {
                                 )
                             )
                         }
-                        AnchorsCookieMode(
+                        ResultGetAnchorListByCookieMode(
                             true,
                             list
                         )

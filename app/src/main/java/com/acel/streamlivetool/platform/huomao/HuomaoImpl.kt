@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
@@ -164,7 +164,7 @@ class HuomaoImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
         if (getCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
         val subscribe = huomaoService.getUsersSubscribe(getCookie()).execute().body()
@@ -187,7 +187,7 @@ class HuomaoImpl : IPlatform {
                     )
                 )
             }
-            return AnchorsCookieMode(
+            return ResultGetAnchorListByCookieMode(
                 true,
                 anchorList
             )

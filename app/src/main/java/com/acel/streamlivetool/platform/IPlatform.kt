@@ -6,7 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
@@ -128,8 +128,8 @@ interface IPlatform {
      * Use [getCookie] to get saved cookie
      * @return AnchorsCookieMode
      */
-    fun getAnchorsWithCookieMode(): AnchorsCookieMode {
-        return AnchorsCookieMode(
+    fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+        return ResultGetAnchorListByCookieMode(
             false,
             null,
             ""

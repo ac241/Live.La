@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2020.
+ * @author acel
+ * 平台页
+ */
+
 package com.acel.streamlivetool.ui.main.cookie
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -11,9 +18,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
@@ -30,9 +37,7 @@ class CookieFragment : Fragment() {
 
     private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
 
-    internal val viewModel by viewModels<CookieViewModel> {
-        CookieViewModel.ViewModeFactory()
-    }
+    internal val viewModel by viewModels<CookieViewModel>()
 
     private val adapterShowAnchorImage by lazy {
         GraphicAnchorAdapter(
@@ -51,7 +56,7 @@ class CookieFragment : Fragment() {
 
     fun setShowImage(boolean: Boolean) {
         nowAnchorAdapter = if (boolean) adapterShowAnchorImage else adapterNotShowAnchorImage
-        setGraphicAdapter()
+        setAdapter()
     }
 
     fun isShowImage(): Boolean {
@@ -67,15 +72,17 @@ class CookieFragment : Fragment() {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(CookieLifecycle(this))
         arguments?.let {
-            viewModel.platform = it.getString(ARG_PARAM1)
+            viewModel.bindPlatform(it.getString(ARG_PARAM1)!!)
         }
         setHasOptionsMenu(true)
+
         viewModel.apply {
             liveDataUpdateState.observe(this@CookieFragment, Observer {
                 if (it == CookieViewModel.UpdateState.PREPARE || it == CookieViewModel.UpdateState.FINISH)
                     hideSwipeRefreshBtn()
             })
             liveDataDataChanged.observe(this@CookieFragment, Observer {
+                Log.d("onCreate", "data change")
                 nowAnchorAdapter.notifyAnchorsChange()
             })
             liveDataShowLoginText.observe(this@CookieFragment, Observer {
@@ -105,10 +112,10 @@ class CookieFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-
         binding?.cookieSwipeRefresh?.setOnRefreshListener {
-            viewModel.getAnchors()
+            viewModel.updateAnchorList()
         }
+
     }
 
     internal fun hideSwipeRefreshBtn() {
@@ -123,11 +130,11 @@ class CookieFragment : Fragment() {
             adapterShowAnchorImage
         else
             adapterNotShowAnchorImage
-        setGraphicAdapter()
+        setAdapter()
         binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
     }
 
-    private fun setGraphicAdapter() {
+    private fun setAdapter() {
         binding?.include?.recyclerView?.adapter = nowAnchorAdapter as GraphicAnchorAdapter
     }
 
@@ -135,8 +142,10 @@ class CookieFragment : Fragment() {
         binding?.textViewLoginFirst?.visibility = View.VISIBLE
         binding?.textViewLoginFirst?.setOnClickListener {
             val intent = Intent(context, LoginActivity::class.java).also {
-                it.putExtra("platform",
-                    viewModel.platform?.let { it1 -> PlatformDispatcher.getPlatformImpl(it1)?.platform })
+                it.putExtra(
+                    "platform",
+                    viewModel.platform
+                )
             }
             startActivity(intent)
             startLogin()
@@ -185,7 +194,7 @@ class CookieFragment : Fragment() {
             R.id.action_list_overlay -> {
                 if (isVisible)
                     (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
-                        viewModel.anchorList
+                        viewModel.anchorList as MutableList<Anchor>
                     )
             }
         }

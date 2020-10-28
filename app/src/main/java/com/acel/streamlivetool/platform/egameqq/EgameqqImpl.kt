@@ -6,7 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
@@ -174,12 +174,12 @@ class EgameqqImpl : IPlatform {
         return getAnchor(Anchor(platform, "", roomId, roomId))
     }
 
-    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
         if (getCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
         val list = egameqqService.getFollowList(getCookie()).execute().body()
         if (list?.data?.key?.retCode != 0)
-            return AnchorsCookieMode(
+            return ResultGetAnchorListByCookieMode(
                 false,
                 null,
                 list?.data?.key?.retMsg.toString()
@@ -204,7 +204,7 @@ class EgameqqImpl : IPlatform {
                     )
                 }
             }
-            return AnchorsCookieMode(
+            return ResultGetAnchorListByCookieMode(
                 true,
                 anchorList
             )

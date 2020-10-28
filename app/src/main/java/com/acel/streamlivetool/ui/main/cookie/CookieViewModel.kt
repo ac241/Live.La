@@ -4,33 +4,34 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.main.public_class.ProcessStatus
+import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
-import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 
 
-class CookieViewModel :
-    ViewModel() {
-    class ViewModeFactory :
-        ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return CookieViewModel() as T
-        }
-    }
+class CookieViewModel : ViewModel() {
+    private val anchorListManager = AnchorListManager.instance
+    lateinit var anchorList: List<Anchor>
+    lateinit var platform: String
+    lateinit var iPlatform: IPlatform
 
-    var platform: String? = null
-    val anchorList = mutableListOf<Anchor>()
+    fun bindPlatform(platform: String) {
+        this.platform = platform
+        iPlatform = PlatformDispatcher.getPlatformImpl(platform)
+            ?: throw IllegalArgumentException("platform impl does not exist for $platform")
+        anchorListManager.initPlatform(iPlatform)
+        anchorList = anchorListManager.getAnchorList(iPlatform)
+    }
 
     //live data start
     //是否在更新状态
     private val _liveDataUpdateState = MutableLiveData<UpdateState>().also {
         it.value = UpdateState.PREPARE
     }
+
     val liveDataUpdateState: LiveData<UpdateState>
         get() = _liveDataUpdateState
 
@@ -65,61 +66,51 @@ class CookieViewModel :
     }
     //live data end
 
-    internal fun getAnchors() {
+    internal fun updateAnchorList() {
         _liveDataUpdateState.postValue(UpdateState.UPDATING)
-        MainExecutor.execute {
-            try {
-                val anchorsCookieMode =
-                    platform?.let {
-                        PlatformDispatcher.getPlatformImpl(it)?.getAnchorsWithCookieMode()
+        try {
+            val anchorsCookieMode =
+                anchorListManager.updateAnchorList(iPlatform)
+            if (anchorsCookieMode != null) {
+                if (!anchorsCookieMode.isCookieOk) {
+                    _liveDataShowLoginText.postValue(true)
+                    notifyDataChange()
+                    runOnUiThread {
+                        toast(if (anchorsCookieMode.message.isEmpty()) "请先登录" else anchorsCookieMode.message)
                     }
-                if (anchorsCookieMode != null) {
-                    if (!anchorsCookieMode.cookieOk) {
-                        _liveDataShowLoginText.postValue(true)
-                        anchorList.clear()
-                        notifyDataChange()
-                        runOnUiThread {
-                            toast(if (anchorsCookieMode.message.isEmpty()) "请先登录" else anchorsCookieMode.message)
-                        }
-                    } else {
-                        with(anchorsCookieMode.anchors) {
-                            if (this != null) {
-                                if (this.isEmpty()) {
-                                    _liveDataUpdateAnchorMsg.update(
-                                        true,
-                                        if (anchorsCookieMode.message.isEmpty()) "无数据" else anchorsCookieMode.message
-                                    )
-                                } else
-                                    _liveDataUpdateAnchorMsg.update(
-                                        false,
-                                        null
-                                    )
-                                anchorList.clear()
-                                anchorList.addAll(this)
-                                com.acel.streamlivetool.util.AnchorListUtil.insertStatusPlaceHolder(
-                                    anchorList
+                } else {
+                    with(anchorsCookieMode.anchorList) {
+                        if (this != null) {
+                            if (this.isEmpty()) {
+                                _liveDataUpdateAnchorMsg.update(
+                                    true,
+                                    if (anchorsCookieMode.message.isEmpty()) "无数据" else anchorsCookieMode.message
                                 )
-                                notifyDataChange()
-                            }
+                            } else
+                                _liveDataUpdateAnchorMsg.update(
+                                    false,
+                                    null
+                                )
+
+                            notifyDataChange()
                         }
-                        _liveDataShowLoginText.postValue(false)
                     }
+                    _liveDataShowLoginText.postValue(false)
                 }
-            } catch (e: Exception) {
-                Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${e.javaClass.name}")
-                when (e) {
-                    is java.net.SocketTimeoutException -> ProcessStatus.NET_TIME_OUT
-                    is java.net.UnknownHostException -> ProcessStatus.NET_TIME_OUT
-                    else -> ProcessStatus.NET_TIME_OUT
-                }
-            } finally {
-                _liveDataUpdateState.postValue(UpdateState.FINISH)
             }
+        } catch (e: Exception) {
+            Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${e.javaClass.name}")
+            e.printStackTrace()
+        } finally {
+            _liveDataUpdateState.postValue(UpdateState.FINISH)
         }
     }
 
+
     private fun notifyDataChange() {
+        Log.d("notifyDataChange", "notifi")
         _liveDataDataChanged.postValue(true)
     }
+
 }
 

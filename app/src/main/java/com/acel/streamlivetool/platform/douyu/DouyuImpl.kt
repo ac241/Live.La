@@ -4,12 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.bean.AnchorsCookieMode
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
@@ -227,14 +226,14 @@ class DouyuImpl : IPlatform {
         return null
     }
 
-    override fun getAnchorsWithCookieMode(): AnchorsCookieMode {
+    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
         getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
             else {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)
-                    return AnchorsCookieMode(
+                    return ResultGetAnchorListByCookieMode(
                         false,
                         null,
                         followed?.msg.toString()
@@ -261,7 +260,7 @@ class DouyuImpl : IPlatform {
                                 )
                             )
                         }
-                        AnchorsCookieMode(
+                        ResultGetAnchorListByCookieMode(
                             true,
                             list
                         )

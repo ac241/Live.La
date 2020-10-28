@@ -11,6 +11,8 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
@@ -30,13 +32,7 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.*
-import kotlin.collections.List
-import kotlin.collections.MutableList
-import kotlin.collections.forEach
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.setOf
 import kotlin.properties.Delegates
 
 @RuntimePermissions
@@ -46,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     //    private val groupFragment by lazy { GroupFragment.newInstance() }
 //    private val cookieFragment by lazy { CookieContainerFragment.newInstance() }
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
-    private val useCookieMode by lazy {
+    private val showPlatform by lazy {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showablePlatformSet = defaultSharedPreferences.getStringSet(
@@ -129,11 +125,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        createdDo()
+        init()
     }
 
     @Suppress("DEPRECATION")
-    private fun createdDo() {
+    private fun init() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -147,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         initViewPager()
-        if (useCookieMode)
+        if (showPlatform)
             TabLayoutMediator(
                 binding.tabLayout,
                 binding.viewPager,
@@ -168,8 +164,8 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                                    platforms[position-1].clearCookie()
-                                    platformFragments[platforms[position - 1]]?.viewModel?.getAnchors()
+                                    platforms[position - 1].clearCookie()
+                                    platformFragments[platforms[position - 1]]?.viewModel?.updateAnchorList()
                                 }
                                 .setNegativeButton(getString(R.string.no), null)
                             dialogBuilder.show()
@@ -185,10 +181,10 @@ class MainActivity : AppCompatActivity() {
      */
     private var tabViewClick by Delegates.observable(Pair(0, 0L)) { _, old, new ->
         if (old.first == new.first) {
-            if (old.first==0)
+            if (old.first == 0)
                 mainFragment.scrollToTop()
             if (new.second - old.second < 1000) {
-                platformFragments[platforms[new.first-1]]?.scrollToTop()
+                platformFragments[platforms[new.first - 1]]?.scrollToTop()
             }
         }
     }
@@ -196,7 +192,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViewPager() {
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
-                return if (useCookieMode) platforms.size + 1 else 1
+                return if (showPlatform) platforms.size + 1 else 1
             }
 
             override fun createFragment(position: Int): Fragment {
@@ -205,6 +201,8 @@ class MainActivity : AppCompatActivity() {
                     else -> platformFragments[platforms[position - 1]] as Fragment
                 }
             }
+        }.also {
+            it.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT
         }
     }
 
