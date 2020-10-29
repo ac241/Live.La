@@ -78,11 +78,10 @@ class CookieFragment : Fragment() {
 
         viewModel.apply {
             liveDataUpdateState.observe(this@CookieFragment, Observer {
-                if (it == CookieViewModel.UpdateState.PREPARE || it == CookieViewModel.UpdateState.FINISH)
+                if (it == CookieViewModel.UpdateStatus.PREPARE || it == CookieViewModel.UpdateStatus.FINISH)
                     hideSwipeRefreshBtn()
             })
             liveDataDataChanged.observe(this@CookieFragment, Observer {
-                Log.d("onCreate", "data change")
                 nowAnchorAdapter.notifyAnchorsChange()
             })
             liveDataShowLoginText.observe(this@CookieFragment, Observer {

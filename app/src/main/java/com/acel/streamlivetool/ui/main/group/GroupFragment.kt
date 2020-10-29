@@ -33,7 +33,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class GroupFragment : Fragment() {
 
-    val viewModel by viewModels<GroupViewModel> { GroupViewModel.ViewModeFactory() }
+    val viewModel by viewModels<GroupViewModel>()
     private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
     private val adapterShowAnchorImage by lazy {
         GraphicAnchorAdapter(
@@ -81,17 +81,9 @@ class GroupFragment : Fragment() {
             sortedAnchorList.observe(this@GroupFragment, Observer {
                 refreshAnchorAttribute()
             })
-            liveDataUpdateDetails.observe(this@GroupFragment, Observer {
-                if (it == GroupViewModel.UpdateState.PREPARE || it == GroupViewModel.UpdateState.FINISH)
+            liveDataUpdateStatus.observe(this@GroupFragment, Observer {
+                if (it == GroupViewModel.UpdateStATUS.PREPARE || it == GroupViewModel.UpdateStATUS.FINISH)
                     hideSwipeRefreshBtn()
-            })
-            liveDataUpdateAnchorResult.observe(this@GroupFragment, Observer { result ->
-                result.result?.let {
-                    if (!result.complete)
-                        showUpdateDetails(it)
-                    else
-                        completeUpdateDetails(it)
-                }
             })
             snackBarMsg.observe(this@GroupFragment, Observer {
                 it?.let {
@@ -124,7 +116,6 @@ class GroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-        Log.d("onViewCreated", "lisn")
         binding?.groupSwipeRefresh?.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())

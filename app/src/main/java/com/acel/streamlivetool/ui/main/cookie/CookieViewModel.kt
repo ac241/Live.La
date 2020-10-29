@@ -4,38 +4,43 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.ToastUtil.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class CookieViewModel : ViewModel() {
     private val anchorListManager = AnchorListManager.instance
     lateinit var anchorList: List<Anchor>
     lateinit var platform: String
-    lateinit var iPlatform: IPlatform
+    private lateinit var iPlatform: IPlatform
 
     fun bindPlatform(platform: String) {
         this.platform = platform
         iPlatform = PlatformDispatcher.getPlatformImpl(platform)
-            ?: throw IllegalArgumentException("platform impl does not exist for $platform")
+            ?: throw IllegalArgumentException("platform impl does not exist for [$platform]")
         anchorListManager.initPlatform(iPlatform)
         anchorList = anchorListManager.getAnchorList(iPlatform)
     }
 
-    //live data start
-    //是否在更新状态
-    private val _liveDataUpdateState = MutableLiveData<UpdateState>().also {
-        it.value = UpdateState.PREPARE
+    var updateJob: Job? = null
+
+    //更新状态
+    private val _liveDataUpdateStatus = MutableLiveData<UpdateStatus>().also {
+        it.value = UpdateStatus.PREPARE
     }
 
-    val liveDataUpdateState: LiveData<UpdateState>
-        get() = _liveDataUpdateState
+    val liveDataUpdateState: LiveData<UpdateStatus>
+        get() = _liveDataUpdateStatus
 
-    enum class UpdateState {
+    enum class UpdateStatus {
         PREPARE, UPDATING, FINISH
     }
 
@@ -51,15 +56,15 @@ class CookieViewModel : ViewModel() {
     val liveDataShowLoginText: LiveData<Boolean>
         get() = _liveDataShowLoginText
 
-    //更新anchor信息
+    //更新结果的提示信息
     private val _liveDataUpdateAnchorMsg =
-        MutableLiveData<ListMsg>().also { it.value = ListMsg(false, null) }
-    val liveDataUpdateAnchorMsg: LiveData<ListMsg>
+        MutableLiveData<UpdateAnchorMsg>().also { it.value = UpdateAnchorMsg(false, null) }
+    val liveDataUpdateAnchorMsg: LiveData<UpdateAnchorMsg>
         get() = _liveDataUpdateAnchorMsg
 
-    data class ListMsg(var show: Boolean, var msg: String?)
+    data class UpdateAnchorMsg(var show: Boolean, var msg: String?)
 
-    private fun MutableLiveData<ListMsg>.update(show: Boolean, msg: String?) {
+    private fun MutableLiveData<UpdateAnchorMsg>.update(show: Boolean, msg: String?) {
         value?.show = show
         value?.msg = msg
         this.postValue(value)
@@ -67,48 +72,50 @@ class CookieViewModel : ViewModel() {
     //live data end
 
     internal fun updateAnchorList() {
-        _liveDataUpdateState.postValue(UpdateState.UPDATING)
-        try {
-            val anchorsCookieMode =
-                anchorListManager.updateAnchorList(iPlatform)
-            if (anchorsCookieMode != null) {
-                if (!anchorsCookieMode.isCookieOk) {
-                    _liveDataShowLoginText.postValue(true)
-                    notifyDataChange()
-                    runOnUiThread {
-                        toast(if (anchorsCookieMode.message.isEmpty()) "请先登录" else anchorsCookieMode.message)
-                    }
-                } else {
-                    with(anchorsCookieMode.anchorList) {
-                        if (this != null) {
-                            if (this.isEmpty()) {
-                                _liveDataUpdateAnchorMsg.update(
-                                    true,
-                                    if (anchorsCookieMode.message.isEmpty()) "无数据" else anchorsCookieMode.message
-                                )
-                            } else
-                                _liveDataUpdateAnchorMsg.update(
-                                    false,
-                                    null
-                                )
-
-                            notifyDataChange()
+        updateJob?.cancel()
+        _liveDataUpdateStatus.postValue(UpdateStatus.UPDATING)
+        updateJob = viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val result =
+                    anchorListManager.updateAnchorList(iPlatform)
+                if (result != null) {
+                    if (!result.isCookieValid) {
+                        _liveDataShowLoginText.postValue(true)
+                        notifyDataChange()
+                        runOnUiThread {
+                            toast(if (result.message.isEmpty()) "请先登录" else result.message)
                         }
+                    } else {
+                        with(result.anchorList) {
+                            if (this != null) {
+                                if (this.isEmpty()) {
+                                    _liveDataUpdateAnchorMsg.update(
+                                        true,
+                                        if (result.message.isEmpty()) "无数据" else result.message
+                                    )
+                                } else
+                                    _liveDataUpdateAnchorMsg.update(
+                                        false,
+                                        null
+                                    )
+
+                                notifyDataChange()
+                            }
+                        }
+                        _liveDataShowLoginText.postValue(false)
                     }
-                    _liveDataShowLoginText.postValue(false)
                 }
+            }.onFailure {
+                Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${it.javaClass.name}")
+                it.printStackTrace()
             }
-        } catch (e: Exception) {
-            Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${e.javaClass.name}")
-            e.printStackTrace()
-        } finally {
-            _liveDataUpdateState.postValue(UpdateState.FINISH)
         }
+        updateJob?.start()
+        _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
     }
 
 
     private fun notifyDataChange() {
-        Log.d("notifyDataChange", "notifi")
         _liveDataDataChanged.postValue(true)
     }
 

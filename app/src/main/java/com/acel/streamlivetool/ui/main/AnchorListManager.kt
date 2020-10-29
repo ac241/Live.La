@@ -53,7 +53,7 @@ class AnchorListManager {
         runBlocking {
             val res = async(Dispatchers.IO) {
                 val res = iPlatform.getAnchorsWithCookieMode()
-                if (res.isCookieOk)
+                if (res.isCookieValid)
                     res.anchorList?.let {
                         platformAnchorListMap[iPlatform]?.apply {
                             clear()

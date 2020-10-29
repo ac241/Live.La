@@ -122,7 +122,6 @@ class GetLOLMatchAction :
             it.value.let { schedule ->
                 schedule?.list?.apply {
                     if (isNotEmpty()) {
-                        Log.d("showLOLMatch", "$isToday")
                         matchStr.append("<h4${if (isToday) " style='color:$hintColor'" else ""}>${schedule.lDate}</h4>")
                         matchStr.append("<ul>")
                         forEach { match ->

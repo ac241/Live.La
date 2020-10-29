@@ -229,7 +229,6 @@ class PlayerOverlayWindowManager {
      */
     private fun previousButtonEnable() {
         controllerView?.btn_player_overlay_previous?.apply {
-            Log.d("previousButtonEnable", "show")
             visibility = View.VISIBLE
             setImageResource(R.drawable.ic_controller_previous_enable)
             isEnabled = true
