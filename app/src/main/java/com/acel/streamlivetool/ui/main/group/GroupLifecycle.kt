@@ -3,7 +3,6 @@ package com.acel.streamlivetool.ui.main.group
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImage
 import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImageWhenMobileData
@@ -18,7 +17,7 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
         //获取数据
         if (resumeTimes != 0) {
             System.currentTimeMillis().apply {
-                groupFragment.viewModel.lastGetAnchorsTime.let {
+                groupFragment.viewModel.lastUpdateTime.let {
                     if (it == 0L || this - it > refreshDelayTime) {
                         groupFragment.viewModel.updateAllAnchor()
                     }
@@ -26,8 +25,6 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
             }
         }
         resumeTimes++
-        //设置toolbar文字
-        (groupFragment.requireActivity() as MainActivity).setToolbarTitle("主页")
         //隐藏刷新按钮
         groupFragment.hideSwipeRefreshBtn()
 

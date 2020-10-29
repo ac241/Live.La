@@ -31,6 +31,7 @@ class GroupViewModel : ViewModel() {
         AnchorRepository.getInstance()
 
     private val anchorListManager = AnchorListManager.instance
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     //排序后的anchorList
     val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {
@@ -59,7 +60,7 @@ class GroupViewModel : ViewModel() {
     val snackBarMsg
         get() = _snackBarMsg
 
-    var lastGetAnchorsTime = 0L
+    var lastUpdateTime = 0L
     private var nowUpdateTask: Job? = null
 
     @Synchronized
@@ -94,6 +95,7 @@ class GroupViewModel : ViewModel() {
      * 更新全部anchor
      */
     fun updateAllAnchor() {
+        Log.d("updateAllAnchor", "1")
         _liveDataUpdateStatus.postValue(UpdateStATUS.UPDATING)
         if (groupModeUseCookie)
             updateAllAnchorByCookie()
@@ -101,7 +103,7 @@ class GroupViewModel : ViewModel() {
             sortedAnchorList.value?.forEach { anchor ->
                 updateAnchor(anchor)
             }
-        lastGetAnchorsTime = System.currentTimeMillis()
+        lastUpdateTime = System.currentTimeMillis()
     }
 
     /**
@@ -115,9 +117,11 @@ class GroupViewModel : ViewModel() {
      * 以cookie方式更新所有主播信息
      */
     private fun updateAllAnchorByCookie() {
+        Log.d("updateAllAnchorByCookie", "2")
         nowUpdateTask?.cancel()
         val platforms = PlatformDispatcher.getAllPlatformInstance()
-        nowUpdateTask = viewModelScope.launch(Dispatchers.IO) {
+        nowUpdateTask = scope.launch(Dispatchers.IO) {
+            Log.d("updateAllAnchorByCookie", "2.1")
             val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
             platforms.forEach { platformEntry ->
                 //同平台的anchor列表
@@ -129,7 +133,7 @@ class GroupViewModel : ViewModel() {
                 if (samePlatformAnchorList.size > 0) {
                     if (platformEntry.value.supportUpdateAnchorsByCookie()) {
                         //支持cookie方式
-                        val task = async{
+                        val task = async {
                             updatePlatformAnchorList(platformEntry.value, samePlatformAnchorList)
                         }
                         updateTaskList.add(task)
@@ -147,6 +151,7 @@ class GroupViewModel : ViewModel() {
                 resultList.add(it.await())
             }
             showUpdateResult(resultList)
+            Log.d("updateAllAnchorByCookie", "end===========")
         }
         nowUpdateTask?.start()
     }
@@ -347,5 +352,9 @@ class GroupViewModel : ViewModel() {
         online = newAnchor.online
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        nowUpdateTask?.cancel()
+    }
 }
 
