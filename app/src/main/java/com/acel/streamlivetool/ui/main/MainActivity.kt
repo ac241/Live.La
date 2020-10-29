@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -186,6 +187,7 @@ class MainActivity : AppCompatActivity() {
         }.also {
             it.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT
         }
+        binding.viewPager.offscreenPageLimit = 1
     }
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
