@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -21,7 +20,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
@@ -34,7 +32,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class GroupFragment : Fragment() {
 
     val viewModel by viewModels<GroupViewModel>()
-    private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
+    private lateinit var nowAnchorAdapter: GraphicAnchorAdapter
     private val adapterShowAnchorImage by lazy {
         GraphicAnchorAdapter(
             requireContext(),
@@ -139,7 +137,7 @@ class GroupFragment : Fragment() {
     }
 
     private fun setGraphicAdapter() {
-        binding?.include?.recyclerView?.adapter = nowAnchorAdapter as GraphicAnchorAdapter
+        binding?.include?.recyclerView?.adapter = nowAnchorAdapter
     }
 
     fun setShowImage(boolean: Boolean) {

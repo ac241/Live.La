@@ -11,6 +11,7 @@ import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
+import com.acel.streamlivetool.util.TimeUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 import java.net.URLEncoder
 
@@ -76,9 +77,10 @@ class HuyaImpl : IPlatform {
                         keyFrame = TextUtil.subString(pcHtml, "\"screenshot\":\"", "\",")
                             ?.replace("\\", "")
                         online =
-                            TextUtil.subString(pcHtml, "\"totalCount\":", ",")?.trim()?.toInt()?.let {
-                                AnchorUtil.formatOnlineNumber(it)
-                            }
+                            TextUtil.subString(pcHtml, "\"totalCount\":", ",")?.trim()?.toInt()
+                                ?.let {
+                                    AnchorUtil.formatOnlineNumber(it)
+                                }
                     }
                 }
             }
@@ -191,7 +193,8 @@ class HuyaImpl : IPlatform {
                                     avatar = it.avatar180,
                                     keyFrame = it.screenshot,
                                     typeName = it.gameName,
-                                    online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt())
+                                    online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
+                                    liveTime = TimeUtil.timeStampToString(it.startTime)
                                 )
                             )
                         }

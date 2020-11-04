@@ -13,6 +13,7 @@ import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
+import com.acel.streamlivetool.util.TimeUtil
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -199,7 +200,8 @@ class EgameqqImpl : IPlatform {
                             avatar = it.live_info.anchor_face_url,
                             keyFrame = it.live_info.video_info.url,
                             typeName = it.live_info.appname,
-                            online = AnchorUtil.formatOnlineNumber(it.live_info.online)
+                            online = AnchorUtil.formatOnlineNumber(it.live_info.online),
+                            liveTime = TimeUtil.timeStampToString(it.last_play_time)
                         )
                     )
                 }

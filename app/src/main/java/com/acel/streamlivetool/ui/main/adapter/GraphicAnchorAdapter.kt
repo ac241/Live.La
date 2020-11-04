@@ -38,8 +38,7 @@ class GraphicAnchorAdapter(
     private val modeType: Int,
     private val showAnchorImage: Boolean
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    AnchorAdapterWrapper {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mPosition: Int = -1
     private val additionalActionManager = AdditionalActionManager.instance
     private val onlineImageSpan =
@@ -49,9 +48,9 @@ class GraphicAnchorAdapter(
         val holder: RecyclerView.ViewHolder
         when (viewType) {
             VIEW_TYPE_LIVING_GROUP_TITLE ->
-                holder = ViewHolderStatusGroup(
+                holder = ViewHolderGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_title_living, parent, false)
+                        .inflate(R.layout.item_group_living, parent, false)
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
@@ -59,9 +58,9 @@ class GraphicAnchorAdapter(
                         }
                 )
             VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
-                holder = ViewHolderStatusGroup(
+                holder = ViewHolderGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_status_title_not_living, parent, false)
+                        .inflate(R.layout.item_group_not_living, parent, false)
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
@@ -122,7 +121,7 @@ class GraphicAnchorAdapter(
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderStatusGroup)
+        if (holder is ViewHolderGroup)
             return
         val anchor: Anchor = anchorList[position]
         holder as ViewHolderGraphic
@@ -144,7 +143,11 @@ class GraphicAnchorAdapter(
             holder.typeName.visibility = View.GONE
 
         //title
+
         holder.title.text = anchor.title ?: "-"
+
+        //直播时间
+        holder.liveTime.text = anchor.liveTime ?: ""
 
         //roomid
         holder.roomId.text = anchor.showId
@@ -247,8 +250,8 @@ class GraphicAnchorAdapter(
         }
     }
 
-    override fun getLongClickPosition(): Int = mPosition
-    override fun notifyAnchorsChange() = notifyDataSetChanged()
+    fun getLongClickPosition(): Int = mPosition
+    fun notifyAnchorsChange() = notifyDataSetChanged()
 
     inner class ViewHolderGraphic(itemView: View) :
         RecyclerView.ViewHolder(itemView),
@@ -259,6 +262,8 @@ class GraphicAnchorAdapter(
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
             menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
+            if (liveTime.text.isNotEmpty())
+                menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))
             when (modeType) {
                 MODE_GROUP -> {
                     (itemView.context as AppCompatActivity).menuInflater.inflate(
@@ -290,6 +295,7 @@ class GraphicAnchorAdapter(
         val roomId: TextView = itemView.grid_anchor_roomId
         val typeName: TextView = itemView.grid_anchor_type_name
         val online: TextView? = itemView.grid_anchor_online ?: null
+        val liveTime: TextView = itemView.grid_anchor_live_time
     }
 
 }

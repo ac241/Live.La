@@ -3,7 +3,7 @@ package com.acel.streamlivetool.ui.overlay.list
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 
 class ListOverlayWindow : AbsOverlayWindow() {
-    override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_list_overlay
+    override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_overlay_list
     override val widthDp: Float = 220F
     override val heightDp: Float = 320F
     override val x: Int = 300

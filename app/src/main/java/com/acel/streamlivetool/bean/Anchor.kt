@@ -41,6 +41,12 @@ class Anchor() {
     @Ignore
     var online: String? = null
 
+    /**
+     * 直播时间
+     */
+    @Ignore
+    var liveTime: String? = null
+
     constructor(
         platform: String,
         nickname: String,
@@ -67,7 +73,8 @@ class Anchor() {
         otherParams: String = "",
         secondaryStatus: String? = null,
         typeName: String? = null,
-        online: String? = null
+        online: String? = null,
+        liveTime: String? = null
     ) : this() {
         this.platform = platform
         this.nickname = nickname
@@ -81,6 +88,7 @@ class Anchor() {
         this.secondaryStatus = secondaryStatus
         this.typeName = typeName
         this.online = online
+        this.liveTime = liveTime
     }
 
     override fun equals(other: Any?): Boolean {

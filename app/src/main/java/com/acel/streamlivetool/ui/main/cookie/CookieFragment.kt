@@ -23,7 +23,6 @@ import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.adapter.AnchorAdapterWrapper
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
@@ -35,7 +34,7 @@ private const val ARG_PARAM1 = "param1"
 
 class CookieFragment : Fragment() {
 
-    private lateinit var nowAnchorAdapter: AnchorAdapterWrapper
+    private lateinit var nowAnchorAdapter: GraphicAnchorAdapter
 
     internal val viewModel by viewModels<CookieViewModel>()
 
@@ -134,7 +133,7 @@ class CookieFragment : Fragment() {
     }
 
     private fun setAdapter() {
-        binding?.include?.recyclerView?.adapter = nowAnchorAdapter as GraphicAnchorAdapter
+        binding?.include?.recyclerView?.adapter = nowAnchorAdapter
     }
 
     private fun showLoginTextView() {

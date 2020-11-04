@@ -25,7 +25,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
         when (viewType) {
             VIEW_TYPE_LIVING_GROUP_TITLE ->
                 holder =
-                    ViewHolderStatusGroup(
+                    ViewHolderGroup(
                         LayoutInflater.from(parent.context)
                             .inflate(R.layout.item_overlay_status_living, parent, false)
                             .also {
@@ -35,7 +35,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                     )
             VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
                 holder =
-                    ViewHolderStatusGroup(
+                    ViewHolderGroup(
                         LayoutInflater.from(parent.context)
                             .inflate(R.layout.item_overlay_status_not_living, parent, false)
                             .also {
@@ -66,7 +66,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderStatusGroup)
+        if (holder is ViewHolderGroup)
             return
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]

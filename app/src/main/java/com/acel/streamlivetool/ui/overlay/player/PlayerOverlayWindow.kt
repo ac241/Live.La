@@ -5,7 +5,7 @@ import android.view.WindowManager
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 
 class PlayerOverlayWindow : AbsOverlayWindow() {
-    override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_player_overlay
+    override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_overlay_player
     override val widthDp: Float = 240F
     override val heightDp: Float = 135F
     override val x: Int = 200

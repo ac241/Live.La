@@ -95,7 +95,6 @@ class GroupViewModel : ViewModel() {
      * 更新全部anchor
      */
     fun updateAllAnchor() {
-        Log.d("updateAllAnchor", "1")
         _liveDataUpdateStatus.postValue(UpdateStATUS.UPDATING)
         if (groupModeUseCookie)
             updateAllAnchorByCookie()
@@ -117,11 +116,9 @@ class GroupViewModel : ViewModel() {
      * 以cookie方式更新所有主播信息
      */
     private fun updateAllAnchorByCookie() {
-        Log.d("updateAllAnchorByCookie", "2")
         nowUpdateTask?.cancel()
         val platforms = PlatformDispatcher.getAllPlatformInstance()
         nowUpdateTask = scope.launch(Dispatchers.IO) {
-            Log.d("updateAllAnchorByCookie", "2.1")
             val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
             platforms.forEach { platformEntry ->
                 //同平台的anchor列表
@@ -151,7 +148,6 @@ class GroupViewModel : ViewModel() {
                 resultList.add(it.await())
             }
             showUpdateResult(resultList)
-            Log.d("updateAllAnchorByCookie", "end===========")
         }
         nowUpdateTask?.start()
     }
@@ -219,6 +215,7 @@ class GroupViewModel : ViewModel() {
                         if (index == -1)
                             it.setNonExistentHint()
                         else {
+                            //更新信息
                             it.update(targetList[index])
                         }
                     }
@@ -350,6 +347,7 @@ class GroupViewModel : ViewModel() {
         secondaryStatus = newAnchor.secondaryStatus
         typeName = newAnchor.typeName
         online = newAnchor.online
+        liveTime = newAnchor.liveTime
     }
 
     override fun onCleared() {

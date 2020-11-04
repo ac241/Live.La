@@ -30,7 +30,7 @@ data class LiveAnchor(
         val flag: Int,
         val link: String,
         val live_tag_name: String,
-        val live_time: Int,
+        val live_time: Long,
         val official_verify: Int,
         val online: Int,
         val p2p_type: Int,

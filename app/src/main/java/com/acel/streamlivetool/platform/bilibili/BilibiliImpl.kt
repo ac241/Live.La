@@ -10,6 +10,7 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
+import com.acel.streamlivetool.util.TimeUtil
 import com.google.gson.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -221,7 +222,8 @@ class BilibiliImpl : IPlatform {
                                     avatar = it.face,
                                     keyFrame = it.cover,
                                     typeName = it.area_v2_name,
-                                    online = AnchorUtil.formatOnlineNumber(it.online)
+                                    online = AnchorUtil.formatOnlineNumber(it.online),
+                                    liveTime = TimeUtil.timeStampToString(it.live_time)
                                 )
                             )
                         }
@@ -242,7 +244,8 @@ class BilibiliImpl : IPlatform {
                                 status = false,
                                 title = "${it.live_desc} 直播了 ${it.area_v2_name}",
                                 avatar = it.face,
-                                typeName = it.area_v2_name
+                                typeName = it.area_v2_name,
+                                liveTime = it.live_desc
                             )
                         )
                     }
@@ -251,7 +254,7 @@ class BilibiliImpl : IPlatform {
                 anchorList.addAll(liveList.await() as Collection<Anchor>)
                 anchorList.addAll(unLiveList.await() as Collection<Anchor>)
             }
-            return ResultGetAnchorListByCookieMode(cookieOk, anchorList)
+            return ResultGetAnchorListByCookieMode(cookieOk, anchorList, message)
         }
     }
 

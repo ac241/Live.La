@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoListener
-import kotlinx.android.synthetic.main.layout_player_overlay.view.*
+import kotlinx.android.synthetic.main.layout_overlay_player.view.*
 
 
 class PlayerOverlayWindowManager {

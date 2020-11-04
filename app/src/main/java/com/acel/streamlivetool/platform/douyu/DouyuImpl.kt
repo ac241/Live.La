@@ -15,6 +15,7 @@ import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TextUtil
+import com.acel.streamlivetool.util.TimeUtil
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -256,7 +257,8 @@ class DouyuImpl : IPlatform {
                                         R.string.video_looping
                                     ) else null,
                                     typeName = it.game_name,
-                                    online = it.online
+                                    online = it.online,
+                                    liveTime = TimeUtil.timeStampToString(it.show_time)
                                 )
                             )
                         }

@@ -174,16 +174,17 @@ class HuomaoImpl : IPlatform {
             list.forEach {
                 anchorList.add(
                     Anchor(
-                        platform,
-                        it.nickname,
-                        it.room_number,
-                        it.id,
-                        it.is_live == 1,
-                        it.channel,
-                        it.headimg.big,
-                        it.image,
+                        platform = platform,
+                        nickname = it.nickname,
+                        showId = it.room_number,
+                        roomId = it.id,
+                        status = it.is_live == 1,
+                        title = it.channel,
+                        avatar = it.headimg.big,
+                        keyFrame = it.image,
                         typeName = it.gameCname,
-                        online = it.views
+                        online = it.views,
+                        liveTime = it.event_starttime
                     )
                 )
             }

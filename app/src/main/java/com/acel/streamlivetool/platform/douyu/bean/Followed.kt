@@ -45,7 +45,7 @@ data class Followed(
         val room_src: String,
         val rpos: Int,
         val show_status: Int,
-        val show_time: Int,
+        val show_time: Long,
         val status: Int,
         val sub_rt: Int,
         val url: String,

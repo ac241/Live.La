@@ -39,7 +39,7 @@ data class FollowList(
         val channel_id: String,
         val face_update_ts: Int,
         val follow_ts: Int,
-        val last_play_time: Int,
+        val last_play_time: Long,
         val live_info: LiveInfo,
         val max_face_size: Int,
         val new_dynamic_time: Int,
