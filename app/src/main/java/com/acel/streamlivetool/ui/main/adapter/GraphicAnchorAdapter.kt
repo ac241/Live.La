@@ -6,10 +6,7 @@ import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
-import android.view.ContextMenu
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +15,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
@@ -270,6 +269,9 @@ class GraphicAnchorAdapter(
                         R.menu.anchor_item_menu,
                         menu
                     )
+                    if (title.text == FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR) {
+                        menu?.add(Menu.NONE, ITEM_ID_FOLLOW_ANCHOR, Menu.NONE, "关注该主播")
+                    }
                 }
                 MODE_COOKIE ->
                     (itemView.context as AppCompatActivity).menuInflater.inflate(

@@ -40,7 +40,7 @@ data class RoomInfo(
         val studio_info: StudioInfo,
         val tags: String,
         val title: String,
-        val uid: Int,
+        val uid: Long,
         val up_session: String,
         val user_cover: String,
         val verify: String

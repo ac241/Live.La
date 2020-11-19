@@ -179,6 +179,7 @@ class CookieFragment : Fragment() {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
                         nowAnchorAdapter.getLongClickPosition()
+                    Log.d("onContextItemSelected", "${viewModel.anchorList}")
                     val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)

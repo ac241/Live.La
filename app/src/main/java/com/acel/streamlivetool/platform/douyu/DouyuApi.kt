@@ -54,4 +54,16 @@ interface DouyuApi {
     @GET("https://www.douyu.com/japi/search/api/getSearchRec")
     fun search(@Query("kw") keyword: String): Call<SearchResult>
 
+    @FormUrlEncoded
+    @POST("https://www.douyu.com/wgapi/livenc/liveweb/follow/add")
+    fun follow(
+        @Header("Cookie") cookie: String,
+        @Field("rid") rid: String,
+        @Field("ctn") ctn: String
+    ): Call<FollowResponse>
+
+    @GET("https://www.douyu.com/curl/csrfApi/getCsrfCookie")
+    fun initCsrf(
+        @Header("Cookie") cookie: String
+    ): Call<String>
 }

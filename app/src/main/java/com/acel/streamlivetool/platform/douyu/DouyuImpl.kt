@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -14,6 +15,7 @@ import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
+import com.acel.streamlivetool.util.CookieUtil
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.TimeUtil
 import com.google.gson.Gson
@@ -277,7 +279,30 @@ class DouyuImpl : IPlatform {
         return false
     }
 
+    override fun usePcAgent(): Boolean = true
+
     override fun getLoginUrl(): String {
-        return "https://passport.douyu.com/index/login"
+        return "https://www.douyu.com/directory/all"
+    }
+
+    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return Pair(false, "未登录")
+            val response = douyuService.initCsrf(cookie).execute()
+            val setCookie = response.headers().get("Set-Cookie") ?: ""
+            val ctn = CookieUtil.getCookieField(setCookie, "acf_ccn")
+            ctn?.let { c ->
+                val result =
+                    douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
+                result?.apply {
+                    return if (error == 0)
+                        Pair(true, "关注成功")
+                    else
+                        Pair(false, msg)
+                }
+            }
+        }
+        return Pair(false, "发生错误")
     }
 }

@@ -2,14 +2,12 @@ package com.acel.streamlivetool.platform.bilibili
 
 import com.acel.streamlivetool.platform.bilibili.bean.*
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface BilibiliApi {
 
     @GET("https://api.live.bilibili.com/room/v1/Room/get_info")
-    fun getRoomInfo(@Query("room_id") id: String): Call<String>
+    fun getRoomInfo(@Query("room_id") id: String): Call<RoomInfo>
 
     @GET("https://api.live.bilibili.com/room/v1/Room/playUrl")
     fun getPlayUrl(@Query("cid") cid: String): Call<PlayUrl>
@@ -51,4 +49,15 @@ interface BilibiliApi {
 
     @GET("https://api.live.bilibili.com/xlive/web-room/v1/index/getH5InfoByRoom")
     fun getH5InfoByRoom(@Query("room_id") id: Long): Call<H5Info>
+
+    @FormUrlEncoded
+    @POST("https://api.bilibili.com/x/relation/modify")
+    fun follow(
+        @Header("Cookie") cookie: String,
+//        @FieldMap map: MutableMap<String, String>,
+        @Field("fid") fid: Long,
+        @Field("csrf") csrf: String,
+        @Field("act") act: Int = 1,
+        @Field("re_src") re_src: Int = 11
+    ): Call<FollowResponse>
 }

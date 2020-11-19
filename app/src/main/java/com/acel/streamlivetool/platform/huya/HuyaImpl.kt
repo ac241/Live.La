@@ -9,10 +9,7 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
-import com.acel.streamlivetool.util.AnchorUtil
-import com.acel.streamlivetool.util.TextUtil
-import com.acel.streamlivetool.util.TimeUtil
-import com.acel.streamlivetool.util.UnicodeUtil
+import com.acel.streamlivetool.util.*
 import java.net.URLEncoder
 
 
@@ -231,5 +228,25 @@ class HuyaImpl : IPlatform {
 
     override fun getLoginUrl(): String {
         return "https://www.huya.com/myfollow"
+    }
+
+    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return Pair(false, "未登录")
+            val uid = CookieUtil.getCookieField(cookie, "yyuid")
+            uid?.let { u ->
+                val response =
+                    huyaService.follow(cookie, anchor.roomId, u, System.currentTimeMillis())
+                        .execute().body()
+                response?.apply {
+                    return if (status == 1)
+                        Pair(true, "关注成功")
+                    else
+                        Pair(false, message)
+                }
+            }
+        }
+        return Pair(false, "发生错误")
     }
 }

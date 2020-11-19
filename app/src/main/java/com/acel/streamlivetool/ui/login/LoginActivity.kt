@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                     if (platformImpl.checkLoginOk(cookieStr)) {
                         platformImpl.saveCookie(cookieStr)
                         toast("添加成功")
-                        finish()
+//                        finish()
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.bilibili
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
@@ -10,12 +11,16 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
+import com.acel.streamlivetool.util.CookieUtil.getCookieField
 import com.acel.streamlivetool.util.TimeUtil
 import com.google.gson.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import java.io.UnsupportedEncodingException
 import java.lang.reflect.Type
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.*
 
 class BilibiliImpl : IPlatform {
@@ -51,8 +56,8 @@ class BilibiliImpl : IPlatform {
                 }
             }).create()
 
-        val json = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
-        val roomInfo = gson.fromJson<RoomInfo>(json, RoomInfo::class.java)
+        val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
+//        val roomInfo = gson.fromJson<RoomInfo>(json, RoomInfo::class.java)
         return if (roomInfo?.code == 0) {
             val roomId = roomInfo.data?.room_id
             val ownerName = roomId?.toLong()?.let { getAnchorName(it) }
@@ -311,4 +316,28 @@ class BilibiliImpl : IPlatform {
         return "https://passport.bilibili.com/login"
     }
 
+    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+        getCookie().let { cookie ->
+            if (cookie.isEmpty())
+                return Pair(false, "未登录")
+            val roomInfo = bilibiliService.getRoomInfo(anchor.roomId).execute().body()
+            roomInfo?.let { info ->
+                info.data?.uid?.let { uid ->
+                    val jct = getCookieField(cookie, "bili_jct")
+                    jct?.let { j ->
+                        val response = bilibiliService.follow(cookie, uid, j).execute().body()
+                        response?.apply {
+                            return if (code == 0)
+                                Pair(true, "关注成功")
+                            else
+                                Pair(false, message)
+                        }
+                    }
+                }
+
+            }
+
+        }
+        return Pair(false, "发生错误")
+    }
 }

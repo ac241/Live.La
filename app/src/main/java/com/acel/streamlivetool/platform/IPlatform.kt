@@ -15,9 +15,6 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 import retrofit2.Retrofit
 
 interface IPlatform {
-    companion object {
-        private const val FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR = "关注列表中没有这个主播，请关注该主播或关闭cookie方式"
-    }
 
     /**
      * 平台名，例如"Douyu"
@@ -58,7 +55,7 @@ interface IPlatform {
     fun updateAnchorData(queryAnchor: Anchor): Boolean
 
     /**
-     * 是否支持updateAnchorsByCookie
+     * 是否支持以cookie方式更新数据
      */
     fun supportUpdateAnchorsByCookie() = false
 
@@ -69,23 +66,28 @@ interface IPlatform {
      * 必须调用[setHintWhenFollowListDidNotContainsTheAnchor]给列表中不含的anchor设置提醒
      * @return 如果成功，返回对象的第一个参数应该为true
      */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("已弃用")
     fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie =
         ResultUpdateAnchorByCookie(false)
 
     /**
      * 设置提醒词
      */
-    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
-        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("已弃用")    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
+//        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
     }
 
     /**
      * 设置提醒词
      */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("已弃用")
     fun List<Anchor>.setHintWhenFollowListDidNotContainsTheAnchor() {
-        forEach {
-            it.title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
-        }
+//        forEach {
+////            it.title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+//        }
     }
 
     /**
@@ -184,4 +186,14 @@ interface IPlatform {
         defaultSharedPreferences.edit().remove("${platform}_cookie")
             .apply()
     }
+
+    /**
+     * 关注
+     */
+    fun follow(anchor: Anchor): Pair<Boolean, String> = Pair(false, "该平台不支持。")
+
+    /**
+     * 取消关注
+     */
+    fun unFollow(anchor: Anchor): Pair<Boolean, String> = Pair(false, "该平台不支持。")
 }

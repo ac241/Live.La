@@ -13,6 +13,7 @@ import androidx.lifecycle.*
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -20,6 +21,7 @@ import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
+import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -323,15 +325,12 @@ class GroupViewModel : ViewModel() {
         _liveDataUpdateStatus.postValue(UpdateStATUS.FINISH)
     }
 
-    companion object {
-        private const val FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR = "关注列表中没有这个主播，请关注该主播或关闭cookie方式"
-    }
-
     /**
      * 关注列表中不包含改主播时修改
      */
     private fun Anchor.setNonExistentHint() {
         title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+        status = false
     }
 
     /**
@@ -353,6 +352,21 @@ class GroupViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         nowUpdateTask?.cancel()
+    }
+
+    fun followAnchor(anchor: Anchor) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = PlatformDispatcher.getPlatformImpl(anchor.platform)?.follow(anchor)
+            result?.let {
+                withContext(Dispatchers.Main) {
+                    if (it.first) {
+                        toast("关注成功：${anchor.nickname}")
+                        updateAllAnchorByCookie()
+                    } else
+                        toast("关注失败：${it.second}，如多次失败请自行关注。")
+                }
+            }
+        }
     }
 }
 

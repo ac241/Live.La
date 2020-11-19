@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -18,7 +19,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
+import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
@@ -165,6 +168,11 @@ class GroupFragment : Fragment() {
             R.id.action_item_delete -> {
                 val position = nowAnchorAdapter.getLongClickPosition()
                 viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
+            }
+            ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
+                val position = nowAnchorAdapter.getLongClickPosition()
+                val anchor = viewModel.sortedAnchorList.value!![position]
+                viewModel.followAnchor(anchor)
             }
         }
         return super.onContextItemSelected(item)
