@@ -28,6 +28,7 @@ class HuomaoImpl : IPlatform {
 
     override val platform: String = "huomao"
     override val platformShowNameRes: Int = R.string.huomao
+    override val iconRes: Int = R.drawable.ic_huomao
     override val supportCookieMode: Boolean = true
     private val huomaoService: HuomaoApi = retrofit.create(HuomaoApi::class.java)
 

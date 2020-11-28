@@ -26,6 +26,11 @@ interface IPlatform {
      */
     val platformShowNameRes: Int
 
+    /**
+     * icon
+     */
+    val iconRes: Int
+
     val platformName
         get() = MyApplication.application.getString(platformShowNameRes)
 
@@ -75,7 +80,8 @@ interface IPlatform {
      * 设置提醒词
      */
     @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("已弃用")    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
+    @Deprecated("已弃用")
+    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
 //        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
     }
 

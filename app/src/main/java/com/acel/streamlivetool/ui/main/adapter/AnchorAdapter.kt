@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -31,7 +32,7 @@ import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 
 
-class GraphicAnchorAdapter(
+class AnchorAdapter(
     private val context: Context,
     private val anchorList: List<Anchor>,
     private val modeType: Int,
@@ -128,12 +129,22 @@ class GraphicAnchorAdapter(
         //主播名
         holder.anchorName.text = anchor.nickname
         //平台名
-        if (modeType == MODE_GROUP) {
-            holder.platform.text =
-                PlatformDispatcher.getPlatformImpl(anchor.platform)?.platformName ?: "unknown"
-        } else {
-            holder.platform.visibility = View.GONE
+        holder.platform.visibility = View.GONE
+        PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
+            holder.icon?.setImageResource(it)
         }
+//        if (modeType == MODE_GROUP) {
+//            if (getItemViewType(position) == VIEW_TYPE_ANCHOR) {
+//                holder.platform.visibility = View.GONE
+//                PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
+//                    holder.icon?.setImageResource(it)
+//                }
+//            } else
+//                holder.platform.text =
+//                    PlatformDispatcher.getPlatformImpl(anchor)?.platformName ?: "unknown"
+//        } else {
+//            holder.platform.visibility = View.GONE
+//        }
         //直播类型
         if (anchor.typeName != null) {
             holder.typeName.text = anchor.typeName
@@ -220,6 +231,7 @@ class GraphicAnchorAdapter(
         //长按
         holder.itemView.setOnLongClickListener {
             mPosition = position
+            Log.d("onBindViewHolder", "${getLongClickPosition()}")
             return@setOnLongClickListener false
         }
 
@@ -298,6 +310,7 @@ class GraphicAnchorAdapter(
         val typeName: TextView = itemView.grid_anchor_type_name
         val online: TextView? = itemView.grid_anchor_online ?: null
         val liveTime: TextView = itemView.grid_anchor_live_time
+        val icon: ImageView? = itemView.grid_anchor_icon
     }
 
 }

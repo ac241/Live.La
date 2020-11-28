@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -21,10 +20,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
-import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
+import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
@@ -35,16 +33,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 class GroupFragment : Fragment() {
 
     val viewModel by viewModels<GroupViewModel>()
-    private lateinit var nowAnchorAdapter: GraphicAnchorAdapter
+    private lateinit var nowAnchorAdapter: AnchorAdapter
     private val adapterShowAnchorImage by lazy {
-        GraphicAnchorAdapter(
+        AnchorAdapter(
             requireContext(),
             viewModel.sortedAnchorList.value!!,
             MODE_GROUP, true
         )
     }
     private val adapterNotShowAnchorImage by lazy {
-        GraphicAnchorAdapter(
+        AnchorAdapter(
             requireContext(),
             viewModel.sortedAnchorList.value!!,
             MODE_GROUP, false

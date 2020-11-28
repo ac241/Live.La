@@ -27,8 +27,8 @@
             android:layout_height="wrap_content"
             android:alpha="0.6"
             android:background="@android:color/black"
-            android:paddingVertical="2dp"
             android:paddingHorizontal="10dp"
+            android:paddingVertical="2dp"
             android:textColor="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,12 +38,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textSize="12sp"
             android:alpha="0.6"
             android:background="@android:color/black"
-            android:paddingVertical="2dp"
             android:paddingHorizontal="10dp"
+            android:paddingVertical="2dp"
             android:textColor="@android:color/white"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/textView_controller_title"
             app:layout_constraintTop_toBottomOf="@id/textView_controller_title" />
 
@@ -63,6 +63,8 @@
         <ImageView
             android:id="@+id/btn_player_overlay_close"
             style="@style/player_overlay_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="end|top"
             android:contentDescription="@string/button_player_overlay_close"
             android:src="@drawable/ic_baseline_close_24"
@@ -82,9 +84,10 @@
         <ImageView
             android:id="@+id/btn_player_overlay_start_app"
             style="@style/player_overlay_button"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_gravity="end|center_vertical"
             android:contentDescription="@string/start_app"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_baseline_call_missed_outgoing_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

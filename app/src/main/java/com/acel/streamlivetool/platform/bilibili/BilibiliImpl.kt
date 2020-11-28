@@ -32,6 +32,7 @@ class BilibiliImpl : IPlatform {
 
     override val platform: String = "bilibili"
     override val platformShowNameRes: Int = R.string.bilibili
+    override val iconRes: Int = R.drawable.ic_bilibili
     override val supportCookieMode: Boolean = true
 
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)

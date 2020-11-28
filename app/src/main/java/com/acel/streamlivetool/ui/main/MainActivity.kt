@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -63,6 +64,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     val platforms by lazy {
+        initPlatforms()
+    }
+
+    private fun initPlatforms(): MutableList<IPlatform> {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showSet = defaultSharedPreferences.getStringSet(
@@ -80,20 +85,35 @@ class MainActivity : AppCompatActivity() {
                         platforms.add(platform)
                 }
             }
-        platforms
+        return platforms
     }
 
-    val platformFragments = mutableMapOf<IPlatform, CookieFragment>().also {
+    val platformFragments by lazy {
+        initPlatformFragments()
+    }
+
+    private fun initPlatformFragments(): MutableMap<IPlatform, CookieFragment> {
+        val map = mutableMapOf<IPlatform, CookieFragment>()
         platforms.forEach { platform ->
-            it[platform] = CookieFragment.newInstance(platform.platform)
+            map[platform] = CookieFragment.newInstance(platform.platform)
         }
+        return map
+    }
+
+    private fun updatePlatformData() {
+        platforms.clear()
+        platforms.addAll(initPlatforms())
+
+        platformFragments.clear()
+        platformFragments.putAll(initPlatformFragments())
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         when (intent?.action) {
             OnNewIntentAction.PREF_CHANGED -> {
-                initViewPager()
+                updatePlatformData()
+                (binding.viewPager.adapter as FragmentStateAdapter).notifyDataSetChanged()
             }
         }
     }
@@ -123,19 +143,18 @@ class MainActivity : AppCompatActivity() {
         if (displayPlatformPage)
             TabLayoutMediator(
                 binding.tabLayout,
-                binding.viewPager,
-                TabLayoutMediator.TabConfigurationStrategy { tab, position ->
-                    tab.text = if (position == 0) "主页" else platforms[position - 1].platformName
-                    tab.view.setOnClickListener {
-                        tabViewClick = Pair(position, System.currentTimeMillis())
-                    }
-                    if (position != 0)
-                        tab.view.setOnLongClickListener {
-                            showClearCookieAlert(position)
-                            return@setOnLongClickListener true
-                        }
+                binding.viewPager
+            ) { tab, position ->
+                tab.text = if (position == 0) "主页" else platforms[position - 1].platformName
+                tab.view.setOnClickListener {
+                    tabViewClick = Pair(position, System.currentTimeMillis())
                 }
-            ).attach()
+                if (position != 0)
+                    tab.view.setOnLongClickListener {
+                        showClearCookieAlert(position)
+                        return@setOnLongClickListener true
+                    }
+            }.attach()
     }
 
     private fun showClearCookieAlert(position: Int) {

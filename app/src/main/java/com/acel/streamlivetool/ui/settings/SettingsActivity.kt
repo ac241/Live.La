@@ -18,6 +18,10 @@ class SettingsActivity : AppCompatActivity() {
             .commit()
     }
 
+    fun setRestart() {
+        settingsChanges = true
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (settingsChanges) {

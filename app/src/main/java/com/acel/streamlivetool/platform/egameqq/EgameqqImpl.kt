@@ -30,6 +30,7 @@ class EgameqqImpl : IPlatform {
 
     override val platform: String = "egameqq"
     override val platformShowNameRes: Int = R.string.egameqq
+    override val iconRes: Int = R.drawable.ic_egameqq
     override val supportCookieMode: Boolean = true
     private val egameqqService: EgameqqApi = retrofit.create(EgameqqApi::class.java)
 

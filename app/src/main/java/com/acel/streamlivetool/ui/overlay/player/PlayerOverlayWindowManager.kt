@@ -62,6 +62,10 @@ class PlayerOverlayWindowManager {
         it.observeForever { anchor ->
             controllerView?.textView_controller_title?.text = anchor.nickname
             controllerView?.textView_controller_secondary_title?.text = anchor.title
+            //设置平台图标
+            PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let { id ->
+                controllerView?.btn_player_overlay_start_app?.setImageResource(id)
+            }
             toggleController(anchor)
         }
     }

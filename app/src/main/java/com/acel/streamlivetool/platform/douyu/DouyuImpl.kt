@@ -34,6 +34,7 @@ class DouyuImpl : IPlatform {
 
     override val platform: String = "douyu"
     override val platformShowNameRes: Int = R.string.douyu
+    override val iconRes: Int = R.drawable.ic_douyu
     override val supportCookieMode: Boolean = true
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
 

@@ -2,13 +2,12 @@ package com.acel.streamlivetool.platform
 
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.bilibili.BilibiliImpl
 import com.acel.streamlivetool.platform.douyu.DouyuImpl
 import com.acel.streamlivetool.platform.egameqq.EgameqqImpl
 import com.acel.streamlivetool.platform.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
-import com.acel.streamlivetool.platform.longzhu.LongzhuImpl
-import com.acel.streamlivetool.platform.yy.YYImpl
 
 object PlatformDispatcher {
     private val platformMap = mutableMapOf<String, IPlatform>()
@@ -19,9 +18,7 @@ object PlatformDispatcher {
             Pair("bilibili", BilibiliImpl.INSTANCE),
             Pair("huya", HuyaImpl.INSTANCE),
             Pair("egameqq", EgameqqImpl.INSTANCE),
-            Pair("huomao", HuomaoImpl.INSTANCE),
-            Pair("yy", YYImpl.INSTANCE),
-            Pair("longzhu", LongzhuImpl.INSTANCE)
+            Pair("huomao", HuomaoImpl.INSTANCE)
         )
 
         val platformArray =
@@ -34,6 +31,10 @@ object PlatformDispatcher {
 
     fun getPlatformImpl(platform: String): IPlatform? {
         return platformMap[platform]
+    }
+
+    fun getPlatformImpl(anchor: Anchor): IPlatform? {
+        return platformMap[anchor.platform]
     }
 
     /**

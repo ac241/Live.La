@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020.
+ * @author acel
+ * 用于给anchor分组：直播中、未直播
+ */
+
+
 package com.acel.streamlivetool.ui.main.adapter
 
 import android.annotation.SuppressLint

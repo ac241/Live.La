@@ -22,6 +22,7 @@ class HuyaImpl : IPlatform {
 
     override val platform: String = "huya"
     override val platformShowNameRes: Int = R.string.huya
+    override val iconRes: Int = R.drawable.ic_huya
     override val supportCookieMode: Boolean = true
     private val huyaService: HuyaApi = retrofit.create(HuyaApi::class.java)
 

@@ -88,5 +88,6 @@
     <string name="play_failed">播放失败。</string>
     <string name="video_looping">录播</string>
     <string name="checked">checked</string>
-    <string name="live_time_formatter" >上次直播时间：%s</string>>
+    <string name="live_time_formatter" >上次直播时间：%s</string>
+    <string name="platform_name">平台名</string>>
 </resources>

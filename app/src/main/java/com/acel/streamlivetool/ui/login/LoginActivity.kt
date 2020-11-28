@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020.
+ * @author acel
+ * 登录
+ */
+
 package com.acel.streamlivetool.ui.login
 
 import android.annotation.SuppressLint
@@ -41,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
                     if (platformImpl.checkLoginOk(cookieStr)) {
                         platformImpl.saveCookie(cookieStr)
                         toast("添加成功")
-//                        finish()
+                        finish()
                     }
                 }
             }

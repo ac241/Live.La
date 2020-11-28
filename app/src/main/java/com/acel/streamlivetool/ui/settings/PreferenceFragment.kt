@@ -78,7 +78,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             }
             //设置后重启应用
             if (restartWhenChangeArray.contains(key)) {
-                (requireActivity() as SettingsActivity).settingsChanges = true
+                (requireActivity() as SettingsActivity).setRestart()
             }
         }
     }

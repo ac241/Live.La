@@ -24,7 +24,7 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
-import com.acel.streamlivetool.ui.main.adapter.GraphicAnchorAdapter
+import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
@@ -34,19 +34,19 @@ private const val ARG_PARAM1 = "param1"
 
 class CookieFragment : Fragment() {
 
-    private lateinit var nowAnchorAdapter: GraphicAnchorAdapter
+    private lateinit var nowAnchorAdapter: AnchorAdapter
 
     internal val viewModel by viewModels<CookieViewModel>()
 
     private val adapterShowAnchorImage by lazy {
-        GraphicAnchorAdapter(
+        AnchorAdapter(
             requireContext(),
             viewModel.anchorList,
             MODE_COOKIE, true
         )
     }
     private val adapterNotShowAnchorImage by lazy {
-        GraphicAnchorAdapter(
+        AnchorAdapter(
             requireContext(),
             viewModel.anchorList,
             MODE_COOKIE, false
@@ -173,13 +173,20 @@ class CookieFragment : Fragment() {
             binding?.textViewListMsg?.visibility = View.GONE
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
+
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        if (isVisible)
+        if (isResumed)
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
                         nowAnchorAdapter.getLongClickPosition()
-                    Log.d("onContextItemSelected", "${viewModel.anchorList}")
                     val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)

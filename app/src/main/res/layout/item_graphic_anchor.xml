@@ -97,6 +97,18 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="SmallSp" />
 
+        <ImageView
+            android:id="@+id/grid_anchor_icon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="3dp"
+            android:alpha="0.8"
+            android:contentDescription="@string/platform_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
         <TextView
             android:id="@+id/grid_anchor_status"
             android:layout_width="wrap_content"
@@ -162,6 +174,7 @@
             app:layout_constraintBottom_toBottomOf="@id/grid_anchor_image"
             app:layout_constraintEnd_toEndOf="@id/grid_anchor_image"
             tools:ignore="SmallSp" />
+
         <TextView
             android:id="@+id/grid_anchor_live_time"
             android:layout_width="0dp"
