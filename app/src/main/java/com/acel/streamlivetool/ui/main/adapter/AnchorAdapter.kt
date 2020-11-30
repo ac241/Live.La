@@ -130,8 +130,11 @@ class AnchorAdapter(
         holder.anchorName.text = anchor.nickname
         //平台名
         holder.platform.visibility = View.GONE
-        PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
-            holder.icon?.setImageResource(it)
+        //平台图标
+        if (modeType == MODE_GROUP) {
+            PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
+                holder.icon?.setImageResource(it)
+            }
         }
 //        if (modeType == MODE_GROUP) {
 //            if (getItemViewType(position) == VIEW_TYPE_ANCHOR) {
@@ -310,7 +313,7 @@ class AnchorAdapter(
         val typeName: TextView = itemView.grid_anchor_type_name
         val online: TextView? = itemView.grid_anchor_online ?: null
         val liveTime: TextView = itemView.grid_anchor_live_time
-        val icon: ImageView? = itemView.grid_anchor_icon
+        val icon: ImageView? = itemView.platform_icon
     }
 
 }

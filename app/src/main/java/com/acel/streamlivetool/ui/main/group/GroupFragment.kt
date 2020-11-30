@@ -7,6 +7,7 @@
 package com.acel.streamlivetool.ui.main.group
 
 import android.animation.Animator
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -21,8 +22,8 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
@@ -84,13 +85,18 @@ class GroupFragment : Fragment() {
                 if (it == GroupViewModel.UpdateStATUS.PREPARE || it == GroupViewModel.UpdateStATUS.FINISH)
                     hideSwipeRefreshBtn()
             })
-            snackBarMsg.observe(this@GroupFragment, Observer {
+            updateErrorMsg.observe(this@GroupFragment, Observer {
                 it?.let {
                     if (it.isNotEmpty()) {
                         val snackbar = Snackbar.make(requireActivity().main_container, it, 5000)
                         snackbar.setSpanClickable()
                         snackbar.show()
                     }
+                }
+            })
+            updateSuccess.observe(this@GroupFragment, Observer {
+                it?.let {
+                    Snackbar.make(requireActivity().main_container, "主页 更新成功。", 1000).show()
                 }
             })
         }
@@ -112,6 +118,8 @@ class GroupFragment : Fragment() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
@@ -124,6 +132,18 @@ class GroupFragment : Fragment() {
             }
         }
         processViewAlpha = binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.alpha ?: 0.5f
+
+        val drawable =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                resources.getDrawable(R.drawable.ic_home_page, null)
+            } else {
+                resources.getDrawable(R.drawable.ic_home_page)
+            }
+        drawable?.setBounds(0, 0, 40, 40)
+        binding?.include?.groupTitleWrapper?.findViewById<TextView>(R.id.status_living)?.apply {
+            setCompoundDrawables(null, null, drawable, null)
+        }
+
     }
 
     private fun initRecyclerView() {

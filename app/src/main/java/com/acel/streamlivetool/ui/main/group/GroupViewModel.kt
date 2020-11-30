@@ -58,10 +58,13 @@ class GroupViewModel : ViewModel() {
     }
 
     //snackBar通知live data
-    private val _snackBarMsg = MutableLiveData<SpannableStringBuilder>()
-    val snackBarMsg
-        get() = _snackBarMsg
+    private val _updateErrorMsg = MutableLiveData<SpannableStringBuilder>()
+    val updateErrorMsg
+        get() = _updateErrorMsg
 
+    private val _updateSuccess = MutableLiveData<Boolean>()
+    val updateSuccess
+        get() = _updateSuccess
     var lastUpdateTime = 0L
     private var nowUpdateTask: Job? = null
 
@@ -193,7 +196,10 @@ class GroupViewModel : ViewModel() {
             }
         }
         if (failed > 0)
-            _snackBarMsg.postValue(builder)
+            _updateErrorMsg.postValue(builder)
+        else {
+            _updateSuccess.postValue(true)
+        }
     }
 
     /**
