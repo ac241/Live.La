@@ -39,6 +39,8 @@
             android:name=".ui.settings.SettingsActivity"
             android:label="@string/title_activity_setting"
             android:theme="@style/Theme.Acel" />
+
+        <service android:name=".service.PlayerOverlayService" />
     </application>
 
 </manifest>

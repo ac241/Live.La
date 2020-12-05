@@ -158,7 +158,7 @@ class GroupViewModel : ViewModel() {
     }
 
     /**
-     * 显示更新结果（无错误不显示）
+     * 显示更新结果
      */
     private fun showUpdateResult(list: MutableList<UpdateResult>) {
         var builder: SpannableStringBuilder? = null

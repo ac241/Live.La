@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 
-@Database(entities = [Anchor::class], version = 1)
+@Database(entities = [Anchor::class], version = 1,exportSchema = false)
 abstract class AnchorDatabase : RoomDatabase() {
     companion object {
         private val INSTANCE: AnchorDatabase by lazy {

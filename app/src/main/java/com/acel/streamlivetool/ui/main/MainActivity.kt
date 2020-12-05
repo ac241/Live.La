@@ -20,6 +20,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.service.PlayerOverlayService
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
@@ -218,8 +219,14 @@ class MainActivity : AppCompatActivity() {
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
     fun showPlayerOverlayWindow(anchor: Anchor, anchorList: List<Anchor>) {
+        startPlayerOverlayService()
         val livingAnchors = getLivingAnchors(anchorList)
         PlayerOverlayWindowManager.instance.playList(anchor, livingAnchors)
+    }
+
+    private fun startPlayerOverlayService() {
+        val intent = Intent(this, PlayerOverlayService::class.java)
+        startService(intent)
     }
 
     @Suppress("UNUSED_PARAMETER")

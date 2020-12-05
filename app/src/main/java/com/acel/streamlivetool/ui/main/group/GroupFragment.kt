@@ -14,6 +14,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -88,16 +89,16 @@ class GroupFragment : Fragment() {
             updateErrorMsg.observe(this@GroupFragment, Observer {
                 it?.let {
                     if (it.isNotEmpty()) {
-                        val snackbar = Snackbar.make(requireActivity().main_container, it, 5000)
-                        snackbar.setSpanClickable()
-                        snackbar.show()
+                        val snackBar = Snackbar.make(requireActivity().main_container, it, 5000)
+                        snackBar.setSpanClickable()
+                        snackBar.show()
                     }
                 }
             })
             updateSuccess.observe(this@GroupFragment, Observer {
-                it?.let {
-                    Snackbar.make(requireActivity().main_container, "主页 更新成功。", 1000).show()
-                }
+                val toast = Toast.makeText(requireContext(), "主页 更新成功。", Toast.LENGTH_SHORT)
+                toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 150)
+                toast.show()
             })
         }
     }

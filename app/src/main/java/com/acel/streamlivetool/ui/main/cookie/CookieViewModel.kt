@@ -83,7 +83,7 @@ class CookieViewModel : ViewModel() {
                         _liveDataShowLoginText.postValue(true)
                         notifyDataChange()
                         runOnUiThread {
-                            toast(if (result.message.isEmpty()) "请先登录" else result.message)
+                            toast("${iPlatform.platformName} " + if (result.message.isEmpty()) "请先登录" else result.message)
                         }
                     } else {
                         with(result.anchorList) {

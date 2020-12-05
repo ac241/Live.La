@@ -30,7 +30,7 @@ abstract class AbsOverlayWindow {
 
 
     init {
-        ConfigurationChangeBroadcastReceiver().register(applicationContext)
+//        ConfigurationChangeBroadcastReceiver().register(applicationContext)
     }
 
     @Suppress("DEPRECATION")

@@ -283,7 +283,7 @@ class DouyuImpl : IPlatform {
     override fun usePcAgent(): Boolean = true
 
     override fun getLoginUrl(): String {
-        return "https://www.douyu.com/directory/all"
+        return "https://passport.douyu.com/index/login"
     }
 
     override fun follow(anchor: Anchor): Pair<Boolean, String> {
