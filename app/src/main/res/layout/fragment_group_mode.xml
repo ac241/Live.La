@@ -16,6 +16,6 @@
 
     <include
         android:id="@+id/include_process_toast"
-        layout="@layout/text_view_process_update_anchors" />
+        layout="@layout/group_fragment_toast" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

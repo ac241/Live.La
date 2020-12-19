@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.MainThread
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
@@ -23,6 +24,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*
 
+
 class BilibiliImpl : IPlatform {
     companion object {
         val INSTANCE by lazy {
@@ -38,24 +40,24 @@ class BilibiliImpl : IPlatform {
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val gson = GsonBuilder().registerTypeAdapter(RoomInfo::class.java,
-            object : JsonDeserializer<RoomInfo> {
-                override fun deserialize(
-                    json: JsonElement,
-                    typeOfT: Type,
-                    context: JsonDeserializationContext?
-                ): RoomInfo {
-                    val jsonObject = json.asJsonObject
-                    val data = jsonObject.get("data")
-                    return if (data.isJsonObject)
-                        Gson().fromJson<RoomInfo>(json.toString(), RoomInfo::class.java)
-                    else {
-                        val code = jsonObject.get("code").asInt
-                        val message = jsonObject.get("message").asString
-                        val msg = jsonObject.get("msg").asString
-                        RoomInfo(code, null, message, msg)
+                object : JsonDeserializer<RoomInfo> {
+                    override fun deserialize(
+                            json: JsonElement,
+                            typeOfT: Type,
+                            context: JsonDeserializationContext?
+                    ): RoomInfo {
+                        val jsonObject = json.asJsonObject
+                        val data = jsonObject.get("data")
+                        return if (data.isJsonObject)
+                            Gson().fromJson<RoomInfo>(json.toString(), RoomInfo::class.java)
+                        else {
+                            val code = jsonObject.get("code").asInt
+                            val message = jsonObject.get("message").asString
+                            val msg = jsonObject.get("msg").asString
+                            RoomInfo(code, null, message, msg)
+                        }
                     }
-                }
-            }).create()
+                }).create()
 
         val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
 //        val roomInfo = gson.fromJson<RoomInfo>(json, RoomInfo::class.java)
@@ -71,13 +73,13 @@ class BilibiliImpl : IPlatform {
 //        val staticRoomInfo = bilibiliService.getStaticInfo(roomId).execute().body()
 //        return staticRoomInfo?.data?.uname
         val h5Info =
-            bilibiliService.getH5InfoByRoom(roomId).execute().body()
+                bilibiliService.getH5InfoByRoom(roomId).execute().body()
         return h5Info?.data?.anchor_info?.base_info?.uname
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
         val h5Info =
-            bilibiliService.getH5InfoByRoom(queryAnchor.roomId.toLong()).execute().body()
+                bilibiliService.getH5InfoByRoom(queryAnchor.roomId.toLong()).execute().body()
         return if (h5Info?.code == 0) {
             queryAnchor.apply {
                 status = h5Info.data.room_info.live_status == 1
@@ -185,14 +187,14 @@ class BilibiliImpl : IPlatform {
             val resultList = result.data.result
             resultList.forEach {
                 list.add(
-                    Anchor(
-                        platform,
-                        it.uname.replace("<em class=\"keyword\">", "").replace("</em>", ""),
-                        it.roomid.toString(),
-                        it.roomid.toString(),
-                        it.is_live,
-                        avatar = "http:${it.uface}"
-                    )
+                        Anchor(
+                                platform,
+                                it.uname.replace("<em class=\"keyword\">", "").replace("</em>", ""),
+                                it.roomid.toString(),
+                                it.roomid.toString(),
+                                it.is_live,
+                                avatar = "http:${it.uface}"
+                        )
                 )
             }
         }
@@ -215,22 +217,24 @@ class BilibiliImpl : IPlatform {
                             cookieOk = false
                             message = result.message
                         }
+                        if (result.data.total_count == 0)
+                            return@async list
                         val rooms = result.data.rooms
                         rooms.forEach {
                             list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.uname,
-                                    showId = it.roomid.toString(),
-                                    roomId = it.roomid.toString(),
-                                    status = true,
-                                    title = it.title,
-                                    avatar = it.face,
-                                    keyFrame = it.cover,
-                                    typeName = it.area_v2_name,
-                                    online = AnchorUtil.formatOnlineNumber(it.online),
-                                    liveTime = TimeUtil.timeStampToString(it.live_time)
-                                )
+                                    Anchor(
+                                            platform = platform,
+                                            nickname = it.uname,
+                                            showId = it.roomid.toString(),
+                                            roomId = it.roomid.toString(),
+                                            status = true,
+                                            title = it.title,
+                                            avatar = it.face,
+                                            keyFrame = it.cover,
+                                            typeName = it.area_v2_name,
+                                            online = AnchorUtil.formatOnlineNumber(it.online),
+                                            liveTime = TimeUtil.timeStampToString(it.live_time)
+                                    )
                             )
                         }
                         list
@@ -239,20 +243,23 @@ class BilibiliImpl : IPlatform {
                 val unLiveList = async(Dispatchers.IO) {
                     val result = bilibiliService.unLiveAnchor(cookie).execute().body()
                     val list = mutableListOf<Anchor>()
+                    if (result?.data?.total_count == 0)
+                        return@async list
                     val rooms = result?.data?.rooms
                     rooms?.forEach {
                         list.add(
-                            Anchor(
-                                platform = platform,
-                                nickname = it.uname,
-                                showId = it.roomid.toString(),
-                                roomId = it.roomid.toString(),
-                                status = false,
-                                title = "${it.live_desc} 直播了 ${it.area_v2_name}",
-                                avatar = it.face,
-                                typeName = it.area_v2_name,
-                                liveTime = it.live_desc
-                            )
+                                Anchor(
+
+                                        platform = platform,
+                                        nickname = it.uname,
+                                        showId = it.roomid.toString(),
+                                        roomId = it.roomid.toString(),
+                                        status = false,
+                                        title = "${it.live_desc} 直播了 ${it.area_v2_name}",
+                                        avatar = it.face,
+                                        typeName = it.area_v2_name,
+                                        liveTime = it.live_desc
+                                )
                         )
                     }
                     list
@@ -282,18 +289,18 @@ class BilibiliImpl : IPlatform {
                     }
                     livingList?.data?.rooms?.forEach {
                         list.add(
-                            Anchor(
-                                platform = platform,
-                                nickname = it.uname,
-                                showId = it.roomid.toString(),
-                                roomId = it.roomid.toString(),
-                                status = it.live_status == 1,
-                                title = it.title,
-                                avatar = it.face,
-                                keyFrame = it.keyframe,
-                                typeName = it.area_v2_name,
-                                online = AnchorUtil.formatOnlineNumber(it.online)
-                            )
+                                Anchor(
+                                        platform = platform,
+                                        nickname = it.uname,
+                                        showId = it.roomid.toString(),
+                                        roomId = it.roomid.toString(),
+                                        status = it.live_status == 1,
+                                        title = it.title,
+                                        avatar = it.face,
+                                        keyFrame = it.keyframe,
+                                        typeName = it.area_v2_name,
+                                        online = AnchorUtil.formatOnlineNumber(it.online)
+                                )
                         )
                     }
                     val count = livingList?.data?.count
@@ -340,5 +347,9 @@ class BilibiliImpl : IPlatform {
 
         }
         return Pair(false, "发生错误")
+    }
+
+    fun test() {
+
     }
 }

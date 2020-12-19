@@ -37,5 +37,5 @@
 
     </LinearLayout>
 
-    <include layout="@layout/text_view_process_update_anchors" />
+    <include layout="@layout/group_fragment_toast" />
 </FrameLayout>

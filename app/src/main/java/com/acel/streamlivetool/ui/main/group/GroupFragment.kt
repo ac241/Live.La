@@ -96,9 +96,10 @@ class GroupFragment : Fragment() {
                 }
             })
             updateSuccess.observe(this@GroupFragment, Observer {
-                val toast = Toast.makeText(requireContext(), "主页 更新成功。", Toast.LENGTH_SHORT)
-                toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 150)
-                toast.show()
+//                val toast = Toast.makeText(requireContext(), "主页 更新成功。", Toast.LENGTH_SHORT)
+//                toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 150)
+//                toast.show()
+                completeUpdateDetails("主页 更新成功。")
             })
         }
     }
@@ -209,7 +210,7 @@ class GroupFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    @Suppress("DEPRECATION")
+//    @Suppress("DEPRECATION")
     private fun showUpdateDetails(text: String) {
         updateProcessAnimate?.cancel()
         binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {

@@ -11,6 +11,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
+import com.acel.streamlivetool.platform.douyu.bean.Followed
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
 import com.acel.streamlivetool.platform.douyu.bean.RoomInfo
@@ -46,7 +47,7 @@ class DouyuImpl : IPlatform {
             getAnchorFromHtml(queryAnchor)
         } else {
             val roomInfo: RoomInfo? =
-                douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
+                    douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
             val roomId = roomInfo?.data?.roomId
             val ownerName = roomInfo?.data?.ownerName
             Anchor(platform, ownerName.toString(), roomId.toString(), roomId.toString())
@@ -57,7 +58,7 @@ class DouyuImpl : IPlatform {
         return runBlocking {
             val info = async(Dispatchers.IO) {
                 val roomInfo =
-                    douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
+                        douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
                 if (roomInfo != null) {
                     queryAnchor.apply {
                         status = roomInfo.room.show_status == 1
@@ -65,7 +66,7 @@ class DouyuImpl : IPlatform {
                         avatar = roomInfo.room.avatar.big
                         keyFrame = roomInfo.room.room_pic
                         if (roomInfo.room.videoLoop == 1) secondaryStatus =
-                            MyApplication.application.getString(R.string.video_looping)
+                                MyApplication.application.getString(R.string.video_looping)
                         typeName = roomInfo.game.tag_name
                     }
                     true
@@ -93,8 +94,8 @@ class DouyuImpl : IPlatform {
                 followed?.apply {
                     if (followed.error != 0)
                         return ResultUpdateAnchorByCookie(
-                            false,
-                            followed.msg
+                                false,
+                                followed.msg
                         )
                     val failedList = mutableListOf<Anchor>().also {
                         it.addAll(queryList)
@@ -108,9 +109,9 @@ class DouyuImpl : IPlatform {
                                     avatar = anchorX.avatar_small
                                     keyFrame = anchorX.room_src
                                     secondaryStatus =
-                                        if (anchorX.videoLoop == 1) MyApplication.application.getString(
-                                            R.string.video_looping
-                                        ) else null
+                                            if (anchorX.videoLoop == 1) MyApplication.application.getString(
+                                                    R.string.video_looping
+                                            ) else null
                                     typeName = anchorX.game_name
                                     if (anchorX.online != "0")
                                         online = anchorX.online
@@ -162,14 +163,14 @@ class DouyuImpl : IPlatform {
             val resultList = this.data.roomResult
             resultList.forEach {
                 list.add(
-                    Anchor(
-                        platform,
-                        it.nickName,
-                        it.rid.toString(),
-                        it.rid.toString(),
-                        status = it.isLive == 1,
-                        avatar = it.avatar
-                    )
+                        Anchor(
+                                platform,
+                                it.nickName,
+                                it.rid.toString(),
+                                it.rid.toString(),
+                                status = it.isLive == 1,
+                                avatar = it.avatar
+                        )
                 )
             }
         }
@@ -202,13 +203,13 @@ class DouyuImpl : IPlatform {
             context.evaluateString(scope, cryptoJs, "cryptoJs", 1, null)
             context.evaluateString(scope, enc, "enc", 1, null)
             val result =
-                context.evaluateString(
-                    scope,
-                    "ub98484234(${anchor.roomId},\"${uuid}\",${time})",
-                    "douyu",
-                    1,
-                    null
-                )
+                    context.evaluateString(
+                            scope,
+                            "ub98484234(${anchor.roomId},\"${uuid}\",${time})",
+                            "douyu",
+                            1,
+                            null
+                    )
             val params = org.mozilla.javascript.Context.toString(result)
             val list = params.split("&")
             val map = mutableMapOf<String, String>()
@@ -231,6 +232,30 @@ class DouyuImpl : IPlatform {
     }
 
     override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+
+        fun addToList(list: MutableList<Anchor>, followed: Followed) {
+            followed.data.list.forEach {
+                list.add(
+                        Anchor(
+                                platform = platform,
+                                nickname = it.nickname,
+                                showId = it.room_id.toString(),
+                                roomId = it.room_id.toString(),
+                                status = it.show_status == 1,
+                                title = it.room_name,
+                                avatar = it.avatar_small,
+                                keyFrame = it.room_src,
+                                secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
+                                        R.string.video_looping
+                                ) else null,
+                                typeName = it.game_name,
+                                online = it.online,
+                                liveTime = TimeUtil.timeStampToString(it.show_time)
+                        )
+                )
+            }
+        }
+
         getCookie().run {
             if (this.isEmpty())
                 return super.getAnchorsWithCookieMode()
@@ -238,41 +263,34 @@ class DouyuImpl : IPlatform {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)
                     return ResultGetAnchorListByCookieMode(
-                        false,
-                        null,
-                        followed?.msg.toString()
+                            false,
+                            null,
+                            followed?.msg.toString()
                     )
-                else
-                    return run {
-                        val list = mutableListOf<Anchor>()
-                        followed.data.list.forEach {
-                            list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.nickname,
-                                    showId = it.room_id.toString(),
-                                    roomId = it.room_id.toString(),
-                                    status = it.show_status == 1,
-                                    title = it.room_name,
-                                    avatar = it.avatar_small,
-                                    keyFrame = it.room_src,
-                                    secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
-                                        R.string.video_looping
-                                    ) else null,
-                                    typeName = it.game_name,
-                                    online = it.online,
-                                    liveTime = TimeUtil.timeStampToString(it.show_time)
-                                )
-                            )
+                else {
+                    val list = mutableListOf<Anchor>()
+                    addToList(list, followed)
+                    //如果页数大于1
+                    followed.data.pageCount.let { page ->
+                        if (page > 1) {
+                            runBlocking {
+                                for (i in 2..followed.data.pageCount) {
+                                    async(Dispatchers.IO) {
+                                        val followedNext = douyuService.getFollowed(this@run, i).execute().body()
+                                        if (followedNext != null) {
+                                            addToList(list, followedNext)
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        ResultGetAnchorListByCookieMode(
-                            true,
-                            list
-                        )
                     }
+                    return ResultGetAnchorListByCookieMode(true, list)
+                }
             }
         }
     }
+
 
     override fun checkLoginOk(cookie: String): Boolean {
         if (cookie.contains("PHPSESSID") && cookie.contains("dy_auth"))
@@ -295,7 +313,7 @@ class DouyuImpl : IPlatform {
             val ctn = CookieUtil.getCookieField(setCookie, "acf_ccn")
             ctn?.let { c ->
                 val result =
-                    douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
+                        douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
                 result?.apply {
                     return if (error == 0)
                         Pair(true, "关注成功")
