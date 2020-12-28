@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showablePlatformSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
-            setOf()
+                MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+                setOf()
         )
         if (showablePlatformSet != null)
             sortPlatformArray.forEach {
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
-            setOf()
+                MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+                setOf()
         )
 
         if (showSet != null)
@@ -143,8 +143,8 @@ class MainActivity : AppCompatActivity() {
         initViewPager()
         if (displayPlatformPage)
             TabLayoutMediator(
-                binding.tabLayout,
-                binding.viewPager
+                    binding.tabLayout,
+                    binding.viewPager
             ) { tab, position ->
                 tab.text = if (position == 0) "主页" else platforms[position - 1].platformName
                 tab.view.setOnClickListener {
@@ -162,17 +162,17 @@ class MainActivity : AppCompatActivity() {
         binding.viewPager.setCurrentItem(position, true)
         //清除cookie
         val dialogBuilder = AlertDialog.Builder(this)
-            .setTitle(
-                getString(
-                    R.string.clear_platform_cookie_alert,
-                    platforms[position - 1].platformName
+                .setTitle(
+                        getString(
+                                R.string.clear_platform_cookie_alert,
+                                platforms[position - 1].platformName
+                        )
                 )
-            )
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                platforms[position - 1].clearCookie()
-                platformFragments[platforms[position - 1]]?.viewModel?.updateAnchorList()
-            }
-            .setNegativeButton(getString(R.string.no), null)
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                    platforms[position - 1].clearCookie()
+                    platformFragments[platforms[position - 1]]?.viewModel?.updateAnchorList()
+                }
+                .setNegativeButton(getString(R.string.no), null)
         dialogBuilder.show()
     }
 
@@ -212,8 +212,8 @@ class MainActivity : AppCompatActivity() {
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
     fun showListOverlayWindow(anchorList: List<Anchor>) {
         ListOverlayWindowManager.instance.toggleShow(
-            this,
-            anchorList
+                this,
+                anchorList
         )
     }
 
@@ -227,6 +227,11 @@ class MainActivity : AppCompatActivity() {
     private fun startPlayerOverlayService() {
         val intent = Intent(this, PlayerOverlayService::class.java)
         startService(intent)
+    }
+
+    private fun stopPlayerOverlayService() {
+        val intent = Intent(this, PlayerOverlayService::class.java)
+        stopService(intent)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -245,8 +250,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playStream(
-        anchor: Anchor,
-        list: List<Anchor>
+            anchor: Anchor,
+            list: List<Anchor>
     ) {
         showPlayerOverlayWindowWithPermissionCheck(anchor, list as MutableList<Anchor>)
     }
@@ -294,5 +299,11 @@ class MainActivity : AppCompatActivity() {
 
     fun gotoMainPage() {
         binding.viewPager.setCurrentItem(0, true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopPlayerOverlayService()
+//        PlayerOverlayWindowManager.instance.destroy()
     }
 }
