@@ -8,8 +8,8 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_overlay_player
     override val widthDp: Float = 240F
     override val heightDp: Float = 135F
-    override val x: Int = 200
-    override val y: Int = 500
+    override val defaultX: Int = 100
+    override val defaultY: Int = 100
 
     companion object {
         val instance by lazy {

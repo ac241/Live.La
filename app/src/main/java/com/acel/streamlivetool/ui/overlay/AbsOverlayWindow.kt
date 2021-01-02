@@ -8,6 +8,7 @@ import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import com.acel.streamlivetool.base.MyApplication
 import kotlin.math.abs
@@ -22,15 +23,15 @@ abstract class AbsOverlayWindow {
     abstract val layoutId: Int
     abstract val widthDp: Float
     abstract val heightDp: Float
-    abstract val x: Int
-    abstract val y: Int
+    abstract val defaultX: Int
+    abstract val defaultY: Int
     val layoutParams by lazy { WindowManager.LayoutParams() }
     private lateinit var mLayout: View
     var isShown: Boolean = false
 
 
     init {
-        ConfigurationChangeBroadcastReceiver().register(applicationContext)
+        ConfigurationChangeBroadcastReceiver().register()
     }
 
     @Suppress("DEPRECATION")
@@ -45,8 +46,8 @@ abstract class AbsOverlayWindow {
         layoutParams.width = dp2px(widthDp).toInt()
         layoutParams.height = dp2px(heightDp).toInt()
         layoutParams.gravity = Gravity.TOP or Gravity.START
-        layoutParams.x = x
-        layoutParams.y = y
+        layoutParams.x = defaultX
+        layoutParams.y = defaultY
         layoutParams.flags =
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         this.mLayout = layout
@@ -88,6 +89,7 @@ abstract class AbsOverlayWindow {
             var downX = 0f
             var downY = 0f
             override fun onTouch(view: View, event: MotionEvent): Boolean {
+                Log.d("onTouch", "$view")
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         lastRawX = event.rawX
@@ -105,6 +107,8 @@ abstract class AbsOverlayWindow {
                         windowManager.updateViewLayout(view, layoutParams)
                     }
                     MotionEvent.ACTION_UP -> {
+                        Log.d("onTouch", "up")
+                        setWindowSize()
                         layoutParams.apply {
                             when {
                                 x < 0 ->
@@ -176,16 +180,54 @@ abstract class AbsOverlayWindow {
 
     inner class ConfigurationChangeBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
-            widthPixels = outMetrics.widthPixels
-            heightPixels = outMetrics.heightPixels
+
+            Log.d("onReceive", "改变大小")
+            val nowWidth = widthPixels
+            val nowHeight = heightPixels
+            setWindowSize()
+
+            layoutParams.apply {
+                Log.d("onReceive", "x:$x;y:$y at $nowWidth*$nowHeight")
+                x = widthPixels * x / nowWidth
+                y = heightPixels * y / nowHeight
+
+                when {
+                    x < 0 ->
+                        x = 0
+                    x > widthPixels - mLayout.width ->
+                        x = widthPixels - mLayout.width
+                }
+                when {
+                    y < (0 - getStatusBarHeight()) ->
+                        y = 0 - getStatusBarHeight()
+                    y > heightPixels - mLayout.height ->
+                        y = heightPixels - mLayout.height - getStatusBarHeight()
+                }
+            }
+            windowManager.updateViewLayout(mLayout, layoutParams)
         }
 
-        fun register(context: Context) {
-            context.registerReceiver(
+        fun register() {
+            Log.d("register", "regi")
+            MyApplication.application.registerReceiver(
                     ConfigurationChangeBroadcastReceiver(),
                     IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
             )
+        }
+    }
+
+    private fun setWindowSize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowManager.currentWindowMetrics.bounds.apply {
+                widthPixels = width()
+                heightPixels = height()
+            }
+        } else {
+            outMetrics = DisplayMetrics().also {
+                windowManager.defaultDisplay.getMetrics(it)
+            }
+            widthPixels = outMetrics.widthPixels
+            heightPixels = outMetrics.heightPixels
         }
     }
 
