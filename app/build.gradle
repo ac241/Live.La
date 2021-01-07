@@ -20,10 +20,13 @@ android {
     }
     buildTypes {
         debug {
+            applicationIdSuffix '.debug'
+            manifestPlaceholders = ["APP_NAME":"直播啦debug"]
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
+            manifestPlaceholders = ["APP_NAME":"直播啦"]
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
