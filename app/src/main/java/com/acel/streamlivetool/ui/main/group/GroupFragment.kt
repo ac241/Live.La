@@ -14,10 +14,8 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.const_value.ConstValue
@@ -79,14 +77,14 @@ class GroupFragment : Fragment() {
          * observe liveData
          */
         viewModel.apply {
-            sortedAnchorList.observe(this@GroupFragment, Observer {
+            sortedAnchorList.observe(this@GroupFragment, {
                 refreshAnchorAttribute()
             })
-            liveDataUpdateStatus.observe(this@GroupFragment, Observer {
+            liveDataUpdateStatus.observe(this@GroupFragment, {
                 if (it == GroupViewModel.UpdateStATUS.PREPARE || it == GroupViewModel.UpdateStATUS.FINISH)
                     hideSwipeRefreshBtn()
             })
-            updateErrorMsg.observe(this@GroupFragment, Observer {
+            updateErrorMsg.observe(this@GroupFragment, {
                 it?.let {
                     if (it.isNotEmpty()) {
                         val snackBar = Snackbar.make(requireActivity().main_container, it, 5000)
@@ -95,10 +93,7 @@ class GroupFragment : Fragment() {
                     }
                 }
             })
-            updateSuccess.observe(this@GroupFragment, Observer {
-//                val toast = Toast.makeText(requireContext(), "主页 更新成功。", Toast.LENGTH_SHORT)
-//                toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 150)
-//                toast.show()
+            updateSuccess.observe(this@GroupFragment, {
                 completeUpdateDetails("主页 更新成功。")
             })
         }
@@ -149,8 +144,12 @@ class GroupFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        binding?.include?.recyclerView?.layoutManager =
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        binding?.include?.recyclerView?.apply {
+            layoutManager =
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+
+
+        }
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
             adapterShowAnchorImage
         else
@@ -210,7 +209,7 @@ class GroupFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-//    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION")
     private fun showUpdateDetails(text: String) {
         updateProcessAnimate?.cancel()
         binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {
@@ -222,6 +221,7 @@ class GroupFragment : Fragment() {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun completeUpdateDetails(text: String) {
         showUpdateDetails(text)
         binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {

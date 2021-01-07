@@ -17,7 +17,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
@@ -26,8 +26,8 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
+import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
@@ -92,18 +92,18 @@ class CookieFragment : Fragment() {
         setHasOptionsMenu(true)
 
         viewModel.apply {
-            liveDataUpdateState.observe(this@CookieFragment, Observer {
+            liveDataUpdateState.observe(this@CookieFragment, {
                 if (it == CookieViewModel.UpdateStatus.PREPARE || it == CookieViewModel.UpdateStatus.FINISH)
                     hideSwipeRefreshBtn()
             })
-            liveDataDataChanged.observe(this@CookieFragment, Observer {
+            liveDataDataChanged.observe(this@CookieFragment, {
                 nowAnchorAdapter.notifyAnchorsChange()
             })
-            liveDataShowLoginText.observe(this@CookieFragment, Observer {
+            liveDataShowLoginText.observe(this@CookieFragment, {
                 if (it) showLoginTextView()
                 else hideLoginTextView()
             })
-            liveDataUpdateAnchorMsg.observe(this@CookieFragment, Observer {
+            liveDataUpdateAnchorMsg.observe(this@CookieFragment, {
                 if (it.show) it.msg?.let { it1 -> showListMsg(it1) }
                 else hideListMsg()
             })
@@ -141,8 +141,14 @@ class CookieFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        binding?.include?.recyclerView?.layoutManager =
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        binding?.include?.recyclerView?.apply {
+            layoutManager =
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            itemAnimator = DefaultItemAnimator().also {
+                it.addDuration = 1000
+                it.removeDuration = 1000
+            }
+        }
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
             adapterShowAnchorImage
         else
