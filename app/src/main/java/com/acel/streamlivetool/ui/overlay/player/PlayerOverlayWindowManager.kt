@@ -311,7 +311,6 @@ class PlayerOverlayWindowManager {
     private fun hideListController() {
         controllerView?.previous_group?.visibility = View.GONE
         controllerView?.next_group?.visibility = View.GONE
-
         controllerView?.textView_anchor_list_process?.visibility = View.GONE
     }
 

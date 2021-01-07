@@ -89,7 +89,6 @@ abstract class AbsOverlayWindow {
             var downX = 0f
             var downY = 0f
             override fun onTouch(view: View, event: MotionEvent): Boolean {
-                Log.d("onTouch", "$view")
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         lastRawX = event.rawX
@@ -107,7 +106,6 @@ abstract class AbsOverlayWindow {
                         windowManager.updateViewLayout(view, layoutParams)
                     }
                     MotionEvent.ACTION_UP -> {
-                        Log.d("onTouch", "up")
                         setWindowSize()
                         layoutParams.apply {
                             when {
@@ -180,14 +178,13 @@ abstract class AbsOverlayWindow {
 
     inner class ConfigurationChangeBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-
-            Log.d("onReceive", "改变大小")
+            if (!isShown)
+                return
             val nowWidth = widthPixels
             val nowHeight = heightPixels
             setWindowSize()
 
             layoutParams.apply {
-                Log.d("onReceive", "x:$x;y:$y at $nowWidth*$nowHeight")
                 x = widthPixels * x / nowWidth
                 y = heightPixels * y / nowHeight
 
@@ -208,7 +205,6 @@ abstract class AbsOverlayWindow {
         }
 
         fun register() {
-            Log.d("register", "regi")
             MyApplication.application.registerReceiver(
                     ConfigurationChangeBroadcastReceiver(),
                     IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
