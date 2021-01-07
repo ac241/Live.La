@@ -14,7 +14,7 @@ class RetrofitUtils {
             OkHttpClient.Builder()
                 //拦截器 动态切换baseUrl
 //                .addInterceptor(AddCookiesInterceptor())
-                .retryOnConnectionFailure(false)
+                .retryOnConnectionFailure(true)
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .build()
         }
