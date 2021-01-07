@@ -39,9 +39,19 @@ class GroupViewModel : ViewModel() {
     val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {
         it.value = Collections.synchronizedList(mutableListOf())
         it.addSource(anchorRepository.anchorList) { sourceList ->
+            val oldList = it.value?.toMutableList()
             it.value?.clear()
             it.value?.addAll(sourceList)
+            //如果旧列表有数据，将数据更新到新列表
+            if (oldList != null && oldList.isNotEmpty())
+                it.value?.forEach { newAnchor ->
+                    val index = oldList.indexOf(newAnchor)
+                    if (index != -1) {
+                        newAnchor.update(oldList[index])
+                    }
+                }
             it.postValue(it.value)
+            notifyAnchorListChange()
             updateAllAnchor()
         }
     }
