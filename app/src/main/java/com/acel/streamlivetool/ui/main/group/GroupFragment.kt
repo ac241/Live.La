@@ -55,6 +55,7 @@ class GroupFragment : Fragment() {
 
     private var updateProcessAnimate: ViewPropertyAnimator? = null
     var processViewAlpha: Float = 0.5f
+    private val snackBar by lazy { Snackbar.make(requireActivity().main_container, "", 5000) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -87,13 +88,14 @@ class GroupFragment : Fragment() {
             updateErrorMsg.observe(this@GroupFragment, {
                 it?.let {
                     if (it.isNotEmpty()) {
-                        val snackBar = Snackbar.make(requireActivity().main_container, it, 5000)
+                        snackBar.setText(it)
                         snackBar.setSpanClickable()
                         snackBar.show()
                     }
                 }
             })
             updateSuccess.observe(this@GroupFragment, {
+                snackBar.dismiss()
                 completeUpdateDetails("主页 更新成功。")
             })
         }
