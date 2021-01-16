@@ -32,18 +32,26 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
         cookieFragment.hideSwipeRefreshBtn()
 
 
-        //数据流量切换adapter
-        if (PreferenceConstant.showAnchorImage)
+        //切换显示图片
+
+        if (PreferenceConstant.showAnchorImage) {
+            //如果显示图片
             if (AppUtil.isWifiConnected()) {
-                if (!cookieFragment.isShowImage()) {
-                    cookieFragment.setShowImage(true)
-                }
+                //如果wifi连接
+                cookieFragment.setShowImage(true)
             } else {
-                if (!PreferenceConstant.showAnchorImageWhenMobileData) {
-                    if (cookieFragment.isShowImage()) {
-                        cookieFragment.setShowImage(false)
-                    }
+                //如果wifi未连接
+                if (PreferenceConstant.showAnchorImageWhenMobileData) {
+                    //如果流量时显示图片
+                    cookieFragment.setShowImage(true)
+                } else {
+                    //如果流量时不显示图片
+                    cookieFragment.setShowImage(false)
                 }
             }
+        } else {
+            //如果不显示图片
+            cookieFragment.setShowImage(false)
+        }
     }
 }

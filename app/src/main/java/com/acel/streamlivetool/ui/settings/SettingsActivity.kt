@@ -5,11 +5,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.util.AppUtil.restartApp
-import com.acel.streamlivetool.util.ToastUtil.toast
 
 class SettingsActivity : AppCompatActivity() {
-    var settingsChanges = false
+
+    private val changesList = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,17 +17,17 @@ class SettingsActivity : AppCompatActivity() {
             .commit()
     }
 
-    fun setRestart() {
-        settingsChanges = true
+    fun setPlatformsChanges() {
+        changesList.add(MainActivity.OnNewIntentAction.PREF_PLATFORMS_CHANGED)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (settingsChanges) {
+        if (changesList.isNotEmpty()) {
             val intent = Intent(this, MainActivity::class.java)
             intent.action = MainActivity.OnNewIntentAction.PREF_CHANGED
+            intent.putStringArrayListExtra("changes", changesList)
             startActivity(intent)
-//            restartApp()
         }
     }
 }

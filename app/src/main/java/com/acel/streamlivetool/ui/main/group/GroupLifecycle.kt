@@ -28,20 +28,26 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
         //隐藏刷新按钮
         groupFragment.hideSwipeRefreshBtn()
 
-        //数据流量切换adapter
-        if (showAnchorImage)
+        //切换显示图片
+
+        if (showAnchorImage) {
+            //如果显示图片
             if (AppUtil.isWifiConnected()) {
-                if (!groupFragment.isShowImage()) {
-                    groupFragment.setShowImage(true)
-                    ToastUtil.toast("Wifi切换到有图模式")
-                }
+                //如果wifi连接
+                groupFragment.setShowImage(true)
             } else {
-                if (!showAnchorImageWhenMobileData) {
-                    if (groupFragment.isShowImage()) {
-                        groupFragment.setShowImage(false)
-                        ToastUtil.toast("移动流量切换到无图模式")
-                    }
+                //如果wifi未连接
+                if (showAnchorImageWhenMobileData) {
+                    //如果流量时显示图片
+                    groupFragment.setShowImage(true)
+                } else {
+                    //如果流量时不显示图片
+                    groupFragment.setShowImage(false)
                 }
             }
+        } else {
+            //如果不显示图片
+            groupFragment.setShowImage(false)
+        }
     }
 }

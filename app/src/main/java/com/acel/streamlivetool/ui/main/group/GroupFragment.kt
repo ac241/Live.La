@@ -34,14 +34,14 @@ class GroupFragment : Fragment() {
 
     val viewModel by viewModels<GroupViewModel>()
     private lateinit var nowAnchorAdapter: AnchorAdapter
-    private val adapterShowAnchorImage by lazy {
+    private val adapterShowImage by lazy {
         AnchorAdapter(
             requireContext(),
             viewModel.sortedAnchorList.value!!,
             MODE_GROUP, true
         )
     }
-    private val adapterNotShowAnchorImage by lazy {
+    private val adapterNoImage by lazy {
         AnchorAdapter(
             requireContext(),
             viewModel.sortedAnchorList.value!!,
@@ -153,9 +153,9 @@ class GroupFragment : Fragment() {
 
         }
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
-            adapterShowAnchorImage
+            adapterShowImage
         else
-            adapterNotShowAnchorImage
+            adapterNoImage
         setGraphicAdapter()
         binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
     }
@@ -165,12 +165,21 @@ class GroupFragment : Fragment() {
     }
 
     fun setShowImage(boolean: Boolean) {
-        nowAnchorAdapter = if (boolean) adapterShowAnchorImage else adapterNotShowAnchorImage
-        setGraphicAdapter()
+        if (boolean) {
+            if (!isShowImage()) {
+                nowAnchorAdapter = adapterShowImage
+                setGraphicAdapter()
+            }
+        } else {
+            if (isShowImage()) {
+                nowAnchorAdapter = adapterNoImage
+                setGraphicAdapter()
+            }
+        }
     }
 
     fun isShowImage(): Boolean {
-        return nowAnchorAdapter == adapterShowAnchorImage
+        return nowAnchorAdapter == adapterShowImage
     }
 
     @Synchronized

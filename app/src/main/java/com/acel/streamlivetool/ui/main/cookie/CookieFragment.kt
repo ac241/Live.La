@@ -9,7 +9,6 @@ package com.acel.streamlivetool.ui.main.cookie
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -54,14 +53,14 @@ class CookieFragment : Fragment() {
         drawable?.setBounds(0, 0, 40, 40)
         drawable
     }
-    private val adapterShowAnchorImage by lazy {
+    private val adapterShowImage by lazy {
         AnchorAdapter(
             requireContext(),
             viewModel.anchorList,
             MODE_COOKIE, true
         )
     }
-    private val adapterNotShowAnchorImage by lazy {
+    private val adapterNoImage by lazy {
         AnchorAdapter(
             requireContext(),
             viewModel.anchorList,
@@ -70,12 +69,12 @@ class CookieFragment : Fragment() {
     }
 
     fun setShowImage(boolean: Boolean) {
-        nowAnchorAdapter = if (boolean) adapterShowAnchorImage else adapterNotShowAnchorImage
+        nowAnchorAdapter = if (boolean) adapterShowImage else adapterNoImage
         setAdapter()
     }
 
     fun isShowImage(): Boolean {
-        return nowAnchorAdapter == adapterShowAnchorImage
+        return nowAnchorAdapter == adapterShowImage
     }
 
     private var _binding: FragmentCookieModeBinding? = null
@@ -130,7 +129,6 @@ class CookieFragment : Fragment() {
             viewModel.updateAnchorList()
         }
         binding?.include?.groupTitleWrapper?.findViewById<TextView>(R.id.status_living)?.apply {
-            Log.d("onViewCreated", "set")
             setCompoundDrawables(null, null, iconDrawable, null)
         }
 
@@ -150,9 +148,9 @@ class CookieFragment : Fragment() {
             }
         }
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
-            adapterShowAnchorImage
+            adapterShowImage
         else
-            adapterNotShowAnchorImage
+            adapterNoImage
         setAdapter()
         binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
     }
@@ -237,4 +235,5 @@ class CookieFragment : Fragment() {
                 }
             }
     }
+
 }
