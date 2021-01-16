@@ -10,7 +10,7 @@ import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
 
-object ActionClick {
+object AnchorItemClickAction {
 
     fun itemClick(context: Context, anchor: Anchor, list: List<Anchor>) {
         actionWhenClick(

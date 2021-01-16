@@ -22,8 +22,8 @@ import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
-import com.acel.streamlivetool.util.ActionClick.itemClick
-import com.acel.streamlivetool.util.ActionClick.secondBtnClick
+import com.acel.streamlivetool.util.AnchorItemClickAction.itemClick
+import com.acel.streamlivetool.util.AnchorItemClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.PreferenceConstant.fullVersion
 import com.acel.streamlivetool.util.defaultSharedPreferences

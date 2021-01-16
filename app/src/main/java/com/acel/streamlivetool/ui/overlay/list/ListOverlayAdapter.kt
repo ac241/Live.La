@@ -14,7 +14,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.*
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_GROUP_TITLE_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_GROUP_TITLE_NOT_LIVING
-import com.acel.streamlivetool.util.ActionClick.itemClick
+import com.acel.streamlivetool.util.AnchorItemClickAction.itemClick
 import kotlinx.android.synthetic.main.item_overlay_list.view.*
 
 class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
