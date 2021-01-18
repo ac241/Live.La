@@ -47,32 +47,28 @@ class OpenSourceActivity : AppCompatActivity() {
             "libs/rhino-1.7.9.jar",
             "https://github.com/mozilla/rhino",
             "Mozilla",
-            "licensed under the Mozilla Public License 2.0",
-            true
+            "licensed under the Mozilla Public License 2.0"
         ),
         Module(
             "exoplayer:2.11.3",
             "com.google.android.exoplayer",
             "https://github.com/google/ExoPlayer",
             "Copyright 2008 Google Inc.",
-            "Apache License Version 2.0, January 2004",
-            true
+            "Apache License Version 2.0, January 2004"
         ),
         Module(
             "PermissionsDispatcher:4.7.0",
             "org.permissionsdispatcher",
             "https://github.com/permissions-dispatcher/PermissionsDispatcher",
             "Copyright 2016 Shintaro Katafuchi, Marcel Schnelle, Yoshinori Isogai",
-            "Licensed under the Apache License, Version 2.0 (the \"License\")",
-            false
+            "Licensed under the Apache License, Version 2.0 (the \"License\")"
         ),
         Module(
-            "org.jsoup:jsoup:1.13.1",
+            "jsoup:1.13.1",
             "org.jsoup",
             "https://jsoup.org/",
             "Jonathan Hedley",
-            "The MIT License",
-            false
+            "The MIT License"
         ),
         Module(
             "图标",
@@ -82,18 +78,16 @@ class OpenSourceActivity : AppCompatActivity() {
             "本app仅用于非商业用途"
         )
     )
-    private val fullVersionClickTimes = 10
-    private val fullVersion = defaultSharedPreferences.getBoolean(
-        MyApplication.application.getString(R.string.full_version),
-        false
-    )
     private val stringBuilder = StringBuilder()
     private var titleClickTimes = 0
     private val colors =
         arrayOf(
-            "#d50000", "#c51162", "#aa00ff", "#6200ea", "#304ffe", "#2962ff", "#0091ea",
-            "#00b8d4", "#00bfa5", "#00c853", "#64dd17", "#aeea00", "#ffd600", "#ffab00",
-            "#ff6d00", "#dd2c00", "#3e2723", "#212121", "#263238"
+            "#f16d7a", "#e27386", "#f55066", "#ef5464", "#ae716e", "#cb8e85", "#cf8878",
+            "#c86f67", "#f1ccb8", "#f2debd", "#b7d28d", "#dcff93", "#ff9b6a", "#f1b8e4",
+            "#d9b8f1", "#f1ccb8", "#f1f1b8", "#b8f1ed", "#b8f1cc", "#b8f1cc", "#e7dac9",
+            "#e1622f", "#f3d64e", "#fd7d36", "#fe9778", "#c38e9e", "#f28860", "#de772c",
+            "#e96a25", "#ca7497", "#e29e4b", "#edbf2b", "#fecf45", "#f9b747", "#c17e61",
+            "#ed9678", "#ffe543", "#e37c5b", "#ff8240", "#aa5b71", "#f0b631", "#cf8888"
         )
     private var colorIndex = 0
 
@@ -105,15 +99,9 @@ class OpenSourceActivity : AppCompatActivity() {
 
     private fun createDo() {
         open_source_title.setOnClickListener {
-//            setTitleColor()
+            setTitleColor()
             titleAnimate()
-            if (titleClickTimes >= if (fullVersion) 10 else fullVersionClickTimes) {
-                defaultSharedPreferences.edit()
-                    .putBoolean(resources.getString(R.string.full_version), !fullVersion).apply()
-                toast("Full version ${!fullVersion}")
-                AppUtil.restartApp()
-            } else
-                titleClickTimes++
+            titleClickTimes++
         }
 
         list.forEach {
@@ -137,8 +125,7 @@ class OpenSourceActivity : AppCompatActivity() {
     }
 
     private fun addModuleToTextView(module: Module) {
-        if (fullVersion || (!fullVersion && !module.hideWhenNotFullVersion))
-            add(module)
+        add(module)
     }
 
     private fun add(module: Module) {
