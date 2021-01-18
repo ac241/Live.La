@@ -27,13 +27,13 @@ import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
-import com.acel.streamlivetool.util.PreferenceConstant
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import permissions.dispatcher.*
 import kotlin.collections.set
 import kotlin.properties.Delegates
+
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
@@ -247,14 +247,9 @@ class MainActivity : AppCompatActivity() {
         stopService(intent)
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    @OnShowRationale(Manifest.permission.SYSTEM_ALERT_WINDOW)
-    internal fun showRationaleForSystemAlertWindow(request: PermissionRequest?) {
-    }
-
     @OnPermissionDenied(Manifest.permission.SYSTEM_ALERT_WINDOW)
     internal fun showDeniedForSystemAlertWindow() {
-        toast("无权限")
+        toast("需要权限来使用悬浮窗功能。")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -319,4 +314,5 @@ class MainActivity : AppCompatActivity() {
         stopPlayerOverlayService()
         PlayerOverlayWindowManager.instance.remove()
     }
+
 }
