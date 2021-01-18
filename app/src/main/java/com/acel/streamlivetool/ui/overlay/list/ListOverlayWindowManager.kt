@@ -19,7 +19,7 @@ class ListOverlayWindowManager {
     private var isShown = false
     private val applicationContext: Context = MyApplication.application.applicationContext
     private val listOverlayWindow by lazy {
-        ListOverlayWindow.instance.create().also { it.setMovable() }
+        ListOverlayWindow.instance.create()
     }
     private val listOverlayView: View? = listOverlayWindow.getLayout()
     private val recyclerViewListOverlay: RecyclerView? =

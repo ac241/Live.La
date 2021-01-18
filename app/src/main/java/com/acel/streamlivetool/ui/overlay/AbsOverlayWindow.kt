@@ -8,7 +8,6 @@ import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import com.acel.streamlivetool.base.MyApplication
 import kotlin.math.abs
@@ -16,7 +15,7 @@ import kotlin.math.abs
 abstract class AbsOverlayWindow {
     private val applicationContext = MyApplication.application.applicationContext
     private val windowManager =
-            MyApplication.application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        MyApplication.application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
     private var widthPixels = outMetrics.widthPixels
     private var heightPixels = outMetrics.heightPixels
@@ -49,15 +48,16 @@ abstract class AbsOverlayWindow {
         layoutParams.x = defaultX
         layoutParams.y = defaultY
         layoutParams.flags =
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         this.mLayout = layout
+        setMovable()
         show()
         return this
     }
 
     fun show() {
         if (isShown) {
-            windowManager.updateViewLayout(mLayout, layoutParams)
+            updateView()
 
         } else {
             windowManager.addView(mLayout, layoutParams)
@@ -67,7 +67,7 @@ abstract class AbsOverlayWindow {
 
     fun remove() {
         val windowManager =
-                applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (isShown) {
             windowManager.removeView(mLayout)
             isShown = false
@@ -79,10 +79,10 @@ abstract class AbsOverlayWindow {
     }
 
     protected fun dp2px(dp: Float): Float =
-            (0.5f + dp * Resources.getSystem().displayMetrics.density)
+        (0.5f + dp * Resources.getSystem().displayMetrics.density)
 
 
-    fun setMovable() {
+    private fun setMovable() {
         mLayout.setOnTouchListener(object : View.OnTouchListener {
             var lastRawX = 0f
             var lastRawY = 0f
@@ -103,74 +103,15 @@ abstract class AbsOverlayWindow {
                         layoutParams.y += offsetY.toInt()
                         lastRawX += offsetX
                         lastRawY += offsetY
-                        windowManager.updateViewLayout(view, layoutParams)
+                        updateView()
                     }
                     MotionEvent.ACTION_UP -> {
-                        setWindowSize()
-                        layoutParams.apply {
-                            when {
-                                x < 0 ->
-                                    x = 0
-                                x > widthPixels - mLayout.width ->
-                                    x = widthPixels - mLayout.width
-                            }
-                            when {
-                                y < (0 - getStatusBarHeight()) ->
-                                    y = 0 - getStatusBarHeight()
-                                y > heightPixels - mLayout.height ->
-                                    y = heightPixels - mLayout.height - getStatusBarHeight()
-                            }
-                        }
-                        windowManager.updateViewLayout(view, layoutParams)
+                        resetWindowMetrics()
+                        fixPosition()
                         if (abs(event.rawX - downX) < 5 && abs(event.rawY - downY) < 5)
                             view.performClick()
                     }
                 }
-//                when (event.action) {
-//                    MotionEvent.ACTION_DOWN -> {
-//                        x = event.rawX.toInt()
-//                        y = event.rawY.toInt()
-//                        xOffset = event.x.toInt()
-//                        yOffset = event.y.toInt()
-//                        downX = event.rawX.toInt()
-//                        downY = event.rawY.toInt()
-//                    }
-//                    MotionEvent.ACTION_MOVE -> {
-//                        val nowX = event.rawX
-//                        val nowY = event.rawY
-//                        if (nowX >= 0 && nowY >= 0) {
-//                            val movedX = nowX - x
-//                            val movedY = nowY - y
-//                            var newX = layoutParams.x + movedX
-//                            //如果越界，移动到X最大
-//                            if (newX > widthPixels - mLayout.width)
-//                                newX = (widthPixels - mLayout.width).toFloat()
-//                            var newY = layoutParams.y + movedY
-//                            //如果越界，移动到Y最大
-//                            if (newY > heightPixels - mLayout.height)
-//                                newY = (heightPixels - mLayout.height).toFloat()
-//                            val checkX =
-//                                newX >= 0 && newX <= widthPixels - mLayout.width
-//                            if (checkX) {
-//                                layoutParams.x = (newX).toInt()
-//                                x = nowX.toInt()
-//                            }
-//                            val checkY =
-//                                newY >= 0 && newY <= heightPixels - mLayout.height
-//                            if (checkY) {
-//                                layoutParams.y = (newY).toInt()
-//                                y = nowY.toInt()
-//                            }
-//                            // 更新悬浮窗控件布局
-//                            if (checkX || checkY)
-//                                windowManager.updateViewLayout(view, layoutParams)
-//                        }
-//                    }
-//                    MotionEvent.ACTION_UP -> {
-//                        if (abs(event.rawX - downX) < 5 && abs(event.rawY - downY) < 5)
-//                            view.performClick()
-//                    }
-//                }
                 return true
             }
         })
@@ -180,39 +121,53 @@ abstract class AbsOverlayWindow {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (!isShown)
                 return
-            val nowWidth = widthPixels
-            val nowHeight = heightPixels
-            setWindowSize()
-
-            layoutParams.apply {
-                x = widthPixels * x / nowWidth
-                y = heightPixels * y / nowHeight
-
-                when {
-                    x < 0 ->
-                        x = 0
-                    x > widthPixels - mLayout.width ->
-                        x = widthPixels - mLayout.width
-                }
-                when {
-                    y < (0 - getStatusBarHeight()) ->
-                        y = 0 - getStatusBarHeight()
-                    y > heightPixels - mLayout.height ->
-                        y = heightPixels - mLayout.height - getStatusBarHeight()
-                }
-            }
-            windowManager.updateViewLayout(mLayout, layoutParams)
+            fixPositionFlipping()
         }
 
         fun register() {
             MyApplication.application.registerReceiver(
-                    ConfigurationChangeBroadcastReceiver(),
-                    IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
+                ConfigurationChangeBroadcastReceiver(),
+                IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
             )
         }
     }
 
-    private fun setWindowSize() {
+    protected fun fixPositionFlipping() {
+        val nowWidth = widthPixels
+        val nowHeight = heightPixels
+        resetWindowMetrics()
+
+        layoutParams.apply {
+            x = widthPixels * x / nowWidth
+            y = heightPixels * y / nowHeight
+        }
+        fixPosition()
+    }
+
+    protected fun fixPosition() {
+        layoutParams.apply {
+            when {
+                x < 0 ->
+                    x = 0
+                x > widthPixels - layoutParams.width ->
+                    x = widthPixels - layoutParams.width
+            }
+            when {
+                y < (0 - getStatusBarHeight()) ->
+                    y = 0 - getStatusBarHeight()
+                y > heightPixels - layoutParams.height ->
+                    y = heightPixels - layoutParams.height - getStatusBarHeight()
+            }
+        }
+        updateView()
+    }
+
+    private fun updateView() {
+        if (isShown)
+            windowManager.updateViewLayout(mLayout, layoutParams)
+    }
+
+    private fun resetWindowMetrics() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             windowManager.currentWindowMetrics.bounds.apply {
                 widthPixels = width()
@@ -229,7 +184,11 @@ abstract class AbsOverlayWindow {
 
     private fun getStatusBarHeight(): Int {
         val resources = MyApplication.application.resources
-        val resourceId = MyApplication.application.resources.getIdentifier("status_bar_height", "dimen", "android")
+        val resourceId = MyApplication.application.resources.getIdentifier(
+            "status_bar_height",
+            "dimen",
+            "android"
+        )
         return resources.getDimensionPixelSize(resourceId)
     }
 }

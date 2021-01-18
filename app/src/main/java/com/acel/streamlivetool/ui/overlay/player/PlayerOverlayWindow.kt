@@ -1,8 +1,10 @@
 package com.acel.streamlivetool.ui.overlay.player
 
 import android.content.Context
+import android.util.Log
 import android.view.WindowManager
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
+import kotlinx.coroutines.delay
 
 class PlayerOverlayWindow : AbsOverlayWindow() {
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_overlay_player
@@ -25,5 +27,6 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                 context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowManager.updateViewLayout(getLayout(), layoutParams)
         }
+        fixPosition()
     }
 }

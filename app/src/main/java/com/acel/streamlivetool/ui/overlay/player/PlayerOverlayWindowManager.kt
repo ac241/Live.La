@@ -46,7 +46,7 @@ class PlayerOverlayWindowManager {
     private var nowResolution: Pair<Float, Float> = Pair(defaultWidthLand, defaultHeightLand)
     private var isShown = false
     private val playerOverlayWindow: AbsOverlayWindow =
-        PlayerOverlayWindow.instance.create().also { it.setMovable() }
+        PlayerOverlayWindow.instance.create()
     private val containerView: View? = playerOverlayWindow.getLayout()
     private val exoPlayerView: PlayerView? =
         containerView?.findViewById(R.id.btn_player_overlay_video_view)
