@@ -3,7 +3,6 @@ package com.acel.streamlivetool.ui.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -12,6 +11,8 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
+import com.acel.streamlivetool.util.AppUtil.getAppName
+import com.acel.streamlivetool.util.AppUtil.getAppVersionName
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
@@ -56,18 +57,22 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         findPreference<Preference>(getString(R.string.pref_key_about_open_source))?.setOnPreferenceClickListener {
             startActivity(Intent(context, OpenSourceActivity::class.java))
-            false
+            true
         }
         findPreference<Preference>(getString(R.string.pref_key_clear_cookie))?.setOnPreferenceClickListener {
             clearCookie()
-            false
+            true
         }
-        //隐藏完整版功能
-        val fullVersion =
-            defaultSharedPreferences.getBoolean(resources.getString(R.string.full_version), false)
-        if (!fullVersion)
-            findPreference<Preference>(getString(R.string.pref_key_full_version_feature))?.isVisible =
-                false
+        findPreference<Preference>(getString(R.string.pref_key_app_description))?.apply {
+            title = "${getAppName(requireContext())} ${getAppVersionName(requireContext())}"
+            setOnPreferenceClickListener {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("项目地址：")
+                    .setMessage(getString(R.string.github_url))
+                    .show()
+                true
+            }
+        }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {

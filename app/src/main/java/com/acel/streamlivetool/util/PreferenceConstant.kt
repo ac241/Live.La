@@ -18,14 +18,6 @@ object PreferenceConstant {
                 true
             )
 
-
-    val fullVersion
-        get() =
-            defaultSharedPreferences.getBoolean(
-                MyApplication.application.resources.getString(R.string.full_version),
-                false
-            )
-
     val groupModeUseCookie
         get() =
             defaultSharedPreferences.getBoolean(

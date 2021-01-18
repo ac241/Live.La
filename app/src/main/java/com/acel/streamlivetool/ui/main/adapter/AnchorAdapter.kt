@@ -25,7 +25,6 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.
 import com.acel.streamlivetool.util.AnchorItemClickAction.itemClick
 import com.acel.streamlivetool.util.AnchorItemClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.PreferenceConstant.fullVersion
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
@@ -238,12 +237,10 @@ class AnchorAdapter(
             return@setOnLongClickListener false
         }
 
-        //副键点击
-        if (fullVersion) {
-            holder.secondBtn.visibility = View.VISIBLE
-            holder.secondBtn.setOnClickListener {
-                secondBtnClick(context, anchor, anchorList)
-            }
+        //第二按键点击
+        holder.secondBtn.visibility = View.VISIBLE
+        holder.secondBtn.setOnClickListener {
+            secondBtnClick(context, anchor, anchorList)
         }
 
         //附加功能按钮

@@ -3,11 +3,11 @@
     <string name="pref_key_item_click_action">pref_key_item_click_action</string>
     <string name="pref_key_second_button_click_action">pref_key_second_button_click_action</string>
     <string name="pref_key_about_open_source">pref_key_about_open_source</string>
-    <string name="pref_key_app_open_source_url">pref_key_app_open_source_url</string>
+    <string name="pref_key_app_description">pref_key_app_description</string>
     <string name="pref_key_clear_cookie">pref_key_clear_cookie</string>
     <string name="pref_key_additional_action_btn">pref_key_additional_action_btn</string>
     <string name="pref_key_show_anchor_image_when_mobile_data">pref_key_show_image_when_mobile_data</string>
-    <string name="pref_key_full_version_feature">pref_key_full_version_feature</string>
+    <string name="pref_key_anchor_item_click_action">pref_key_anchor_item_click_action</string>
     <string name="pref_key_show_anchor_image">pref_key_show_anchor_image</string>
     <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
     <string name="pref_key_group_mode_use_cookie">pref_key_group_mode_use_cookie</string>
@@ -39,15 +39,14 @@
     <string name="item_click_action_name">点击条目时</string>
     <string name="second_button_action_name">点击侧边键时</string>
     <string name="open_source_modules">开源组件</string>
-    <string name="app_open_source_url">开源地址</string>
-    <string name="app_open_source_description">此项目已经开源 by acel</string>
+    <string name="app_description">软件描述</string>
+    <string name="pref_key_app_description_summary">by acel，此项目已经开源。</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="clear_all_cookie">清除所有登录信息</string>
     <string name="add_to_group_mode">添加到主页</string>
     <string name="live_image">直播图片</string>
     <string name="avatar">头像</string>
-    <string name="full_version">full_version</string>
     <string name="anchor_already_exist">该主播已在列表中</string>
     <string name="add_anchor_success">添加成功</string>
     <string name="open_source_module">开源组件</string>
@@ -72,7 +71,7 @@
     <string name="clear_all_cookie_alert">要清除所有登录信息吗？</string>
     <string name="clear_all_cookie_ok">清除所有登录信息成功</string>
     <string name="platform_display">显示</string>
-    <string name="full_version_feature">完整版功能</string>
+    <string name="anchor_item_click_action">点击</string>
     <string name="other">其他</string>
     <string name="search">搜索</string>
     <string name="anchor_id_or_search_keyword">直播间号或搜索关键词</string>
@@ -90,4 +89,5 @@
     <string name="checked">checked</string>
     <string name="live_time_formatter" >上次直播时间：%s</string>
     <string name="platform_icon">平台图标</string>>
+    <string name="github_url">https://github.com/ac241/StreamLiveTool</string>>
 </resources>

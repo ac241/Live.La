@@ -5,7 +5,6 @@ import androidx.preference.PreferenceManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
-import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 /**
@@ -18,21 +17,9 @@ class AppInitiation {
         }
     }
 
-    private val isDebug: Boolean = false
-    private val isFullVersion: Boolean = true
-
-
     fun init() {
         initPreference()
         firstTimeLaunch()
-        if (isDebug) {
-            toast("当前处于测试模式！")
-            defaultSharedPreferences.edit()
-                .putBoolean(
-                    MyApplication.application.resources.getString(R.string.full_version),
-                    true
-                ).apply()
-        }
     }
 
     private fun firstTimeLaunch() {
@@ -40,17 +27,8 @@ class AppInitiation {
         val isFirst = defaultSharedPreferences.getBoolean(firstTimeKey, true)
         if (isFirst) {
             initDefaultAnchor()
-            initFullVersion()
             defaultSharedPreferences.edit().putBoolean(firstTimeKey, false).apply()
         }
-    }
-
-    private fun initFullVersion() {
-        defaultSharedPreferences.edit()
-            .putBoolean(
-                MyApplication.application.resources.getString(R.string.full_version),
-                isFullVersion
-            ).apply()
     }
 
     private fun initPreference() {

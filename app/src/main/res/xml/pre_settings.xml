@@ -24,18 +24,18 @@
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="@string/pref_key_full_version_feature"
+        android:key="@string/pref_key_anchor_item_click_action"
         app:iconSpaceReserved="false"
-        app:title="@string/full_version_feature">
+        app:title="@string/anchor_item_click_action">
         <ListPreference
-            android:defaultValue="@string/string_open_app"
+            android:defaultValue="@string/string_overlay_player"
             android:entries="@array/pref_click_action_entries"
             android:entryValues="@array/pref_click_action_entry_values"
             android:key="@string/pref_key_item_click_action"
             android:title="@string/item_click_action_name"
             app:iconSpaceReserved="false" />
         <ListPreference
-            android:defaultValue="@string/string_overlay_player"
+            android:defaultValue="@string/string_open_app"
             android:entries="@array/pref_click_action_entries"
             android:entryValues="@array/pref_click_action_entry_values"
             android:key="@string/pref_key_second_button_click_action"
@@ -65,9 +65,9 @@
             android:title="@string/open_source_modules"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="@string/pref_key_app_open_source_url"
-            android:title="@string/app_open_source_url"
-            android:summary="@string/app_open_source_description"
+            android:key="@string/pref_key_app_description"
+            android:title="@string/app_description"
+            android:summary="@string/pref_key_app_description_summary"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>
