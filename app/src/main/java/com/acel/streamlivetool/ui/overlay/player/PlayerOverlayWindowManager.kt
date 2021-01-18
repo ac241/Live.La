@@ -372,7 +372,7 @@ class PlayerOverlayWindowManager {
     /**
      * 移除Player悬浮窗
      */
-    private fun remove() {
+    fun remove() {
         player?.stop()
         playerOverlayWindow.remove()
         isShown = false

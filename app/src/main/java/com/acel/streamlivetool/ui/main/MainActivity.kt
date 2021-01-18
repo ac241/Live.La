@@ -317,6 +317,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopPlayerOverlayService()
-//        PlayerOverlayWindowManager.instance.destroy()
+        PlayerOverlayWindowManager.instance.remove()
     }
 }
