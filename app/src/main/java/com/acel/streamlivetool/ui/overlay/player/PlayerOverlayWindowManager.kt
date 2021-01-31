@@ -376,7 +376,6 @@ class PlayerOverlayWindowManager {
         player?.stop()
         playerOverlayWindow.remove()
         isShown = false
-
     }
 
     internal fun toggle() {

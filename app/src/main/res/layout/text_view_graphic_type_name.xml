@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/grid_anchor_type_name"
+    android:id="@+id/type_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/text_view_radius_background"

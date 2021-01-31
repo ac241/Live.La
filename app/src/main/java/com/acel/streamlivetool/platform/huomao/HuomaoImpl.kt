@@ -151,12 +151,15 @@ class HuomaoImpl : IPlatform {
             resultList.forEach {
                 list.add(
                     Anchor(
-                        platform,
-                        it.nickname.replace("<i style=\"color: red;font-style: normal\">", "")
+                        platform = platform,
+                        nickname = it.nickname.replace(
+                            "<i style=\"color: red;font-style: normal\">",
+                            ""
+                        )
                             .replace("</i>", ""),
-                        it.room_number,
-                        it.cid,
-                        it.is_live == 1,
+                        showId = it.room_number,
+                        roomId = it.cid,
+                        status = it.is_live == 1,
                         avatar = it.img.big
                     )
                 )

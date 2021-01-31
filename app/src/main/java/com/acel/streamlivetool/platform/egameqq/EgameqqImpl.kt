@@ -49,11 +49,11 @@ class EgameqqImpl : IPlatform {
                 anchor?.let {
                     it.data.key.retBody.data.apply {
                         return Anchor(
-                            platform,
-                            nickName,
-                            aliasId.toString(),
-                            uid.toString(),
-                            isLive == 1,
+                            platform = platform,
+                            nickname = nickName,
+                            showId = aliasId.toString(),
+                            roomId = uid.toString(),
+                            status = isLive == 1,
                             avatar = faceUrl
                         )
                     }

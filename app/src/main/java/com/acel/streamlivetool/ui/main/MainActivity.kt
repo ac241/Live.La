@@ -5,6 +5,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -42,13 +44,13 @@ class MainActivity : AppCompatActivity() {
     private val displayPlatformPage by lazy {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
-        val showablePlatformSet = defaultSharedPreferences.getStringSet(
+        val displayablePlatformSet = defaultSharedPreferences.getStringSet(
             MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
             setOf()
         )
-        if (showablePlatformSet != null)
+        if (displayablePlatformSet != null)
             sortPlatformArray.forEach {
-                if (!showablePlatformSet.contains(it))
+                if (!displayablePlatformSet.contains(it))
                     return@forEach
                 val platform = PlatformDispatcher.getPlatformImpl(it)
                 if (platform != null) {
@@ -135,7 +137,6 @@ class MainActivity : AppCompatActivity() {
         init()
     }
 
-    @Suppress("DEPRECATION")
     private fun init() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

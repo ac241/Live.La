@@ -307,7 +307,7 @@ class AnchorAdapter(
         val additionBtn: ImageView = itemView.grid_anchor_addition_action
         val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
         val roomId: TextView = itemView.grid_anchor_roomId
-        val typeName: TextView = itemView.grid_anchor_type_name
+        val typeName: TextView = itemView.type_name
         val online: TextView? = itemView.grid_anchor_online ?: null
         val liveTime: TextView = itemView.grid_anchor_live_time
         val icon: ImageView? = itemView.platform_icon

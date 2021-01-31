@@ -153,9 +153,11 @@ class HuyaImpl : IPlatform {
             resultList.forEach {
                 list.add(
                     Anchor(
-                        platform, it.game_nick, it.room_id.toString(),
-                        it.uid.toString(),
-                        it.gameLiveOn,
+                        platform = platform,
+                        nickname = it.game_nick,
+                        showId = it.room_id.toString(),
+                        roomId = it.uid.toString(),
+                        status = it.gameLiveOn,
                         avatar = it.game_avatarUrl52
                     )
                 )

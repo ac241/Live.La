@@ -178,9 +178,9 @@ class GroupFragment : Fragment() {
         }
     }
 
-    fun isShowImage(): Boolean {
-        return nowAnchorAdapter == adapterShowImage
-    }
+    private fun isShowImage(): Boolean =
+        nowAnchorAdapter == adapterShowImage
+
 
     @Synchronized
     fun refreshAnchorAttribute() {

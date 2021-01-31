@@ -164,10 +164,10 @@ class DouyuImpl : IPlatform {
             resultList.forEach {
                 list.add(
                         Anchor(
-                                platform,
-                                it.nickName,
-                                it.rid.toString(),
-                                it.rid.toString(),
+                                platform = platform,
+                                nickname = it.nickName,
+                                showId = it.rid.toString(),
+                                roomId = it.rid.toString(),
                                 status = it.isLive == 1,
                                 avatar = it.avatar
                         )

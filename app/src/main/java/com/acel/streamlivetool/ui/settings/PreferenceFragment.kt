@@ -19,9 +19,9 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
     /**
-     * 设置后重启
+     * 设置后通知
      */
-    private val restartWhenChangeArray by lazy {
+    private val prefChangeArray by lazy {
         arrayOf(
             resources.getString(R.string.pref_key_additional_action_btn),
             resources.getString(R.string.pref_key_cookie_mode_platform_showable),
@@ -82,7 +82,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     setListPreferenceSummary(key)
             }
             //设置后重启应用
-            if (restartWhenChangeArray.contains(key)) {
+            if (prefChangeArray.contains(key)) {
                 (requireActivity() as SettingsActivity).setPlatformsChanges()
             }
         }

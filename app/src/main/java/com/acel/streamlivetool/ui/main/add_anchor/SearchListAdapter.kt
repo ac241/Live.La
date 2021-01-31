@@ -5,7 +5,6 @@
 
 package com.acel.streamlivetool.ui.main.add_anchor
 
-import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -66,6 +65,6 @@ class SearchListAdapter(val anchorList: List<Anchor>) : BaseAdapter() {
     class ViewHolder(view: View) {
         val checked: ImageView = view.checked
         val avatar: ImageView = view.avatar
-        val name: TextView = view.name
+        val name: TextView = view.nickname
     }
 }

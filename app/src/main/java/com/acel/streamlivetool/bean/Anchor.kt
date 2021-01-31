@@ -1,11 +1,13 @@
 package com.acel.streamlivetool.bean
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity
-class Anchor() {
+class Anchor() : Parcelable {
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
     lateinit var platform: String
@@ -46,6 +48,23 @@ class Anchor() {
      */
     @Ignore
     var liveTime: String? = null
+
+    constructor(parcel: Parcel) : this() {
+        id = parcel.readLong()
+        platform = parcel.readString().toString()
+        nickname = parcel.readString().toString()
+        showId = parcel.readString().toString()
+        roomId = parcel.readString().toString()
+        otherParams = parcel.readString().toString()
+        status = parcel.readByte() != 0.toByte()
+        title = parcel.readString()
+        avatar = parcel.readString()
+        keyFrame = parcel.readString()
+        secondaryStatus = parcel.readString()
+        typeName = parcel.readString()
+        online = parcel.readString()
+        liveTime = parcel.readString()
+    }
 
     constructor(
         platform: String,
@@ -109,5 +128,36 @@ class Anchor() {
 
     override fun toString(): String {
         return "platform=$platform,nickname=$nickname,roomId=$roomId,showId=$showId,otherParams=$otherParams"
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(id)
+        parcel.writeString(platform)
+        parcel.writeString(nickname)
+        parcel.writeString(showId)
+        parcel.writeString(roomId)
+        parcel.writeString(otherParams)
+        parcel.writeByte(if (status) 1 else 0)
+        parcel.writeString(title)
+        parcel.writeString(avatar)
+        parcel.writeString(keyFrame)
+        parcel.writeString(secondaryStatus)
+        parcel.writeString(typeName)
+        parcel.writeString(online)
+        parcel.writeString(liveTime)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Anchor> {
+        override fun createFromParcel(parcel: Parcel): Anchor {
+            return Anchor(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Anchor?> {
+            return arrayOfNulls(size)
+        }
     }
 }

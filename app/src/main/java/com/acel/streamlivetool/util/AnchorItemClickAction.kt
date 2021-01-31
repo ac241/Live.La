@@ -1,11 +1,13 @@
 package com.acel.streamlivetool.util
 
 import android.content.Context
+import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.ui.player.PlayerActivity
 import com.acel.streamlivetool.util.AppUtil.runOnUiThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -34,11 +36,11 @@ object AnchorItemClickAction {
 
     private fun actionWhenClick(
         context: Context,
-        actionSecondBtn: String?,
+        action: String?,
         anchor: Anchor,
         list: List<Anchor>
     ) {
-        when (actionSecondBtn) {
+        when (action) {
             context.getString(R.string.string_open_app) -> {
                 startApp(context, anchor)
             }
@@ -57,6 +59,16 @@ object AnchorItemClickAction {
             }
             context.getString(R.string.string_overlay_player) -> {
                 (context as MainActivity).playStream(anchor, list)
+            }
+            context.getString(R.string.string_inner_player) -> {
+                val intent = Intent(context, PlayerActivity::class.java)
+                intent.putExtra("index", list.indexOf(anchor))
+                val arrayList = arrayListOf<Anchor>().also {
+                    it.addAll(list)
+                }
+                intent.putParcelableArrayListExtra("list", arrayList)
+//                intent.putExtra("anchor", anchor)
+                context.startActivity(intent)
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")
