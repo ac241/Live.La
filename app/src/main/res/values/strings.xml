@@ -12,12 +12,19 @@
     <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
     <string name="pref_key_group_mode_use_cookie">pref_key_group_mode_use_cookie</string>
 
+
+    <string name="open_app">打开app</string>
+    <string name="inner_player">内置播放器</string>
+    <string name="outer_player">外置播放器</string>
+    <string name="overlay_player">悬浮窗播放</string>
+
     <array name="pref_click_action_entries">
-        <item>打开app</item>
-        <item>内置播放器</item>
-        <item>外置播放器</item>
-        <item>悬浮窗播放</item>
+        <item>@string/open_app</item>
+        <item>@string/inner_player</item>
+        <item>@string/outer_player</item>
+        <item>@string/overlay_player</item>
     </array>
+
     <array name="pref_click_action_entry_values">
         <item name="value_open_app">@string/string_open_app</item>
         <item name="value_inner_player">@string/string_inner_player</item>

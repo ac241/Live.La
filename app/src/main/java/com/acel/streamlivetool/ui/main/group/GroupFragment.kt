@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
+import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
@@ -203,6 +204,16 @@ class GroupFragment : Fragment() {
                 val position = nowAnchorAdapter.getLongClickPosition()
                 val anchor = viewModel.sortedAnchorList.value!![position]
                 viewModel.followAnchor(anchor)
+            }
+            else -> {
+                val position = nowAnchorAdapter.getLongClickPosition()
+                val anchor = viewModel.sortedAnchorList.value!![position]
+                HandleContextItemSelect.handle(
+                    requireContext(),
+                    item.itemId,
+                    anchor,
+                    viewModel.sortedAnchorList.value!!
+                )
             }
         }
         return super.onContextItemSelected(item)

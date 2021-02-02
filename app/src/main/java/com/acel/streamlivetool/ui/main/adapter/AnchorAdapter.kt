@@ -22,8 +22,8 @@ import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
-import com.acel.streamlivetool.util.AnchorItemClickAction.itemClick
-import com.acel.streamlivetool.util.AnchorItemClickAction.secondBtnClick
+import com.acel.streamlivetool.util.AnchorClickAction.itemClick
+import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
@@ -279,6 +279,10 @@ class AnchorAdapter(
             v: View?,
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
+            val subMenu = menu?.addSubMenu("打开为")
+            (itemView.context as AppCompatActivity).menuInflater.inflate(
+                R.menu.anchor_item_menu_open_as, subMenu
+            )
             menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
             if (liveTime.text.isNotEmpty())
                 menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))

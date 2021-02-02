@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_item_open_as_open_app"
+        android:title="@string/open_app" />
+    <item
+        android:id="@+id/action_item_open_as_inner_player"
+        android:title="@string/inner_player" />
+    <item
+        android:id="@+id/action_item_open_as_outer_player"
+        android:title="@string/outer_player" />
+    <item
+        android:id="@+id/action_item_open_as_overlay_player"
+        android:title="@string/overlay_player" />
+</menu>

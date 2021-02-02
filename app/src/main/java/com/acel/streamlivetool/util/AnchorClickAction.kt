@@ -12,7 +12,7 @@ import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
 
-object AnchorItemClickAction {
+object AnchorClickAction {
 
     fun itemClick(context: Context, anchor: Anchor, list: List<Anchor>) {
         actionWhenClick(
@@ -32,6 +32,23 @@ object AnchorItemClickAction {
                 ""
             ), anchor, list
         )
+    }
+
+    fun contextItemClick(context: Context, anchor: Anchor, list: List<Anchor>, itemId: Int) {
+        val action =
+            when (itemId) {
+                R.id.action_item_open_as_open_app ->
+                    context.getString(R.string.string_open_app)
+                R.id.action_item_open_as_inner_player ->
+                    context.getString(R.string.string_inner_player)
+                R.id.action_item_open_as_outer_player ->
+                    context.getString(R.string.string_outer_player)
+                R.id.action_item_open_as_overlay_player ->
+                    context.getString(R.string.string_overlay_player)
+                else ->
+                    ""
+            }
+        actionWhenClick(context, action, anchor, list)
     }
 
     private fun actionWhenClick(

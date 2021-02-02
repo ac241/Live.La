@@ -24,6 +24,7 @@ import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.login.LoginActivity
+import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
@@ -205,6 +206,16 @@ class CookieFragment : Fragment() {
                     val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)
+                }
+                else -> {
+                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val anchor = viewModel.anchorList[position]
+                    HandleContextItemSelect.handle(
+                        requireContext(),
+                        item.itemId,
+                        anchor,
+                        viewModel.anchorList
+                    )
                 }
             }
         return super.onContextItemSelected(item)
