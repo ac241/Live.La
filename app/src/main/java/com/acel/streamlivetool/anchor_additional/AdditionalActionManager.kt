@@ -10,7 +10,7 @@ import android.content.Context
 import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
 import com.acel.streamlivetool.anchor_additional.action.GetLOLMatchAction
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 
@@ -42,7 +42,7 @@ class AdditionalActionManager {
         actions?.let {
             when (it.size) {
                 0 -> {
-                    runOnUiThread {
+                    mainThread {
                         toast("nothing")
                     }
                     return@let
@@ -60,7 +60,7 @@ class AdditionalActionManager {
                             actions[which].doAction(context, anchor)
                         }
                     }
-                    runOnUiThread {
+                    mainThread {
                         builder.show()
                     }
                 }

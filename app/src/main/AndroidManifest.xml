@@ -20,12 +20,13 @@
         tools:targetApi="m">
         <activity
             android:name=".ui.player.PlayerActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
+            android:configChanges=""
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity
             android:name=".ui.main.MainActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Acel.NoActionBar"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>

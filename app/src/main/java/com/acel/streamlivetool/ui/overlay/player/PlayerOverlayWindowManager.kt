@@ -9,7 +9,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -431,7 +431,7 @@ class PlayerOverlayWindowManager {
                         ?.getStreamingLiveUrl(anchor)
                 Log.d("playAnchorSteaming", "$url")
                 if (url == null || url.isEmpty()) {
-                    runOnUiThread {
+                    mainThread {
                         player?.stop(true)
                         showPlayFailedMsg("直播流为空")
                         toast("直播流为空")
@@ -451,11 +451,11 @@ class PlayerOverlayWindowManager {
                 else
                     ProgressiveMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(uri)
-                runOnUiThread {
+                mainThread {
                     player?.prepare(videoSource)
                 }
             } catch (e: Exception) {
-                runOnUiThread {
+                mainThread {
                     player?.stop(true)
                     showPlayFailedMsg("获取直播流失败")
                     toast("获取直播流失败：${e.javaClass.name}")

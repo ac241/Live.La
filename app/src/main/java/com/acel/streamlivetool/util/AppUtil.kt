@@ -22,7 +22,7 @@ val defaultSharedPreferences: SharedPreferences by lazy {
 }
 
 object AppUtil {
-    fun runOnUiThread(todo: () -> Unit) {
+    fun mainThread(todo: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
             todo.invoke()
         }
@@ -35,7 +35,7 @@ object AppUtil {
                 platformImpl?.startApp(context, anchor)
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
+                mainThread {
                     ToastUtil.toast(
                         MyApplication.application.resources.getString(
                             R.string.did_not_find_app,

@@ -9,7 +9,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.AnchorListManager
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -82,7 +82,7 @@ class CookieViewModel : ViewModel() {
                     if (!result.isCookieValid) {
                         _liveDataShowLoginText.postValue(true)
                         notifyDataChange()
-                        runOnUiThread {
+                        mainThread {
                             toast("${iPlatform.platformName} " + if (result.message.isEmpty()) "请先登录" else result.message)
                         }
                     } else {

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 
@@ -44,10 +44,10 @@ class AddAnchorViewModel : ViewModel() {
             val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
             val anchorList = platformImpl?.searchAnchor(keyword)
             if (anchorList == null)
-                runOnUiThread { toast("该平台暂不支持搜索功能") }
+                mainThread { toast("该平台暂不支持搜索功能") }
             anchorList?.apply {
                 if (anchorList.isEmpty()) {
-                    runOnUiThread { toast("搜索结果为空。") }
+                    mainThread { toast("搜索结果为空。") }
                     return@execute
                 }
                 val builder = AlertDialog.Builder(activity)
@@ -64,7 +64,7 @@ class AddAnchorViewModel : ViewModel() {
                 }
                 builder.setNegativeButton("取消", null)
                 builder.setTitle("$keyword@${platformImpl.platformName} 的搜索结果：")
-                runOnUiThread {
+                mainThread {
                     builder.show()
                 }
             }
@@ -87,7 +87,7 @@ class AddAnchorViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
+                mainThread {
                     toast("发生错误。")
                 }
             }

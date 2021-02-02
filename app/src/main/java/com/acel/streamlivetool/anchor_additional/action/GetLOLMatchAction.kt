@@ -11,7 +11,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.text.Html
-import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
@@ -67,7 +66,7 @@ class GetLOLMatchAction :
     private fun showWanplusPage(context: Context) {
         val builder = AlertDialog.Builder(context)
         builder.setView(R.layout.alert_browser_page)
-        AppUtil.runOnUiThread {
+        AppUtil.mainThread {
             val dialog = builder.show()
             dialog.alert_webView.apply {
                 settings.apply {
@@ -138,7 +137,7 @@ class GetLOLMatchAction :
         )
         val builder = AlertDialog.Builder(context)
         builder.setView(R.layout.alert_additional_action)
-        AppUtil.runOnUiThread {
+        AppUtil.mainThread {
             val dialog = builder.show()
             val textView =
                 dialog.findViewById<TextView>(R.id.textView_additional_action)
@@ -224,7 +223,7 @@ class GetLOLMatchAction :
             )
             val builder = AlertDialog.Builder(context)
             builder.setView(R.layout.alert_additional_action)
-            AppUtil.runOnUiThread {
+            AppUtil.mainThread {
                 val dialog = builder.show()
                 val textView =
                     dialog.findViewById<TextView>(R.id.textView_additional_action)

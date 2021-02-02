@@ -9,7 +9,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import retrofit2.Retrofit
@@ -125,7 +125,7 @@ interface IPlatform {
             intent.setDataAndType(uri, "video/*")
             context.startActivity(intent)
         } else {
-            runOnUiThread {
+            mainThread {
                 toast(context.getString(R.string.streaming_url_is_null))
             }
         }

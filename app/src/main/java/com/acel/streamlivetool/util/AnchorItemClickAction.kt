@@ -8,7 +8,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.player.PlayerActivity
-import com.acel.streamlivetool.util.AppUtil.runOnUiThread
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
 
@@ -50,7 +50,7 @@ object AnchorItemClickAction {
                     try {
                         platformImpl?.callOuterPlayer(context, anchor)
                     } catch (e: Exception) {
-                        runOnUiThread {
+                        mainThread {
                             toast(context.getString(R.string.get_streaming_failed))
                         }
                         e.printStackTrace()
