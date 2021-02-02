@@ -88,8 +88,8 @@
             android:layout_height="12dp"
             android:alpha="0.8"
             android:contentDescription="@string/platform_icon"
-            app:layout_constraintEnd_toEndOf="@id/grid_anchor_avatar"
-            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_avatar" />
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_avatar"
+            app:layout_constraintEnd_toEndOf="@id/grid_anchor_avatar" />
 
         <TextView
             android:id="@+id/grid_anchor_platform"
@@ -123,7 +123,8 @@
             android:contentDescription="@string/additional_action"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:scaleType="center"
+            android:padding="5dp"
+            android:scaleType="centerInside"
             android:src="@drawable/ic_additional_button"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

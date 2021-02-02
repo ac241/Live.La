@@ -42,6 +42,9 @@ class GetLOLMatchAction :
         }
     }
 
+    override val iconResourceId: Int
+        get() = R.drawable.ic_lpl_schedule
+
     override val actionName: String
         get() = "英雄联盟本周赛程"
 
@@ -73,7 +76,7 @@ class GetLOLMatchAction :
                     javaScriptEnabled = true
                     domStorageEnabled = true
                 }
-                webViewClient = object :WebViewClient(){
+                webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
                         loadUrl("javascript:\$(\".app-download\").remove()")

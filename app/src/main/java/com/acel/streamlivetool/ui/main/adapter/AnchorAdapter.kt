@@ -244,16 +244,23 @@ class AnchorAdapter(
         }
 
         //附加功能按钮
+        val actions = additionalActionManager.match(anchor)
         if (
             defaultSharedPreferences.getBoolean(
                 context.getString(R.string.pref_key_additional_action_btn),
                 false
-            ) && additionalActionManager.match(anchor) != null
+            ) && actions != null
         ) {
-            holder.additionBtn.visibility = View.VISIBLE
-            holder.additionBtn.setOnClickListener {
-                MainExecutor.execute {
-                    additionalActionManager.doActions(anchor, context)
+            holder.additionBtn.apply {
+                visibility = View.VISIBLE
+                if (actions.size == 1)
+                    setImageResource(actions[0].iconResourceId)
+                else
+                    setImageResource(R.drawable.ic_additional_button)
+                setOnClickListener {
+                    MainExecutor.execute {
+                        additionalActionManager.doActions(anchor, context)
+                    }
                 }
             }
         } else {
