@@ -9,8 +9,8 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.ToastUtil
+import com.acel.streamlivetool.util.ToastUtil.toast
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -38,15 +38,21 @@ class PlayerViewModel : ViewModel() {
                     super.onLoadingChanged(isLoading)
                     this@PlayerViewModel.isPlaying.postValue(false)
                 }
+
+                override fun onPlayerError(error: ExoPlaybackException) {
+                    super.onPlayerError(error)
+                    error.printStackTrace()
+                    errorMessage.postValue("播放失败。")
+                }
             })
         }
     }
 
     val anchor = MutableLiveData<Anchor>()
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
-    private val streamLink = MutableLiveData<String>()
+//    private val streamLink = MutableLiveData<String>()
     val isPlaying = MutableLiveData(false)
-
+    val errorMessage = MutableLiveData("")
     internal fun setAnchorData(intent: Intent) {
         val index = intent.getIntExtra("index", -1)
         val list = intent.getParcelableArrayListExtra<Anchor>("list")
@@ -65,21 +71,29 @@ class PlayerViewModel : ViewModel() {
         if (anchor == this.anchor.value)
             return
         this.anchor.postValue(anchor)
+        getStreamUrlAndPlay(anchor)
+    }
+
+    private fun getStreamUrlAndPlay(anchor: Anchor?) {
         anchor?.let { a ->
             viewModelScope.launch(Dispatchers.IO) {
-                PlatformDispatcher.getPlatformImpl(a)
-                    ?.getStreamingLiveUrl(a)?.let { play(it) }
+                runCatching {
+                    val url = PlatformDispatcher.getPlatformImpl(a)
+                        ?.getStreamingLiveUrl(a)
+                    if (url != null && url.isNotEmpty())
+                        play(url)
+                    else
+                        errorMessage.postValue("获取直播流失败。（empty）")
+                }.onFailure {
+                    errorMessage.postValue("获取直播流失败。（error）")
+                    it.printStackTrace()
+                }
             }
         }
     }
 
     internal fun replay() {
-        anchor.value?.let { a ->
-            viewModelScope.launch(Dispatchers.IO) {
-                PlatformDispatcher.getPlatformImpl(a)
-                    ?.getStreamingLiveUrl(a)?.let { play(it) }
-            }
-        }
+        getStreamUrlAndPlay(anchor.value)
     }
 
     /**
@@ -93,7 +107,7 @@ class PlayerViewModel : ViewModel() {
             if (url.isEmpty()) {
                 AppUtil.mainThread {
                     player.stop(false)
-                    ToastUtil.toast("直播流为空")
+                    toast("直播流为空")
                 }
                 return@runCatching
             }
@@ -128,6 +142,11 @@ class PlayerViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        player.stop()
         player.release()
+    }
+
+    fun stopPlay() {
+        player.stop()
     }
 }
