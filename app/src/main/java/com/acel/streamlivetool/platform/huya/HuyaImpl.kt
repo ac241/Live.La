@@ -225,9 +225,12 @@ class HuyaImpl : IPlatform {
         return false
     }
 
-    override fun usePcAgent(): Boolean {
+    override fun loginUsePcAgent(): Boolean {
         return true
     }
+
+    override val loginTips: String
+        get() = "虎牙的cookie有效期约为7天"
 
     override fun getLoginUrl(): String {
         return "https://www.huya.com/myfollow"

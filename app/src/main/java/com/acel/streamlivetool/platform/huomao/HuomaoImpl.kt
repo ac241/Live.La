@@ -208,5 +208,5 @@ class HuomaoImpl : IPlatform {
         return cookie.contains("user_")
     }
 
-    override fun usePcAgent(): Boolean = true
+    override fun loginUsePcAgent(): Boolean = true
 }

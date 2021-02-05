@@ -37,7 +37,7 @@ interface IPlatform {
     /**
      *  支持cookie模式
      *  如果为true，需要复写 [getAnchorsWithCookieMode] [getLoginUrl] [checkLoginOk]
-     *  可能需要[usePcAgent]
+     *  可能需要[loginUsePcAgent]
      */
     val supportCookieMode: Boolean
 
@@ -147,9 +147,12 @@ interface IPlatform {
     /**
      *  WebView 使用PC Agent
      */
-    fun usePcAgent(): Boolean {
+    fun loginUsePcAgent(): Boolean {
         return false
     }
+
+    val loginTips
+        get() = ""
 
     /**
      * 登录页面

@@ -38,6 +38,11 @@ class LoginActivity : AppCompatActivity() {
 
         val platform = intent.getStringExtra("platform") ?: return
         val platformImpl = PlatformDispatcher.getPlatformImpl(platform) ?: return
+        if (platformImpl.loginTips.isNotEmpty())
+            tips.apply {
+                text = platformImpl.loginTips
+                visibility = View.VISIBLE
+            }
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
@@ -59,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
-                if (platformImpl.usePcAgent()) {
+                if (platformImpl.loginUsePcAgent()) {
                     setSupportMultipleWindows(true)
                     //缩放
                     setSupportZoom(true)
