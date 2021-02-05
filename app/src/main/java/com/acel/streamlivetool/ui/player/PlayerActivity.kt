@@ -19,7 +19,7 @@ import com.acel.streamlivetool.util.AppUtil
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
 
-    private val viewModel by viewModels<PlayerViewModel>()
+    internal val viewModel by viewModels<PlayerViewModel>()
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +40,17 @@ class PlayerActivity : AppCompatActivity() {
             }
             window.navigationBarColor = Color.TRANSPARENT
         }
+        lifecycle.addObserver(MyOrientationEventListener(this))
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         intent?.let { viewModel.setAnchorData(it) }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.setKeepData()
     }
 
     private fun initView() {
@@ -73,6 +79,9 @@ class PlayerActivity : AppCompatActivity() {
             viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
             viewModel.stopPlay()
         }
+        binding.listView?.apply {
+            adapter = viewModel.anchorList.value?.let { PlayerListAdapter(this@PlayerActivity, it) }
+        }
     }
 
     private fun observeLiveData() {
@@ -81,11 +90,7 @@ class PlayerActivity : AppCompatActivity() {
                 it.apply {
                     avatar?.let { it1 ->
                         binding.avatar?.let { it2 ->
-                            ImageLoader.load(
-                                this@PlayerActivity,
-                                it1,
-                                it2
-                            )
+                            ImageLoader.load(this@PlayerActivity, it1, it2)
                         }
                     }
                     binding.nickname?.text = nickname
@@ -96,16 +101,32 @@ class PlayerActivity : AppCompatActivity() {
                     }
                 }
             }
-            isPlaying.observe(this@PlayerActivity) {
-                if (it) {
-                    binding.progressBar.visibility = View.GONE
-                    binding.errorMsg.visibility = View.GONE
-                } else
-                    binding.progressBar.visibility = View.VISIBLE
+            anchorList.observe(this@PlayerActivity) {
+                binding.listView?.adapter?.notifyDataSetChanged()
+            }
+            anchorPosition.observe(this@PlayerActivity) {
+                binding.listView?.adapter?.apply {
+                    this as PlayerListAdapter
+                    setChecked(it)
+                }
+            }
+            status.observe(this@PlayerActivity) {
+                if (it != null)
+                    when (it) {
+                        PlayerViewModel.State.IS_PLAYING -> {
+                            binding.progressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.GONE
+                        }
+                        PlayerViewModel.State.IS_LOADING ->
+                            binding.progressBar.visibility = View.VISIBLE
+                        PlayerViewModel.State.IS_ENDED, PlayerViewModel.State.IS_IDLE, PlayerViewModel.State.IS_ERROR ->
+                            binding.progressBar.visibility = View.GONE
+                    }
+
 
             }
             errorMessage.observe(this@PlayerActivity) {
-                if (it.isNotEmpty()) {
+                if (it.isNotEmpty() && viewModel.status.value == PlayerViewModel.State.IS_ERROR) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
                         text = it

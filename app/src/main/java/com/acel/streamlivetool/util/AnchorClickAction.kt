@@ -84,7 +84,6 @@ object AnchorClickAction {
                     it.addAll(list)
                 }
                 intent.putParcelableArrayListExtra("list", arrayList)
-//                intent.putExtra("anchor", anchor)
                 context.startActivity(intent)
             }
             else -> {

@@ -167,11 +167,7 @@ class AnchorAdapter(
         //头像
         with(anchor.avatar) {
             if (this != null) {
-                ImageLoader.load(
-                    context,
-                    this,
-                    holder.avatar
-                )
+                ImageLoader.load(context, this, holder.avatar)
             } else {
                 holder.avatar.setImageResource(R.drawable.ic_load_img_fail)
             }

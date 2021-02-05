@@ -70,4 +70,13 @@ object AnchorListUtil {
         }
         return list
     }
+
+    fun removeGroup(anchorList: List<Anchor>): List<Anchor> {
+        val list = mutableListOf<Anchor>()
+        anchorList.forEach {
+            if (it != AnchorStatusGroup.LIVING_GROUP && it != AnchorStatusGroup.NOT_LIVING_GROUP)
+                list.add(it)
+        }
+        return list
+    }
 }

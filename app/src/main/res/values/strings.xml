@@ -102,5 +102,7 @@
     <string name="live_time_formatter">上次直播时间：%s</string>
     <string name="platform_icon">平台图标</string>>
     <string name="github_url">https://github.com/ac241/StreamLiveTool</string>
-    <string name="room_id_format">房间号：%s</string>>
+    <string name="room_id_format">房间号：%s</string>
+    <string name="is_playing">播放中</string>
+    <string name="anchor_list">主播列表：</string>>
 </resources>
