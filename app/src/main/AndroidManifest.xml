@@ -21,7 +21,6 @@
         <activity
             android:name=".ui.player.PlayerActivity"
             android:launchMode="singleTop"
-            android:configChanges=""
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity
             android:name=".ui.main.MainActivity"

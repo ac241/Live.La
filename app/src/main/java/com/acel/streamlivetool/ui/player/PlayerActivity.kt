@@ -40,7 +40,7 @@ class PlayerActivity : AppCompatActivity() {
             }
             window.navigationBarColor = Color.TRANSPARENT
         }
-        lifecycle.addObserver(MyOrientationEventListener(this))
+//        lifecycle.addObserver(MyOrientationEventListener(this))
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -96,6 +96,7 @@ class PlayerActivity : AppCompatActivity() {
                     binding.nickname?.text = nickname
                     binding.include?.typeName?.text = typeName
                     binding.roomId?.text = getString(R.string.room_id_format, showId)
+                    binding.title?.text = title
                     PlatformDispatcher.getPlatformImpl(it)?.iconRes?.let { res ->
                         binding.platformIcon?.setImageResource(res)
                     }
@@ -152,8 +153,9 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (hasFocus) hideSystemUI()
+        }
     }
 
 

@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -195,27 +196,28 @@ class GroupFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_item_delete -> {
-                val position = nowAnchorAdapter.getLongClickPosition()
-                viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
+        if (isResumed)
+            when (item.itemId) {
+                R.id.action_item_delete -> {
+                    val position = nowAnchorAdapter.getLongClickPosition()
+                    viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
+                }
+                ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
+                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val anchor = viewModel.sortedAnchorList.value!![position]
+                    viewModel.followAnchor(anchor)
+                }
+                else -> {
+                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val anchor = viewModel.sortedAnchorList.value!![position]
+                    HandleContextItemSelect.handle(
+                        requireContext(),
+                        item.itemId,
+                        anchor,
+                        viewModel.sortedAnchorList.value!!
+                    )
+                }
             }
-            ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
-                val position = nowAnchorAdapter.getLongClickPosition()
-                val anchor = viewModel.sortedAnchorList.value!![position]
-                viewModel.followAnchor(anchor)
-            }
-            else -> {
-                val position = nowAnchorAdapter.getLongClickPosition()
-                val anchor = viewModel.sortedAnchorList.value!![position]
-                HandleContextItemSelect.handle(
-                    requireContext(),
-                    item.itemId,
-                    anchor,
-                    viewModel.sortedAnchorList.value!!
-                )
-            }
-        }
         return super.onContextItemSelected(item)
     }
 
