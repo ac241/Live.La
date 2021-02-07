@@ -28,7 +28,7 @@
         app:iconSpaceReserved="false"
         app:title="@string/anchor_item_click_action">
         <ListPreference
-            android:defaultValue="@string/string_overlay_player"
+            android:defaultValue="@string/string_inner_player"
             android:entries="@array/pref_click_action_entries"
             android:entryValues="@array/pref_click_action_entry_values"
             android:key="@string/pref_key_item_click_action"
