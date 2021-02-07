@@ -22,11 +22,15 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.TextUtil
 import com.google.gson.*
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.alert_browser_page.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -69,7 +73,7 @@ class GetLOLMatchAction :
     private fun showWanplusPage(context: Context) {
         val builder = AlertDialog.Builder(context)
         builder.setView(R.layout.alert_browser_page)
-        AppUtil.mainThread {
+        mainThread {
             val dialog = builder.show()
             dialog.alert_webView.apply {
                 settings.apply {
@@ -80,6 +84,9 @@ class GetLOLMatchAction :
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
                         loadUrl("javascript:\$(\".app-download\").remove()")
+                        loadUrl("javascript:\$(\".filter\").click()")
+                        loadUrl("javascript:\$(\".slide-list li:contains('LPL')\")[0].click()\n")
+                        loadUrl("javascript:\$(\".tip-list button\").click()")
                     }
                 }
                 loadUrl("https://m.wanplus.com/schedule")
