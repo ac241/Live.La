@@ -28,9 +28,6 @@ import com.google.gson.*
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.alert_browser_page.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -107,7 +104,6 @@ class GetLOLMatchAction :
                 .header("X-Requested-With", "XMLHttpRequest")
                 .build()
         ).execute().body()?.string()
-//        val schedule = com.alibaba.fastjson.JSONObject.parseObject(jsonStr,WanPlusLOLSchedule::class.java)
         val gson =
             GsonBuilder().registerTypeAdapter(
                 object : TypeToken<WanPlusLOLSchedule>() {}.type,

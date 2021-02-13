@@ -45,24 +45,25 @@
         android:id="@+id/platform_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="10dp"
         android:contentDescription="@string/avatar"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="@+id/avatar"
+        app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/avatar"
+        app:layout_constraintTop_toTopOf="@+id/title"
         app:srcCompat="@mipmap/ic_launcher" />
 
     <ImageView
-        android:layout_marginTop="10dp"
         android:id="@+id/decor_line"
         android:layout_width="0dp"
         android:layout_height="0.5dp"
+        android:layout_marginTop="10dp"
         android:background="#d3d3d3"
+        android:contentDescription="@string/docor_line"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/avatar"
-        android:contentDescription="@string/docor_line" />
+        app:layout_constraintTop_toBottomOf="@+id/avatar" />
 
     <TextView
         android:id="@+id/nickname"
@@ -121,7 +122,6 @@
 
     <TextView
         android:id="@+id/list_title"
-        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -129,6 +129,7 @@
         android:paddingHorizontal="10dp"
         android:text="@string/anchor_list"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -153,5 +154,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.5"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <master.flame.danmaku.ui.widget.DanmakuView
+        android:id="@+id/danmaku_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/player_view"
+        app:layout_constraintEnd_toEndOf="@+id/player_view"
+        app:layout_constraintStart_toStartOf="@+id/player_view"
+        app:layout_constraintTop_toTopOf="@+id/player_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

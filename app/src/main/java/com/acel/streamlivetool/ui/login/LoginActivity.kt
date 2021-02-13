@@ -64,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
-                if (platformImpl.loginUsePcAgent()) {
+                if (platformImpl.loginWithPcAgent()) {
                     setSupportMultipleWindows(true)
                     //缩放
                     setSupportZoom(true)

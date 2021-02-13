@@ -7,11 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
-import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -66,7 +67,23 @@ class PlayerViewModel : ViewModel() {
     //    private val streamLink = MutableLiveData<String>()
     val status = MutableLiveData(State.IS_IDLE)
 
-    var keepData = false
+    private var keepData = false
+
+    private val danmuManager = DanmuClient().apply {
+        setListener(object : DanmuClient.DanmuListener {
+            override fun onNewDanmu(danmu: Danmu) {
+                mainThread {
+                    danmuString.value = danmu.msg
+                }
+            }
+
+            override fun onCookieMsg(reason: String) {
+                toastOnMainThread(reason)
+            }
+        })
+    }
+
+    val danmuString = MutableLiveData<String>()
 
     enum class State {
         IS_IDLE,
@@ -94,13 +111,15 @@ class PlayerViewModel : ViewModel() {
                 anchorList.postValue(value)
             }
         }
-        val anchor = list?.get(index)
+        val anchor = list?.get(index) ?: return
         preparePlay(anchor)
+
     }
 
-    private fun preparePlay(anchor: Anchor?) {
+    private fun preparePlay(anchor: Anchor) {
         if (anchor == this.anchor.value)
             return
+        startDanmu(anchor)
         this.anchor.postValue(anchor)
         anchorPosition.postValue(anchorList.value?.indexOf(anchor) ?: -1)
         getStreamUrlAndPlay(anchor)
@@ -108,6 +127,7 @@ class PlayerViewModel : ViewModel() {
 
     private fun getStreamUrlAndPlay(anchor: Anchor?) {
         anchor?.let { a ->
+            stopPlay()
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
                     val url = PlatformDispatcher.getPlatformImpl(a)
@@ -181,7 +201,12 @@ class PlayerViewModel : ViewModel() {
         super.onCleared()
         player.stop()
         player.release()
+        danmuManager.release()
+        anchor.value?.let {
+            stopDanmu()
+        }
     }
+
 
     fun stopPlay() {
         mainThread {
@@ -190,10 +215,22 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun playInList(position: Int) {
-        preparePlay(anchorList.value?.get(position))
+        anchorList.value?.get(position)?.let { preparePlay(it) }
     }
 
     fun setKeepData() {
         keepData = true
     }
+
+    fun startDanmu() = anchor.value?.let { startDanmu(it) }
+
+    private fun startDanmu(anchor: Anchor) {
+        danmuManager.start(viewModelScope, anchor)
+    }
+
+    internal fun stopDanmu() {
+        danmuManager.stop()
+    }
+
 }
+

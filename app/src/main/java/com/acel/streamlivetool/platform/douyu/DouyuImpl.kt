@@ -38,6 +38,7 @@ class DouyuImpl : IPlatform {
     override val iconRes: Int = R.drawable.ic_douyu
     override val supportCookieMode: Boolean = true
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
+    override val danmuManager: IPlatform.DanmuManager = DouyuDanmuManager()
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()
@@ -299,7 +300,7 @@ class DouyuImpl : IPlatform {
         return false
     }
 
-    override fun loginUsePcAgent(): Boolean = true
+    override fun loginWithPcAgent(): Boolean = true
 
     override val loginTips: String
         get() = "斗鱼的cookie有效期约为7天，昵称登录可能无法使用。"

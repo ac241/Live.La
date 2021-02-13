@@ -3,25 +3,17 @@ package com.acel.streamlivetool.platform.bilibili
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import androidx.annotation.MainThread
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
-import com.acel.streamlivetool.platform.bilibili.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.CookieUtil.getCookieField
 import com.acel.streamlivetool.util.TimeUtil
-import com.google.gson.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import java.io.UnsupportedEncodingException
-import java.lang.reflect.Type
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.*
 
 
@@ -36,31 +28,11 @@ class BilibiliImpl : IPlatform {
     override val platformShowNameRes: Int = R.string.bilibili
     override val iconRes: Int = R.drawable.ic_bilibili
     override val supportCookieMode: Boolean = true
-
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
-    override fun getAnchor(queryAnchor: Anchor): Anchor? {
-        val gson = GsonBuilder().registerTypeAdapter(RoomInfo::class.java,
-            object : JsonDeserializer<RoomInfo> {
-                override fun deserialize(
-                    json: JsonElement,
-                    typeOfT: Type,
-                    context: JsonDeserializationContext?
-                ): RoomInfo {
-                    val jsonObject = json.asJsonObject
-                    val data = jsonObject.get("data")
-                    return if (data.isJsonObject)
-                        Gson().fromJson<RoomInfo>(json.toString(), RoomInfo::class.java)
-                    else {
-                        val code = jsonObject.get("code").asInt
-                        val message = jsonObject.get("message").asString
-                        val msg = jsonObject.get("msg").asString
-                        RoomInfo(code, null, message, msg)
-                    }
-                }
-            }).create()
+    override val danmuManager: IPlatform.DanmuManager? = BilibiliDanmuManager()
 
+    override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
-//        val roomInfo = gson.fromJson<RoomInfo>(json, RoomInfo::class.java)
         return if (roomInfo?.code == 0) {
             val roomId = roomInfo.data?.room_id
             val ownerName = roomId?.toLong()?.let { getAnchorName(it) }
@@ -70,8 +42,6 @@ class BilibiliImpl : IPlatform {
     }
 
     private fun getAnchorName(roomId: Long): String? {
-//        val staticRoomInfo = bilibiliService.getStaticInfo(roomId).execute().body()
-//        return staticRoomInfo?.data?.uname
         val h5Info =
             bilibiliService.getH5InfoByRoom(roomId).execute().body()
         return h5Info?.data?.anchor_info?.base_info?.uname
@@ -348,9 +318,5 @@ class BilibiliImpl : IPlatform {
 
         }
         return Pair(false, "发生错误")
-    }
-
-    fun test() {
-
     }
 }

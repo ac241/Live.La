@@ -6,15 +6,26 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import master.flame.danmaku.controller.DrawHandler
+import master.flame.danmaku.danmaku.model.BaseDanmaku
+import master.flame.danmaku.danmaku.model.DanmakuTimer
+import master.flame.danmaku.danmaku.model.IDanmakus
+import master.flame.danmaku.danmaku.model.android.DanmakuContext
+import master.flame.danmaku.danmaku.model.android.Danmakus
+import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
@@ -40,7 +51,19 @@ class PlayerActivity : AppCompatActivity() {
             }
             window.navigationBarColor = Color.TRANSPARENT
         }
+        //自动切换屏幕
 //        lifecycle.addObserver(MyOrientationEventListener(this))
+    }
+
+    private val danmakuContext = DanmakuContext.create().apply {
+        setMaximumVisibleSizeInScreen(0)
+        setMaximumLines(mapOf(Pair(BaseDanmaku.TYPE_SCROLL_RL, 10)))
+    }
+
+    private val danmakuParser = object : BaseDanmakuParser() {
+        override fun parse(): IDanmakus {
+            return Danmakus()
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -63,6 +86,7 @@ class PlayerActivity : AppCompatActivity() {
             }
             player = viewModel.player
             keepScreenOn = true
+            hideController()
             findViewById<View>(R.id.btn_replay).setOnClickListener {
                 viewModel.replay()
             }
@@ -82,6 +106,69 @@ class PlayerActivity : AppCompatActivity() {
         binding.listView?.apply {
             adapter = viewModel.anchorList.value?.let { PlayerListAdapter(this@PlayerActivity, it) }
         }
+        binding.danmakuView.apply {
+            enableDanmakuDrawingCache(true);
+            setCallback(object : DrawHandler.Callback {
+                override fun prepared() {
+                    start()
+                }
+
+                override fun updateTimer(timer: DanmakuTimer?) {
+                }
+
+                override fun danmakuShown(danmaku: BaseDanmaku?) {
+                }
+
+                override fun drawingFinished() {
+                }
+
+            })
+            prepare(danmakuParser, danmakuContext)
+            alpha = 0.8f
+
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.startDanmu()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.stopDanmu()
+        Log.d("acel_log@onPause", "stop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.danmakuView.release()
+    }
+
+    private fun addDanmaku(msg: String) {
+        lifecycleScope.launch {
+            val danmaku =
+                danmakuContext.mDanmakuFactory?.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL)?.apply {
+                    text = msg
+                    padding = 3
+                    time = binding.danmakuView.currentTime.plus(1200)
+                    textSize = 16f.toPx()
+                    textColor = Color.WHITE
+                    textShadowColor = Color.BLACK
+                    priority = 1
+                }
+            danmaku?.let {
+                binding.danmakuView.addDanmaku(it)
+            }
+        }
+    }
+
+    /**
+     * sp转px的方法。
+     */
+    private fun Float.toPx(): Float {
+        val fontScale = resources.displayMetrics.scaledDensity
+        return (this * fontScale + 0.5f)
     }
 
     private fun observeLiveData() {
@@ -136,8 +223,12 @@ class PlayerActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                 }
             }
+            danmuString.observe(this@PlayerActivity) {
+                addDanmaku(it)
+            }
         }
     }
+
 
     private fun View.fadeIn() {
         alpha = 0f

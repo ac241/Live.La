@@ -222,7 +222,7 @@ class EgameqqImpl : IPlatform {
         return cookie.contains("pgg_uid") && cookie.contains("pgg_access_token")
     }
 
-    override fun loginUsePcAgent(): Boolean {
+    override fun loginWithPcAgent(): Boolean {
         return true
     }
 }

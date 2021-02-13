@@ -225,7 +225,7 @@ class HuyaImpl : IPlatform {
         return false
     }
 
-    override fun loginUsePcAgent(): Boolean {
+    override fun loginWithPcAgent(): Boolean {
         return true
     }
 

@@ -3,12 +3,14 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
+import com.acel.streamlivetool.ui.player.DanmuClient
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -37,7 +39,7 @@ interface IPlatform {
     /**
      *  支持cookie模式
      *  如果为true，需要复写 [getAnchorsWithCookieMode] [getLoginUrl] [checkLoginOk]
-     *  可能需要[loginUsePcAgent]
+     *  可能需要[loginWithPcAgent]
      */
     val supportCookieMode: Boolean
 
@@ -147,7 +149,7 @@ interface IPlatform {
     /**
      *  WebView 使用PC Agent
      */
-    fun loginUsePcAgent(): Boolean {
+    fun loginWithPcAgent(): Boolean {
         return false
     }
 
@@ -205,4 +207,82 @@ interface IPlatform {
      * 取消关注
      */
     fun unFollow(anchor: Anchor): Pair<Boolean, String> = Pair(false, "该平台不支持。")
+
+    /**
+     * 弹幕接收器
+     */
+    val danmuManager: DanmuManager?
+        get() = null
+
+    /**
+     * 弹幕开启
+     */
+    fun danmuStart(
+        anchor: Anchor,
+        danmuClient: DanmuClient
+    ): Boolean {
+        return if (this.danmuManager != null) {
+            this.danmuManager?.onDanmuStart(getCookie(), anchor, danmuClient)
+            true
+        } else
+            false
+    }
+
+    /**
+     * 弹幕关闭
+     */
+    fun danmuStop(danmuClient: DanmuClient): Boolean {
+        return if (this.danmuManager != null) {
+            this.danmuManager?.onDanmuStop(danmuClient)
+            true
+        } else
+            false
+    }
+
+    abstract class DanmuManager {
+        private var danmuReceiver: DanmuReceiver? = null
+
+        /**
+         * 接收弹幕是否检查cookie
+         */
+        open val danmuAssertCookie: Boolean
+            get() = false
+
+        interface DanmuReceiver {
+            fun start()
+            fun stop()
+        }
+
+        abstract fun generateReceiver(
+            cookie: String,
+            anchor: Anchor,
+            danmuClient: DanmuClient
+        ): DanmuReceiver
+
+        /**
+         * 弹幕开启
+         */
+        fun onDanmuStart(
+            cookie: String,
+            anchor: Anchor,
+            danmuClient: DanmuClient
+        ) {
+            Log.d("acel_log@onDanmuStart", "impl ${anchor.nickname} 弹幕开启")
+            if (danmuAssertCookie && cookie.isEmpty()) {
+                danmuClient.cookieMsgCallback("该平台登录后才能接收弹幕。")
+                return
+            }
+            danmuReceiver?.stop()
+            danmuReceiver = generateReceiver(cookie, anchor, danmuClient)
+            danmuReceiver?.start()
+        }
+
+
+        /**
+         * 弹幕关闭
+         */
+        fun onDanmuStop(danmuClient: DanmuClient) {
+            danmuReceiver?.stop()
+        }
+    }
 }

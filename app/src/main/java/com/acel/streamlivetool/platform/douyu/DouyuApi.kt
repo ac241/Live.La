@@ -26,30 +26,30 @@ interface DouyuApi {
     @Multipart
     @POST("https://www.douyu.com/lapi/live/getH5Play/{id}")
     fun getLiveInfo(
-            @Path("id") id: String,
-            @Part("v") v: String,
-            @Part("did") did: String,
-            @Part("tt") tt: Int,
-            @Part("sign") sign: String,
-            @Part("cdn") cdn: String = "",
-            @Part("iar") iar: String = "1",
-            @Part("ive") ive: String = "0",
-            @Part("rate") rate: String = "0"
+        @Path("id") id: String,
+        @Part("v") v: String,
+        @Part("did") did: String,
+        @Part("tt") tt: Int,
+        @Part("sign") sign: String,
+        @Part("cdn") cdn: String = "",
+        @Part("iar") iar: String = "1",
+        @Part("ive") ive: String = "0",
+        @Part("rate") rate: String = "0"
     ): Call<String>
 
     @FormUrlEncoded
 //    @Multipart
     @POST("https://www.douyu.com/lapi/live/getH5Play/{id}")
     fun getLiveInfo(
-            @Path("id") id: String,
-            @FieldMap map: MutableMap<String, String>
+        @Path("id") id: String,
+        @FieldMap map: MutableMap<String, String>
     ): Call<String>
 
 
     @GET("https://www.douyu.com/wgapi/livenc/liveweb/follow/list")
     fun getFollowed(
-            @Header("Cookie") cookie: String,
-            @Query("page") page: Int = 1
+        @Header("Cookie") cookie: String,
+        @Query("page") page: Int = 1
     ): Call<Followed>
 
     @GET("https://www.douyu.com/japi/search/api/getSearchRec")
@@ -58,13 +58,14 @@ interface DouyuApi {
     @FormUrlEncoded
     @POST("https://www.douyu.com/wgapi/livenc/liveweb/follow/add")
     fun follow(
-            @Header("Cookie") cookie: String,
-            @Field("rid") rid: String,
-            @Field("ctn") ctn: String
+        @Header("Cookie") cookie: String,
+        @Field("rid") rid: String,
+        @Field("ctn") ctn: String
     ): Call<FollowResponse>
 
     @GET("https://www.douyu.com/curl/csrfApi/getCsrfCookie")
     fun initCsrf(
-            @Header("Cookie") cookie: String
+        @Header("Cookie") cookie: String
     ): Call<String>
+
 }
