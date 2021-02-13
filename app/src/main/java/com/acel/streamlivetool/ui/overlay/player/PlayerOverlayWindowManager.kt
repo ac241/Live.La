@@ -464,4 +464,10 @@ class PlayerOverlayWindowManager {
             }
         }
     }
+
+    fun release() {
+        remove()
+        player?.release()
+
+    }
 }

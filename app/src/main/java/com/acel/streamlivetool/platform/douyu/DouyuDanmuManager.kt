@@ -51,6 +51,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
                 joinGroup()
                 receiveAllMsg()
                 heartBeat()
+                danmuClient?.startCallback()
             }
 
             @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -80,7 +81,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
         }
 
         override fun stop() {
-            webSocket?.close(1000, "")
+            webSocket?.close(1000, null)
             webSocket = null
             danmuClient = null
             heartbeatJob?.cancel()
@@ -131,7 +132,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
                             webSocket?.send(ByteString.of(bytes, 0, bytes.size))
                     }
                 }.onFailure {
-                    Log.d("acel_log@start", "${anchor.nickname}的弹幕心跳包被取消")
+                    Log.d("acel_log@heartBeat", "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消")
                     it.printStackTrace()
                 }
             }

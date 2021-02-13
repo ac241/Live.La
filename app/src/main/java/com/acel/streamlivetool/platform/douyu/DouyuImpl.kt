@@ -282,7 +282,7 @@ class DouyuImpl : IPlatform {
                                         if (followedNext != null) {
                                             addToList(list, followedNext)
                                         }
-                                    }
+                                    }.start()
                                 }
                             }
                         }

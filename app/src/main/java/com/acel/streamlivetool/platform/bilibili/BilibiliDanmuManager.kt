@@ -30,17 +30,18 @@ class BilibiliDanmuManager :
     class BilibiliDanmuReceiver(
         val anchor: Anchor,
         val cookie: String,
-        val danmuClient: DanmuClient
+        danmuClient: DanmuClient
     ) :
         DanmuReceiver {
+        private var danmuClient: DanmuClient? = danmuClient
 
         private val bilibiliService: BilibiliApi =
             RetrofitUtils.retrofit.create(BilibiliApi::class.java)
         private var webSocket: WebSocket? = null
         private var heartbeatJob: Job? = null
         private var websocketListener: BilibiliWebsocketListener = BilibiliWebsocketListener()
-        var uid: String? = null
-        var token: String? = null
+        private var uid: String? = null
+        private var token: String? = null
 
         override fun start() {
             val info = bilibiliService.getDanmuInfo(cookie, anchor.roomId).execute().body()
@@ -92,7 +93,10 @@ class BilibiliDanmuManager :
                             delay(30000)
                         }
                     }.onFailure {
-                        Log.d("acel_log@start", "${anchor.nickname}的弹幕心跳包被取消")
+                        Log.d(
+                            "acel_log@heartBeat",
+                            "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消"
+                        )
                         it.printStackTrace()
                     }
                 }
@@ -102,6 +106,7 @@ class BilibiliDanmuManager :
         override fun stop() {
             webSocket?.close(1000, null)
             webSocket = null
+            danmuClient = null
             heartbeatJob?.cancel()
             heartbeatJob = null
         }
@@ -262,28 +267,28 @@ class BilibiliDanmuManager :
         inner class BilibiliWebsocketListener : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 super.onOpen(webSocket, response)
-                danmuClient.startCallback()
+                danmuClient?.startCallback()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                DanmuDispatcher.dispatch(danmuClient, text)
+                danmuClient?.let { DanmuDispatcher.dispatch(it, text) }
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                 super.onMessage(webSocket, bytes)
-                DanmuDispatcher.dispatch(danmuClient, bytes)
+                danmuClient?.let { DanmuDispatcher.dispatch(it, bytes) }
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosed(webSocket, code, reason)
-                danmuClient.stopCallBack(reason)
+                danmuClient?.stopCallBack(reason)
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
-                danmuClient.errorCallback("发生错误")
+                danmuClient?.errorCallback("发生错误")
             }
         }
     }

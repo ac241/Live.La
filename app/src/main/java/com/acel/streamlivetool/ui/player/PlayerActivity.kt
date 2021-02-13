@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
@@ -17,7 +16,6 @@ import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.AppUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
@@ -73,7 +71,7 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        viewModel.setKeepData()
+        viewModel.screenRotation()
     }
 
     private fun initView() {
@@ -107,7 +105,7 @@ class PlayerActivity : AppCompatActivity() {
             adapter = viewModel.anchorList.value?.let { PlayerListAdapter(this@PlayerActivity, it) }
         }
         binding.danmakuView.apply {
-            enableDanmakuDrawingCache(true);
+            enableDanmakuDrawingCache(true)
             setCallback(object : DrawHandler.Callback {
                 override fun prepared() {
                     start()
@@ -131,14 +129,9 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.startDanmu()
+        viewModel.startDanmuFromActivity()
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.stopDanmu()
-        Log.d("acel_log@onPause", "stop")
-    }
 
     override fun onDestroy() {
         super.onDestroy()

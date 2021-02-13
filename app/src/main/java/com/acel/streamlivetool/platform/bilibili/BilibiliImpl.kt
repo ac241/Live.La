@@ -242,49 +242,6 @@ class BilibiliImpl : IPlatform {
         }
     }
 
-    fun getAnchorsWithCookieModeBackup(): ResultGetAnchorListByCookieMode {
-        getCookie().run {
-            if (this.isEmpty())
-                return super.getAnchorsWithCookieMode()
-            else {
-                var cookieOk = true
-                val list = mutableListOf<Anchor>()
-                var page = 1
-                while (true) {
-                    if (page >= 10)
-                        break
-                    val livingList = bilibiliService.getLivingList(this, page).execute().body()
-                    if (livingList?.code == 401) {
-                        cookieOk = false
-                        break
-                    }
-                    livingList?.data?.rooms?.forEach {
-                        list.add(
-                            Anchor(
-                                platform = platform,
-                                nickname = it.uname,
-                                showId = it.roomid.toString(),
-                                roomId = it.roomid.toString(),
-                                status = it.live_status == 1,
-                                title = it.title,
-                                avatar = it.face,
-                                keyFrame = it.keyframe,
-                                typeName = it.area_v2_name,
-                                online = AnchorUtil.formatOnlineNumber(it.online)
-                            )
-                        )
-                    }
-                    val count = livingList?.data?.count
-                    if (count != null)
-                        if (list.size >= count)
-                            break
-                    page++
-                }
-                return ResultGetAnchorListByCookieMode(cookieOk, list)
-            }
-        }
-    }
-
     override fun checkLoginOk(cookie: String): Boolean {
         if (cookie.contains("SESSDATA") && cookie.contains("DedeUserID"))
             return true

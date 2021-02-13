@@ -146,10 +146,6 @@ class MainActivity : AppCompatActivity() {
         }
         setSupportActionBar(binding.toolbar)
 
-//        binding.toolbar.setOnClickListener {
-//            toolbarClickTime = System.currentTimeMillis()
-//        }
-
         initViewPager()
         if (displayPlatformPage)
             TabLayoutMediator(
@@ -233,7 +229,7 @@ class MainActivity : AppCompatActivity() {
 
     @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
     fun showPlayerOverlayWindow(anchor: Anchor, anchorList: List<Anchor>) {
-        startPlayerOverlayService()
+//        startPlayerOverlayService()
         val livingAnchors = getLivingAnchors(anchorList)
         PlayerOverlayWindowManager.instance.playList(anchor, livingAnchors)
     }
@@ -312,8 +308,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopPlayerOverlayService()
-        PlayerOverlayWindowManager.instance.remove()
+//        stopPlayerOverlayService()
+        PlayerOverlayWindowManager.instance.release()
     }
 
 }

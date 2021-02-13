@@ -5,30 +5,13 @@
 
 package com.acel.streamlivetool.service
 
-import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
-import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
-import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
-import com.acel.streamlivetool.util.AnchorListUtil
-import com.acel.streamlivetool.util.ToastUtil
-import permissions.dispatcher.*
 
 //@RuntimePermissions
 class PlayerOverlayService : Service() {
-    override fun onCreate() {
-        super.onCreate()
-        Log.d("onCreate", "service create")
-    }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("onCreate", "service onStartCommand")
-
-        return super.onStartCommand(intent, flags, startId)
-    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null

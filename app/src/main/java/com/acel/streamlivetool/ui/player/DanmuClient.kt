@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.player
 
+import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -16,15 +17,25 @@ class DanmuClient {
 
     private var anchor: Anchor? = null
     private var mListener: DanmuListener? = null
-    private var isStart: Boolean = false
     private var danmuJob: Job? = null
+    private var state = State.IDLE
+
+    private enum class State {
+        IDLE, CONNECTING, START, STOP, ERROR, RELEASE
+    }
+
+    private fun isStarting() = state == State.START
 
     /**
      * 开启弹幕接收
      */
     fun start(scope: CoroutineScope, anchor: Anchor) {
         synchronized(this) {
-            if (isStart)
+            if (anchor == this.anchor && isStarting()) {
+                Log.d("acel_log@start", "重复的请求。")
+                return
+            }
+            if (state == State.START)
                 stop()
             this.anchor = anchor
 
@@ -33,10 +44,10 @@ class DanmuClient {
                     val result = PlatformDispatcher.getPlatformImpl(anchor)
                         ?.danmuStart(anchor, this@DanmuClient)
                     if (result != null) {
-                        if (result)
-                            isStart = true
-                        else
+                        if (!result)
                             errorCallback("该平台不支持弹幕功能")
+                        else
+                            onConnecting()
                     }
                 }.onFailure {
                     if (it is IllegalArgumentException) {
@@ -53,18 +64,13 @@ class DanmuClient {
     /**
      * 结束弹幕接收
      */
-    fun stop() {
-        synchronized(this) {
-            anchor?.let {
-                val result = PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
-                isStart = false
+    private fun stop() {
+        if (state == State.START)
+            synchronized(this) {
+                anchor?.let {
+                    PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
+                }
             }
-        }
-    }
-
-    fun reset() {
-        stop()
-        danmuJob?.cancel()
     }
 
     /**
@@ -78,25 +84,32 @@ class DanmuClient {
      * 释放资源
      */
     fun release() {
+        stop()
         mListener = null
         anchor = null
         danmuJob?.cancel()
+        state = State.RELEASE
     }
 
     /**
      * 接收弹幕回调
+     * 在调用此函数前，请确保你已经调用过[startCallback]，否则此客户端不能接收到弹幕
+     * @link #startCallback
      */
     fun newDanmuCallback(danmu: Danmu) {
-        mListener?.onNewDanmu(danmu)
-//        Log.d("acel_log@newDanmuCallBack", "${danmu.msg}")
+        if (isStarting())
+            mListener?.onNewDanmu(danmu)
+        else
+            Log.d("acel_log@newDanmu", "弹幕客户端未启动")
     }
 
     /**
-     * 发生错误回调
+     * 发生错误 回调
+     * 原则上，调用这个函数后，你应该释放推送弹幕的资源，因为错误信息将显示给用户
      */
     fun errorCallback(reason: String) {
         mListener?.onError(reason)
-//        Log.d("acel_log@errorCallBack", "$reason")
+        state = State.ERROR
     }
 
     /**
@@ -107,10 +120,12 @@ class DanmuClient {
     }
 
     /**
-     * 开始收集回调
+     * 开始推送回调，告知客户端已经可以接收弹幕，一般是在socket连接后调用。
+     * 在开始推送弹幕前，你必须调用此函数，否则客户端不能接收弹幕信息
      */
     fun startCallback() {
         mListener?.onStart()
+        state = State.START
     }
 
     /**
@@ -118,6 +133,12 @@ class DanmuClient {
      */
     fun stopCallBack(reason: String) {
         mListener?.onStop(reason)
+        state = State.STOP
+    }
+
+    private fun onConnecting() {
+        mListener?.onConnecting()
+        state = State.CONNECTING
     }
 
     interface DanmuListener {
@@ -125,7 +146,12 @@ class DanmuClient {
         fun onNewDanmu(danmu: Danmu) {}
         fun onStop(reason: String) {}
         fun onError(reason: String) {}
-        fun onCookieMsg(reason: String){}
+        fun onCookieMsg(reason: String) {}
+
+        /**
+         * 正在连接弹幕推送
+         */
+        fun onConnecting() {}
     }
 
 }

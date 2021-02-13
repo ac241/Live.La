@@ -64,12 +64,12 @@ class PlayerViewModel : ViewModel() {
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
     val anchorPosition = MutableLiveData(-1)
 
-    //    private val streamLink = MutableLiveData<String>()
     val status = MutableLiveData(State.IS_IDLE)
 
-    private var keepData = false
+    private var keepAnchorData = false
+    private var keepDanmuData = false
 
-    private val danmuManager = DanmuClient().apply {
+    private val danmuClient = DanmuClient().apply {
         setListener(object : DanmuClient.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
                 mainThread {
@@ -79,6 +79,10 @@ class PlayerViewModel : ViewModel() {
 
             override fun onCookieMsg(reason: String) {
                 toastOnMainThread(reason)
+            }
+
+            override fun onConnecting() {
+                toastOnMainThread("正在连接弹幕服务器")
             }
         })
     }
@@ -95,8 +99,8 @@ class PlayerViewModel : ViewModel() {
 
     val errorMessage = MutableLiveData("")
     internal fun setAnchorData(intent: Intent) {
-        if (keepData) {
-            keepData = false
+        if (keepAnchorData) {
+            keepAnchorData = false
             return
         }
         val index = intent.getIntExtra("index", -1)
@@ -113,7 +117,6 @@ class PlayerViewModel : ViewModel() {
         }
         val anchor = list?.get(index) ?: return
         preparePlay(anchor)
-
     }
 
     private fun preparePlay(anchor: Anchor) {
@@ -201,12 +204,8 @@ class PlayerViewModel : ViewModel() {
         super.onCleared()
         player.stop()
         player.release()
-        danmuManager.release()
-        anchor.value?.let {
-            stopDanmu()
-        }
+        danmuClient.release()
     }
-
 
     fun stopPlay() {
         mainThread {
@@ -218,18 +217,19 @@ class PlayerViewModel : ViewModel() {
         anchorList.value?.get(position)?.let { preparePlay(it) }
     }
 
-    fun setKeepData() {
-        keepData = true
+    fun screenRotation() {
+        keepAnchorData = true
+        keepDanmuData = true
     }
 
-    fun startDanmu() = anchor.value?.let { startDanmu(it) }
+    private fun startDanmu() = anchor.value?.let { startDanmu(it) }
 
     private fun startDanmu(anchor: Anchor) {
-        danmuManager.start(viewModelScope, anchor)
+        danmuClient.start(viewModelScope, anchor)
     }
 
-    internal fun stopDanmu() {
-        danmuManager.stop()
+    internal fun startDanmuFromActivity() {
+        startDanmu()
     }
 
 }
