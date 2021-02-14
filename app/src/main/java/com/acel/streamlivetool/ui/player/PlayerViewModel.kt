@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class PlayerViewModel : ViewModel() {
     internal val player by lazy {
@@ -35,26 +36,26 @@ class PlayerViewModel : ViewModel() {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     super.onIsPlayingChanged(isPlaying)
                     if (isPlaying)
-                        status.postValue(State.IS_PLAYING)
+                        playerStatus.postValue(PlayerState.IS_PLAYING)
                 }
 
                 override fun onLoadingChanged(isLoading: Boolean) {
                     super.onLoadingChanged(isLoading)
                     if (isLoading)
-                        status.postValue(State.IS_LOADING)
+                        playerStatus.postValue(PlayerState.IS_LOADING)
                 }
 
                 override fun onPlayerError(error: ExoPlaybackException) {
                     super.onPlayerError(error)
                     error.printStackTrace()
                     errorMessage.postValue("播放失败。")
-                    status.postValue(State.IS_ERROR)
+                    playerStatus.postValue(PlayerState.IS_ERROR)
                 }
 
                 override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                     super.onPlayerStateChanged(playWhenReady, playbackState)
                     if (playbackState == Player.STATE_ENDED)
-                        status.postValue(State.IS_ENDED)
+                        playerStatus.postValue(PlayerState.IS_ENDED)
                 }
             })
         }
@@ -64,14 +65,18 @@ class PlayerViewModel : ViewModel() {
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
     val anchorPosition = MutableLiveData(-1)
 
-    val status = MutableLiveData(State.IS_IDLE)
+    val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
 
+    val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
+    val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
+    val danmuNotice = MutableLiveData<String>()
     private var keepAnchorData = false
     private var keepDanmuData = false
 
     private val danmuClient = DanmuClient().apply {
         setListener(object : DanmuClient.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
+                addDanmu(danmu)
                 mainThread {
                     danmuString.value = danmu.msg
                 }
@@ -79,23 +84,48 @@ class PlayerViewModel : ViewModel() {
 
             override fun onCookieMsg(reason: String) {
                 toastOnMainThread(reason)
+                danmuNotice.postValue(reason)
             }
 
             override fun onConnecting() {
-                toastOnMainThread("正在连接弹幕服务器")
+                danmuStatus.postValue(Pair(DanmuState.CONNECTING, "正在连接弹幕服务器"))
+            }
+
+            override fun onError(reason: String) {
+                danmuStatus.postValue(Pair(DanmuState.ERROR, "弹幕链接失败：$reason"))
+            }
+
+            override fun onStart() {
+                super.onStart()
+                danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
+                toastOnMainThread("弹幕链接成功")
             }
         })
     }
 
+    private fun addDanmu(danmu: Danmu) {
+        danmuList.value?.apply {
+            if (size >= 200)
+                removeFirst()
+            danmuList.value?.add(danmu)
+        }
+        danmuList.postValue(danmuList.value)
+    }
+
     val danmuString = MutableLiveData<String>()
 
-    enum class State {
+    enum class PlayerState {
         IS_IDLE,
         IS_PLAYING,
         IS_LOADING,
         IS_ENDED,
         IS_ERROR
     }
+
+    enum class DanmuState {
+        IDLE, CONNECTING, START, STOP, ERROR, RELEASE
+    }
+
 
     val errorMessage = MutableLiveData("")
     internal fun setAnchorData(intent: Intent) {
@@ -139,12 +169,12 @@ class PlayerViewModel : ViewModel() {
                         play(url)
                     else {
                         errorMessage.postValue("获取直播流失败。（empty）")
-                        status.postValue(State.IS_ERROR)
+                        playerStatus.postValue(PlayerState.IS_ERROR)
                         stopPlay()
                     }
                 }.onFailure {
                     errorMessage.postValue("获取直播流失败。（error）")
-                    status.postValue(State.IS_ERROR)
+                    playerStatus.postValue(PlayerState.IS_ERROR)
                     it.printStackTrace()
                     stopPlay()
                 }

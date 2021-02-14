@@ -53,7 +53,7 @@ class DanmuClient {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
                     } else {
-                        errorCallback("加载弹幕时发生错误")
+                        errorCallback("加载弹幕时发生错误:${it.message}")
                     }
                     it.printStackTrace()
                 }

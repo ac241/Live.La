@@ -6,16 +6,18 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.util.AppUtil
 import kotlinx.coroutines.launch
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
@@ -38,6 +40,7 @@ class PlayerActivity : AppCompatActivity() {
         observeLiveData()
         initView()
         viewModel.setAnchorData(intent)
+        Log.d("acel_log@onCreate", "$viewModel")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -97,10 +100,10 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.platformIcon?.setOnClickListener {
-            viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
-            viewModel.stopPlay()
-        }
+//        binding.platformIcon?.setOnClickListener {
+//            viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
+//            viewModel.stopPlay()
+//        }
         binding.listView?.apply {
             adapter = viewModel.anchorList.value?.let { PlayerListAdapter(this@PlayerActivity, it) }
         }
@@ -123,7 +126,16 @@ class PlayerActivity : AppCompatActivity() {
             })
             prepare(danmakuParser, danmakuContext)
             alpha = 0.8f
+        }
+        binding.viewPager?.adapter = object : FragmentStateAdapter(this) {
+            override fun getItemCount(): Int = 2
 
+            override fun createFragment(position: Int): Fragment {
+                if (position == 0)
+                    return DanmuListFragment.newInstance()
+                else
+                    return AnchorListFragment.newInstance()
+            }
         }
     }
 
@@ -191,23 +203,23 @@ class PlayerActivity : AppCompatActivity() {
                     setChecked(it)
                 }
             }
-            status.observe(this@PlayerActivity) {
+            playerStatus.observe(this@PlayerActivity) {
                 if (it != null)
                     when (it) {
-                        PlayerViewModel.State.IS_PLAYING -> {
+                        PlayerViewModel.PlayerState.IS_PLAYING -> {
                             binding.progressBar.visibility = View.GONE
                             binding.errorMsg.visibility = View.GONE
                         }
-                        PlayerViewModel.State.IS_LOADING ->
+                        PlayerViewModel.PlayerState.IS_LOADING ->
                             binding.progressBar.visibility = View.VISIBLE
-                        PlayerViewModel.State.IS_ENDED, PlayerViewModel.State.IS_IDLE, PlayerViewModel.State.IS_ERROR ->
+                        PlayerViewModel.PlayerState.IS_ENDED, PlayerViewModel.PlayerState.IS_IDLE, PlayerViewModel.PlayerState.IS_ERROR ->
                             binding.progressBar.visibility = View.GONE
                     }
 
 
             }
             errorMessage.observe(this@PlayerActivity) {
-                if (it.isNotEmpty() && viewModel.status.value == PlayerViewModel.State.IS_ERROR) {
+                if (it.isNotEmpty() && viewModel.playerStatus.value == PlayerViewModel.PlayerState.IS_ERROR) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
                         text = it

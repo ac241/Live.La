@@ -126,8 +126,8 @@ class BilibiliDanmuManager :
         }
 
         object DanmuDispatcher {
-            fun dispatch(danmuClient: DanmuClient, string: String) {
-                Log.d("acel_log@dispatch", "dispach string wait to do ")
+            fun dispatch(string: String) {
+                Log.d("acel_log@dispatch", "$string ")
             }
 
             fun dispatch(danmuClient: DanmuClient, bs: ByteString) {
@@ -139,7 +139,7 @@ class BilibiliDanmuManager :
                 //代码来源 https://github.com/DbgDebug/dbg-project/
                 var lengthSum = 0
                 while (lengthSum < sourceArray.size) {
-                    val headerByte = ByteArray(4)
+                    val headerByte = ByteArray(16)
                     System.arraycopy(sourceArray, lengthSum, headerByte, 0, headerByte.size)
                     val byteBuffer = ByteBuffer.wrap(headerByte)
                     val length = byteBuffer.int
@@ -272,7 +272,7 @@ class BilibiliDanmuManager :
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                danmuClient?.let { DanmuDispatcher.dispatch(it, text) }
+                danmuClient?.let { DanmuDispatcher.dispatch(text) }
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
