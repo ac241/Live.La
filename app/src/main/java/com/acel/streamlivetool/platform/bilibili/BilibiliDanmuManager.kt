@@ -137,51 +137,57 @@ class BilibiliDanmuManager :
             private fun analyze(danmuClient: DanmuClient, sourceArray: ByteArray) {
                 //API说明参照 https://github.com/lovelyyoshino/Bilibili-Live-API/blob/master/API.WebSocket.md
                 //代码来源 https://github.com/DbgDebug/dbg-project/
-                var lengthSum = 0
-                while (lengthSum < sourceArray.size) {
-                    val headerByte = ByteArray(16)
-                    System.arraycopy(sourceArray, lengthSum, headerByte, 0, headerByte.size)
-                    val byteBuffer = ByteBuffer.wrap(headerByte)
-                    val length = byteBuffer.int
-                    // 头大小
-                    byteBuffer.short
-                    val protocolVersion = byteBuffer.short.toInt()
-                    val operation = byteBuffer.int
-                    // int sequence = byteBuffer.getInt();
-                    val contentBytes = ByteArray(length - 16)
-                    System.arraycopy(
-                        sourceArray,
-                        lengthSum + 16,
-                        contentBytes,
-                        0,
-                        contentBytes.size
-                    )
-                    when (operation) {
-                        //Int 32 Big Endian	心跳回应 Body 内容为房间人气值
-                        3 -> {
-                        }
-                        //通知	弹幕、广播等全部信息
-                        5 -> when (protocolVersion) {
-                            //JSON JSON纯文本
-                            0 -> {
-                                handleDanmuJson(contentBytes, danmuClient)
+                try {
+                    var lengthSum = 0
+                    while (lengthSum < sourceArray.size) {
+                        val headerByte = ByteArray(16)
+                        System.arraycopy(sourceArray, lengthSum, headerByte, 0, headerByte.size)
+                        val byteBuffer = ByteBuffer.wrap(headerByte)
+                        val length = byteBuffer.int
+                        // 头大小
+                        byteBuffer.short
+                        val protocolVersion = byteBuffer.short.toInt()
+                        val operation = byteBuffer.int
+                        // int sequence = byteBuffer.getInt();
+                        val contentBytes = ByteArray(length - 16)
+                        System.arraycopy(
+                            sourceArray,
+                            lengthSum + 16,
+                            contentBytes,
+                            0,
+                            contentBytes.size
+                        )
+                        when (operation) {
+                            //Int 32 Big Endian	心跳回应 Body 内容为房间人气值
+                            3 -> {
                             }
-                            //Int 32 Big Endian	Body 内容为房间人气值
-                            1 -> {
+                            //通知	弹幕、广播等全部信息
+                            5 -> when (protocolVersion) {
+                                //JSON JSON纯文本
+                                0 -> {
+                                    handleDanmuJson(contentBytes, danmuClient)
+                                }
+                                //Int 32 Big Endian	Body 内容为房间人气值
+                                1 -> {
 
+                                }
+                                //zlib压缩过的 Buffer
+                                2 -> {
+                                    ZlibUtil.decompress(contentBytes)
+                                        ?.let { analyze(danmuClient, it) }
+                                }
                             }
-                            //zlib压缩过的 Buffer
-                            2 -> {
-                                ZlibUtil.decompress(contentBytes)?.let { analyze(danmuClient, it) }
+                            //进房回应
+                            8 -> {
                             }
                         }
-                        //进房回应
-                        8 -> {
-                        }
+                        lengthSum += length
                     }
-                    lengthSum += length
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
+
 
             private fun handleDanmuJson(contentBytes: ByteArray, danmuClient: DanmuClient) {
                 val msg = String(contentBytes, Charsets.UTF_8)

@@ -74,7 +74,7 @@ class PlayerViewModel : ViewModel() {
     private var keepAnchorData = false
     private var keepDanmuData = false
 
-    private val danmuClient = DanmuClient().apply {
+    private val danmuClient = DanmuClient(viewModelScope).apply {
         setListener(object : DanmuClient.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
                 addDanmu(danmu)
@@ -99,7 +99,6 @@ class PlayerViewModel : ViewModel() {
             override fun onStart() {
                 super.onStart()
                 danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
-                toastOnMainThread("弹幕链接成功")
             }
         })
     }
@@ -232,13 +231,13 @@ class PlayerViewModel : ViewModel() {
     }
 
     override fun onCleared() {
-        super.onCleared()
         player.stop()
         player.release()
         danmuClient.release()
+        super.onCleared()
     }
 
-    fun stopPlay() {
+    private fun stopPlay() {
         mainThread {
             player.stop(true)
         }
@@ -256,7 +255,11 @@ class PlayerViewModel : ViewModel() {
     private fun startDanmu() = anchor.value?.let { startDanmu(it) }
 
     private fun startDanmu(anchor: Anchor) {
-        danmuClient.start(viewModelScope, anchor)
+        danmuClient.start(anchor)
+    }
+
+    fun restartDanmu() {
+        danmuClient.restart()
     }
 
     internal fun startDanmuFromActivity() {

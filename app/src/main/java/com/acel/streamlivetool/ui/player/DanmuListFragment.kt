@@ -36,6 +36,9 @@ class DanmuListFragment : Fragment() {
                 }
             })
         }
+        binding.notice.setOnClickListener {
+            viewModel.restartDanmu()
+        }
         viewModel.danmuList.observe(viewLifecycleOwner) {
             binding.rvDanmu.apply {
                 adapter?.notifyDataSetChanged()

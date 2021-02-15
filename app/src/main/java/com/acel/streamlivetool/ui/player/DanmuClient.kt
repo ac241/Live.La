@@ -13,12 +13,13 @@ import kotlinx.coroutines.launch
 /**
  * 弹幕客户端，用于接收弹幕并推送给danmu view进行显示
  */
-class DanmuClient {
+class DanmuClient(viewModelScope: CoroutineScope) {
 
     private var anchor: Anchor? = null
     private var mListener: DanmuListener? = null
     private var danmuJob: Job? = null
     private var state = State.IDLE
+    private var scope: CoroutineScope? = viewModelScope
 
     private enum class State {
         IDLE, CONNECTING, START, STOP, ERROR, RELEASE
@@ -29,7 +30,7 @@ class DanmuClient {
     /**
      * 开启弹幕接收
      */
-    fun start(scope: CoroutineScope, anchor: Anchor) {
+    fun start(anchor: Anchor) {
         synchronized(this) {
             if (anchor == this.anchor && isStarting()) {
                 Log.d("acel_log@start", "重复的请求。")
@@ -39,7 +40,7 @@ class DanmuClient {
                 stop()
             this.anchor = anchor
 
-            danmuJob = scope.launch(Dispatchers.IO) {
+            danmuJob = scope?.launch(Dispatchers.IO) {
                 kotlin.runCatching {
                     val result = PlatformDispatcher.getPlatformImpl(anchor)
                         ?.danmuStart(anchor, this@DanmuClient)
@@ -65,12 +66,21 @@ class DanmuClient {
      * 结束弹幕接收
      */
     private fun stop() {
-        if (state == State.START)
-            synchronized(this) {
-                anchor?.let {
-                    PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
-                }
+//        if (state == State.START)
+        synchronized(this) {
+            anchor?.let {
+                PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
             }
+            anchor = null
+        }
+    }
+
+    fun restart() {
+        val anchor = anchor
+        stop()
+        if (anchor != null) {
+            start(anchor)
+        }
     }
 
     /**
@@ -89,6 +99,7 @@ class DanmuClient {
         anchor = null
         danmuJob?.cancel()
         state = State.RELEASE
+        scope = null
     }
 
     /**

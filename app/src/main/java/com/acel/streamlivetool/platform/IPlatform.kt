@@ -239,6 +239,9 @@ interface IPlatform {
             false
     }
 
+    /**
+     * 弹幕管理器，用于连接弹幕服务器、接收弹幕、推送弹幕给弹幕客户端
+     */
     abstract class DanmuManager {
         private var danmuReceiver: DanmuReceiver? = null
 
@@ -248,19 +251,29 @@ interface IPlatform {
         open val danmuAssertCookie: Boolean
             get() = false
 
+        /**
+         * 默认的弹幕接收器
+         */
         interface DanmuReceiver {
             fun start()
             fun stop()
         }
 
-        abstract fun generateReceiver(
+        /**
+         * 生成一个[DanmuReceiver]
+         * 如果你重写了[onDanmuStart]，你需要同时重写本方法。
+         */
+        open fun generateReceiver(
             cookie: String,
             anchor: Anchor,
             danmuClient: DanmuClient
-        ): DanmuReceiver
+        ): DanmuReceiver? {
+            return null
+        }
 
         /**
-         * 弹幕开启
+         * 弹幕开启，默认实现[DanmuReceiver]
+         * 如果你重写了此方法，你需要同时重写[generateReceiver],[onDanmuStop]
          */
         fun onDanmuStart(
             cookie: String,
@@ -278,7 +291,8 @@ interface IPlatform {
 
 
         /**
-         * 弹幕关闭
+         * 弹幕关闭，默认关闭[DanmuReceiver]
+         * 如果你重写了[onDanmuStart]，你需要同时重写本方法。
          */
         fun onDanmuStop(danmuClient: DanmuClient) {
             danmuReceiver?.stop()
