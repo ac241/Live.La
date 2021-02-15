@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
@@ -39,8 +38,9 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
         observeLiveData()
         initView()
+        lifecycle.addObserver(ForegroundServiceListener(this))
+
         viewModel.setAnchorData(intent)
-        Log.d("acel_log@onCreate", "$viewModel")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -168,6 +168,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+
     /**
      * sp转px的方法。
      */
@@ -254,6 +255,9 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+    }
 
     @Suppress("DEPRECATION")
     private fun hideSystemUI() {

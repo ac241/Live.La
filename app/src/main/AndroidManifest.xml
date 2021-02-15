@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".base.MyApplication"
@@ -45,7 +46,7 @@
             android:label="@string/title_activity_setting"
             android:theme="@style/Theme.Acel" />
 
-        <service android:name=".service.PlayerOverlayService" />
+        <service android:name=".service.PlayerService" />
     </application>
 
 </manifest>

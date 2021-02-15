@@ -66,6 +66,7 @@ class PlayerViewModel : ViewModel() {
     val anchorPosition = MutableLiveData(-1)
 
     val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
+    fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
 
     val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))

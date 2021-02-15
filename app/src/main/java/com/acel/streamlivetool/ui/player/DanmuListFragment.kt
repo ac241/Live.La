@@ -29,11 +29,10 @@ class DanmuListFragment : Fragment() {
             adapter =
                 viewModel.danmuList.value?.let { DanmuRecyclerViewAdapter(it) }
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                val layoutManager = this@apply.layoutManager as LinearLayoutManager
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE)
-                        isLastDanmuVisiable =
-                            layoutManager.findLastVisibleItemPosition() == viewModel.danmuList.value!!.size - 1
+                    isLastDanmuVisiable =
+                        layoutManager.findLastVisibleItemPosition() == viewModel.danmuList.value!!.size - 1
                 }
             })
         }

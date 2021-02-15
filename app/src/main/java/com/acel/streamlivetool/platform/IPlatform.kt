@@ -267,7 +267,6 @@ interface IPlatform {
             anchor: Anchor,
             danmuClient: DanmuClient
         ) {
-            Log.d("acel_log@onDanmuStart", "impl ${anchor.nickname} 弹幕开启")
             if (danmuAssertCookie && cookie.isEmpty()) {
                 danmuClient.cookieMsgCallback("该平台登录后才能接收弹幕。")
                 return

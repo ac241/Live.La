@@ -8,6 +8,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
@@ -376,6 +377,7 @@ class PlayerOverlayWindowManager {
         player?.stop()
         playerOverlayWindow.remove()
         isShown = false
+        PlayerService.stopForegroundService(MyApplication.application)
     }
 
     internal fun toggle() {
@@ -394,6 +396,10 @@ class PlayerOverlayWindowManager {
             show()
             playAnchorSteaming(anchor)
         }
+        PlayerService.startWithForeground(
+            MyApplication.application,
+            PlayerService.Companion.SourceType.PLAYER_OVERLAY
+        )
     }
 
     internal fun playList(anchor: Anchor, list: List<Anchor>) {
@@ -468,6 +474,5 @@ class PlayerOverlayWindowManager {
     fun release() {
         remove()
         player?.release()
-
     }
 }
