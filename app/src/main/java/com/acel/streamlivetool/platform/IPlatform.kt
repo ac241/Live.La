@@ -260,20 +260,17 @@ interface IPlatform {
         }
 
         /**
+         * 你必须
          * 生成一个[DanmuReceiver]
-         * 如果你重写了[onDanmuStart]，你需要同时重写本方法。
          */
-        open fun generateReceiver(
+        abstract fun generateReceiver(
             cookie: String,
             anchor: Anchor,
             danmuClient: DanmuClient
-        ): DanmuReceiver? {
-            return null
-        }
+        ): DanmuReceiver?
 
         /**
          * 弹幕开启，默认实现[DanmuReceiver]
-         * 如果你重写了此方法，你需要同时重写[generateReceiver],[onDanmuStop]
          */
         fun onDanmuStart(
             cookie: String,
@@ -292,7 +289,6 @@ interface IPlatform {
 
         /**
          * 弹幕关闭，默认关闭[DanmuReceiver]
-         * 如果你重写了[onDanmuStart]，你需要同时重写本方法。
          */
         fun onDanmuStop(danmuClient: DanmuClient) {
             danmuReceiver?.stop()

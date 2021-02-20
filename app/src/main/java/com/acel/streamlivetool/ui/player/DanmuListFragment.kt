@@ -36,9 +36,7 @@ class DanmuListFragment : Fragment() {
                 }
             })
         }
-        binding.notice.setOnClickListener {
-            viewModel.restartDanmu()
-        }
+
         viewModel.danmuList.observe(viewLifecycleOwner) {
             binding.rvDanmu.apply {
                 adapter?.notifyDataSetChanged()
@@ -46,9 +44,7 @@ class DanmuListFragment : Fragment() {
                     smoothScrollToPosition(it.size)
             }
         }
-        viewModel.danmuStatus.observe(viewLifecycleOwner) {
-            binding.notice.text = it.second
-        }
+
     }
 
     companion object {

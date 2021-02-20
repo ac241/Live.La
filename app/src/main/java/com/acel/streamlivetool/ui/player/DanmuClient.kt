@@ -46,7 +46,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
                         ?.danmuStart(anchor, this@DanmuClient)
                     if (result != null) {
                         if (!result)
-                            errorCallback("该平台不支持弹幕功能")
+                            errorCallback("该平台暂不支持弹幕功能")
                         else
                             onConnecting()
                     }

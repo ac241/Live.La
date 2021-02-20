@@ -9,6 +9,7 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
+import com.acel.streamlivetool.ui.player.DanmuClient
 import com.acel.streamlivetool.util.*
 import java.net.URLEncoder
 
@@ -255,4 +256,6 @@ class HuyaImpl : IPlatform {
         }
         return Pair(false, "发生错误")
     }
+
+//    override val danmuManager: IPlatform.DanmuManager = HuyaDanmuManager()
 }

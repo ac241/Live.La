@@ -120,7 +120,7 @@ class BilibiliDanmuManager :
             val msgByteS = msg.encodeToByteArray()
             val length = 16 + msgByteS.size
             val array =
-                ByteBuffer.allocate(length).putInt(length).put(joinHeadHeadPack)
+                ByteBuffer.allocate(length).putInt(length).put(joinHeadPack)
                     .put(msg.encodeToByteArray()).array()
             webSocket?.send(ByteString.of(array, 0, array.size))
         }
@@ -235,7 +235,7 @@ class BilibiliDanmuManager :
         }
 
         companion object Const {
-            val joinHeadHeadPack = byteArrayOf(
+            val joinHeadPack = byteArrayOf(
                 0x00,
                 0x10,
                 0x00,

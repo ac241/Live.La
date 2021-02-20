@@ -10,6 +10,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -39,7 +40,6 @@ class PlayerActivity : AppCompatActivity() {
         observeLiveData()
         initView()
         lifecycle.addObserver(ForegroundServiceListener(this))
-
         viewModel.setAnchorData(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -131,11 +131,17 @@ class PlayerActivity : AppCompatActivity() {
             override fun getItemCount(): Int = 2
 
             override fun createFragment(position: Int): Fragment {
-                if (position == 0)
-                    return DanmuListFragment.newInstance()
+                return if (position == 0)
+                    DanmuListFragment.newInstance()
                 else
-                    return AnchorListFragment.newInstance()
+                    AnchorListFragment.newInstance()
             }
+        }
+        binding.danmuNotice?.setOnClickListener {
+            viewModel.restartDanmu()
+        }
+        viewModel.danmuStatus.observe(this) {
+            binding.danmuNotice?.text = it.second
         }
     }
 
@@ -248,21 +254,27 @@ class PlayerActivity : AppCompatActivity() {
             super.onBackPressed()
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (hasFocus) hideSystemUI()
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.playerView.layoutParams.apply {
+                height = ConstraintLayout.LayoutParams.MATCH_PARENT
+                width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            }
+            hideSystemUI()
+        } else {
+            binding.playerView.layoutParams.apply {
+                height = 0
+                width = 0
+            }
+            showSystemUI()
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 
     @Suppress("DEPRECATION")
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     // Set the content to appear under the system bars so that the
                     // content doesn't resize when the system bars hide and show.
                     or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -274,11 +286,10 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-//    @Suppress("DEPRECATION")
-//    private fun showSystemUI() {
-//        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-//    }
+    @Suppress("DEPRECATION")
+    private fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_VISIBLE)
+    }
 
 }
