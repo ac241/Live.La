@@ -17,11 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <master.flame.danmaku.ui.widget.DanmakuView
-            android:id="@+id/danmaku_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:paddingVertical="10dp" />
     </com.google.android.exoplayer2.ui.PlayerView>
 
     <TextView
@@ -174,6 +169,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.5"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <master.flame.danmaku.ui.widget.DanmakuView
+        android:id="@+id/danmaku_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/player_view"
+        app:layout_constraintEnd_toEndOf="@+id/player_view"
+        app:layout_constraintStart_toStartOf="@+id/player_view"
+        app:layout_constraintTop_toTopOf="@+id/player_view" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
