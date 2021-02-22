@@ -13,4 +13,11 @@ object ImageLoader {
         Glide.with(context).load(url).apply(requestOption).error(R.drawable.ic_load_img_fail)
             .into(view)
     }
+
+    fun ImageView.loadImage(url: String) {
+        Glide.with(context).load(url).apply(requestOption)
+            .error(R.drawable.ic_load_img_fail)
+            .into(this)
+    }
 }
+

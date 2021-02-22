@@ -17,6 +17,7 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.const_value.ConstValue
@@ -27,10 +28,15 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GroupFragment : Fragment() {
 
@@ -84,8 +90,14 @@ class GroupFragment : Fragment() {
                 refreshAnchorAttribute()
             })
             liveDataUpdateStatus.observe(this@GroupFragment, {
-                if (it == GroupViewModel.UpdateStATUS.PREPARE || it == GroupViewModel.UpdateStATUS.FINISH)
-                    hideSwipeRefreshBtn()
+                if (it == null)
+                    return@observe
+                when (it) {
+                    GroupViewModel.UpdateStatus.PREPARE, GroupViewModel.UpdateStatus.FINISH ->
+                        updateFinish()
+                    GroupViewModel.UpdateStatus.UPDATING ->
+                        updating()
+                }
             })
             updateErrorMsg.observe(this@GroupFragment, {
                 it?.let {
@@ -98,7 +110,7 @@ class GroupFragment : Fragment() {
             })
             updateSuccess.observe(this@GroupFragment, {
                 snackBar.dismiss()
-                completeUpdateDetails("主页 更新成功。")
+//                completeUpdateDetails("主页 更新成功。")
             })
         }
     }
@@ -128,8 +140,6 @@ class GroupFragment : Fragment() {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
                     viewModel.updateAllAnchor()
-                else
-                    hideSwipeRefreshBtn()
             }
         }
         processViewAlpha = binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.alpha ?: 0.5f
@@ -187,12 +197,32 @@ class GroupFragment : Fragment() {
     @Synchronized
     fun refreshAnchorAttribute() {
         nowAnchorAdapter.notifyAnchorsChange()
-        hideSwipeRefreshBtn()
+//        updateFinish()
     }
 
-    @Synchronized
-    internal fun hideSwipeRefreshBtn() {
-        binding?.groupSwipeRefresh?.isRefreshing = false
+    var updatingTime: Long = 0L
+
+    private fun updating() {
+        synchronized(updatingTime) {
+            updatingTime = System.currentTimeMillis()
+            binding?.groupSwipeRefresh?.isRefreshing = true
+        }
+    }
+
+    private fun updateFinish() {
+        synchronized(updatingTime) {
+            //如果更新数据时间小于两秒，一定时间后再隐藏。
+            if (System.currentTimeMillis() - updatingTime > 2000) {
+                binding?.groupSwipeRefresh?.isRefreshing = false
+            } else {
+                lifecycleScope.launch(Dispatchers.Default) {
+                    delay(500)
+                    withContext(Dispatchers.Main) {
+                        binding?.groupSwipeRefresh?.isRefreshing = false
+                    }
+                }
+            }
+        }
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -49,9 +48,24 @@ class DouyuImpl : IPlatform {
         } else {
             val roomInfo: RoomInfo? =
                 douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
-            val roomId = roomInfo?.data?.roomId
-            val ownerName = roomInfo?.data?.ownerName
-            Anchor(platform, ownerName.toString(), roomId.toString(), roomId.toString())
+            val info = roomInfo?.data
+            if (info == null)
+                null
+            else {
+                Anchor(
+                    platform = platform,
+                    nickname = info.ownerName,
+                    showId = info.roomId,
+                    roomId = info.roomId,
+                    status = info.roomStatus == "1",
+                    title = info.roomName,
+                    avatar = info.avatar,
+                    keyFrame = info.roomThumb,
+                    typeName = info.cateName,
+                    online = info.online.toString(),
+                    liveTime = info.startTime
+                )
+            }
         }
     }
 
@@ -85,51 +99,6 @@ class DouyuImpl : IPlatform {
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
-
-    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
-        getCookie().run {
-            if (this.isEmpty())
-                return super.updateAnchorsDataByCookie(queryList)
-            else {
-                val followed = douyuService.getFollowed(this).execute().body()
-                followed?.apply {
-                    if (followed.error != 0)
-                        return ResultUpdateAnchorByCookie(
-                            false,
-                            followed.msg
-                        )
-                    val failedList = mutableListOf<Anchor>().also {
-                        it.addAll(queryList)
-                    }
-                    queryList.forEach goOn@{ anchor ->
-                        followed.data.list.forEach { anchorX ->
-                            if (anchor.roomId == anchorX.room_id.toString()) {
-                                anchor.apply {
-                                    status = anchorX.show_status == 1
-                                    title = anchorX.room_name
-                                    avatar = anchorX.avatar_small
-                                    keyFrame = anchorX.room_src
-                                    secondaryStatus =
-                                        if (anchorX.videoLoop == 1) MyApplication.application.getString(
-                                            R.string.video_looping
-                                        ) else null
-                                    typeName = anchorX.game_name
-                                    if (anchorX.online != "0")
-                                        online = anchorX.online
-                                }
-                                failedList.remove(anchor)
-                                return@goOn
-                            }
-                        }
-                    }
-                    failedList.setHintWhenFollowListDidNotContainsTheAnchor()
-                    return ResultUpdateAnchorByCookie(true)
-                }
-                return super.updateAnchorsDataByCookie(queryList)
-            }
-        }
-    }
-
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val h5Enc = douyuService.getH5Enc(queryAnchor.roomId).execute().body()
         if (h5Enc?.error == 0) {
@@ -251,7 +220,7 @@ class DouyuImpl : IPlatform {
                         ) else null,
                         typeName = it.game_name,
                         online = it.online,
-                        liveTime = TimeUtil.timeStampToString(it.show_time)
+                        liveTime = TimeUtil.timestampToString(it.show_time)
                     )
                 )
             }
@@ -264,9 +233,10 @@ class DouyuImpl : IPlatform {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)
                     return ResultGetAnchorListByCookieMode(
-                        false,
-                        null,
-                        followed?.msg.toString()
+                        success = false,
+                        isCookieValid = false,
+                        anchorList = null,
+                        message = followed?.msg.toString()
                     )
                 else {
                     val list = mutableListOf<Anchor>()
@@ -287,7 +257,11 @@ class DouyuImpl : IPlatform {
                             }
                         }
                     }
-                    return ResultGetAnchorListByCookieMode(true, list)
+                    return ResultGetAnchorListByCookieMode(
+                        success = true,
+                        isCookieValid = true,
+                        anchorList = list
+                    )
                 }
             }
         }

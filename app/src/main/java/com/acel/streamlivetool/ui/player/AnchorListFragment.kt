@@ -5,23 +5,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.acel.streamlivetool.R
+import androidx.fragment.app.activityViewModels
+import com.acel.streamlivetool.databinding.FragmentPlayerAnchorListBinding
 
-/**
- * A fragment representing a list of Items.
- */
 class AnchorListFragment : Fragment() {
+    private val viewModel by activityViewModels<PlayerViewModel>()
+    private lateinit var binding: FragmentPlayerAnchorListBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_danmu_list_list, container, false)
-        return view
+        binding = FragmentPlayerAnchorListBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.listView.apply {
+            adapter = viewModel.anchorList.value?.let {
+                PlayerListAdapter(
+                    requireActivity() as PlayerActivity,
+                    it
+                )
+            }
+        }
+        viewModel.apply {
+            anchorList.observe(viewLifecycleOwner) {
+                binding.listView.adapter?.notifyDataSetChanged()
+            }
+            anchorPosition.observe(viewLifecycleOwner) {
+                binding.listView.adapter?.apply {
+                    this as PlayerListAdapter
+                    setChecked(it)
+                }
+            }
+        }
     }
 
     companion object {

@@ -15,9 +15,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
-import com.acel.streamlivetool.net.ImageLoader
+import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import kotlinx.coroutines.launch
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
@@ -88,8 +90,9 @@ class PlayerActivity : AppCompatActivity() {
             player = viewModel.player
             keepScreenOn = true
             hideController()
-            findViewById<View>(R.id.btn_replay).setOnClickListener {
+            findViewById<View>(R.id.btn_replay)?.setOnClickListener {
                 viewModel.replay()
+                it.animate().setDuration(1000).rotationBy(-360f).start()
             }
             findViewById<View>(R.id.btn_zoom).setOnClickListener {
                 requestedOrientation = when (resources.configuration.orientation) {
@@ -104,9 +107,7 @@ class PlayerActivity : AppCompatActivity() {
 //            viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
 //            viewModel.stopPlay()
 //        }
-        binding.listView?.apply {
-            adapter = viewModel.anchorList.value?.let { PlayerListAdapter(this@PlayerActivity, it) }
-        }
+
         binding.danmakuView.apply {
             enableDanmakuDrawingCache(true)
             setCallback(object : DrawHandler.Callback {
@@ -186,30 +187,13 @@ class PlayerActivity : AppCompatActivity() {
     private fun observeLiveData() {
         viewModel.apply {
             anchor.observe(this@PlayerActivity) {
-                it.apply {
-                    avatar?.let { it1 ->
-                        binding.avatar?.let { it2 ->
-                            ImageLoader.load(this@PlayerActivity, it1, it2)
-                        }
-                    }
-                    binding.nickname?.text = nickname
-                    binding.include?.typeName?.text = typeName
-                    binding.roomId?.text = getString(R.string.room_id_format, showId)
-                    binding.title?.text = title
-                    PlatformDispatcher.getPlatformImpl(it)?.iconRes?.let { res ->
-                        binding.platformIcon?.setImageResource(res)
-                    }
-                }
+                displayAnchorDetail(it)
+                viewModel.getAnchorDetails(it)
             }
-            anchorList.observe(this@PlayerActivity) {
-                binding.listView?.adapter?.notifyDataSetChanged()
+            anchorDetails.observe(this@PlayerActivity) {
+                displayAnchorDetail(it)
             }
-            anchorPosition.observe(this@PlayerActivity) {
-                binding.listView?.adapter?.apply {
-                    this as PlayerListAdapter
-                    setChecked(it)
-                }
-            }
+
             playerStatus.observe(this@PlayerActivity) {
                 if (it != null)
                     when (it) {
@@ -222,8 +206,6 @@ class PlayerActivity : AppCompatActivity() {
                         PlayerViewModel.PlayerState.IS_ENDED, PlayerViewModel.PlayerState.IS_IDLE, PlayerViewModel.PlayerState.IS_ERROR ->
                             binding.progressBar.visibility = View.GONE
                     }
-
-
             }
             errorMessage.observe(this@PlayerActivity) {
                 if (it.isNotEmpty() && viewModel.playerStatus.value == PlayerViewModel.PlayerState.IS_ERROR) {
@@ -237,6 +219,19 @@ class PlayerActivity : AppCompatActivity() {
             }
             danmuString.observe(this@PlayerActivity) {
                 addDanmaku(it)
+            }
+        }
+    }
+
+    private fun displayAnchorDetail(it: Anchor) {
+        it.apply {
+            it.avatar?.let { it1 -> binding.avatar?.loadImage(it1) }
+            binding.nickname?.text = nickname
+            binding.include?.typeName?.text = typeName
+            binding.roomId?.text = getString(R.string.room_id_format, showId)
+            binding.title?.text = title
+            platformImpl()?.iconRes?.let { res ->
+                binding.platformIcon?.setImageResource(res)
             }
         }
     }

@@ -2,6 +2,7 @@ package com.acel.streamlivetool.platform.egameqq
 
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.FollowList
+import com.acel.streamlivetool.platform.egameqq.bean.LiveAndProfileInfo
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -21,4 +22,11 @@ interface EgameqqApi {
     @GET("https://egame.qq.com/search/anchor")
     fun search(@Query("kw") keyword: String): Call<String>
 
+    @GET("https://share.egame.qq.com/cgi-bin/pgg_async_fcgi")
+    fun getLiveAndProfileInfo(
+        @Query(
+            value = "param",
+            encoded = true
+        ) param: String
+    ): Call<LiveAndProfileInfo>
 }

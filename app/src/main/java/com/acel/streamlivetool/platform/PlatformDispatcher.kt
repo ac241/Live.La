@@ -56,4 +56,8 @@ object PlatformDispatcher {
         }
         return platformList
     }
+
+    fun Anchor.platformImpl(): IPlatform? {
+        return getPlatformImpl(this)
+    }
 }

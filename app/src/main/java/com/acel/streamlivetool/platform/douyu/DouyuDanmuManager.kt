@@ -70,6 +70,14 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
                     mSendTime.group(1)
                 )
             }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                danmuClient?.errorCallback("${t.message}")
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                danmuClient?.stopCallBack(reason)
+            }
         }
 
         override fun start() {

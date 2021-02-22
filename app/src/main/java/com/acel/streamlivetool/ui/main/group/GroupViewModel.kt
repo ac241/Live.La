@@ -57,13 +57,13 @@ class GroupViewModel : ViewModel() {
     }
 
     //更新进度
-    private val _liveDataUpdateStatus = MutableLiveData<UpdateStATUS>().also {
-        it.value = UpdateStATUS.PREPARE
+    private val _liveDataUpdateStatus = MutableLiveData<UpdateStatus>().also {
+        it.value = UpdateStatus.PREPARE
     }
-    val liveDataUpdateStatus: LiveData<UpdateStATUS>
+    val liveDataUpdateStatus: LiveData<UpdateStatus>
         get() = _liveDataUpdateStatus
 
-    enum class UpdateStATUS {
+    enum class UpdateStatus {
         PREPARE, UPDATING, FINISH
     }
 
@@ -76,7 +76,7 @@ class GroupViewModel : ViewModel() {
     val updateSuccess
         get() = _updateSuccess
     var lastUpdateTime = 0L
-    private var nowUpdateTask: Job? = null
+    private var updateAnchorsTask: Job? = null
 
     @Synchronized
     private fun notifyAnchorListChange() {
@@ -110,7 +110,7 @@ class GroupViewModel : ViewModel() {
      * 更新全部anchor
      */
     fun updateAllAnchor() {
-        _liveDataUpdateStatus.postValue(UpdateStATUS.UPDATING)
+        _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         if (groupModeUseCookie)
             updateAllAnchorByCookie()
         else
@@ -131,9 +131,9 @@ class GroupViewModel : ViewModel() {
      * 以cookie方式更新所有主播信息
      */
     private fun updateAllAnchorByCookie() {
-        nowUpdateTask?.cancel()
+        updateAnchorsTask?.cancel()
         val platforms = PlatformDispatcher.getAllPlatformInstance()
-        nowUpdateTask = scope.launch(Dispatchers.IO) {
+        updateAnchorsTask = scope.launch(Dispatchers.IO) {
             val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
             platforms.forEach { platformEntry ->
                 //同平台的anchor列表
@@ -157,14 +157,14 @@ class GroupViewModel : ViewModel() {
                     }
                 }
             }
-            updateFinish()
             val resultList = mutableListOf<UpdateResult>()
             updateTaskList.forEach {
                 resultList.add(it.await())
             }
             showUpdateResult(resultList)
+            updateFinish()
         }
-        nowUpdateTask?.start()
+        updateAnchorsTask?.start()
     }
 
     /**
@@ -226,7 +226,7 @@ class GroupViewModel : ViewModel() {
             //更新平台anchor list
             val result = anchorListManager.updateAnchorList(iPlatform)
             result?.apply {
-                updateResult = if (isCookieValid) {
+                updateResult = if (success && isCookieValid) {
                     val targetList = anchorListManager.getAnchorList(iPlatform)
                     anchorList.forEach {
                         val index = targetList.indexOf(it)
@@ -338,7 +338,7 @@ class GroupViewModel : ViewModel() {
      * 结束更新
      */
     private fun updateFinish() {
-        _liveDataUpdateStatus.postValue(UpdateStATUS.FINISH)
+        _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
     }
 
     /**
@@ -367,7 +367,7 @@ class GroupViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        nowUpdateTask?.cancel()
+        updateAnchorsTask?.cancel()
     }
 
     fun followAnchor(anchor: Anchor) {

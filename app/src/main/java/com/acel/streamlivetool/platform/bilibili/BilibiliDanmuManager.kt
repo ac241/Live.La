@@ -294,7 +294,7 @@ class BilibiliDanmuManager :
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
-                danmuClient?.errorCallback("发生错误")
+                danmuClient?.errorCallback("${t.message}")
             }
         }
     }

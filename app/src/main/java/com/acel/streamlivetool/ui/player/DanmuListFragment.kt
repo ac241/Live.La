@@ -8,18 +8,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.acel.streamlivetool.databinding.FragmentDanmuListListBinding
+import com.acel.streamlivetool.databinding.FragmentDanmuListBinding
 
 class DanmuListFragment : Fragment() {
     private val viewModel by activityViewModels<PlayerViewModel>()
-    private lateinit var binding: FragmentDanmuListListBinding
+    private lateinit var binding: FragmentDanmuListBinding
 
     private var isLastDanmuVisiable = true
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDanmuListListBinding.inflate(layoutInflater)
+        binding = FragmentDanmuListBinding.inflate(layoutInflater)
         return binding.root
     }
 

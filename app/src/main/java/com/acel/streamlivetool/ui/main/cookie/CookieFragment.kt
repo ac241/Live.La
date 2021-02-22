@@ -9,6 +9,7 @@ package com.acel.streamlivetool.ui.main.cookie
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
@@ -32,6 +34,10 @@ import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.acel.streamlivetool.util.ToastUtil.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val ARG_PARAM1 = "param1"
 
@@ -93,8 +99,14 @@ class CookieFragment : Fragment() {
 
         viewModel.apply {
             liveDataUpdateState.observe(this@CookieFragment, {
-                if (it == CookieViewModel.UpdateStatus.PREPARE || it == CookieViewModel.UpdateStatus.FINISH)
-                    hideSwipeRefreshBtn()
+                if (it == null)
+                    return@observe
+                when (it) {
+                    CookieViewModel.UpdateStatus.PREPARE, CookieViewModel.UpdateStatus.FINISH ->
+                        updateFinish()
+                    CookieViewModel.UpdateStatus.UPDATING ->
+                        updating()
+                }
             })
             liveDataDataChanged.observe(this@CookieFragment, {
                 nowAnchorAdapter.notifyAnchorsChange()
@@ -135,8 +147,29 @@ class CookieFragment : Fragment() {
 
     }
 
-    internal fun hideSwipeRefreshBtn() {
-        binding?.cookieSwipeRefresh?.isRefreshing = false
+    var updatingTime: Long = 0L
+
+    private fun updating() {
+        synchronized(updatingTime) {
+            updatingTime = System.currentTimeMillis()
+            binding?.cookieSwipeRefresh?.isRefreshing = true
+        }
+    }
+
+    private fun updateFinish() {
+        synchronized(updatingTime) {
+            //如果更新数据时间小于两秒，一定时间后再隐藏。
+            if (System.currentTimeMillis() - updatingTime > 2000) {
+                binding?.cookieSwipeRefresh?.isRefreshing = false
+            } else {
+                lifecycleScope.launch(Dispatchers.Default) {
+                    delay(500)
+                    withContext(Dispatchers.Main) {
+                        binding?.cookieSwipeRefresh?.isRefreshing = false
+                    }
+                }
+            }
+        }
     }
 
     private fun initRecyclerView() {

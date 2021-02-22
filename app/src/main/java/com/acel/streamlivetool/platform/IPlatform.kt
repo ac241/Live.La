@@ -51,7 +51,7 @@ interface IPlatform {
     /**
      * 获取直播间信息
      * @param queryAnchor Anchor
-     * @return Anchor if fail return null
+     * @return Anchor ,if fail return null
      */
     fun getAnchor(queryAnchor: Anchor): Anchor?
 
@@ -140,9 +140,10 @@ interface IPlatform {
      */
     fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
         return ResultGetAnchorListByCookieMode(
-            false,
-            null,
-            ""
+            success = false,
+            isCookieValid = false,
+            anchorList = null,
+            message = ""
         )
     }
 
@@ -216,6 +217,8 @@ interface IPlatform {
 
     /**
      * 弹幕开启
+     * 默认以[danmuManager]实现
+     * 如果你复写这个方法，你需要自行实现弹幕接收推送，并且需要同时复写[danmuStop]
      */
     fun danmuStart(
         anchor: Anchor,
@@ -230,6 +233,7 @@ interface IPlatform {
 
     /**
      * 弹幕关闭
+     * & [danmuStart]
      */
     fun danmuStop(danmuClient: DanmuClient): Boolean {
         return if (this.danmuManager != null) {
@@ -290,6 +294,7 @@ interface IPlatform {
         /**
          * 弹幕关闭，默认关闭[DanmuReceiver]
          */
+        @Suppress("UNUSED_PARAMETER")
         fun onDanmuStop(danmuClient: DanmuClient) {
             danmuReceiver?.stop()
         }

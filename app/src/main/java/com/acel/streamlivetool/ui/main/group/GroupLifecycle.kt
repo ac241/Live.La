@@ -6,7 +6,6 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImage
 import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImageWhenMobileData
-import com.acel.streamlivetool.util.ToastUtil
 
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
     private var resumeTimes = 0
@@ -26,7 +25,7 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
         }
         resumeTimes++
         //隐藏刷新按钮
-        groupFragment.hideSwipeRefreshBtn()
+//        groupFragment.updateFinish()
 
         //切换显示图片
 

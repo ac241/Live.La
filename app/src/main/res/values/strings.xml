@@ -105,5 +105,7 @@
     <string name="room_id_format">房间号：%s</string>
     <string name="is_playing">播放中</string>
     <string name="anchor_list">主播列表：</string>
-    <string name="docor_line">docor_line</string>>
+    <string name="docor_line">docor_line</string>
+    <string name="set_cookie_manual">点击手动设置cookie</string>
+    <string name="please_fill_cookie">请输入Cookie</string>>
 </resources>

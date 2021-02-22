@@ -22,7 +22,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     private var scope: CoroutineScope? = viewModelScope
 
     private enum class State {
-        IDLE, CONNECTING, START, STOP, ERROR, RELEASE
+        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
     }
 
     private fun isStarting() = state == State.START
@@ -30,35 +30,40 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     /**
      * 开启弹幕接收
      */
-    fun start(anchor: Anchor) {
+    fun start(anchor: Anchor, reconnect: Boolean = false): Boolean {
         synchronized(this) {
             if (anchor == this.anchor && isStarting()) {
                 Log.d("acel_log@start", "重复的请求。")
-                return
+                return false
             }
             if (state == State.START)
                 stop()
             this.anchor = anchor
 
             danmuJob = scope?.launch(Dispatchers.IO) {
-                kotlin.runCatching {
+                runCatching {
                     val result = PlatformDispatcher.getPlatformImpl(anchor)
                         ?.danmuStart(anchor, this@DanmuClient)
                     if (result != null) {
                         if (!result)
                             errorCallback("该平台暂不支持弹幕功能")
-                        else
-                            onConnecting()
+                        else {
+                            if (!reconnect)
+                                onConnecting()
+                            else
+                                onReconnecting()
+                        }
                     }
                 }.onFailure {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
                     } else {
-                        errorCallback("加载弹幕时发生错误:${it.message}")
+                        errorCallback("${it.message}")
                     }
                     it.printStackTrace()
                 }
             }
+            return true
         }
     }
 
@@ -79,7 +84,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         val anchor = anchor
         stop()
         if (anchor != null) {
-            start(anchor)
+            start(anchor, true)
         }
     }
 
@@ -152,6 +157,11 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         state = State.CONNECTING
     }
 
+    private fun onReconnecting() {
+        mListener?.onReconnecting()
+        state = State.RECONNECTING
+    }
+
     interface DanmuListener {
         fun onStart() {}
         fun onNewDanmu(danmu: Danmu) {}
@@ -163,6 +173,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
          * 正在连接弹幕推送
          */
         fun onConnecting() {}
+        fun onReconnecting() {}
     }
 
 }

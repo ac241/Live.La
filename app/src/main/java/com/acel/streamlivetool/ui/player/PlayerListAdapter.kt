@@ -64,6 +64,4 @@ class PlayerListAdapter(
         val icon: ImageView? = itemView.platform_icon
         val isPlaying: ImageView? = itemView.is_playing
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.platform.egameqq.bean
 
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
 
@@ -7,7 +8,6 @@ data class Param(
     @SerializedName("key")
     val key: Key
 ) {
-
     data class Key(
         @SerializedName("method")
         val method: String = "get_anchor_card_info",
@@ -24,5 +24,7 @@ data class Param(
         )
     }
 
-
+    fun toJson(): String {
+        return Gson().toJson(this)
+    }
 }

@@ -29,7 +29,7 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
         (cookieFragment.requireActivity() as MainActivity).setToolbarTitle("平台")
 
         //隐藏刷新按钮
-        cookieFragment.hideSwipeRefreshBtn()
+//        cookieFragment.updateFinish()
 
 
         //切换显示图片

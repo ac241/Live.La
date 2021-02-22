@@ -3,17 +3,16 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
-import com.acel.streamlivetool.platform.egameqq.bean.PlayerInfo
 import com.acel.streamlivetool.util.AnchorUtil
-import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.TimeUtil
+import com.acel.streamlivetool.util.TimeUtil.timestampToString
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -39,98 +38,70 @@ class EgameqqImpl : IPlatform {
     }
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
-        val html = getHtml(queryAnchor)
-        html?.let {
-            val tempRoomId = TextUtil.subString(html, "channelId:\"", "\",")
-            tempRoomId?.apply {
-                val roomId = if (contains("_")) split("_")[1] else this
-                queryAnchor.roomId = roomId
-                val anchor = getEgameAnchor(queryAnchor)
-                anchor?.let {
-                    it.data.key.retBody.data.apply {
-                        return Anchor(
-                            platform = platform,
-                            nickname = nickName,
-                            showId = aliasId.toString(),
-                            roomId = uid.toString(),
-                            status = isLive == 1,
-                            avatar = faceUrl
-                        )
-                    }
+        val liveAndProfileInfo =
+            egameqqService.getLiveAndProfileInfo(liveAndProfileInfoParam(queryAnchor.showId))
+                .execute().body()
+        if (liveAndProfileInfo == null || liveAndProfileInfo.ecode != 0)
+            return null
+        else {
+            if (liveAndProfileInfo.data.key.retCode != 0) {
+                Log.d("acel_log#getAnchor", liveAndProfileInfo.data.key.retMsg)
+                return null
+            } else {
+                liveAndProfileInfo.data.key.retBody.data.apply {
+                    return Anchor(
+                        platform = platform,
+                        nickname = profile_info.nick_name,
+                        showId = profile_info.uid.toString(),
+                        roomId = profile_info.uid.toString(),
+                        status = profile_info.is_live == 1,
+                        title = video_info.title,
+                        avatar = profile_info.face_url,
+                        keyFrame = video_info.url.trim(),
+                        typeName = video_info.appname,
+                        liveTime = timestampToString(video_info.start_tm)
+                    )
                 }
             }
         }
-        return null
     }
 
-    private fun getEgameAnchor(queryAnchor: Anchor): EgameQQAnchor? {
+    private fun liveAndProfileInfoParam(roomId: String) =
+        "{\"key\":{\"module\":\"pgg_live_read_svr\",\"method\":\"get_live_and_profile_info\",\"param\":{\"anchor_id\":${roomId},\"layout_id\":\"\",\"index\":0}}}"
+
+    private fun getEgameAnchor(roomId: String): EgameQQAnchor? {
         val param =
-            Param(Param.Key(param = Param.Key.ParamX(anchorUid = queryAnchor.roomId.toInt())))
+            Param(Param.Key(param = Param.Key.ParamX(anchorUid = roomId.toInt())))
         return egameqqService.getAnchor(Gson().toJson(param)).execute().body()
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
-        val anchorResult = getEgameAnchor(queryAnchor)
-        return if (anchorResult != null) {
-            val html = getHtml(queryAnchor)
-            val title = html?.let { it1 -> TextUtil.subString(it1, "title:\"", "\",") }
-            val coverPic = html?.let { it1 -> TextUtil.subString(it1, "\"coverpic\":\"", "\",") }
+        val liveAndProfileInfo =
+            egameqqService.getLiveAndProfileInfo(liveAndProfileInfoParam(queryAnchor.showId))
+                .execute().body()
+        liveAndProfileInfo?.data?.key?.retBody?.data?.let { data ->
             queryAnchor.apply {
-                status = anchorResult.data.key.retBody.data.isLive == 1
-                this.title = title
-                avatar = anchorResult.data.key.retBody.data.faceUrl
-                keyFrame = coverPic
-                typeName = anchorResult.data.key.retBody.data.appname
+                status = data.profile_info.is_live == 1
+                title = data.video_info.title
+                avatar = data.profile_info.face_url
+                keyFrame = data.video_info.url.trim()
+                typeName = data.video_info.appname
+                liveTime = timestampToString(data.video_info.start_tm)
             }
-            true
-        } else false
+            return true
+        }
+        return false
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
-    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
-        getCookie().let { cookie ->
-            if (cookie.isEmpty())
-                return super.updateAnchorsDataByCookie(queryList)
-            val list = egameqqService.getFollowList(getCookie()).execute().body()
-            list?.let { followList ->
-                if (followList.data.key.retCode != 0)
-                    return ResultUpdateAnchorByCookie(false, followList.data.key.retMsg)
-                val follows = list.data.key.retBody.data.online_follow_list
-                val failedList = mutableListOf<Anchor>().also {
-                    it.addAll(queryList)
-                }
-                queryList.forEach goOn@{ anchor ->
-                    follows.forEach {
-                        if (anchor.roomId == it.live_info.anchor_id.toString()) {
-                            anchor.apply {
-                                status = it.status == 1
-                                title = it.live_info.title
-                                avatar = it.live_info.anchor_face_url
-                                keyFrame = it.live_info.video_info.url
-                                typeName = it.live_info.appname
-                                online = AnchorUtil.formatOnlineNumber(it.live_info.online)
-                            }
-                            failedList.remove(anchor)
-                            return@forEach
-                        }
-                    }
-                }
-                failedList.setHintWhenFollowListDidNotContainsTheAnchor()
-                return ResultUpdateAnchorByCookie(true)
-            }
-        }
-        return super.updateAnchorsDataByCookie(queryList)
-    }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
-        val html = getHtml(queryAnchor)
-        html?.let {
-            val jsonStr = TextUtil.subString(html, "playerInfo = ", ";window._playerInfo")
-            val playerInfo = Gson().fromJson<PlayerInfo>(jsonStr, PlayerInfo::class.java)
-            playerInfo.urlArray.forEach {
-                if (it.playUrl.isNotEmpty())
-                    return it.playUrl
-            }
+        val liveAndProfileInfo =
+            egameqqService.getLiveAndProfileInfo(liveAndProfileInfoParam(queryAnchor.showId))
+                .execute().body()
+        liveAndProfileInfo?.data?.key?.retBody?.data?.let { data ->
+            val streamInfo = data.video_info.stream_infos[0]
+            return streamInfo.play_url
         }
         return null
     }
@@ -148,22 +119,22 @@ class EgameqqImpl : IPlatform {
         context.startActivity(intent)
     }
 
-    @Suppress("DeferredResultUnused")
+
     override fun searchAnchor(keyword: String): List<Anchor>? {
-        val result = egameqqService.search(keyword).execute().body()
+        val html = egameqqService.search(keyword).execute().body()
         val list = mutableListOf<Anchor>()
-        if (result != null)
-            result.apply {
+        if (html != null)
+            html.apply {
                 val document = Jsoup.parse(this)
                 val anchors = document.getElementsByClass("gui-list-anchor")
                 runBlocking {
                     anchors.forEachIndexed { index, element ->
-                        if (index >= 5)
+                        if (index >= 10)
                             return@runBlocking
                         async(Dispatchers.IO) {
                             val id = element.getElementsByTag("a").attr("href").replace("/", "")
                             getAnchor(id)?.let { list.add(it) }
-                        }
+                        }.start()
                     }
                 }
                 return list
@@ -180,11 +151,26 @@ class EgameqqImpl : IPlatform {
         if (getCookie().isEmpty())
             return super.getAnchorsWithCookieMode()
         val list = egameqqService.getFollowList(getCookie()).execute().body()
-        if (list?.data?.key?.retCode != 0)
+        if (list?.ecode != 0)
             return ResultGetAnchorListByCookieMode(
-                false,
-                null,
-                list?.data?.key?.retMsg.toString()
+                success = false,
+                isCookieValid = false,
+                anchorList = null,
+                message = "ecode 0"
+            )
+        if (list.uid == 0)
+            return ResultGetAnchorListByCookieMode(
+                success = false,
+                isCookieValid = false,
+                anchorList = null,
+                message = "cookie invalid"
+            )
+        if (list.data.key.retCode != 0)
+            return ResultGetAnchorListByCookieMode(
+                success = false,
+                isCookieValid = false,
+                anchorList = null,
+                message = list.data.key.retMsg
             )
         else {
             val anchorList = mutableListOf<Anchor>()
@@ -202,14 +188,15 @@ class EgameqqImpl : IPlatform {
                             keyFrame = it.live_info.video_info.url,
                             typeName = it.live_info.appname,
                             online = AnchorUtil.formatOnlineNumber(it.live_info.online),
-                            liveTime = TimeUtil.timeStampToString(it.last_play_time)
+                            liveTime = timestampToString(it.last_play_time)
                         )
                     )
                 }
             }
             return ResultGetAnchorListByCookieMode(
-                true,
-                anchorList
+                success = true,
+                isCookieValid = true,
+                anchorList = anchorList
             )
         }
     }

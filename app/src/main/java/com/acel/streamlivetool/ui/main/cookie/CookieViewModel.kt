@@ -73,13 +73,13 @@ class CookieViewModel : ViewModel() {
 
     internal fun updateAnchorList() {
         updateJob?.cancel()
-        _liveDataUpdateStatus.postValue(UpdateStatus.UPDATING)
+        _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         updateJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val result =
                     anchorListManager.updateAnchorList(iPlatform)
                 if (result != null) {
-                    if (!result.isCookieValid) {
+                    if (!result.success && !result.isCookieValid) {
                         _liveDataShowLoginText.postValue(true)
                         notifyDataChange()
                         mainThread {

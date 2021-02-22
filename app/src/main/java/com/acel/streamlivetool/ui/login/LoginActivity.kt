@@ -13,8 +13,12 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.webkit.*
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
@@ -22,6 +26,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()
+    var platformImpl: IPlatform? = null
 
     @Suppress("DEPRECATION")
     @SuppressLint("SetJavaScriptEnabled")
@@ -37,50 +42,55 @@ class LoginActivity : AppCompatActivity() {
         }
 
         val platform = intent.getStringExtra("platform") ?: return
-        val platformImpl = PlatformDispatcher.getPlatformImpl(platform) ?: return
-        if (platformImpl.loginTips.isNotEmpty())
-            tips.apply {
-                text = platformImpl.loginTips
-                visibility = View.VISIBLE
-            }
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                val cookieStr = cookieManager.getCookie(url)
-                if (cookieStr != null) {
-                    Log.d("onPageFinished", cookieStr.toString())
-                    if (platformImpl.checkLoginOk(cookieStr)) {
-                        platformImpl.saveCookie(cookieStr)
-                        toast("添加成功")
-                        finish()
+        platformImpl = PlatformDispatcher.getPlatformImpl(platform)
+        if (platformImpl == null) {
+            toast("意外的平台，终止继续")
+        }
+        platformImpl?.let { impl ->
+            if (impl.loginTips.isNotEmpty())
+                tips.apply {
+                    text = impl.loginTips
+                    visibility = View.VISIBLE
+                }
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    val cookieStr = cookieManager.getCookie(url)
+                    if (cookieStr != null) {
+                        Log.d("onPageFinished", cookieStr.toString())
+                        if (impl.checkLoginOk(cookieStr)) {
+                            impl.saveCookie(cookieStr)
+                            toast("添加成功")
+                            finish()
+                        }
                     }
                 }
             }
-        }
-        webView.webChromeClient = object : WebChromeClient() {
+            webView.webChromeClient = object : WebChromeClient() {
 
-        }
-        webView.apply {
-            settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                if (platformImpl.loginWithPcAgent()) {
-                    setSupportMultipleWindows(true)
-                    //缩放
-                    setSupportZoom(true)
-                    builtInZoomControls = true
-                    displayZoomControls = false
-                    //自适应
-                    useWideViewPort = true
-                    loadWithOverviewMode = true
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                        layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-                    userAgentString =
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+            }
+            webView.apply {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    if (impl.loginWithPcAgent()) {
+                        setSupportMultipleWindows(true)
+                        //缩放
+                        setSupportZoom(true)
+                        builtInZoomControls = true
+                        displayZoomControls = false
+                        //自适应
+                        useWideViewPort = true
+                        loadWithOverviewMode = true
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                            layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+                        userAgentString =
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+                    }
                 }
             }
+            webView.loadUrl(impl.getLoginUrl())
         }
-        webView.loadUrl(platformImpl.getLoginUrl())
     }
 
     @Suppress("DEPRECATION")
@@ -92,4 +102,24 @@ class LoginActivity : AppCompatActivity() {
         } else
             cookieManager.removeAllCookie()
     }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun setCookieManual(view: View) {
+        val alertDialog = AlertDialog.Builder(this).setTitle("手动设置Cookie")
+            .setView(R.layout.alert_set_cookie_manual)
+            .show()
+        alertDialog.findViewById<Button>(R.id.commit)?.setOnClickListener {
+            val cookie = alertDialog.findViewById<EditText>(R.id.edit_cookie)?.text.toString()
+            if (cookie.isNotEmpty()) {
+                platformImpl?.saveCookie(cookie)
+                toast("保存成功")
+                alertDialog.dismiss()
+                finish()
+            } else
+                toast("请输入cookie")
+        }
+
+    }
+
+
 }

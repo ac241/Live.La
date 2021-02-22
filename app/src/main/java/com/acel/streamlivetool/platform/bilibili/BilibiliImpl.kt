@@ -7,14 +7,12 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.CookieUtil.getCookieField
 import com.acel.streamlivetool.util.TimeUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import java.util.*
 
 
 class BilibiliImpl : IPlatform {
@@ -33,10 +31,22 @@ class BilibiliImpl : IPlatform {
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
-        return if (roomInfo?.code == 0) {
-            val roomId = roomInfo.data?.room_id
-            val ownerName = roomId?.toLong()?.let { getAnchorName(it) }
-            Anchor(platform, ownerName.toString(), roomId.toString(), roomId.toString())
+        val info = roomInfo?.data
+        return if (roomInfo?.code == 0 && info != null) {
+            val roomId = info.room_id
+            val ownerName = getAnchorName(roomId.toLong())
+            Anchor(
+                platform = platform,
+                nickname = ownerName.toString(),
+                showId = roomId.toString(),
+                roomId = roomId.toString(),
+                status = info.live_status == 1,
+                title = info.title,
+                keyFrame = info.keyframe,
+                typeName = info.area_name,
+                online = info.online.toString(),
+                liveTime = info.live_time
+            )
         } else
             null
     }
@@ -65,70 +75,6 @@ class BilibiliImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    @Suppress("DeferredResultUnused")
-    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
-        getCookie().let { cookie ->
-            if (cookie.isEmpty())
-                return super.updateAnchorsDataByCookie(queryList)
-            var cookieOk = true
-            var message = ""
-            val failedList = Collections.synchronizedList(mutableListOf<Anchor>()).also {
-                it.addAll(queryList)
-            }
-            runBlocking {
-                async(Dispatchers.IO) {
-                    val result = bilibiliService.liveAnchor(cookie).execute().body()
-                    result?.let liveLet@{
-                        if (result.code != 0) {
-                            cookieOk = false
-                            message = result.message
-                        }
-                        if (it.data.total_count == 0)
-                            return@liveLet
-                        val rooms = result.data.rooms
-                        queryList.forEach goOn@{ anchor ->
-                            rooms.forEach { room ->
-                                if (room.roomid.toString() == anchor.roomId) {
-                                    anchor.apply {
-                                        status = true
-                                        title = room.title
-                                        avatar = room.face
-                                        keyFrame = room.cover
-                                        typeName = room.live_tag_name
-                                        online = AnchorUtil.formatOnlineNumber(room.online)
-                                    }
-                                    failedList.remove(anchor)
-                                    return@goOn
-                                }
-                            }
-                        }
-                    }
-                }
-                async(Dispatchers.IO) {
-                    val result = bilibiliService.unLiveAnchor(cookie).execute().body()
-                    if (result?.data?.total_count == 0)
-                        return@async
-                    val rooms = result?.data?.rooms
-                    queryList.forEach goOn@{ anchor ->
-                        rooms?.forEach { room ->
-                            if (room.roomid.toString() == anchor.roomId) {
-                                anchor.apply {
-                                    status = false
-                                    title = "${room.live_desc} 直播了 ${room.area_v2_name}"
-                                    avatar = room.face
-                                    typeName = room.area_v2_name
-                                }
-                                failedList.remove(anchor)
-                                return@goOn
-                            }
-                        }
-                    }
-                }
-            }
-            failedList.setHintWhenFollowListDidNotContainsTheAnchor()
-            return ResultUpdateAnchorByCookie(cookieOk, message)
-        }
-    }
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val roomPlayInfo = bilibiliService.getRoomPlayInfo(queryAnchor.roomId).execute().body()
@@ -204,7 +150,7 @@ class BilibiliImpl : IPlatform {
                                     keyFrame = it.cover,
                                     typeName = it.area_v2_name,
                                     online = AnchorUtil.formatOnlineNumber(it.online),
-                                    liveTime = TimeUtil.timeStampToString(it.live_time)
+                                    liveTime = TimeUtil.timestampToString(it.live_time)
                                 )
                             )
                         }
@@ -238,7 +184,7 @@ class BilibiliImpl : IPlatform {
                 anchorList.addAll(liveList.await() as Collection<Anchor>)
                 anchorList.addAll(unLiveList.await() as Collection<Anchor>)
             }
-            return ResultGetAnchorListByCookieMode(cookieOk, anchorList, message)
+            return ResultGetAnchorListByCookieMode(true, cookieOk, anchorList, message)
         }
     }
 

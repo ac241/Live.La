@@ -9,6 +9,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -24,6 +25,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class PlayerViewModel : ViewModel() {
@@ -64,6 +67,7 @@ class PlayerViewModel : ViewModel() {
     val anchor = MutableLiveData<Anchor>()
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
     val anchorPosition = MutableLiveData(-1)
+    val anchorDetails = MutableLiveData<Anchor>()
 
     val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
     fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
@@ -93,12 +97,17 @@ class PlayerViewModel : ViewModel() {
             }
 
             override fun onError(reason: String) {
-                danmuStatus.postValue(Pair(DanmuState.ERROR, "弹幕链接失败：$reason"))
+                danmuStatus.postValue(Pair(DanmuState.ERROR, "fail:$reason"))
             }
 
             override fun onStart() {
                 super.onStart()
                 danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
+            }
+
+            override fun onReconnecting() {
+                super.onReconnecting()
+                danmuStatus.postValue(Pair(DanmuState.RECONNECTING, "重新连接弹幕服务器"))
             }
         })
     }
@@ -123,7 +132,7 @@ class PlayerViewModel : ViewModel() {
     }
 
     enum class DanmuState {
-        IDLE, CONNECTING, START, STOP, ERROR, RELEASE
+        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
     }
 
 
@@ -255,7 +264,13 @@ class PlayerViewModel : ViewModel() {
     private fun startDanmu() = anchor.value?.let { startDanmu(it) }
 
     private fun startDanmu(anchor: Anchor) {
-        danmuClient.start(anchor)
+        val result = danmuClient.start(anchor)
+        if (result)
+            clearDanmuList()
+    }
+
+    private fun clearDanmuList() {
+        danmuList.postValue(danmuList.value?.apply { clear() })
     }
 
     fun restartDanmu() {
@@ -264,6 +279,19 @@ class PlayerViewModel : ViewModel() {
 
     internal fun startDanmuFromActivity() {
         startDanmu()
+    }
+
+    fun getAnchorDetails(anchor: Anchor) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                anchorDetails.postValue(anchor.platformImpl()?.getAnchor(anchor))
+            }.onFailure {
+                it.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    toast("更新信息失败。")
+                }
+            }
+        }
     }
 
 }

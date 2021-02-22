@@ -10,7 +10,7 @@ import java.util.*
 
 object TimeUtil {
     private val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
-    fun timeStampToString(timeStamp: Long): String {
+    fun timestampToString(timeStamp: Long): String {
         val diff = System.currentTimeMillis() - timeStamp * 1000
         return when {
             //小于60秒

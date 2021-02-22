@@ -5,13 +5,14 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
+import com.acel.streamlivetool.platform.huya.HuyaImpl.PatternUtil.getMatchString
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
-import com.acel.streamlivetool.ui.player.DanmuClient
 import com.acel.streamlivetool.util.*
 import java.net.URLEncoder
+import java.util.regex.Pattern
 
 
 class HuyaImpl : IPlatform {
@@ -38,13 +39,31 @@ class HuyaImpl : IPlatform {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val html: String? = getMHtml(queryAnchor)
         html?.let {
-            val showId = TextUtil.subString(it, "class=\"roomid\">房间号 : ", "</h2>")
+//            val showId = TextUtil.subString(it, "class=\"roomid\">房间号 : ", "</h2>")
+            val showId = html.getMatchString(PatternUtil.showId)
             if (showId != null && showId.isNotEmpty()) {
-                val nickname =
-                    TextUtil.subString(it, "ANTHOR_NICK = '", "';")
-                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
-                val uid = TextUtil.subString(it, "ayyuid: '", "',")
-                return Anchor(platform, nickname.toString(), showId, uid.toString())
+//                val nickname =
+//                    TextUtil.subString(it, "ANTHOR_NICK = '", "';")
+//                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
+                val nickname = html.getMatchString(PatternUtil.nickName)
+                    ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
+                // TODO: 2021/2/21
+//                val uid = TextUtil.subString(it, "ayyuid: '", "',")
+                val uid = html.getMatchString(PatternUtil.uid)
+                val anchor = Anchor(
+                    platform = platform,
+                    nickname = nickname.toString(),
+                    showId = showId,
+                    roomId = uid.toString(),
+                    status = html.getMatchString(PatternUtil.status) == "true",
+                    title = html.getMatchString(PatternUtil.title),
+                    avatar = TextUtil.subString(html, "<span class=\"pic-clip\">", "alt=\"")
+                        ?.getMatchString(PatternUtil.avatar),
+                    keyFrame = html.getMatchString(PatternUtil.keyFrame),
+                    typeName = html.getMatchString(PatternUtil.typeName),
+                    online = html.getMatchString(PatternUtil.online)
+                )
+                return anchor
             }
         }
         return null
@@ -88,37 +107,6 @@ class HuyaImpl : IPlatform {
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
-    override fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie {
-        getCookie().let { cookie ->
-            if (cookie.isEmpty())
-                return super.updateAnchorsDataByCookie(queryList)
-            val subscribe = getSubscribe(cookie)
-            subscribe?.let { sub ->
-                if (sub.status != 1000L)
-                    return ResultUpdateAnchorByCookie(false, sub.message)
-                val failedList = mutableListOf<Anchor>().also { it.addAll(queryList) }
-                subscribe.result.list.forEach { subAnchor ->
-                    queryList.forEach goOn@{ anchor ->
-                        if (subAnchor.uid.toString() == anchor.roomId) {
-                            anchor.apply {
-                                status = subAnchor.isLive
-                                title = subAnchor.intro
-                                avatar = subAnchor.avatar180
-                                keyFrame = subAnchor.screenshot
-                                typeName = subAnchor.gameName
-                                online = AnchorUtil.formatOnlineNumber(subAnchor.totalCount.toInt())
-                            }
-                            failedList.remove(anchor)
-                        }
-                    }
-                }
-                failedList.setHintWhenFollowListDidNotContainsTheAnchor()
-                return ResultUpdateAnchorByCookie(true)
-            }
-        }
-        return super.updateAnchorsDataByCookie(queryList)
-    }
-
 
     override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
         val html = getMHtml(queryAnchor)
@@ -175,9 +163,10 @@ class HuyaImpl : IPlatform {
                 val subscribe = getSubscribe(this)
                 if (subscribe?.status != 1000L)
                     return ResultGetAnchorListByCookieMode(
-                        false,
-                        null,
-                        subscribe?.message.toString()
+                        success = false,
+                        isCookieValid = false,
+                        anchorList = null,
+                        message = subscribe?.message.toString()
                     )
                 else
                     return run {
@@ -195,13 +184,14 @@ class HuyaImpl : IPlatform {
                                     keyFrame = it.screenshot,
                                     typeName = it.gameName,
                                     online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
-                                    liveTime = TimeUtil.timeStampToString(it.startTime)
+                                    liveTime = TimeUtil.timestampToString(it.startTime)
                                 )
                             )
                         }
                         ResultGetAnchorListByCookieMode(
-                            true,
-                            list
+                            success = true,
+                            isCookieValid = true,
+                            anchorList = list
                         )
                     }
             }
@@ -255,6 +245,26 @@ class HuyaImpl : IPlatform {
             }
         }
         return Pair(false, "发生错误")
+    }
+
+    private object PatternUtil {
+        val showId: Pattern = Pattern.compile("<h2 class=\"roomid\">房间号 : (.*?)</h2>")
+        val nickName: Pattern = Pattern.compile("ANTHOR_NICK = '(.*?)';")
+        val uid: Pattern = Pattern.compile("ayyuid: '(.*?)',")
+        val typeName: Pattern = Pattern.compile("gameName = '(.*?)'")
+        val keyFrame: Pattern = Pattern.compile("picURL = '(.*?)'")
+        val title: Pattern = Pattern.compile("liveRoomName = '(.*?)'")
+        val status: Pattern = Pattern.compile("ISLIVE = (.*?);")
+        val online: Pattern = Pattern.compile("liveTotalCount = '(.*?)'")
+        val avatar: Pattern = Pattern.compile("<img src=\"(.*?)\"")
+
+
+        fun String.getMatchString(pattern: Pattern): String? {
+            val matcher = pattern.matcher(this)
+            return if (matcher.find())
+                matcher.group(1)
+            else null
+        }
     }
 
 //    override val danmuManager: IPlatform.DanmuManager = HuyaDanmuManager()
