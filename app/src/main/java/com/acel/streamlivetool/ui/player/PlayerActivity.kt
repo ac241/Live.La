@@ -18,7 +18,6 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import kotlinx.coroutines.launch
 import master.flame.danmaku.controller.DrawHandler
@@ -81,11 +80,10 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun initView() {
         binding.playerView.apply {
-            this.setControllerVisibilityListener {
+            setControllerVisibilityListener {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                    if (it == View.GONE) {
+                    if (it == View.GONE)
                         hideSystemUI()
-                    }
             }
             player = viewModel.player
             keepScreenOn = true
@@ -128,7 +126,7 @@ class PlayerActivity : AppCompatActivity() {
             prepare(danmakuParser, danmakuContext)
             alpha = 0.8f
         }
-        binding.viewPager?.adapter = object : FragmentStateAdapter(this) {
+        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int = 2
 
             override fun createFragment(position: Int): Fragment {
@@ -138,11 +136,11 @@ class PlayerActivity : AppCompatActivity() {
                     AnchorListFragment.newInstance()
             }
         }
-        binding.danmuNotice?.setOnClickListener {
+        binding.danmuNotice.setOnClickListener {
             viewModel.restartDanmu()
         }
         viewModel.danmuStatus.observe(this) {
-            binding.danmuNotice?.text = it.second
+            binding.danmuNotice.text = it.second
         }
     }
 
@@ -225,13 +223,13 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun displayAnchorDetail(it: Anchor) {
         it.apply {
-            it.avatar?.let { it1 -> binding.avatar?.loadImage(it1) }
-            binding.nickname?.text = nickname
-            binding.include?.typeName?.text = typeName
-            binding.roomId?.text = getString(R.string.room_id_format, showId)
-            binding.title?.text = title
+            it.avatar?.let { it1 -> binding.avatar.loadImage(it1) }
+            binding.nickname.text = nickname
+            binding.include.typeName.text = typeName
+            binding.roomId.text = getString(R.string.room_id_format, showId)
+            binding.title.text = title
             platformImpl()?.iconRes?.let { res ->
-                binding.platformIcon?.setImageResource(res)
+                binding.platformIcon.setImageResource(res)
             }
         }
     }

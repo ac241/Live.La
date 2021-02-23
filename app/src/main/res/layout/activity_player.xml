@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.player.PlayerActivity">
 
-    <com.google.android.exoplayer2.ui.PlayerView
+    <com.acel.streamlivetool.ui.custom_view.VolumeAjustablePlayerView
         android:id="@+id/player_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -15,9 +15,8 @@
         app:layout_constraintDimensionRatio="16:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    </com.google.android.exoplayer2.ui.PlayerView>
 
     <TextView
         android:id="@+id/title"

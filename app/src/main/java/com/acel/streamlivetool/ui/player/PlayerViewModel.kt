@@ -15,6 +15,7 @@ import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
 import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -25,7 +26,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.*
 
@@ -42,8 +42,8 @@ class PlayerViewModel : ViewModel() {
                         playerStatus.postValue(PlayerState.IS_PLAYING)
                 }
 
-                override fun onLoadingChanged(isLoading: Boolean) {
-                    super.onLoadingChanged(isLoading)
+                override fun onIsLoadingChanged(isLoading: Boolean) {
+                    super.onIsLoadingChanged(isLoading)
                     if (isLoading)
                         playerStatus.postValue(PlayerState.IS_LOADING)
                 }
@@ -55,8 +55,8 @@ class PlayerViewModel : ViewModel() {
                     playerStatus.postValue(PlayerState.IS_ERROR)
                 }
 
-                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                    super.onPlayerStateChanged(playWhenReady, playbackState)
+                override fun onPlaybackStateChanged(state: Int) {
+                    super.onPlaybackStateChanged(state)
                     if (playbackState == Player.STATE_ENDED)
                         playerStatus.postValue(PlayerState.IS_ENDED)
                 }
@@ -205,7 +205,7 @@ class PlayerViewModel : ViewModel() {
         viewModelScope.runCatching {
             if (url.isEmpty()) {
                 mainThread {
-                    player.stop(false)
+                    player.stop()
                     toast("直播流为空")
                 }
                 return@runCatching
@@ -222,13 +222,14 @@ class PlayerViewModel : ViewModel() {
                     url.contains(".m3u8") ->
                         HlsMediaSource.Factory(dataSourceFactory)
                             .setAllowChunklessPreparation(true)
-                            .createMediaSource(uri)
+                            .createMediaSource(MediaItem.fromUri(uri))
                     else ->
                         ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(uri)
+                            .createMediaSource(MediaItem.fromUri(uri))
                 }
             mainThread {
-                player.prepare(videoSource)
+                player.setMediaSource(videoSource)
+                player.prepare()
             }
         }.onFailure {
             mainThread {

@@ -1,8 +1,9 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
+}
 android {
     compileSdkVersion 30
     defaultConfig {
@@ -21,12 +22,12 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
-            manifestPlaceholders = ["APP_NAME":"直播啦debug"]
+            manifestPlaceholders = ["APP_NAME": "直播啦debug"]
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            manifestPlaceholders = ["APP_NAME":"直播啦"]
+            manifestPlaceholders = ["APP_NAME": "直播啦"]
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -54,13 +55,12 @@ android {
             outputFileName = fileName
         }
     }
-
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13'
-    implementation 'androidx.core:core-ktx:1.5.0-alpha05'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.android.material:material:1.3.0-alpha04'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
@@ -95,14 +95,9 @@ dependencies {
     implementation "org.permissionsdispatcher:permissionsdispatcher:4.8.0"
     kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.8.0"
     //exoplayer
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.11.3'
-    implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.11.3'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.11.3'
+    implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
     //jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
-
     //danmaku
     implementation 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
 }
