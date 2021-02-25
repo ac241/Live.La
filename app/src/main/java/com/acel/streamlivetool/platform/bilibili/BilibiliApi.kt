@@ -21,9 +21,10 @@ interface BilibiliApi {
         @Query("page") page: Int
     ): Call<Following>
 
-    @GET("https://api.live.bilibili.com/xlive/web-room/v1/index/getRoomPlayInfo?play_url=1&mask=1&qn=1&platform=web")
+    @GET("https://api.live.bilibili.com/xlive/web-room/v1/index/getRoomPlayInfo?play_url=1&mask=1&platform=web")
     fun getRoomPlayInfo(
-        @Query("room_id") roomId: String
+        @Query("room_id") roomId: String,
+        @Query("qn") qn: Int = 10000
     ): Call<RoomPlayInfo>
 
     @GET("https://api.live.bilibili.com/relation/v1/Feed/getList?page_size=10")

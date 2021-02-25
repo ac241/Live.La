@@ -1,71 +1,64 @@
 package com.acel.streamlivetool.platform.douyu.bean
 
-import com.google.gson.annotations.SerializedName
-
-
 data class LiveInfo(
-    @SerializedName("data")
     val `data`: Data,
-    @SerializedName("error")
     val error: Int,
-    @SerializedName("msg")
     val msg: String
 ) {
-    data class Data(
-        @SerializedName("cdnsWithName")
-        val cdnsWithName: List<CdnsWithName>,
-        @SerializedName("client_ip")
-        val clientIp: String,
-        @SerializedName("eticket")
-        val eticket: Any,
-        @SerializedName("inNA")
-        val inNA: Int,
-        @SerializedName("isPassPlayer")
-        val isPassPlayer: Int,
-        @SerializedName("is_mixed")
-        val isMixed: Boolean,
-        @SerializedName("mixedCDN")
-        val mixedCDN: String,
-        @SerializedName("mixed_live")
-        val mixedLive: String,
-        @SerializedName("mixed_url")
-        val mixedUrl: String,
-        @SerializedName("multirates")
-        val multirates: List<Multirate>,
-        @SerializedName("online")
-        val online: Int,
-        @SerializedName("p2p")
-        val p2p: Int,
-        @SerializedName("rate")
-        val rate: Int,
-        @SerializedName("rateSwitch")
-        val rateSwitch: Int,
-        @SerializedName("room_id")
-        val roomId: Int,
-        @SerializedName("rtmp_cdn")
-        val rtmpCdn: String,
-        @SerializedName("rtmp_live")
-        val rtmpLive: String,
-        @SerializedName("rtmp_url")
-        val rtmpUrl: String,
-        @SerializedName("streamStatus")
-        val streamStatus: Int
-    ) {
-        data class Multirate(
-            @SerializedName("highBit")
-            val highBit: Int,
-            @SerializedName("name")
-            val name: String,
-            @SerializedName("rate")
-            val rate: Int
-        )
 
-        data class CdnsWithName(
-            @SerializedName("cdn")
-            val cdn: String,
-            @SerializedName("name")
-            val name: String
-        )
+    data class Data(
+        val cdnsWithName: List<CdnsWithName>,
+        val client_ip: String,
+        val eticket: Any,
+        val h265_p2p: Int,
+        val h265_p2p_cid: Int,
+        val h265_p2p_cids: String,
+        val inNA: Int,
+        val isPassPlayer: Int,
+        val is_mixed: Boolean,
+        val mixedCDN: String,
+        val mixed_live: String,
+        val mixed_url: String,
+        val multirates: List<Multirate>,
+        val online: Int,
+        val p2p: Int,
+        val p2pCid: Long,
+        val p2pCids: String,
+        val p2pMeta: Any,
+        val player_1: String,
+        val rate: Int,
+        val rateSwitch: Int,
+        val room_id: Int,
+        val rtmp_cdn: String,
+        val rtmp_live: String,
+        val rtmp_url: String,
+        val smt: Int,
+        val streamStatus: Int
+    )
+
+    data class CdnsWithName(
+        val cdn: String,
+        val isH265: Boolean,
+        val name: String
+    )
+
+    data class Multirate(
+        val bit: Int,
+        val highBit: Int,
+        val name: String,
+        val rate: Int
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Multirate) return false
+
+            if (rate != other.rate) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return rate
+        }
     }
 }
-

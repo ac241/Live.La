@@ -8,7 +8,6 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.huya.HuyaImpl.PatternUtil.getMatchString
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import com.acel.streamlivetool.util.*
@@ -51,7 +50,7 @@ class HuyaImpl : IPlatform {
                 // TODO: 2021/2/21
 //                val uid = TextUtil.subString(it, "ayyuid: '", "',")
                 val uid = html.getMatchString(PatternUtil.uid)
-                val anchor = Anchor(
+                return Anchor(
                         platform = platform,
                         nickname = nickname.toString(),
                         showId = showId,
@@ -64,7 +63,6 @@ class HuyaImpl : IPlatform {
                         typeName = html.getMatchString(PatternUtil.typeName),
                         online = html.getMatchString(PatternUtil.online)
                 )
-                return anchor
             }
         }
         return null
@@ -109,7 +107,7 @@ class HuyaImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
+    override fun getStreamingLive(queryAnchor: Anchor, queryQuality: StreamingLive.Quality?): StreamingLive? {
         val html = getMHtml(queryAnchor)
         html?.let {
             val streamStr = TextUtil.subString(it, "liveLineUrl = \"", "\";")

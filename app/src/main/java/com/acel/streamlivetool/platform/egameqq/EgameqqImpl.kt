@@ -12,7 +12,6 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.egameqq.bean.EgameQQAnchor
 import com.acel.streamlivetool.platform.egameqq.bean.Param
 import com.acel.streamlivetool.util.AnchorUtil
-import com.acel.streamlivetool.util.TimeUtil
 import com.acel.streamlivetool.util.TimeUtil.timestampToString
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -96,7 +95,7 @@ class EgameqqImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
+    override fun getStreamingLive(queryAnchor: Anchor, queryQuality: StreamingLive.Quality?): StreamingLive? {
         val liveAndProfileInfo =
                 egameqqService.getLiveAndProfileInfo(liveAndProfileInfoParam(queryAnchor.showId))
                         .execute().body()

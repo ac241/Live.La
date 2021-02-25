@@ -1,19 +1,21 @@
 package com.acel.streamlivetool.bean
 
-import com.acel.streamlivetool.platform.IPlatform
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
 data class StreamingLive(
-        val url: String,
-        val nowQualityDescription: QualityDescription?,
-        val qualityDescriptionList: List<QualityDescription>?
+    val url: String,
+    val currentQuality: Quality?,
+    val qualityList: List<Quality>?
 ) {
-    data class QualityDescription(
+    @Parcelize
+    data class Quality(
             val description: String,
             val num: Int = 0
-    ) {
+    ) : Parcelable {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is QualityDescription) return false
+            if (other !is Quality) return false
 
             if (num != other.num) return false
 

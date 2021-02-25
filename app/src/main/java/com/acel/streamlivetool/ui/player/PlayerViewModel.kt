@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.ui.player
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
@@ -8,9 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
-import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
+import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -62,7 +64,12 @@ class PlayerViewModel : ViewModel() {
                 }
             })
             addVideoListener(object : VideoListener {
-                override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
+                override fun onVideoSizeChanged(
+                    width: Int,
+                    height: Int,
+                    unappliedRotationDegrees: Int,
+                    pixelWidthHeightRatio: Float
+                ) {
                     videoResolution.postValue(Pair(width, height))
                 }
             })
@@ -73,6 +80,8 @@ class PlayerViewModel : ViewModel() {
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
     val anchorPosition = MutableLiveData(-1)
     val anchorDetails = MutableLiveData<Anchor>()
+    val currentQuality = MutableLiveData<StreamingLive.Quality?>()
+    val qualityList = MutableLiveData<List<StreamingLive.Quality?>>()
 
     val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
     fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
@@ -81,20 +90,20 @@ class PlayerViewModel : ViewModel() {
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
     private var keepAnchorData = false
     private var keepDanmuData = false
-
+    private val preEmitDanmuList: MutableList<Danmu> =
+        Collections.synchronizedList(mutableListOf<Danmu>())
     val videoResolution = MutableLiveData(Pair(0, 0))
 
     private val danmuClient = DanmuClient(viewModelScope).apply {
         setListener(object : DanmuClient.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
                 addDanmu(danmu)
-                mainThread {
-                    danmuString.value = danmu.msg
-                }
             }
 
             override fun onConnecting() {
-                danmuStatus.postValue(Pair(DanmuState.CONNECTING, "正在连接弹幕服务器"))
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.CONNECTING, "正在连接弹幕服务器")
+                }
             }
 
             override fun onError(reason: String) {
@@ -102,13 +111,13 @@ class PlayerViewModel : ViewModel() {
             }
 
             override fun onStart() {
-                super.onStart()
                 danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
             }
 
             override fun onReconnecting() {
-                super.onReconnecting()
-                danmuStatus.postValue(Pair(DanmuState.RECONNECTING, "重新连接弹幕服务器"))
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.RECONNECTING, "重新连接弹幕服务器")
+                }
             }
         })
     }
@@ -120,9 +129,8 @@ class PlayerViewModel : ViewModel() {
             danmuList.value?.add(danmu)
         }
         danmuList.postValue(danmuList.value)
+        preEmitDanmuList.add(danmu)
     }
-
-    val danmuString = MutableLiveData<String>()
 
     enum class PlayerState {
         IS_IDLE,
@@ -162,23 +170,30 @@ class PlayerViewModel : ViewModel() {
     private fun preparePlay(anchor: Anchor) {
         if (anchor == this.anchor.value)
             return
+        clearQualityInfo()
         startDanmu(anchor)
         this.anchor.postValue(anchor)
         anchorPosition.postValue(anchorList.value?.indexOf(anchor) ?: -1)
         getStreamUrlAndPlay(anchor)
     }
 
-    private fun getStreamUrlAndPlay(anchor: Anchor?) {
-        anchor?.let { a ->
+    private fun clearQualityInfo() {
+        currentQuality.postValue(null)
+        qualityList.postValue(null)
+    }
+
+    private fun getStreamUrlAndPlay(anchor: Anchor?, quality: StreamingLive.Quality? = null) {
+        anchor?.let { anc ->
             stopPlay()
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
-                    val streamingLive = PlatformDispatcher.getPlatformImpl(a)
-                            ?.getStreamingLive(a)
+                    val streamingLive = anc.platformImpl()?.getStreamingLive(anc, quality)
                     val url = streamingLive?.url
-                    if (url != null && url.isNotEmpty())
+                    if (url != null && url.isNotEmpty()) {
                         play(url)
-                    else {
+                        currentQuality.postValue(streamingLive.currentQuality)
+                        qualityList.postValue(streamingLive.qualityList)
+                    } else {
                         playerStatus.postValue(PlayerState.IS_ERROR)
                         errorMessage.postValue("获取直播流失败。（empty）")
                         stopPlay()
@@ -213,22 +228,22 @@ class PlayerViewModel : ViewModel() {
                 return@runCatching
             }
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                    MyApplication.application,
-                    Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
+                MyApplication.application,
+                Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
             )
             val uri = Uri.parse(url)
             val videoSource: MediaSource
 
             videoSource =
-                    when {
-                        url.contains(".m3u8") ->
-                            HlsMediaSource.Factory(dataSourceFactory)
-                                    .setAllowChunklessPreparation(true)
-                                    .createMediaSource(MediaItem.fromUri(uri))
-                        else ->
-                            ProgressiveMediaSource.Factory(dataSourceFactory)
-                                    .createMediaSource(MediaItem.fromUri(uri))
-                    }
+                when {
+                    url.contains(".m3u8") ->
+                        HlsMediaSource.Factory(dataSourceFactory)
+                            .setAllowChunklessPreparation(true)
+                            .createMediaSource(MediaItem.fromUri(uri))
+                    else ->
+                        ProgressiveMediaSource.Factory(dataSourceFactory)
+                            .createMediaSource(MediaItem.fromUri(uri))
+                }
             mainThread {
                 player.setMediaSource(videoSource)
                 player.prepare()
@@ -295,6 +310,28 @@ class PlayerViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun playWithAssignQuality(quality: StreamingLive.Quality) {
+        getStreamUrlAndPlay(anchor.value, quality)
+    }
+
+    fun startAppForCurrentAnchor(context: Context) {
+        anchor.value?.let { AppUtil.startApp(context, it) }
+    }
+
+    fun stopAll() {
+        stopPlay()
+        danmuClient.stop()
+    }
+
+    fun getPreEmitDanmu(): Danmu? {
+        return if (preEmitDanmuList.size > 0) {
+            val danmu = preEmitDanmuList[0]
+            preEmitDanmuList.removeAt(0)
+            danmu
+        } else
+            null
     }
 
 }

@@ -6,8 +6,12 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -16,9 +20,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.util.ToastUtil.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.model.BaseDanmaku
@@ -35,6 +44,12 @@ class PlayerActivity : AppCompatActivity() {
     internal var fullScreen = false
     internal var landscape = false
     private val orientationEventListener by lazy { OrientationEventListener(this) }
+
+    private val itemIdStartApp = 2001
+    private val itemIdOverlayPlayer = 2002
+    private val itemIdChangeQuality = 2003
+
+    var emitDanmuJob: Job? = null
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,13 +113,54 @@ class PlayerActivity : AppCompatActivity() {
             findViewById<View>(R.id.btn_zoom).setOnClickListener {
                 zoomClick()
             }
+
+            findViewById<TextView>(R.id.current_quality).apply {
+                setOnCreateContextMenuListener { menu, _, _ ->
+                    viewModel.qualityList.value?.forEach{
+                        menu.add(
+                            Menu.NONE,
+                            itemIdChangeQuality,
+                            Menu.NONE,
+                            it?.description
+                        ).intent =
+                            Intent().apply { putExtra("quality", it) }
+                    }
+                }
+                setOnClickListener {
+                    val qualityList = viewModel.qualityList.value
+                    if (qualityList != null) {
+                        if (qualityList.isNotEmpty())
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                                showContextMenu(0f, 0f)
+                            else showContextMenu()
+                    } else {
+                        toast("没有更多的清晰度可以选择。")
+                    }
+                }
+            }
+
         }
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
             landscapeFullScreen()
-//        binding.platformIcon?.setOnClickListener {
-//            viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
-//            viewModel.stopPlay()
-//        }
+        binding.platformIcon.apply {
+            setOnCreateContextMenuListener { menu, _, _ ->
+                menu.add(Menu.NONE, itemIdStartApp, Menu.NONE, "打开app")
+                menu.add(Menu.NONE, itemIdOverlayPlayer, Menu.NONE, "悬浮窗")
+            }
+
+            setOnClickListener {
+                val qualityList = viewModel.qualityList.value
+                if (qualityList != null) {
+                    if (qualityList.isNotEmpty())
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                            showContextMenu(0f, 0f)
+                        else showContextMenu()
+                } else {
+                    toast("没有更多的清晰度可以选择。")
+                }
+            }
+        }
+
 
         binding.danmakuView.apply {
             enableDanmakuDrawingCache(true)
@@ -141,7 +197,12 @@ class PlayerActivity : AppCompatActivity() {
         }
         viewModel.danmuStatus.observe(this) {
             binding.danmuNotice.text = it.second
+            if (it.first == PlayerViewModel.DanmuState.START)
+                startEmitDanmuJob()
+            if (it.first == PlayerViewModel.DanmuState.ERROR)
+                stopEmitDanmuJob()
         }
+
     }
 
     private fun zoomClick() {
@@ -246,7 +307,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.danmakuView.release()
     }
 
-    private fun addDanmaku(msg: String) {
+    private fun emitDanma(msg: String) {
         lifecycleScope.launch {
             val danmaku =
                 danmakuContext.mDanmakuFactory?.createDanmaku(BaseDanmaku.TYPE_SCROLL_RL)?.apply {
@@ -264,6 +325,24 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            itemIdStartApp -> {
+                viewModel.startAppForCurrentAnchor(this)
+                viewModel.stopAll()
+            }
+            itemIdOverlayPlayer -> {
+
+            }
+            itemIdChangeQuality -> {
+                val quality = item.intent.getParcelableExtra<StreamingLive.Quality>("quality")
+                quality?.let {
+                    viewModel.playWithAssignQuality(quality)
+                }
+            }
+        }
+        return true
+    }
 
     /**
      * sp转px的方法。
@@ -306,19 +385,41 @@ class PlayerActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                 }
             }
-            danmuString.observe(this@PlayerActivity) {
-                addDanmaku(it)
+            currentQuality.observe(this@PlayerActivity) {
+                binding.playerView.findViewById<TextView>(R.id.current_quality).text =
+                    it?.description ?: getString(R.string.no_video_quality_to_choose)
             }
         }
     }
 
+    private fun startEmitDanmuJob() {
+        emitDanmuJob = lifecycleScope.launch(Dispatchers.Default) {
+            while (true) {
+                viewModel.getPreEmitDanmu()?.let {
+                    emitDanma(it.msg)
+                }
+                delay(50)
+            }
+        }
+    }
+
+    private fun stopEmitDanmuJob() {
+        emitDanmuJob?.cancel()
+        emitDanmuJob = null
+    }
+
     private fun displayAnchorDetail(it: Anchor) {
         it.apply {
-            it.avatar?.let { it1 -> binding.avatar.loadImage(it1) }
+            it.avatar?.let { it1 ->
+                binding.avatar.loadImage(it1)
+                binding.playerView.findViewById<ImageView>(R.id.controller_avatar).loadImage(it1)
+            }
             binding.nickname.text = nickname
+            binding.playerView.findViewById<TextView>(R.id.controller_nickname).text = nickname
             binding.include.typeName.text = typeName
             binding.roomId.text = getString(R.string.room_id_format, showId)
             binding.title.text = title
+            binding.playerView.findViewById<TextView>(R.id.controller_title).text = title
             platformImpl()?.iconRes?.let { res ->
                 binding.platformIcon.setImageResource(res)
             }
@@ -334,8 +435,6 @@ class PlayerActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (fullScreen)
             normalScreen()
-//        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-//            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         else
             super.onBackPressed()
     }

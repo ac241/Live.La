@@ -65,7 +65,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     /**
      * 结束弹幕接收
      */
-    private fun stop() {
+    fun stop() {
 //        if (state == State.START)
         synchronized(this) {
             anchor?.let {

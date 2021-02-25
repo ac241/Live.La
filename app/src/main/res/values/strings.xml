@@ -108,4 +108,6 @@
     <string name="docor_line">docor_line</string>
     <string name="set_cookie_manual">点击手动设置cookie</string>
     <string name="please_fill_cookie">请输入Cookie</string>>
+    <string name="video_quality">清晰度</string>>
+    <string name="no_video_quality_to_choose">没有清晰度信息</string>>
 </resources>

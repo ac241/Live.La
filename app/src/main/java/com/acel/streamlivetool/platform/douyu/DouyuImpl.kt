@@ -10,7 +10,6 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.platform.douyu.bean.Followed
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.douyu.bean.LiveInfoTestError
@@ -48,23 +47,23 @@ class DouyuImpl : IPlatform {
             getAnchorFromHtml(queryAnchor)
         } else {
             val roomInfo: RoomInfo? =
-                    douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
+                douyuService.getRoomInfoFromOpen(queryAnchor.showId).execute().body()
             val info = roomInfo?.data
             if (info == null)
                 null
             else {
                 Anchor(
-                        platform = platform,
-                        nickname = info.ownerName,
-                        showId = info.roomId,
-                        roomId = info.roomId,
-                        status = info.roomStatus == "1",
-                        title = info.roomName,
-                        avatar = info.avatar,
-                        keyFrame = info.roomThumb,
-                        typeName = info.cateName,
-                        online = info.online.toString(),
-                        liveTime = info.startTime
+                    platform = platform,
+                    nickname = info.ownerName,
+                    showId = info.roomId,
+                    roomId = info.roomId,
+                    status = info.roomStatus == "1",
+                    title = info.roomName,
+                    avatar = info.avatar,
+                    keyFrame = info.roomThumb,
+                    typeName = info.cateName,
+                    online = info.online.toString(),
+                    liveTime = info.startTime
                 )
             }
         }
@@ -74,7 +73,7 @@ class DouyuImpl : IPlatform {
         return runBlocking {
             val info = async(Dispatchers.IO) {
                 val roomInfo =
-                        douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
+                    douyuService.getRoomInfoBetard(queryAnchor.showId).execute().body()
                 if (roomInfo != null) {
                     queryAnchor.apply {
                         status = roomInfo.room.show_status == 1
@@ -82,7 +81,7 @@ class DouyuImpl : IPlatform {
                         avatar = roomInfo.room.avatar.big
                         keyFrame = roomInfo.room.room_pic
                         if (roomInfo.room.videoLoop == 1) secondaryStatus =
-                                MyApplication.application.getString(R.string.video_looping)
+                            MyApplication.application.getString(R.string.video_looping)
                         typeName = roomInfo.game.tag_name
                     }
                     true
@@ -100,18 +99,45 @@ class DouyuImpl : IPlatform {
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
-    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
+    override fun getStreamingLive(
+        queryAnchor: Anchor,
+        queryQuality: StreamingLive.Quality?
+    ): StreamingLive? {
         val h5Enc = douyuService.getH5Enc(queryAnchor.roomId).execute().body()
         if (h5Enc?.error == 0) {
             val enc = h5Enc.data["room" + queryAnchor.roomId].toString()
-            val paramsMap = getRequestParams(enc, queryAnchor)
-            paramsMap?.let {
-                val jsonStr = douyuService.getLiveInfo(queryAnchor.roomId, it).execute().body()
+            val paramsMap = getRequestParams(enc, queryAnchor, queryQuality?.num ?: 4)
+            paramsMap?.let { pm ->
+                val jsonStr = douyuService.getLiveInfo(queryAnchor.roomId, pm).execute().body()
                 val gson = Gson()
                 val testError = gson.fromJson(jsonStr, LiveInfoTestError::class.java)
                 if (testError.error == 0) {
                     val liveInfo = gson.fromJson(jsonStr, LiveInfo::class.java)
-                    return StreamingLive(url = liveInfo?.data?.rtmpUrl + "/" + liveInfo?.data?.rtmpLive, null, null)
+                    liveInfo?.data?.let { data ->
+                        val multirates = data.multirates
+                        val returnQualityList = mutableListOf<StreamingLive.Quality>()
+                        multirates.forEach {
+                            returnQualityList.add(StreamingLive.Quality(it.name, it.rate))
+                        }
+                        val rate = liveInfo.data.rate
+                        val rateIndex = multirates.indexOf(LiveInfo.Multirate(0, 0, "", rate))
+                        val currentQuality =
+                            if (rateIndex != -1) multirates[rateIndex] else null
+                        val returnCurrentQuality =
+                            if (currentQuality != null) StreamingLive.Quality(
+                                currentQuality.name,
+                                currentQuality.rate
+                            ) else null
+
+                        val returnUrl: String =
+                            liveInfo.data.rtmp_url + "/" + liveInfo.data.rtmp_live
+
+                        return StreamingLive(
+                            url = returnUrl,
+                            currentQuality = returnCurrentQuality,
+                            qualityList = returnQualityList
+                        )
+                    }
                 }
             }
         }
@@ -134,14 +160,14 @@ class DouyuImpl : IPlatform {
             val resultList = this.data.roomResult
             resultList.forEach {
                 list.add(
-                        Anchor(
-                                platform = platform,
-                                nickname = it.nickName,
-                                showId = it.rid.toString(),
-                                roomId = it.rid.toString(),
-                                status = it.isLive == 1,
-                                avatar = it.avatar
-                        )
+                    Anchor(
+                        platform = platform,
+                        nickname = it.nickName,
+                        showId = it.rid.toString(),
+                        roomId = it.rid.toString(),
+                        status = it.isLive == 1,
+                        avatar = it.avatar
+                    )
                 )
             }
         }
@@ -158,7 +184,11 @@ class DouyuImpl : IPlatform {
             null
     }
 
-    private fun getRequestParams(enc: String, anchor: Anchor): MutableMap<String, String>? {
+    private fun getRequestParams(
+        enc: String,
+        anchor: Anchor,
+        rate: Int = 4
+    ): MutableMap<String, String>? {
         val context = org.mozilla.javascript.Context.enter()
         val uuid = UUID.randomUUID().toString().replace("-", "")
 //        val uuid = "07095540bc131c2cc23726a200021501"
@@ -174,13 +204,13 @@ class DouyuImpl : IPlatform {
             context.evaluateString(scope, cryptoJs, "cryptoJs", 1, null)
             context.evaluateString(scope, enc, "enc", 1, null)
             val result =
-                    context.evaluateString(
-                            scope,
-                            "ub98484234(${anchor.roomId},\"${uuid}\",${time})",
-                            "douyu",
-                            1,
-                            null
-                    )
+                context.evaluateString(
+                    scope,
+                    "ub98484234(${anchor.roomId},\"${uuid}\",${time})",
+                    "douyu",
+                    1,
+                    null
+                )
             val params = org.mozilla.javascript.Context.toString(result)
             val list = params.split("&")
             val map = mutableMapOf<String, String>()
@@ -189,7 +219,7 @@ class DouyuImpl : IPlatform {
                 map[paramList[0]] = paramList[1]
             }
             map["ver"] = "Douyu_219041925"
-            map["rate"] = "0"
+            map["rate"] = "$rate"
             map["iar"] = "1"
             map["ive"] = "0"
             map["cdn"] = ""
@@ -207,22 +237,22 @@ class DouyuImpl : IPlatform {
         fun addToList(list: MutableList<Anchor>, followed: Followed) {
             followed.data.list.forEach {
                 list.add(
-                        Anchor(
-                                platform = platform,
-                                nickname = it.nickname,
-                                showId = it.room_id.toString(),
-                                roomId = it.room_id.toString(),
-                                status = it.show_status == 1,
-                                title = it.room_name,
-                                avatar = it.avatar_small,
-                                keyFrame = it.room_src,
-                                secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
-                                        R.string.video_looping
-                                ) else null,
-                                typeName = it.game_name,
-                                online = it.online,
-                                liveTime = TimeUtil.timestampToString(it.show_time)
-                        )
+                    Anchor(
+                        platform = platform,
+                        nickname = it.nickname,
+                        showId = it.room_id.toString(),
+                        roomId = it.room_id.toString(),
+                        status = it.show_status == 1,
+                        title = it.room_name,
+                        avatar = it.avatar_small,
+                        keyFrame = it.room_src,
+                        secondaryStatus = if (it.videoLoop == 1) MyApplication.application.getString(
+                            R.string.video_looping
+                        ) else null,
+                        typeName = it.game_name,
+                        online = it.online,
+                        liveTime = TimeUtil.timestampToString(it.show_time)
+                    )
                 )
             }
         }
@@ -234,10 +264,10 @@ class DouyuImpl : IPlatform {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)
                     return ResultGetAnchorListByCookieMode(
-                            success = false,
-                            isCookieValid = false,
-                            anchorList = null,
-                            message = followed?.msg.toString()
+                        success = false,
+                        isCookieValid = false,
+                        anchorList = null,
+                        message = followed?.msg.toString()
                     )
                 else {
                     val list = mutableListOf<Anchor>()
@@ -249,7 +279,7 @@ class DouyuImpl : IPlatform {
                                 for (i in 2..followed.data.pageCount) {
                                     async(Dispatchers.IO) {
                                         val followedNext =
-                                                douyuService.getFollowed(this@run, i).execute().body()
+                                            douyuService.getFollowed(this@run, i).execute().body()
                                         if (followedNext != null) {
                                             addToList(list, followedNext)
                                         }
@@ -259,9 +289,9 @@ class DouyuImpl : IPlatform {
                         }
                     }
                     return ResultGetAnchorListByCookieMode(
-                            success = true,
-                            isCookieValid = true,
-                            anchorList = list
+                        success = true,
+                        isCookieValid = true,
+                        anchorList = list
                     )
                 }
             }
@@ -293,7 +323,7 @@ class DouyuImpl : IPlatform {
             val ctn = CookieUtil.getCookieField(setCookie, "acf_ccn")
             ctn?.let { c ->
                 val result =
-                        douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
+                    douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
                 result?.apply {
                     return if (error == 0)
                         Pair(true, "关注成功")

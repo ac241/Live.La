@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
 
@@ -50,5 +50,12 @@
         <item name="android:clickable">true</item>
         <item name="android:alpha">0.6</item>
         <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="round_black_background_alpha06_white_text">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:alpha">0.6</item>
+        <item name="android:background">@drawable/text_view_radius_background</item>
+        <item name="android:backgroundTint" tools:targetApi="lollipop">@android:color/black</item>
     </style>
 </resources>

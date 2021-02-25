@@ -6,7 +6,6 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
@@ -101,11 +100,11 @@ interface IPlatform {
 
     /**
      * 获取直播流
-     * @param queryQualityDesc 质量描述 @ [StreamingLive]
+     * @param queryQuality 质量描述 @ [StreamingLive]
      */
     fun getStreamingLive(
         queryAnchor: Anchor,
-        queryQualityDesc: StreamingLive.QualityDescription? = null
+        queryQuality: StreamingLive.Quality? = null
     ): StreamingLive?
 
     /**

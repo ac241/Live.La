@@ -37,10 +37,10 @@ class HuomaoImpl : IPlatform {
         val roomInfo = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
             Anchor(
-                    platform,
-                    UnicodeUtil.decodeUnicode(roomInfo.nickname),
-                    roomInfo.roomNumber,
-                    roomInfo.id
+                platform,
+                UnicodeUtil.decodeUnicode(roomInfo.nickname),
+                roomInfo.roomNumber,
+                roomInfo.id
             )
         } else {
             null
@@ -76,7 +76,10 @@ class HuomaoImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
+    override fun getStreamingLive(
+        queryAnchor: Anchor,
+        queryQuality: StreamingLive.Quality?
+    ): StreamingLive? {
         val tagFrom = "huomaoh5room"
         val time = (Date().time / 1000).toString()
         val roomInfo = getRoomInfo(queryAnchor)
@@ -115,24 +118,24 @@ class HuomaoImpl : IPlatform {
 
     override fun searchAnchor(keyword: String): List<Anchor>? {
         val result =
-                UnicodeUtil.cnToUnicode(keyword)?.let { huomaoService.search(it).execute().body() }
+            UnicodeUtil.cnToUnicode(keyword)?.let { huomaoService.search(it).execute().body() }
         val list = mutableListOf<Anchor>()
         result?.apply {
             val resultList = result.data.anchor.list
             resultList.forEach {
                 list.add(
-                        Anchor(
-                                platform = platform,
-                                nickname = it.nickname.replace(
-                                        "<i style=\"color: red;font-style: normal\">",
-                                        ""
-                                )
-                                        .replace("</i>", ""),
-                                showId = it.room_number,
-                                roomId = it.cid,
-                                status = it.is_live == 1,
-                                avatar = it.img.big
+                    Anchor(
+                        platform = platform,
+                        nickname = it.nickname.replace(
+                            "<i style=\"color: red;font-style: normal\">",
+                            ""
                         )
+                            .replace("</i>", ""),
+                        showId = it.room_number,
+                        roomId = it.cid,
+                        status = it.is_live == 1,
+                        avatar = it.img.big
+                    )
                 )
             }
         }
@@ -148,25 +151,25 @@ class HuomaoImpl : IPlatform {
             val anchorList = mutableListOf<Anchor>()
             list.forEach {
                 anchorList.add(
-                        Anchor(
-                                platform = platform,
-                                nickname = it.nickname,
-                                showId = it.room_number,
-                                roomId = it.id,
-                                status = it.is_live == 1,
-                                title = it.channel,
-                                avatar = it.headimg.big,
-                                keyFrame = it.image,
-                                typeName = it.gameCname,
-                                online = it.views,
-                                liveTime = it.event_starttime
-                        )
+                    Anchor(
+                        platform = platform,
+                        nickname = it.nickname,
+                        showId = it.room_number,
+                        roomId = it.id,
+                        status = it.is_live == 1,
+                        title = it.channel,
+                        avatar = it.headimg.big,
+                        keyFrame = it.image,
+                        typeName = it.gameCname,
+                        online = it.views,
+                        liveTime = it.event_starttime
+                    )
                 )
             }
             return ResultGetAnchorListByCookieMode(
-                    success = true,
-                    isCookieValid = true,
-                    anchorList = anchorList
+                success = true,
+                isCookieValid = true,
+                anchorList = anchorList
             )
         }
         return super.getAnchorsWithCookieMode()
