@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="170dp"
-    android:layout_marginHorizontal="3dp"
-    android:layout_marginVertical="3dp"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="4dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="6dp">
+    app:cardCornerRadius="6dp"
+    app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -44,7 +45,7 @@
             android:id="@+id/grid_anchor_avatar"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="8dp"
             android:contentDescription="@string/avatar"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -59,14 +60,14 @@
             android:layout_height="12dp"
             android:alpha="0.8"
             android:contentDescription="@string/platform_icon"
-            app:layout_constraintEnd_toEndOf="@id/grid_anchor_avatar"
-            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_avatar" />
+            app:layout_constraintBottom_toBottomOf="@id/grid_anchor_avatar"
+            app:layout_constraintEnd_toEndOf="@id/grid_anchor_avatar" />
 
         <TextView
             android:id="@+id/grid_anchor_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="8dp"
             android:textColor="#555555"
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/type_name"
@@ -125,9 +126,9 @@
             android:layout_height="0dp"
             android:clickable="true"
             android:contentDescription="@string/additional_action"
-            android:padding="5dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
+            android:padding="5dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_additional_button"
             android:visibility="gone"

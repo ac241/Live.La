@@ -8,6 +8,7 @@ package com.acel.streamlivetool.ui.main.cookie
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -84,7 +85,7 @@ class CookieFragment : Fragment() {
         return nowAnchorAdapter == adapterShowImage
     }
 
-    private var _binding: FragmentCookieModeBinding? = null
+    private lateinit var _binding: FragmentCookieModeBinding
     private val binding
         get() = _binding
     var isLogining = false
@@ -127,32 +128,27 @@ class CookieFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCookieModeBinding.inflate(inflater, container, false)
-        return binding?.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-        binding?.cookieSwipeRefresh?.setOnRefreshListener {
+        binding.cookieSwipeRefresh.setOnRefreshListener {
             viewModel.updateAnchorList()
         }
-        binding?.include?.groupTitleWrapper?.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)
         }
 
     }
 
-    var updatingTime: Long = 0L
+    private var updatingTime: Long = 0L
 
     private fun updating() {
         synchronized(updatingTime) {
             updatingTime = System.currentTimeMillis()
-            binding?.cookieSwipeRefresh?.isRefreshing = true
+            binding.cookieSwipeRefresh.isRefreshing = true
         }
     }
 
@@ -160,42 +156,48 @@ class CookieFragment : Fragment() {
         synchronized(updatingTime) {
             //如果更新数据时间小于两秒，一定时间后再隐藏。
             if (System.currentTimeMillis() - updatingTime > 2000) {
-                binding?.cookieSwipeRefresh?.isRefreshing = false
+                binding.cookieSwipeRefresh.isRefreshing = false
             } else {
                 lifecycleScope.launch(Dispatchers.Default) {
                     delay(500)
                     withContext(Dispatchers.Main) {
-                        binding?.cookieSwipeRefresh?.isRefreshing = false
+                        binding.cookieSwipeRefresh.isRefreshing = false
                     }
                 }
             }
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        iniRecyclerViewLayoutManager(newConfig.orientation)
+    }
+
+    private fun iniRecyclerViewLayoutManager(orientation: Int) {
+        binding.include.recyclerView.layoutManager =
+            StaggeredGridLayoutManager(
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
+                StaggeredGridLayoutManager.VERTICAL
+            )
+    }
+
     private fun initRecyclerView() {
-        binding?.include?.recyclerView?.apply {
-            layoutManager =
-                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-            itemAnimator = DefaultItemAnimator().also {
-                it.addDuration = 1000
-                it.removeDuration = 1000
-            }
-        }
+        iniRecyclerViewLayoutManager(resources.configuration.orientation)
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
             adapterShowImage
         else
             adapterNoImage
         setAdapter()
-        binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
+        binding.include.recyclerView.addOnScrollListener(AnchorGroupingListener())
     }
 
     private fun setAdapter() {
-        binding?.include?.recyclerView?.adapter = nowAnchorAdapter
+        binding.include.recyclerView.adapter = nowAnchorAdapter
     }
 
     private fun showLoginTextView() {
-        binding?.textViewLoginFirst?.visibility = View.VISIBLE
-        binding?.textViewLoginFirst?.setOnClickListener {
+        binding.textViewLoginFirst.visibility = View.VISIBLE
+        binding.textViewLoginFirst.setOnClickListener {
             val intent = Intent(context, LoginActivity::class.java).also {
                 it.putExtra(
                     "platform",
@@ -216,18 +218,18 @@ class CookieFragment : Fragment() {
     }
 
     private fun hideLoginTextView() {
-        if (binding?.textViewLoginFirst?.visibility == View.VISIBLE)
-            binding?.textViewLoginFirst?.visibility = View.GONE
+        if (binding.textViewLoginFirst.visibility == View.VISIBLE)
+            binding.textViewLoginFirst.visibility = View.GONE
     }
 
     private fun showListMsg(s: String) {
-        binding?.textViewListMsg?.visibility = View.VISIBLE
-        binding?.textViewListMsg?.text = s
+        binding.textViewListMsg.visibility = View.VISIBLE
+        binding.textViewListMsg.text = s
     }
 
     private fun hideListMsg() {
-        if (binding?.textViewListMsg?.visibility == View.VISIBLE)
-            binding?.textViewListMsg?.visibility = View.GONE
+        if (binding.textViewListMsg.visibility == View.VISIBLE)
+            binding.textViewListMsg.visibility = View.GONE
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
@@ -267,7 +269,7 @@ class CookieFragment : Fragment() {
     }
 
     fun scrollToTop() {
-        binding?.include?.recyclerView?.smoothScrollToPosition(0)
+        binding.include.recyclerView.smoothScrollToPosition(0)
     }
 
     companion object {

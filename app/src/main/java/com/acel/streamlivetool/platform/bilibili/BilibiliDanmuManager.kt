@@ -17,10 +17,6 @@ import java.util.regex.Matcher
 
 class BilibiliDanmuManager :
     IPlatform.DanmuManager() {
-
-    override val danmuAssertCookie: Boolean
-        get() = true
-
     override fun generateReceiver(
         cookie: String,
         anchor: Anchor,
@@ -31,8 +27,7 @@ class BilibiliDanmuManager :
         val anchor: Anchor,
         val cookie: String,
         danmuClient: DanmuClient
-    ) :
-        DanmuReceiver {
+    ) : DanmuReceiver {
         private var danmuClient: DanmuClient? = danmuClient
 
         private val bilibiliService: BilibiliApi =
@@ -44,6 +39,10 @@ class BilibiliDanmuManager :
         private var token: String? = null
 
         override fun start() {
+            if (cookie.isEmpty()) {
+                danmuClient?.errorCallback("该平台登录后才能接收弹幕。")
+                return
+            }
             val info = bilibiliService.getDanmuInfo(cookie, anchor.roomId).execute().body()
             if (info != null) {
                 uid = CookieUtil.getCookieField(cookie, "DedeUserID")

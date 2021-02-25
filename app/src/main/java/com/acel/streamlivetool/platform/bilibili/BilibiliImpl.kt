@@ -3,10 +3,13 @@ package com.acel.streamlivetool.platform.bilibili
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
+import com.acel.streamlivetool.platform.bilibili.bean.RoomPlayInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.CookieUtil.getCookieField
 import com.acel.streamlivetool.util.TimeUtil
@@ -36,16 +39,16 @@ class BilibiliImpl : IPlatform {
             val roomId = info.room_id
             val ownerName = getAnchorName(roomId.toLong())
             Anchor(
-                platform = platform,
-                nickname = ownerName.toString(),
-                showId = roomId.toString(),
-                roomId = roomId.toString(),
-                status = info.live_status == 1,
-                title = info.title,
-                keyFrame = info.keyframe,
-                typeName = info.area_name,
-                online = info.online.toString(),
-                liveTime = info.live_time
+                    platform = platform,
+                    nickname = ownerName.toString(),
+                    showId = roomId.toString(),
+                    roomId = roomId.toString(),
+                    status = info.live_status == 1,
+                    title = info.title,
+                    keyFrame = info.keyframe,
+                    typeName = info.area_name,
+                    online = info.online.toString(),
+                    liveTime = info.live_time
             )
         } else
             null
@@ -53,13 +56,13 @@ class BilibiliImpl : IPlatform {
 
     private fun getAnchorName(roomId: Long): String? {
         val h5Info =
-            bilibiliService.getH5InfoByRoom(roomId).execute().body()
+                bilibiliService.getH5InfoByRoom(roomId).execute().body()
         return h5Info?.data?.anchor_info?.base_info?.uname
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
         val h5Info =
-            bilibiliService.getH5InfoByRoom(queryAnchor.roomId.toLong()).execute().body()
+                bilibiliService.getH5InfoByRoom(queryAnchor.roomId.toLong()).execute().body()
         return if (h5Info?.code == 0) {
             queryAnchor.apply {
                 status = h5Info.data.room_info.live_status == 1
@@ -76,16 +79,54 @@ class BilibiliImpl : IPlatform {
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
 
-    override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
+    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
+        //return 开头的为返回数据
+        //info 开头的为获取到的数据
         val roomPlayInfo = bilibiliService.getRoomPlayInfo(queryAnchor.roomId).execute().body()
-        return if (roomPlayInfo != null) {
-            if (roomPlayInfo.code == 0) {
-                roomPlayInfo.data.play_url.durl[0].url
-            } else
-                null
-        } else
-            null
+        roomPlayInfo ?: return null
+        if (roomPlayInfo.code != 0)
+            return null
+
+        val infoQualityList = roomPlayInfo.data.play_url.quality_description
+        val returnQualityDescriptionList = mutableListOf<StreamingLive.QualityDescription>()
+        infoQualityList.forEach {
+            returnQualityDescriptionList.add(StreamingLive.QualityDescription(it.desc, it.qn))
+        }
+        //info 当前的质量
+        val infoCurrentQuality = roomPlayInfo.data.play_url.current_qn
+        val infoCurrentQualityDescription = infoQualityList[infoQualityList.indexOf(RoomPlayInfo.QualityDescription("", infoCurrentQuality))]
+
+        //返回数据
+        val returnUrl: String
+        val returnCurrentQualityDescription: StreamingLive.QualityDescription
+
+        if (queryQualityDesc != null) {
+            val qn = queryQualityDesc.num
+            val index = infoQualityList.indexOf(RoomPlayInfo.QualityDescription(queryQualityDesc.description, queryQualityDesc.num))
+            if (index != -1) {
+                //如果请求的qn在info列表中
+                returnUrl = roomPlayInfo.data.play_url.durl[0].url.replaceQn(qn)
+                returnCurrentQualityDescription = StreamingLive.QualityDescription(infoQualityList[index].desc, qn)
+            } else {
+                //如果请求的qn不在info列表中
+                returnUrl = roomPlayInfo.data.play_url.durl[0].url
+                returnCurrentQualityDescription = StreamingLive.QualityDescription(infoCurrentQualityDescription.desc, infoCurrentQualityDescription.qn)
+            }
+        } else {
+            //如果请求的queryQualityDesc为空
+            returnUrl = roomPlayInfo.data.play_url.durl[0].url
+            returnCurrentQualityDescription = StreamingLive.QualityDescription(infoCurrentQualityDescription.desc, infoCurrentQualityDescription.qn)
+        }
+
+        return StreamingLive(url = returnUrl, nowQualityDescription = returnCurrentQualityDescription, qualityDescriptionList = returnQualityDescriptionList)
     }
+
+    private fun String.replaceQn(qn: Int): String {
+        val qnIndex = indexOf("&qn")
+        val qnEndIndex = indexOf("&", qnIndex + 3)
+        return replaceRange(qnIndex, qnEndIndex, qn.toString())
+    }
+
 
     override fun startApp(context: Context, anchor: Anchor) {
         val intent = Intent()
@@ -103,15 +144,15 @@ class BilibiliImpl : IPlatform {
             val resultList = result.data.result
             resultList.forEach {
                 list.add(
-                    Anchor(
-                        platform = platform,
-                        nickname = it.uname.replace("<em class=\"keyword\">", "")
-                            .replace("</em>", ""),
-                        showId = it.roomid.toString(),
-                        roomId = it.roomid.toString(),
-                        status = it.is_live,
-                        avatar = "http:${it.uface}"
-                    )
+                        Anchor(
+                                platform = platform,
+                                nickname = it.uname.replace("<em class=\"keyword\">", "")
+                                        .replace("</em>", ""),
+                                showId = it.roomid.toString(),
+                                roomId = it.roomid.toString(),
+                                status = it.is_live,
+                                avatar = "http:${it.uface}"
+                        )
                 )
             }
         }
@@ -139,19 +180,19 @@ class BilibiliImpl : IPlatform {
                         val rooms = result.data.rooms
                         rooms.forEach {
                             list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.uname,
-                                    showId = it.roomid.toString(),
-                                    roomId = it.roomid.toString(),
-                                    status = true,
-                                    title = it.title,
-                                    avatar = it.face,
-                                    keyFrame = it.cover,
-                                    typeName = it.area_v2_name,
-                                    online = AnchorUtil.formatOnlineNumber(it.online),
-                                    liveTime = TimeUtil.timestampToString(it.live_time)
-                                )
+                                    Anchor(
+                                            platform = platform,
+                                            nickname = it.uname,
+                                            showId = it.roomid.toString(),
+                                            roomId = it.roomid.toString(),
+                                            status = true,
+                                            title = it.title,
+                                            avatar = it.face,
+                                            keyFrame = it.cover,
+                                            typeName = it.area_v2_name,
+                                            online = AnchorUtil.formatOnlineNumber(it.online),
+                                            liveTime = TimeUtil.timestampToString(it.live_time)
+                                    )
                             )
                         }
                         list
@@ -165,18 +206,18 @@ class BilibiliImpl : IPlatform {
                     val rooms = result?.data?.rooms
                     rooms?.forEach {
                         list.add(
-                            Anchor(
+                                Anchor(
 
-                                platform = platform,
-                                nickname = it.uname,
-                                showId = it.roomid.toString(),
-                                roomId = it.roomid.toString(),
-                                status = false,
-                                title = "${it.live_desc} 直播了 ${it.area_v2_name}",
-                                avatar = it.face,
-                                typeName = it.area_v2_name,
-                                liveTime = it.live_desc
-                            )
+                                        platform = platform,
+                                        nickname = it.uname,
+                                        showId = it.roomid.toString(),
+                                        roomId = it.roomid.toString(),
+                                        status = false,
+                                        title = "${it.live_desc} 直播了 ${it.area_v2_name}",
+                                        avatar = it.face,
+                                        typeName = it.area_v2_name,
+                                        liveTime = it.live_desc
+                                )
                         )
                     }
                     list

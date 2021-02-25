@@ -1,6 +1,9 @@
 package com.acel.streamlivetool.ui.player
 
-import android.util.Log
+/**
+ * @author acel
+ * 用于显示/关闭前台通知
+ */
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent

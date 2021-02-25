@@ -26,7 +26,7 @@ import com.acel.streamlivetool.util.AnchorClickAction.itemClick
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import kotlinx.android.synthetic.main.item_graphic_anchor.view.*
+import kotlinx.android.synthetic.main.item_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
 
@@ -70,7 +70,7 @@ class AnchorAdapter(
             VIEW_TYPE_ANCHOR_SIMPLIFY ->
                 holder = ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_graphic_anchor_simplify, parent, false)
+                        .inflate(R.layout.item_anchor_simplify, parent, false)
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true
@@ -80,10 +80,10 @@ class AnchorAdapter(
                 //是否显示图片
                 holder = if (showAnchorImage) ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_graphic_anchor, parent, false)
+                        .inflate(R.layout.item_anchor, parent, false)
                 ) else ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_graphic_anchor_simplify, parent, false)
+                        .inflate(R.layout.item_anchor_simplify, parent, false)
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
                                 .isFullSpan = true

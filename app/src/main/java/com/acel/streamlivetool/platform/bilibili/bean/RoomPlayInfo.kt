@@ -34,6 +34,7 @@ data class RoomPlayInfo(
         val current_quality: Int,
         val durl: List<Durl>,
         val quality_description: List<QualityDescription>
+
     )
 
     data class Durl(
@@ -48,5 +49,16 @@ data class RoomPlayInfo(
     data class QualityDescription(
         val desc: String,
         val qn: Int
-    )
+    ){
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is QualityDescription) return false
+            if (qn != other.qn) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return qn
+        }
+    }
 }

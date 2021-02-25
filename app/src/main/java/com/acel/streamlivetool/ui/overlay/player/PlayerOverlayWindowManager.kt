@@ -432,10 +432,11 @@ class PlayerOverlayWindowManager {
         player?.stop(true)
         MainExecutor.execute {
             try {
-                val url =
+                val streamingLive =
                     PlatformDispatcher.getPlatformImpl(anchor.platform)
-                        ?.getStreamingLiveUrl(anchor)
-                Log.d("playAnchorSteaming", "$url")
+                        ?.getStreamingLive(anchor)
+                Log.d("playAnchorSteaming", "$streamingLive")
+                val url = streamingLive?.url
                 if (url == null || url.isEmpty()) {
                     mainThread {
                         player?.stop(true)

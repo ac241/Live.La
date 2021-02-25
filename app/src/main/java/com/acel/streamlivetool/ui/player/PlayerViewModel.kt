@@ -13,7 +13,6 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
-import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -24,6 +23,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,6 +61,11 @@ class PlayerViewModel : ViewModel() {
                         playerStatus.postValue(PlayerState.IS_ENDED)
                 }
             })
+            addVideoListener(object : VideoListener {
+                override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
+                    videoResolution.postValue(Pair(width, height))
+                }
+            })
         }
     }
 
@@ -74,9 +79,10 @@ class PlayerViewModel : ViewModel() {
 
     val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
-    val danmuNotice = MutableLiveData<String>()
     private var keepAnchorData = false
     private var keepDanmuData = false
+
+    val videoResolution = MutableLiveData(Pair(0, 0))
 
     private val danmuClient = DanmuClient(viewModelScope).apply {
         setListener(object : DanmuClient.DanmuListener {
@@ -85,11 +91,6 @@ class PlayerViewModel : ViewModel() {
                 mainThread {
                     danmuString.value = danmu.msg
                 }
-            }
-
-            override fun onCookieMsg(reason: String) {
-                toastOnMainThread(reason)
-                danmuNotice.postValue(reason)
             }
 
             override fun onConnecting() {
@@ -172,18 +173,19 @@ class PlayerViewModel : ViewModel() {
             stopPlay()
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
-                    val url = PlatformDispatcher.getPlatformImpl(a)
-                        ?.getStreamingLiveUrl(a)
+                    val streamingLive = PlatformDispatcher.getPlatformImpl(a)
+                            ?.getStreamingLive(a)
+                    val url = streamingLive?.url
                     if (url != null && url.isNotEmpty())
                         play(url)
                     else {
-                        errorMessage.postValue("获取直播流失败。（empty）")
                         playerStatus.postValue(PlayerState.IS_ERROR)
+                        errorMessage.postValue("获取直播流失败。（empty）")
                         stopPlay()
                     }
                 }.onFailure {
-                    errorMessage.postValue("获取直播流失败。（error）")
                     playerStatus.postValue(PlayerState.IS_ERROR)
+                    errorMessage.postValue("获取直播流失败。（error）")
                     it.printStackTrace()
                     stopPlay()
                 }
@@ -211,22 +213,22 @@ class PlayerViewModel : ViewModel() {
                 return@runCatching
             }
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                MyApplication.application,
-                Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
+                    MyApplication.application,
+                    Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
             )
             val uri = Uri.parse(url)
             val videoSource: MediaSource
 
             videoSource =
-                when {
-                    url.contains(".m3u8") ->
-                        HlsMediaSource.Factory(dataSourceFactory)
-                            .setAllowChunklessPreparation(true)
-                            .createMediaSource(MediaItem.fromUri(uri))
-                    else ->
-                        ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(MediaItem.fromUri(uri))
-                }
+                    when {
+                        url.contains(".m3u8") ->
+                            HlsMediaSource.Factory(dataSourceFactory)
+                                    .setAllowChunklessPreparation(true)
+                                    .createMediaSource(MediaItem.fromUri(uri))
+                        else ->
+                            ProgressiveMediaSource.Factory(dataSourceFactory)
+                                    .createMediaSource(MediaItem.fromUri(uri))
+                    }
             mainThread {
                 player.setMediaSource(videoSource)
                 player.prepare()

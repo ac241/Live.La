@@ -3,10 +3,11 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Result
+import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
@@ -100,8 +101,12 @@ interface IPlatform {
 
     /**
      * 获取直播流
+     * @param queryQualityDesc 质量描述 @ [StreamingLive]
      */
-    fun getStreamingLiveUrl(queryAnchor: Anchor): String?
+    fun getStreamingLive(
+        queryAnchor: Anchor,
+        queryQualityDesc: StreamingLive.QualityDescription? = null
+    ): StreamingLive?
 
     /**
      * 打开直播间
@@ -120,9 +125,9 @@ interface IPlatform {
      * 调用第三方播放器
      */
     fun callOuterPlayer(context: Context, anchor: Anchor) {
-        val url = getStreamingLiveUrl(anchor)
-        if (url != null) {
-            val uri = Uri.parse(url)
+        val streamingLive = getStreamingLive(anchor)
+        if (streamingLive?.url != null) {
+            val uri = Uri.parse(streamingLive.url)
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(uri, "video/*")
             context.startActivity(intent)
@@ -219,16 +224,17 @@ interface IPlatform {
      * 弹幕开启
      * 默认以[danmuManager]实现
      * 如果你复写这个方法，你需要自行实现弹幕接收推送，并且需要同时复写[danmuStop]
+     * @return success true/false  未实现 null
      */
     fun danmuStart(
         anchor: Anchor,
         danmuClient: DanmuClient
-    ): Boolean {
-        return if (this.danmuManager != null) {
-            this.danmuManager?.onDanmuStart(getCookie(), anchor, danmuClient)
-            true
-        } else
-            false
+    ) {
+        if (this.danmuManager == null) {
+            danmuClient.errorCallback("该平台暂不支持弹幕功能")
+            return
+        }
+        this.danmuManager?.onDanmuStart(getCookie(), anchor, danmuClient)
     }
 
     /**
@@ -248,12 +254,6 @@ interface IPlatform {
      */
     abstract class DanmuManager {
         private var danmuReceiver: DanmuReceiver? = null
-
-        /**
-         * 接收弹幕是否检查cookie
-         */
-        open val danmuAssertCookie: Boolean
-            get() = false
 
         /**
          * 默认的弹幕接收器
@@ -281,10 +281,6 @@ interface IPlatform {
             anchor: Anchor,
             danmuClient: DanmuClient
         ) {
-            if (danmuAssertCookie && cookie.isEmpty()) {
-                danmuClient.cookieMsgCallback("该平台登录后才能接收弹幕。")
-                return
-            }
             danmuReceiver?.stop()
             danmuReceiver = generateReceiver(cookie, anchor, danmuClient)
             danmuReceiver?.start()
@@ -299,4 +295,5 @@ interface IPlatform {
             danmuReceiver?.stop()
         }
     }
+
 }

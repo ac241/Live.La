@@ -40,20 +40,15 @@ class DanmuClient(viewModelScope: CoroutineScope) {
                 stop()
             this.anchor = anchor
 
+            if (!reconnect)
+                onConnecting()
+            else
+                onReconnecting()
+
             danmuJob = scope?.launch(Dispatchers.IO) {
                 runCatching {
-                    val result = PlatformDispatcher.getPlatformImpl(anchor)
+                    PlatformDispatcher.getPlatformImpl(anchor)
                         ?.danmuStart(anchor, this@DanmuClient)
-                    if (result != null) {
-                        if (!result)
-                            errorCallback("该平台暂不支持弹幕功能")
-                        else {
-                            if (!reconnect)
-                                onConnecting()
-                            else
-                                onReconnecting()
-                        }
-                    }
                 }.onFailure {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
@@ -121,18 +116,12 @@ class DanmuClient(viewModelScope: CoroutineScope) {
 
     /**
      * 发生错误 回调
-     * 原则上，调用这个函数后，你应该释放推送弹幕的资源，因为错误信息将显示给用户
+     * 调用这个函数后，[stop]将被调用
      */
     fun errorCallback(reason: String) {
+        stop()
         mListener?.onError(reason)
         state = State.ERROR
-    }
-
-    /**
-     * cookie 相关提示
-     */
-    fun cookieMsgCallback(reason: String) {
-        mListener?.onCookieMsg(reason)
     }
 
     /**
@@ -167,7 +156,6 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         fun onNewDanmu(danmu: Danmu) {}
         fun onStop(reason: String) {}
         fun onError(reason: String) {}
-        fun onCookieMsg(reason: String) {}
 
         /**
          * 正在连接弹幕推送

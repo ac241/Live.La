@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.huomao.bean.RoomInfo
@@ -36,10 +37,10 @@ class HuomaoImpl : IPlatform {
         val roomInfo = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
             Anchor(
-                platform,
-                UnicodeUtil.decodeUnicode(roomInfo.nickname),
-                roomInfo.roomNumber,
-                roomInfo.id
+                    platform,
+                    UnicodeUtil.decodeUnicode(roomInfo.nickname),
+                    roomInfo.roomNumber,
+                    roomInfo.id
             )
         } else {
             null
@@ -75,7 +76,7 @@ class HuomaoImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    override fun getStreamingLiveUrl(queryAnchor: Anchor): String? {
+    override fun getStreamingLive(queryAnchor: Anchor, queryQualityDesc: StreamingLive.QualityDescription?): StreamingLive? {
         val tagFrom = "huomaoh5room"
         val time = (Date().time / 1000).toString()
         val roomInfo = getRoomInfo(queryAnchor)
@@ -97,7 +98,7 @@ class HuomaoImpl : IPlatform {
             val liveData = huomaoService.getLiveData(formMap).execute().body()
             liveData?.streamList?.get(0)?.list?.forEach {
                 if (it.type == "BD")
-                    return it.url
+                    return StreamingLive(url = it.url, null, null)
             }
         }
         return null
@@ -114,24 +115,24 @@ class HuomaoImpl : IPlatform {
 
     override fun searchAnchor(keyword: String): List<Anchor>? {
         val result =
-            UnicodeUtil.cnToUnicode(keyword)?.let { huomaoService.search(it).execute().body() }
+                UnicodeUtil.cnToUnicode(keyword)?.let { huomaoService.search(it).execute().body() }
         val list = mutableListOf<Anchor>()
         result?.apply {
             val resultList = result.data.anchor.list
             resultList.forEach {
                 list.add(
-                    Anchor(
-                        platform = platform,
-                        nickname = it.nickname.replace(
-                            "<i style=\"color: red;font-style: normal\">",
-                            ""
+                        Anchor(
+                                platform = platform,
+                                nickname = it.nickname.replace(
+                                        "<i style=\"color: red;font-style: normal\">",
+                                        ""
+                                )
+                                        .replace("</i>", ""),
+                                showId = it.room_number,
+                                roomId = it.cid,
+                                status = it.is_live == 1,
+                                avatar = it.img.big
                         )
-                            .replace("</i>", ""),
-                        showId = it.room_number,
-                        roomId = it.cid,
-                        status = it.is_live == 1,
-                        avatar = it.img.big
-                    )
                 )
             }
         }
@@ -147,25 +148,25 @@ class HuomaoImpl : IPlatform {
             val anchorList = mutableListOf<Anchor>()
             list.forEach {
                 anchorList.add(
-                    Anchor(
-                        platform = platform,
-                        nickname = it.nickname,
-                        showId = it.room_number,
-                        roomId = it.id,
-                        status = it.is_live == 1,
-                        title = it.channel,
-                        avatar = it.headimg.big,
-                        keyFrame = it.image,
-                        typeName = it.gameCname,
-                        online = it.views,
-                        liveTime = it.event_starttime
-                    )
+                        Anchor(
+                                platform = platform,
+                                nickname = it.nickname,
+                                showId = it.room_number,
+                                roomId = it.id,
+                                status = it.is_live == 1,
+                                title = it.channel,
+                                avatar = it.headimg.big,
+                                keyFrame = it.image,
+                                typeName = it.gameCname,
+                                online = it.views,
+                                liveTime = it.event_starttime
+                        )
                 )
             }
             return ResultGetAnchorListByCookieMode(
-                success = true,
-                isCookieValid = true,
-                anchorList = anchorList
+                    success = true,
+                    isCookieValid = true,
+                    anchorList = anchorList
             )
         }
         return super.getAnchorsWithCookieMode()

@@ -32,6 +32,9 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
 
     internal val viewModel by viewModels<PlayerViewModel>()
+    internal var fullScreen = false
+    internal var landscape = false
+    private val orientationEventListener by lazy { OrientationEventListener(this) }
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +57,7 @@ class PlayerActivity : AppCompatActivity() {
             window.navigationBarColor = Color.TRANSPARENT
         }
         //自动切换屏幕
-//        lifecycle.addObserver(MyOrientationEventListener(this))
+        lifecycle.addObserver(orientationEventListener)
     }
 
     private val danmakuContext = DanmakuContext.create().apply {
@@ -93,14 +96,11 @@ class PlayerActivity : AppCompatActivity() {
                 it.animate().setDuration(1000).rotationBy(-360f).start()
             }
             findViewById<View>(R.id.btn_zoom).setOnClickListener {
-                requestedOrientation = when (resources.configuration.orientation) {
-                    Configuration.ORIENTATION_PORTRAIT ->
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    else ->
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                }
+                zoomClick()
             }
         }
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            landscapeFullScreen()
 //        binding.platformIcon?.setOnClickListener {
 //            viewModel.anchor.value?.let { it1 -> AppUtil.startApp(this, it1) }
 //            viewModel.stopPlay()
@@ -141,6 +141,97 @@ class PlayerActivity : AppCompatActivity() {
         }
         viewModel.danmuStatus.observe(this) {
             binding.danmuNotice.text = it.second
+        }
+    }
+
+    private fun zoomClick() {
+        if (!fullScreen)
+            fullScreen()
+        else {
+            normalScreen()
+        }
+    }
+
+    private fun normalScreen() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        binding.playerView.layoutParams.apply {
+            this as ConstraintLayout.LayoutParams
+            height = 0
+            width = 0
+            dimensionRatio = "16:9"
+            binding.playerView.layoutParams = this
+        }
+        showSystemUI()
+        fullScreen = false
+        landscape = false
+        disableOrientationListener()
+    }
+
+    private fun enableOrientationListener() {
+        orientationEventListener.enable()
+        lifecycle.addObserver(orientationEventListener)
+    }
+
+    private fun disableOrientationListener() {
+        orientationEventListener.disable()
+        lifecycle.removeObserver(orientationEventListener)
+    }
+
+    private fun fullScreen() {
+        val resolution = viewModel.videoResolution.value
+        if (resolution != null) {
+            if (resolution.first < resolution.second) {
+                portraitFullScreen()
+            } else {
+                landscapeFullScreen()
+            }
+        } else {
+            landscapeFullScreen()
+        }
+    }
+
+    /**
+     * 横屏全屏
+     */
+    private fun landscapeFullScreen() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        binding.playerView.layoutParams.apply {
+            height = ConstraintLayout.LayoutParams.MATCH_PARENT
+            width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            binding.playerView.layoutParams = this
+        }
+        hideSystemUI()
+        fullScreen = true
+        landscape = true
+        enableOrientationListener()
+    }
+
+    /**
+     * 竖屏全屏
+     */
+    private fun portraitFullScreen() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        binding.playerView.layoutParams.apply {
+            this as ConstraintLayout.LayoutParams
+            height = ConstraintLayout.LayoutParams.MATCH_PARENT
+            width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            dimensionRatio = null
+            binding.playerView.layoutParams = this
+        }
+        navigationBlack()
+        fullScreen = true
+        landscape = false
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        when (newConfig.orientation) {
+            Configuration.ORIENTATION_PORTRAIT ->
+                normalScreen()
+            Configuration.ORIENTATION_LANDSCAPE ->
+                landscapeFullScreen()
+            else -> {
+            }
         }
     }
 
@@ -206,7 +297,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
             }
             errorMessage.observe(this@PlayerActivity) {
-                if (it.isNotEmpty() && viewModel.playerStatus.value == PlayerViewModel.PlayerState.IS_ERROR) {
+                if (it.isNotEmpty()) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
                         text = it
@@ -241,27 +332,12 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        if (fullScreen)
+            normalScreen()
+//        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+//            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         else
             super.onBackPressed()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            binding.playerView.layoutParams.apply {
-                height = ConstraintLayout.LayoutParams.MATCH_PARENT
-                width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            }
-            hideSystemUI()
-        } else {
-            binding.playerView.layoutParams.apply {
-                height = 0
-                width = 0
-            }
-            showSystemUI()
-        }
     }
 
     @Suppress("DEPRECATION")
@@ -283,6 +359,12 @@ class PlayerActivity : AppCompatActivity() {
     private fun showSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_VISIBLE)
+    }
+
+    private fun navigationBlack() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.navigationBarColor = Color.BLACK
+        }
     }
 
 }

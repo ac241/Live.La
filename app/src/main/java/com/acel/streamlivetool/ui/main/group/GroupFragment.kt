@@ -8,6 +8,7 @@ package com.acel.streamlivetool.ui.main.group
 
 import android.animation.Animator
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -28,7 +29,6 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
-import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
@@ -57,7 +57,7 @@ class GroupFragment : Fragment() {
         )
     }
 
-    private var _binding: FragmentGroupModeBinding? = null
+    private lateinit var _binding: FragmentGroupModeBinding
     private val binding
         get() = _binding
 
@@ -70,12 +70,7 @@ class GroupFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentGroupModeBinding.inflate(inflater, container, false)
-        return binding?.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+        return binding.root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,13 +131,13 @@ class GroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-        binding?.groupSwipeRefresh?.setOnRefreshListener {
+        binding.groupSwipeRefresh.setOnRefreshListener {
             viewModel.sortedAnchorList.value?.let {
                 if (it.isNotEmpty())
                     viewModel.updateAllAnchor()
             }
         }
-        processViewAlpha = binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.alpha ?: 0.5f
+        processViewAlpha = binding.includeProcessToast.textViewUpdateAnchorsDetails.alpha
 
         val drawable =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -151,29 +146,37 @@ class GroupFragment : Fragment() {
                 resources.getDrawable(R.drawable.ic_home_page)
             }
         drawable?.setBounds(0, 0, 40, 40)
-        binding?.include?.groupTitleWrapper?.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, drawable, null)
         }
 
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        iniRecyclerViewLayoutManager(newConfig.orientation)
+    }
+
+    private fun iniRecyclerViewLayoutManager(orientation: Int) {
+        binding.include.recyclerView.layoutManager =
+            StaggeredGridLayoutManager(
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
+                StaggeredGridLayoutManager.VERTICAL
+            )
+    }
+
     private fun initRecyclerView() {
-        binding?.include?.recyclerView?.apply {
-            layoutManager =
-                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-
-
-        }
+        iniRecyclerViewLayoutManager(resources.configuration.orientation)
         nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
             adapterShowImage
         else
             adapterNoImage
         setGraphicAdapter()
-        binding?.include?.recyclerView?.addOnScrollListener(AnchorGroupingListener())
+        binding.include.recyclerView.addOnScrollListener(AnchorGroupingListener())
     }
 
     private fun setGraphicAdapter() {
-        binding?.include?.recyclerView?.adapter = nowAnchorAdapter
+        binding.include.recyclerView.adapter = nowAnchorAdapter
     }
 
     fun setShowImage(boolean: Boolean) {
@@ -200,12 +203,12 @@ class GroupFragment : Fragment() {
 //        updateFinish()
     }
 
-    var updatingTime: Long = 0L
+    private var updatingTime: Long = 0L
 
     private fun updating() {
         synchronized(updatingTime) {
             updatingTime = System.currentTimeMillis()
-            binding?.groupSwipeRefresh?.isRefreshing = true
+            binding.groupSwipeRefresh.isRefreshing = true
         }
     }
 
@@ -213,12 +216,12 @@ class GroupFragment : Fragment() {
         synchronized(updatingTime) {
             //如果更新数据时间小于两秒，一定时间后再隐藏。
             if (System.currentTimeMillis() - updatingTime > 2000) {
-                binding?.groupSwipeRefresh?.isRefreshing = false
+                binding.groupSwipeRefresh.isRefreshing = false
             } else {
                 lifecycleScope.launch(Dispatchers.Default) {
                     delay(500)
                     withContext(Dispatchers.Main) {
-                        binding?.groupSwipeRefresh?.isRefreshing = false
+                        binding.groupSwipeRefresh.isRefreshing = false
                     }
                 }
             }
@@ -266,7 +269,7 @@ class GroupFragment : Fragment() {
     @Suppress("DEPRECATION")
     private fun showUpdateDetails(text: String) {
         updateProcessAnimate?.cancel()
-        binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {
+        binding.includeProcessToast.textViewUpdateAnchorsDetails.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 this.text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY)
             else
@@ -278,7 +281,7 @@ class GroupFragment : Fragment() {
     @Suppress("SameParameterValue")
     private fun completeUpdateDetails(text: String) {
         showUpdateDetails(text)
-        binding?.includeProcessToast?.textViewUpdateAnchorsDetails?.apply {
+        binding.includeProcessToast.textViewUpdateAnchorsDetails.apply {
             updateProcessAnimate = animate().alpha(0f).setDuration(1500)
                 .setListener(object : Animator.AnimatorListener {
                     override fun onAnimationEnd(p0: Animator?) {
@@ -297,7 +300,7 @@ class GroupFragment : Fragment() {
     }
 
     fun scrollToTop() {
-        binding?.include?.recyclerView?.smoothScrollToPosition(0)
+        binding.include.recyclerView.smoothScrollToPosition(0)
     }
 
     companion object {

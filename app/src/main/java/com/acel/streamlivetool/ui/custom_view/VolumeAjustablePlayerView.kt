@@ -14,7 +14,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import kotlin.math.abs
 
 class VolumeAjustablePlayerView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : PlayerView(context, attrs, defStyleAttr) {
 
     private var downX = 0f
@@ -38,10 +38,10 @@ class VolumeAjustablePlayerView @JvmOverloads constructor(
                 if (handleVolume) {
                     //当前音量 + (移动差值/view高度) * 最大音量
                     val offsetY = -(event.y - if (lastMoveY == 0f) downY else lastMoveY)
-                    val percent = offsetY / height
+                    val percent = offsetY / height / 2
                     val nowVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     var volume = (nowVolume + percent * maxVolume).toInt()
-                    //如果音量差小于5不处理
+                    //如果音量差小于5不处理，即每次步进/步退5
                     if (abs(volume - nowVolume) < 5)
                         return true
                     when (volume) {
@@ -54,7 +54,11 @@ class VolumeAjustablePlayerView @JvmOverloads constructor(
                                 volume = maxVolume
                         }
                     }
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_SHOW_UI)
+                    audioManager.setStreamVolume(
+                        AudioManager.STREAM_MUSIC,
+                        volume,
+                        AudioManager.FLAG_SHOW_UI
+                    )
                     //记录上次调整时的Y
                     lastMoveY = if (lastMoveY == 0f) downY else event.y
                 }
