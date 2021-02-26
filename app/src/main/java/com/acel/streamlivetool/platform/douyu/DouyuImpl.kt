@@ -99,6 +99,7 @@ class DouyuImpl : IPlatform {
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
+
     override fun getStreamingLive(
         queryAnchor: Anchor,
         queryQuality: StreamingLive.Quality?
@@ -114,15 +115,15 @@ class DouyuImpl : IPlatform {
                 if (testError.error == 0) {
                     val liveInfo = gson.fromJson(jsonStr, LiveInfo::class.java)
                     liveInfo?.data?.let { data ->
-                        val multirates = data.multirates
+                        val multiRates = data.multirates
                         val returnQualityList = mutableListOf<StreamingLive.Quality>()
-                        multirates.forEach {
+                        multiRates.forEach {
                             returnQualityList.add(StreamingLive.Quality(it.name, it.rate))
                         }
                         val rate = liveInfo.data.rate
-                        val rateIndex = multirates.indexOf(LiveInfo.Multirate(0, 0, "", rate))
+                        val rateIndex = multiRates.indexOf(LiveInfo.Multirate(0, 0, "", rate))
                         val currentQuality =
-                            if (rateIndex != -1) multirates[rateIndex] else null
+                            if (rateIndex != -1) multiRates[rateIndex] else null
                         val returnCurrentQuality =
                             if (currentQuality != null) StreamingLive.Quality(
                                 currentQuality.name,

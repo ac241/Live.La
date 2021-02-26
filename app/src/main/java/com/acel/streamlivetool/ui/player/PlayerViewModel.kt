@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
     internal val player by lazy {
@@ -53,14 +54,17 @@ class PlayerViewModel : ViewModel() {
                 override fun onPlayerError(error: ExoPlaybackException) {
                     super.onPlayerError(error)
                     error.printStackTrace()
-                    errorMessage.postValue("播放失败。")
+                    playerMessage.postValue("播放失败。")
                     playerStatus.postValue(PlayerState.IS_ERROR)
                 }
 
                 override fun onPlaybackStateChanged(state: Int) {
                     super.onPlaybackStateChanged(state)
-                    if (playbackState == Player.STATE_ENDED)
+                    if (playbackState == Player.STATE_ENDED) {
                         playerStatus.postValue(PlayerState.IS_ENDED)
+                        playerMessage.postValue("播放结束。")
+                        stop()
+                    }
                 }
             })
             addVideoListener(object : VideoListener {
@@ -84,15 +88,22 @@ class PlayerViewModel : ViewModel() {
     val qualityList = MutableLiveData<List<StreamingLive.Quality?>>()
 
     val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
-    fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
+    val videoResolution = MutableLiveData(Pair(0, 0))
 
+    var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
+        if (new in (1..3))
+            restartDanmu("意外连接断开，尝试重连。")
+        if (new > 3)
+            danmuStatus.postValue(Pair(DanmuState.ERROR, "发生错误断开..."))
+    }
+
+    fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
     val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
     private var keepAnchorData = false
     private var keepDanmuData = false
     private val preEmitDanmuList: MutableList<Danmu> =
         Collections.synchronizedList(mutableListOf<Danmu>())
-    val videoResolution = MutableLiveData(Pair(0, 0))
 
     private val danmuClient = DanmuClient(viewModelScope).apply {
         setListener(object : DanmuClient.DanmuListener {
@@ -100,24 +111,25 @@ class PlayerViewModel : ViewModel() {
                 addDanmu(danmu)
             }
 
-            override fun onConnecting() {
+            override fun onConnecting(message: String) {
+                danmuStatus.postValue(Pair(DanmuState.CONNECTING, message))
+            }
+
+            override fun onStop(reason: String) {
                 mainThread {
-                    danmuStatus.value = Pair(DanmuState.CONNECTING, "正在连接弹幕服务器")
+                    danmuStatus.value = Pair(DanmuState.STOP, reason)
                 }
             }
 
-            override fun onError(reason: String) {
+            override fun onError(reason: String, errorType: DanmuClient.ErrorType) {
                 danmuStatus.postValue(Pair(DanmuState.ERROR, "fail:$reason"))
+                if (errorType != DanmuClient.ErrorType.NOT_SUPPORT)
+                    danmuErrorTimes++
             }
 
             override fun onStart() {
                 danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
-            }
-
-            override fun onReconnecting() {
-                mainThread {
-                    danmuStatus.value = Pair(DanmuState.RECONNECTING, "重新连接弹幕服务器")
-                }
+                danmuErrorTimes = 0
             }
         })
     }
@@ -145,7 +157,7 @@ class PlayerViewModel : ViewModel() {
     }
 
 
-    val errorMessage = MutableLiveData("")
+    val playerMessage = MutableLiveData("")
     internal fun setAnchorData(intent: Intent) {
         if (keepAnchorData) {
             keepAnchorData = false
@@ -195,12 +207,12 @@ class PlayerViewModel : ViewModel() {
                         qualityList.postValue(streamingLive.qualityList)
                     } else {
                         playerStatus.postValue(PlayerState.IS_ERROR)
-                        errorMessage.postValue("获取直播流失败。（empty）")
+                        playerMessage.postValue("获取直播流失败。（empty）")
                         stopPlay()
                     }
                 }.onFailure {
                     playerStatus.postValue(PlayerState.IS_ERROR)
-                    errorMessage.postValue("获取直播流失败。（error）")
+                    playerMessage.postValue("获取直播流失败。（error）")
                     it.printStackTrace()
                     stopPlay()
                 }
@@ -291,8 +303,8 @@ class PlayerViewModel : ViewModel() {
         danmuList.postValue(danmuList.value?.apply { clear() })
     }
 
-    fun restartDanmu() {
-        danmuClient.restart()
+    fun restartDanmu(message: String) {
+        danmuClient.restart(message)
     }
 
     internal fun startDanmuFromActivity() {
@@ -325,6 +337,7 @@ class PlayerViewModel : ViewModel() {
         danmuClient.stop()
     }
 
+    @Synchronized
     fun getPreEmitDanmu(): Danmu? {
         return if (preEmitDanmuList.size > 0) {
             val danmu = preEmitDanmuList[0]

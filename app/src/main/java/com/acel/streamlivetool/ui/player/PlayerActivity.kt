@@ -6,24 +6,24 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.ui.custom_view.addItemWhiteTextColor
+import com.acel.streamlivetool.ui.custom_view.blackAlphaPopupMenu
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,11 +45,7 @@ class PlayerActivity : AppCompatActivity() {
     internal var landscape = false
     private val orientationEventListener by lazy { OrientationEventListener(this) }
 
-    private val itemIdStartApp = 2001
-    private val itemIdOverlayPlayer = 2002
-    private val itemIdChangeQuality = 2003
-
-    var emitDanmuJob: Job? = null
+    private var emitDanmuJob: Job? = null
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,24 +111,21 @@ class PlayerActivity : AppCompatActivity() {
             }
 
             findViewById<TextView>(R.id.current_quality).apply {
-                setOnCreateContextMenuListener { menu, _, _ ->
-                    viewModel.qualityList.value?.forEach{
-                        menu.add(
-                            Menu.NONE,
-                            itemIdChangeQuality,
-                            Menu.NONE,
-                            it?.description
-                        ).intent =
-                            Intent().apply { putExtra("quality", it) }
-                    }
-                }
                 setOnClickListener {
                     val qualityList = viewModel.qualityList.value
-                    if (qualityList != null) {
-                        if (qualityList.isNotEmpty())
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                                showContextMenu(0f, 0f)
-                            else showContextMenu()
+                    if (qualityList != null && qualityList.isNotEmpty()) {
+                        val popupMenu =
+                            blackAlphaPopupMenu(this@PlayerActivity, this)
+                        popupMenu.menu.apply {
+                            viewModel.qualityList.value?.forEach { quality ->
+                                addItemWhiteTextColor(quality?.description)
+                                    .setOnMenuItemClickListener {
+                                        quality?.let { viewModel.playWithAssignQuality(quality) }
+                                        true
+                                    }
+                            }
+                        }
+                        popupMenu.show()
                     } else {
                         toast("没有更多的清晰度可以选择。")
                     }
@@ -140,24 +133,21 @@ class PlayerActivity : AppCompatActivity() {
             }
 
         }
+
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
             landscapeFullScreen()
         binding.platformIcon.apply {
-            setOnCreateContextMenuListener { menu, _, _ ->
-                menu.add(Menu.NONE, itemIdStartApp, Menu.NONE, "打开app")
-                menu.add(Menu.NONE, itemIdOverlayPlayer, Menu.NONE, "悬浮窗")
-            }
-
             setOnClickListener {
-                val qualityList = viewModel.qualityList.value
-                if (qualityList != null) {
-                    if (qualityList.isNotEmpty())
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                            showContextMenu(0f, 0f)
-                        else showContextMenu()
-                } else {
-                    toast("没有更多的清晰度可以选择。")
+                val popupMenu = PopupMenu(this@PlayerActivity, this)
+                popupMenu.menu.apply {
+                    add("打开app").setOnMenuItemClickListener {
+                        viewModel.startAppForCurrentAnchor(this@PlayerActivity)
+                        viewModel.stopAll()
+                        true
+                    }
+                    add("悬浮窗")
                 }
+                popupMenu.show()
             }
         }
 
@@ -193,17 +183,20 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
         binding.danmuNotice.setOnClickListener {
-            viewModel.restartDanmu()
+            viewModel.restartDanmu("重新连接弹幕服务器")
         }
         viewModel.danmuStatus.observe(this) {
             binding.danmuNotice.text = it.second
             if (it.first == PlayerViewModel.DanmuState.START)
                 startEmitDanmuJob()
-            if (it.first == PlayerViewModel.DanmuState.ERROR)
+            if (it.first == PlayerViewModel.DanmuState.ERROR || it.first == PlayerViewModel.DanmuState.STOP) {
                 stopEmitDanmuJob()
+                binding.danmakuView.clearDanmakusOnScreen()
+            }
         }
 
     }
+
 
     private fun zoomClick() {
         if (!fullScreen)
@@ -284,6 +277,7 @@ class PlayerActivity : AppCompatActivity() {
         landscape = false
     }
 
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         when (newConfig.orientation) {
@@ -325,25 +319,6 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            itemIdStartApp -> {
-                viewModel.startAppForCurrentAnchor(this)
-                viewModel.stopAll()
-            }
-            itemIdOverlayPlayer -> {
-
-            }
-            itemIdChangeQuality -> {
-                val quality = item.intent.getParcelableExtra<StreamingLive.Quality>("quality")
-                quality?.let {
-                    viewModel.playWithAssignQuality(quality)
-                }
-            }
-        }
-        return true
-    }
-
     /**
      * sp转px的方法。
      */
@@ -371,11 +346,13 @@ class PlayerActivity : AppCompatActivity() {
                         }
                         PlayerViewModel.PlayerState.IS_LOADING ->
                             binding.progressBar.visibility = View.VISIBLE
-                        PlayerViewModel.PlayerState.IS_ENDED, PlayerViewModel.PlayerState.IS_IDLE, PlayerViewModel.PlayerState.IS_ERROR ->
+                        PlayerViewModel.PlayerState.IS_ENDED,
+                        PlayerViewModel.PlayerState.IS_IDLE,
+                        PlayerViewModel.PlayerState.IS_ERROR ->
                             binding.progressBar.visibility = View.GONE
                     }
             }
-            errorMessage.observe(this@PlayerActivity) {
+            playerMessage.observe(this@PlayerActivity) {
                 if (it.isNotEmpty()) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
@@ -393,12 +370,14 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun startEmitDanmuJob() {
+        emitDanmuJob?.cancel()
+        emitDanmuJob = null
         emitDanmuJob = lifecycleScope.launch(Dispatchers.Default) {
             while (true) {
                 viewModel.getPreEmitDanmu()?.let {
                     emitDanma(it.msg)
                 }
-                delay(50)
+                delay(20)
             }
         }
     }

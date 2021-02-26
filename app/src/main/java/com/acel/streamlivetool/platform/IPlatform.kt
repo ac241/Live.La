@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -228,12 +229,13 @@ interface IPlatform {
     fun danmuStart(
         anchor: Anchor,
         danmuClient: DanmuClient
-    ) {
+    ): Boolean {
         if (this.danmuManager == null) {
-            danmuClient.errorCallback("该平台暂不支持弹幕功能")
-            return
+            danmuClient.errorCallback("该平台暂不支持弹幕功能", DanmuClient.ErrorType.NOT_SUPPORT)
+            return false
         }
         this.danmuManager?.onDanmuStart(getCookie(), anchor, danmuClient)
+        return true
     }
 
     /**

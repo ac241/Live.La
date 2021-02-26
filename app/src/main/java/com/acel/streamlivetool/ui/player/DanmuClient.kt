@@ -4,6 +4,7 @@ import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.ToastUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,30 +26,28 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
     }
 
+    enum class ErrorType {
+        NORMAL, NOT_SUPPORT
+    }
+
     private fun isStarting() = state == State.START
 
     /**
      * 开启弹幕接收
      */
-    fun start(anchor: Anchor, reconnect: Boolean = false): Boolean {
+    fun start(anchor: Anchor, startMessage: String = "正在连接弹幕服务器"): Boolean {
         synchronized(this) {
             if (anchor == this.anchor && isStarting()) {
                 Log.d("acel_log@start", "重复的请求。")
                 return false
             }
             if (state == State.START)
-                stop()
+                stop("断开")
             this.anchor = anchor
-
-            if (!reconnect)
-                onConnecting()
-            else
-                onReconnecting()
-
+            onConnecting(startMessage)
             danmuJob = scope?.launch(Dispatchers.IO) {
                 runCatching {
-                    PlatformDispatcher.getPlatformImpl(anchor)
-                        ?.danmuStart(anchor, this@DanmuClient)
+                    anchor.platformImpl()?.danmuStart(anchor, this@DanmuClient)
                 }.onFailure {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
@@ -65,21 +64,21 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     /**
      * 结束弹幕接收
      */
-    fun stop() {
-//        if (state == State.START)
+    fun stop(reason: String = "") {
         synchronized(this) {
             anchor?.let {
                 PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
             }
             anchor = null
+            stopCallBack(reason)
         }
     }
 
-    fun restart() {
+    fun restart(message: String) {
         val anchor = anchor
-        stop()
+        stop(message)
         if (anchor != null) {
-            start(anchor, true)
+            start(anchor, message)
         }
     }
 
@@ -117,10 +116,11 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     /**
      * 发生错误 回调
      * 调用这个函数后，[stop]将被调用
+     * @param errorType 错误类型，一般不填用默认值。
      */
-    fun errorCallback(reason: String) {
+    fun errorCallback(reason: String, errorType: ErrorType = ErrorType.NORMAL) {
         stop()
-        mListener?.onError(reason)
+        mListener?.onError(reason, errorType)
         state = State.ERROR
     }
 
@@ -141,27 +141,17 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         state = State.STOP
     }
 
-    private fun onConnecting() {
-        mListener?.onConnecting()
+    private fun onConnecting(message: String) {
+        mListener?.onConnecting(message)
         state = State.CONNECTING
     }
 
-    private fun onReconnecting() {
-        mListener?.onReconnecting()
-        state = State.RECONNECTING
-    }
-
     interface DanmuListener {
+        fun onConnecting(message: String) {}
         fun onStart() {}
         fun onNewDanmu(danmu: Danmu) {}
         fun onStop(reason: String) {}
-        fun onError(reason: String) {}
-
-        /**
-         * 正在连接弹幕推送
-         */
-        fun onConnecting() {}
-        fun onReconnecting() {}
+        fun onError(reason: String, errorType: ErrorType) {}
     }
 
 }

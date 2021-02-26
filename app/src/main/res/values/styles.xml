@@ -58,4 +58,8 @@
         <item name="android:background">@drawable/text_view_radius_background</item>
         <item name="android:backgroundTint" tools:targetApi="lollipop">@android:color/black</item>
     </style>
+
+    <style name="popup_menu_style_black_alpha">
+        <item name="android:popupBackground">@color/alphaBlack</item>
+    </style>
 </resources>
