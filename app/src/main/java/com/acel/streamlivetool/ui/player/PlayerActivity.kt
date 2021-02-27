@@ -6,9 +6,10 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.ImageView
+import android.widget.PopupWindow
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.custom_view.addItemWhiteTextColor
 import com.acel.streamlivetool.ui.custom_view.blackAlphaPopupMenu
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -54,8 +56,8 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
         observeLiveData()
         initView()
-        lifecycle.addObserver(ForegroundServiceListener(this))
-        viewModel.setAnchorData(intent)
+        lifecycle.addObserver(ForegroundListener(this))
+        viewModel.setAnchorDataAndPlay(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -84,15 +86,18 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        intent?.let { viewModel.setAnchorData(it) }
+        intent?.let { viewModel.setAnchorDataAndPlay(it) }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        viewModel.screenRotation()
-    }
-
+    /**
+     * 初始化view
+     */
     private fun initView() {
+        //如果是横屏则切换
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            landscapeFullScreen()
+
+        //播放view 设置controller
         binding.playerView.apply {
             setControllerVisibilityListener {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -131,11 +136,46 @@ class PlayerActivity : AppCompatActivity() {
                     }
                 }
             }
+            findViewById<ImageView>(R.id.controller_setting).setOnClickListener {
+                val view = LayoutInflater.from(this@PlayerActivity)
+                    .inflate(R.layout.popup_player_controller_setting, null, false)
+                val popupWindow = PopupWindow(this@PlayerActivity)
+                popupWindow.apply {
+                    contentView = view
+                    width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    isOutsideTouchable = true
+                    setBackgroundDrawable(null)
+                    showAsDropDown(it, 0, 10)
+                }
+                val danmuAlpha = view.findViewById<SeekBar>(R.id.seek_bar_danmu_alpha)
+                danmuAlpha.apply {
+                    progress = (binding.danmakuView.alpha * 100).toInt()
+                    setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                        var alpha = 0f
+                        override fun onProgressChanged(
+                            seekBar: SeekBar?,
+                            progress: Int,
+                            fromUser: Boolean
+                        ) {
+                            alpha = progress / 100f
+                            binding.danmakuView.alpha = alpha
+                        }
 
+                        override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                            defaultSharedPreferences.edit()
+                                .putFloat(getString(R.string.danmu_alpha), alpha).apply()
+                            popupWindow.dismiss()
+                        }
+                    })
+                }
+
+            }
         }
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-            landscapeFullScreen()
+        //icon图标
         binding.platformIcon.apply {
             setOnClickListener {
                 val popupMenu = PopupMenu(this@PlayerActivity, this)
@@ -151,7 +191,7 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
-
+        //弹幕view
         binding.danmakuView.apply {
             enableDanmakuDrawingCache(true)
             setCallback(object : DrawHandler.Callback {
@@ -170,8 +210,9 @@ class PlayerActivity : AppCompatActivity() {
 
             })
             prepare(danmakuParser, danmakuContext)
-            alpha = 0.8f
+            alpha = defaultSharedPreferences.getFloat(getString(R.string.danmu_alpha), 0.6f)
         }
+
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int = 2
 
@@ -182,9 +223,11 @@ class PlayerActivity : AppCompatActivity() {
                     AnchorListFragment.newInstance()
             }
         }
+
         binding.danmuNotice.setOnClickListener {
             viewModel.restartDanmu("重新连接弹幕服务器")
         }
+
         viewModel.danmuStatus.observe(this) {
             binding.danmuNotice.text = it.second
             if (it.first == PlayerViewModel.DanmuState.START)
@@ -197,7 +240,6 @@ class PlayerActivity : AppCompatActivity() {
 
     }
 
-
     private fun zoomClick() {
         if (!fullScreen)
             fullScreen()
@@ -206,6 +248,9 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 竖屏常规
+     */
     private fun normalScreen() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         binding.playerView.layoutParams.apply {
@@ -221,16 +266,9 @@ class PlayerActivity : AppCompatActivity() {
         disableOrientationListener()
     }
 
-    private fun enableOrientationListener() {
-        orientationEventListener.enable()
-        lifecycle.addObserver(orientationEventListener)
-    }
-
-    private fun disableOrientationListener() {
-        orientationEventListener.disable()
-        lifecycle.removeObserver(orientationEventListener)
-    }
-
+    /**
+     * 全屏播放
+     */
     private fun fullScreen() {
         val resolution = viewModel.videoResolution.value
         if (resolution != null) {
@@ -277,6 +315,21 @@ class PlayerActivity : AppCompatActivity() {
         landscape = false
     }
 
+    /**
+     * 开启屏幕方向监听
+     */
+    private fun enableOrientationListener() {
+        orientationEventListener.enable()
+        lifecycle.addObserver(orientationEventListener)
+    }
+
+    /**
+     * 关闭屏幕方向监听
+     */
+    private fun disableOrientationListener() {
+        orientationEventListener.disable()
+        lifecycle.removeObserver(orientationEventListener)
+    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -292,15 +345,22 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.startDanmuFromActivity()
+        viewModel.startDanmu()
     }
 
+    override fun onStop() {
+        super.onStop()
+        viewModel.stopDanmu("activity stop")
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         binding.danmakuView.release()
     }
 
+    /**
+     * 发送弹幕
+     */
     private fun emitDanma(msg: String) {
         lifecycleScope.launch {
             val danmaku =
@@ -320,13 +380,16 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * sp转px的方法。
+     * sp转px
      */
     private fun Float.toPx(): Float {
         val fontScale = resources.displayMetrics.scaledDensity
         return (this * fontScale + 0.5f)
     }
 
+    /**
+     * 监听liveData
+     */
     private fun observeLiveData() {
         viewModel.apply {
             anchor.observe(this@PlayerActivity) {
@@ -369,9 +432,12 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 开启推送弹幕线程
+     */
+    @Synchronized
     private fun startEmitDanmuJob() {
-        emitDanmuJob?.cancel()
-        emitDanmuJob = null
+        stopEmitDanmuJob()
         emitDanmuJob = lifecycleScope.launch(Dispatchers.Default) {
             while (true) {
                 viewModel.getPreEmitDanmu()?.let {
@@ -382,11 +448,17 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 结束推送弹幕线程
+     */
     private fun stopEmitDanmuJob() {
         emitDanmuJob?.cancel()
         emitDanmuJob = null
     }
 
+    /**
+     * 显示主播信息
+     */
     private fun displayAnchorDetail(it: Anchor) {
         it.apply {
             it.avatar?.let { it1 ->
@@ -405,7 +477,9 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * 淡入显示
+     */
     private fun View.fadeIn() {
         alpha = 0f
         animate().setDuration(500).alpha(1f)
@@ -439,6 +513,9 @@ class PlayerActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_VISIBLE)
     }
 
+    /**
+     * 黑色底部导航栏
+     */
     private fun navigationBlack() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.navigationBarColor = Color.BLACK

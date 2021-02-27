@@ -30,20 +30,14 @@ class HuyaDanmuManager : IPlatform.DanmuManager() {
             websocket = WebSocketClient.newWebSocket(request, object : WebSocketListener() {
                 override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                     super.onMessage(webSocket, bytes)
-                    Log.d(
-                        "acel_log@HuyaDanmuReceiver#onMessage",
-                        "${bytes.toByteArray().decodeToString()}"
-                    )
                 }
 
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     super.onMessage(webSocket, text)
-                    Log.d("acel_log@HuyaDanmuReceiver#onMessage", "$text")
                 }
 
                 override fun onOpen(webSocket: WebSocket, response: Response) {
                     super.onOpen(webSocket, response)
-                    Log.d("acel_log@HuyaDanmuReceiver#onOpen", "open")
                     val buffer = ByteBuffer.allocate(10)
 //                    websocket?.send(ByteString.of(arrOutput, 0, arrOutput.size))
                     // TODO: 2021/2/20 wup TARS jce
@@ -51,12 +45,10 @@ class HuyaDanmuManager : IPlatform.DanmuManager() {
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     super.onClosed(webSocket, code, reason)
-                    Log.d("acel_log@HuyaDanmuReceiver#onClosed", "close")
                 }
 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     super.onFailure(webSocket, t, response)
-                    Log.d("acel_log@HuyaDanmuReceiver#onFailure", "fail")
                 }
             })
         }

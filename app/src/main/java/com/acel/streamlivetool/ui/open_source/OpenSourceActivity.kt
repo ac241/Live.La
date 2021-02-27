@@ -2,18 +2,20 @@ package com.acel.streamlivetool.ui.open_source
 
 import android.graphics.Color
 import android.os.Bundle
-import android.text.Html
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.ToastUtil.toast
-import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.activity_open_source.*
 import kotlin.random.Random
 
 class OpenSourceActivity : AppCompatActivity() {
     val list = listOf(
+        Module(
+            "androidx",
+            "-",
+            "-",
+            "Google",
+            "-"
+        ),
         Module(
             "retrofit",
             "com.squareup.retrofit2",
@@ -69,6 +71,13 @@ class OpenSourceActivity : AppCompatActivity() {
             "https://jsoup.org/",
             "Jonathan Hedley",
             "The MIT License"
+        ),
+        Module(
+            "DanmakuFlameMaster:0.9.25",
+            "com.github.ctiao.DanmakuFlameMaster",
+            "https://github.com/bilibili/DanmakuFlameMaster",
+            "Bilibili",
+            "Apache License Version 2.0, January 2004"
         ),
         Module(
             "图标",

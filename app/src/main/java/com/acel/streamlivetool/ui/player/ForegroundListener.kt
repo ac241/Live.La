@@ -11,7 +11,7 @@ import com.acel.streamlivetool.service.PlayerService
 
 
 @Suppress("unused")
-class ForegroundServiceListener(activity: PlayerActivity) : LifecycleObserver {
+class ForegroundListener(activity: PlayerActivity) : LifecycleObserver {
 
     private var activity: PlayerActivity? = activity
     private var isForeground = false

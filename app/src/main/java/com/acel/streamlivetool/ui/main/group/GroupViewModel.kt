@@ -109,6 +109,7 @@ class GroupViewModel : ViewModel() {
     /**
      * 更新全部anchor
      */
+    @Synchronized
     fun updateAllAnchor() {
         _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         if (groupModeUseCookie)

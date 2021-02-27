@@ -20,9 +20,9 @@ import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAI
 import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
-import com.acel.streamlivetool.util.AnchorClickAction.itemClick
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -223,7 +223,9 @@ class AnchorAdapter(
 
         //item click
         holder.itemView.setOnClickListener {
-            itemClick(context, anchor, anchorList)
+            context as MainActivity
+            context.itemClick(it,context, anchor, anchorList)
+//            itemClick(context, anchor, anchorList)
         }
 
         //长按

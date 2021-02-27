@@ -12,14 +12,16 @@
         android:background="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/btn_replay"
         style="@style/player_overlay_button"
         android:layout_gravity="start|bottom"
-        android:layout_margin="5dp"
+        android:layout_margin="20dp"
         android:contentDescription="@string/button_replay"
         android:src="@drawable/ic_baseline_replay_24"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +31,7 @@
         android:id="@+id/btn_zoom"
         style="@style/player_overlay_button"
         android:layout_gravity="end|bottom"
-        android:layout_margin="5dp"
+        android:layout_margin="20dp"
         android:contentDescription="@string/button_player_overlay_resize"
         android:src="@drawable/ic_flip_screen"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -40,7 +42,7 @@
         style="@style/round_black_background_alpha06_white_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="20dp"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
         android:textSize="14sp"
@@ -76,13 +78,23 @@
         style="@style/round_black_background_alpha06_white_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
         android:text="@string/video_quality"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:targetApi="lollipop" />
+
+    <ImageView
+        android:id="@+id/controller_setting"
+        style="@style/player_overlay_button"
+        android:layout_marginEnd="20dp"
+        android:contentDescription="@string/setting"
+        app:layout_constraintBottom_toBottomOf="@+id/current_quality"
+        app:layout_constraintEnd_toStartOf="@+id/current_quality"
+        app:layout_constraintTop_toTopOf="@+id/current_quality"
+        app:srcCompat="@drawable/exo_ic_settings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

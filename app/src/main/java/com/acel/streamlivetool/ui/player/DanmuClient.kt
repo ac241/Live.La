@@ -74,6 +74,9 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         }
     }
 
+    /**
+     * 重新启动
+     */
     fun restart(message: String) {
         val anchor = anchor
         stop(message)
@@ -141,11 +144,17 @@ class DanmuClient(viewModelScope: CoroutineScope) {
         state = State.STOP
     }
 
+    /**
+     * 弹幕连接中
+     */
     private fun onConnecting(message: String) {
         mListener?.onConnecting(message)
         state = State.CONNECTING
     }
 
+    /**
+     * 弹幕监听器
+     */
     interface DanmuListener {
         fun onConnecting(message: String) {}
         fun onStart() {}

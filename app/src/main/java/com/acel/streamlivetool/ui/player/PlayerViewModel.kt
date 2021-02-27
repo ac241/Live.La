@@ -15,6 +15,7 @@ import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -28,11 +29,14 @@ import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
+
+    /**
+     * 播放器
+     */
     internal val player by lazy {
         SimpleExoPlayer.Builder(MyApplication.application).build()
     }.also {
@@ -80,16 +84,33 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    //展示用的播放器信息
+    val playerMessage = MutableLiveData("")
+    val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
+    val isPlaying get() = playerStatus.value == PlayerState.IS_PLAYING
+    val videoResolution = MutableLiveData(Pair(0, 0))
+
     val anchor = MutableLiveData<Anchor>()
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
+
+    //当前主播在列表中的位置
     val anchorPosition = MutableLiveData(-1)
+
+    //更新主播详情
     val anchorDetails = MutableLiveData<Anchor>()
+
+    //流质量
     val currentQuality = MutableLiveData<StreamingLive.Quality?>()
     val qualityList = MutableLiveData<List<StreamingLive.Quality?>>()
 
-    val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
-    val videoResolution = MutableLiveData(Pair(0, 0))
+    val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
+    val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
 
+    //待发送的弹幕
+    private val preEmitDanmuList: MutableList<Danmu> =
+        Collections.synchronizedList(mutableListOf<Danmu>())
+
+    //连接弹幕失败次数
     var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
         if (new in (1..3))
             restartDanmu("意外连接断开，尝试重连。")
@@ -97,14 +118,9 @@ class PlayerViewModel : ViewModel() {
             danmuStatus.postValue(Pair(DanmuState.ERROR, "发生错误断开..."))
     }
 
-    fun isPlaying() = playerStatus.value == PlayerState.IS_PLAYING
-    val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
-    val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
-    private var keepAnchorData = false
-    private var keepDanmuData = false
-    private val preEmitDanmuList: MutableList<Danmu> =
-        Collections.synchronizedList(mutableListOf<Danmu>())
-
+    /**
+     * 弹幕客户端
+     */
     private val danmuClient = DanmuClient(viewModelScope).apply {
         setListener(object : DanmuClient.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
@@ -134,6 +150,9 @@ class PlayerViewModel : ViewModel() {
         })
     }
 
+    /**
+     * 新增弹幕
+     */
     private fun addDanmu(danmu: Danmu) {
         danmuList.value?.apply {
             if (size >= 200)
@@ -144,6 +163,9 @@ class PlayerViewModel : ViewModel() {
         preEmitDanmuList.add(danmu)
     }
 
+    /**
+     * 播放器状态
+     */
     enum class PlayerState {
         IS_IDLE,
         IS_PLAYING,
@@ -152,17 +174,17 @@ class PlayerViewModel : ViewModel() {
         IS_ERROR
     }
 
+    /**
+     * 弹幕状态
+     */
     enum class DanmuState {
         IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
     }
 
-
-    val playerMessage = MutableLiveData("")
-    internal fun setAnchorData(intent: Intent) {
-        if (keepAnchorData) {
-            keepAnchorData = false
-            return
-        }
+    /**
+     * 设置主播数据并且播放
+     */
+    internal fun setAnchorDataAndPlay(intent: Intent) {
         val index = intent.getIntExtra("index", -1)
         val list = intent.getParcelableArrayListExtra<Anchor>("list")
         anchorList.apply {
@@ -179,6 +201,9 @@ class PlayerViewModel : ViewModel() {
         preparePlay(anchor)
     }
 
+    /**
+     * 准备播放
+     */
     private fun preparePlay(anchor: Anchor) {
         if (anchor == this.anchor.value)
             return
@@ -189,11 +214,17 @@ class PlayerViewModel : ViewModel() {
         getStreamUrlAndPlay(anchor)
     }
 
+    /**
+     * 清楚清晰度信息
+     */
     private fun clearQualityInfo() {
         currentQuality.postValue(null)
         qualityList.postValue(null)
     }
 
+    /**
+     *  获取流并且播放
+     */
     private fun getStreamUrlAndPlay(anchor: Anchor?, quality: StreamingLive.Quality? = null) {
         anchor?.let { anc ->
             stopPlay()
@@ -220,6 +251,9 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * 重新播放
+     */
     internal fun replay() {
         getStreamUrlAndPlay(anchor.value)
     }
@@ -282,61 +316,85 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * 播放列表中指定位置的主播
+     */
     fun playInList(position: Int) {
         anchorList.value?.get(position)?.let { preparePlay(it) }
     }
 
-    fun screenRotation() {
-        keepAnchorData = true
-        keepDanmuData = true
-    }
+    internal fun startDanmu() = anchor.value?.let { startDanmu(it) }
 
-    private fun startDanmu() = anchor.value?.let { startDanmu(it) }
-
+    /**
+     * 开启弹幕
+     */
     private fun startDanmu(anchor: Anchor) {
         val result = danmuClient.start(anchor)
         if (result)
             clearDanmuList()
     }
 
+    /**
+     *  结束弹幕
+     */
+    fun stopDanmu(reason: String) {
+        danmuClient.stop(reason)
+    }
+
+    /**
+     * 清楚弹幕列表
+     */
     private fun clearDanmuList() {
         danmuList.postValue(danmuList.value?.apply { clear() })
     }
 
+    /**
+     * 重启弹幕
+     */
     fun restartDanmu(message: String) {
         danmuClient.restart(message)
     }
 
-    internal fun startDanmuFromActivity() {
-        startDanmu()
-    }
-
+    /**
+     * 获取主播信息，更新数据
+     */
     fun getAnchorDetails(anchor: Anchor) {
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
-                anchorDetails.postValue(anchor.platformImpl()?.getAnchor(anchor))
+                val a = anchor.platformImpl()?.getAnchor(anchor)
+                if (a != null)
+                    anchorDetails.postValue(a)
+                else
+                    toastOnMainThread("更新主播数据失败")
             }.onFailure {
                 it.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    toast("更新信息失败。")
-                }
+                toastOnMainThread("更新主播数据失败。")
             }
         }
     }
 
+    /**
+     * 以指定清晰度播放
+     */
     fun playWithAssignQuality(quality: StreamingLive.Quality) {
         getStreamUrlAndPlay(anchor.value, quality)
     }
 
+    /**
+     * 打开当前主播对应的app直播间
+     */
     fun startAppForCurrentAnchor(context: Context) {
         anchor.value?.let { AppUtil.startApp(context, it) }
     }
 
     fun stopAll() {
         stopPlay()
-        danmuClient.stop()
+        stopDanmu("stop all")
     }
 
+    /**
+     * 获取待发送的弹幕
+     */
     @Synchronized
     fun getPreEmitDanmu(): Danmu? {
         return if (preEmitDanmuList.size > 0) {

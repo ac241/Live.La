@@ -3,12 +3,15 @@ package com.acel.streamlivetool.ui.main
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -19,13 +22,13 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
+import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -300,4 +303,25 @@ class MainActivity : AppCompatActivity() {
         PlayerOverlayWindowManager.instance.release()
     }
 
+    @Synchronized
+    fun itemClick(view: View, context: MainActivity, anchor: Anchor, anchorList: List<Anchor>) {
+        val avatar = view.findViewById<ImageView>(R.id.grid_anchor_avatar)
+        val location = IntArray(2)
+        avatar.getLocationInWindow(location)
+        val drawable = avatar.drawable
+        layoutInflater.inflate(R.layout.avatar, binding.root, true)
+        val animateAvatar = binding.root.findViewById<ImageView>(R.id.animate_avatar)
+        animateAvatar.apply {
+            setImageDrawable(drawable)
+            x = location[0].toFloat()
+            y = location[1].toFloat()
+            animate().setDuration(300).translationY(793f).translationX(38f).scaleX(1.285f)
+                .scaleY(1.285f)
+                .withEndAction {
+                    AnchorClickAction.itemClick(context, anchor, anchorList)
+                    binding.root.removeView(animateAvatar)
+                }
+                .start()
+        }
+    }
 }

@@ -39,29 +39,23 @@ class HuyaImpl : IPlatform {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val html: String? = getMHtml(queryAnchor)
         html?.let {
-//            val showId = TextUtil.subString(it, "class=\"roomid\">房间号 : ", "</h2>")
             val showId = html.getMatchString(PatternUtil.showId)
             if (showId != null && showId.isNotEmpty()) {
-//                val nickname =
-//                    TextUtil.subString(it, "ANTHOR_NICK = '", "';")
-//                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
                 val nickname = html.getMatchString(PatternUtil.nickName)
-                        ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
-                // TODO: 2021/2/21
-//                val uid = TextUtil.subString(it, "ayyuid: '", "',")
+                    ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
                 val uid = html.getMatchString(PatternUtil.uid)
                 return Anchor(
-                        platform = platform,
-                        nickname = nickname.toString(),
-                        showId = showId,
-                        roomId = uid.toString(),
-                        status = html.getMatchString(PatternUtil.status) == "true",
-                        title = html.getMatchString(PatternUtil.title),
-                        avatar = TextUtil.subString(html, "<span class=\"pic-clip\">", "alt=\"")
-                                ?.getMatchString(PatternUtil.avatar),
-                        keyFrame = html.getMatchString(PatternUtil.keyFrame),
-                        typeName = html.getMatchString(PatternUtil.typeName),
-                        online = html.getMatchString(PatternUtil.online)
+                    platform = platform,
+                    nickname = nickname.toString(),
+                    showId = showId,
+                    roomId = uid.toString(),
+                    status = html.getMatchString(PatternUtil.status) == "true",
+                    title = html.getMatchString(PatternUtil.title),
+                    avatar = TextUtil.subString(html, "<span class=\"pic-clip\">", "alt=\"")
+                        ?.getMatchString(PatternUtil.avatar),
+                    keyFrame = html.getMatchString(PatternUtil.keyFrame),
+                    typeName = html.getMatchString(PatternUtil.typeName),
+                    online = html.getMatchString(PatternUtil.online)
                 )
             }
         }
@@ -75,16 +69,16 @@ class HuyaImpl : IPlatform {
                 val tempStatus = TextUtil.subString(html, "ISLIVE =", ";")?.trim() == "true"
                 status = tempStatus
                 title = TextUtil.subStringAfterAny(
-                        html,
-                        "class=\"live-info-desc\"",
-                        "<h1>",
-                        "</h1>"
+                    html,
+                    "class=\"live-info-desc\"",
+                    "<h1>",
+                    "</h1>"
                 ) ?: "获取标题失败"
                 avatar = TextUtil.subStringAfterAny(
-                        html,
-                        "class=\"live-info-img\"",
-                        "<img src=\"",
-                        "\""
+                    html,
+                    "class=\"live-info-img\"",
+                    "<img src=\"",
+                    "\""
                 )
                 typeName = TextUtil.subString(html, "<span class=\"title\">", "</span>")
 
@@ -92,12 +86,12 @@ class HuyaImpl : IPlatform {
                 if (tempStatus) {
                     getHtml(queryAnchor)?.let { pcHtml ->
                         keyFrame = TextUtil.subString(pcHtml, "\"screenshot\":\"", "\",")
-                                ?.replace("\\", "")
+                            ?.replace("\\", "")
                         online =
-                                TextUtil.subString(pcHtml, "\"totalCount\":", ",")?.trim()?.toInt()
-                                        ?.let {
-                                            AnchorUtil.formatOnlineNumber(it)
-                                        }
+                            TextUtil.subString(pcHtml, "\"totalCount\":", ",")?.trim()?.toInt()
+                                ?.let {
+                                    AnchorUtil.formatOnlineNumber(it)
+                                }
                     }
                 }
             }
@@ -107,7 +101,10 @@ class HuyaImpl : IPlatform {
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
 
-    override fun getStreamingLive(queryAnchor: Anchor, queryQuality: StreamingLive.Quality?): StreamingLive? {
+    override fun getStreamingLive(
+        queryAnchor: Anchor,
+        queryQuality: StreamingLive.Quality?
+    ): StreamingLive? {
         val html = getMHtml(queryAnchor)
         html?.let {
             val streamStr = TextUtil.subString(it, "liveLineUrl = \"", "\";")
@@ -120,12 +117,12 @@ class HuyaImpl : IPlatform {
     override fun startApp(context: Context, anchor: Anchor) {
         val intent = Intent()
         val uri =
-                Uri.parse(
-                        "yykiwi://homepage?banneraction=" + URLEncoder.encode(
-                                "https://secstatic.yy.com/huya?hyaction=live&uid=${anchor.roomId}",
-                                "utf-8"
-                        )
+            Uri.parse(
+                "yykiwi://homepage?banneraction=" + URLEncoder.encode(
+                    "https://secstatic.yy.com/huya?hyaction=live&uid=${anchor.roomId}",
+                    "utf-8"
                 )
+            )
         intent.data = uri
         intent.addCategory(Intent.CATEGORY_BROWSABLE)
         intent.action = Intent.ACTION_VIEW
@@ -140,14 +137,14 @@ class HuyaImpl : IPlatform {
             val resultList = result.response.`1`.docs
             resultList.forEach {
                 list.add(
-                        Anchor(
-                                platform = platform,
-                                nickname = it.game_nick,
-                                showId = it.room_id.toString(),
-                                roomId = it.uid.toString(),
-                                status = it.gameLiveOn,
-                                avatar = it.game_avatarUrl52
-                        )
+                    Anchor(
+                        platform = platform,
+                        nickname = it.game_nick,
+                        showId = it.room_id.toString(),
+                        roomId = it.uid.toString(),
+                        status = it.gameLiveOn,
+                        avatar = it.game_avatarUrl52
+                    )
                 )
             }
         }
@@ -162,35 +159,35 @@ class HuyaImpl : IPlatform {
                 val subscribe = getSubscribe(this)
                 if (subscribe?.status != 1000L)
                     return ResultGetAnchorListByCookieMode(
-                            success = false,
-                            isCookieValid = false,
-                            anchorList = null,
-                            message = subscribe?.message.toString()
+                        success = false,
+                        isCookieValid = false,
+                        anchorList = null,
+                        message = subscribe?.message.toString()
                     )
                 else
                     return run {
                         val list = mutableListOf<Anchor>()
                         subscribe.result.list.forEach {
                             list.add(
-                                    Anchor(
-                                            platform = platform,
-                                            nickname = it.nick,
-                                            showId = it.profileRoom.toString(),
-                                            roomId = it.uid.toString(),
-                                            status = it.isLive,
-                                            title = it.intro,
-                                            avatar = it.avatar180,
-                                            keyFrame = it.screenshot,
-                                            typeName = it.gameName,
-                                            online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
-                                            liveTime = TimeUtil.timestampToString(it.startTime)
-                                    )
+                                Anchor(
+                                    platform = platform,
+                                    nickname = it.nick,
+                                    showId = it.profileRoom.toString(),
+                                    roomId = it.uid.toString(),
+                                    status = it.isLive,
+                                    title = it.intro,
+                                    avatar = it.avatar180,
+                                    keyFrame = it.screenshot,
+                                    typeName = it.gameName,
+                                    online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
+                                    liveTime = TimeUtil.timestampToString(it.startTime)
+                                )
                             )
                         }
                         ResultGetAnchorListByCookieMode(
-                                success = true,
-                                isCookieValid = true,
-                                anchorList = list
+                            success = true,
+                            isCookieValid = true,
+                            anchorList = list
                         )
                     }
             }
@@ -215,9 +212,7 @@ class HuyaImpl : IPlatform {
         return false
     }
 
-    override fun loginWithPcAgent(): Boolean {
-        return true
-    }
+    override fun loginWithPcAgent(): Boolean = true
 
     override val loginTips: String
         get() = "虎牙的cookie有效期约为7天"
@@ -233,8 +228,8 @@ class HuyaImpl : IPlatform {
             val uid = CookieUtil.getCookieField(cookie, "yyuid")
             uid?.let { u ->
                 val response =
-                        huyaService.follow(cookie, anchor.roomId, u, System.currentTimeMillis())
-                                .execute().body()
+                    huyaService.follow(cookie, anchor.roomId, u, System.currentTimeMillis())
+                        .execute().body()
                 response?.apply {
                     return if (status == 1)
                         Pair(true, "关注成功")
