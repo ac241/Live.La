@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.player
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,8 +46,10 @@ class PlayerViewModel : ViewModel() {
             addListener(object : Player.EventListener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     super.onIsPlayingChanged(isPlaying)
-                    if (isPlaying)
+                    if (isPlaying) {
                         playerStatus.postValue(PlayerState.IS_PLAYING)
+                        playEndedTimes = 0
+                    }
                 }
 
                 override fun onIsLoadingChanged(isLoading: Boolean) {
@@ -66,8 +69,9 @@ class PlayerViewModel : ViewModel() {
                     super.onPlaybackStateChanged(state)
                     if (playbackState == Player.STATE_ENDED) {
                         playerStatus.postValue(PlayerState.IS_ENDED)
-                        playerMessage.postValue("播放结束。")
-                        stop()
+//                        playerMessage.postValue("播放结束。")
+//                        stop()
+                        playEndedTimes++
                     }
                 }
             })
@@ -83,6 +87,19 @@ class PlayerViewModel : ViewModel() {
             })
         }
     }
+
+    //连接弹幕失败次数
+    var playEndedTimes: Int by Delegates.observable(0) { _, _, new ->
+        if (new in (1..3)) {
+            playerMessage.postValue("播放已断开尝试重连。")
+            replay()
+        }
+        if (new > 3) {
+            playerMessage.postValue("播放已经停止...$new")
+            player.stop(true)
+        }
+    }
+
 
     //展示用的播放器信息
     val playerMessage = MutableLiveData("")
@@ -128,23 +145,29 @@ class PlayerViewModel : ViewModel() {
             }
 
             override fun onConnecting(message: String) {
-                danmuStatus.postValue(Pair(DanmuState.CONNECTING, message))
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.CONNECTING, message)
+                }
             }
 
             override fun onStop(reason: String) {
                 mainThread {
-                    danmuStatus.value = Pair(DanmuState.STOP, reason)
+                    danmuStatus.value = Pair(DanmuState.STOP, "stop:$reason")
                 }
             }
 
             override fun onError(reason: String, errorType: DanmuClient.ErrorType) {
-                danmuStatus.postValue(Pair(DanmuState.ERROR, "fail:$reason"))
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.ERROR, "fail:$reason")
+                }
                 if (errorType != DanmuClient.ErrorType.NOT_SUPPORT)
                     danmuErrorTimes++
             }
 
             override fun onStart() {
-                danmuStatus.postValue(Pair(DanmuState.START, "弹幕链接成功"))
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.START, "弹幕链接成功")
+                }
                 danmuErrorTimes = 0
             }
         })
@@ -255,7 +278,12 @@ class PlayerViewModel : ViewModel() {
      * 重新播放
      */
     internal fun replay() {
-        getStreamUrlAndPlay(anchor.value)
+        currentQuality.value.let {
+            if (it == null) {
+                getStreamUrlAndPlay(anchor.value)
+            } else
+                playWithAssignQuality(it)
+        }
     }
 
     /**

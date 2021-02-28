@@ -7,5 +7,4 @@
     android:layout_height="35dp"
     android:contentDescription="@string/avatar"
     android:scaleType="centerCrop"
-    android:src="@mipmap/ic_launcher"
     app:riv_corner_radius="30dip" />

@@ -30,7 +30,7 @@ class CookieViewModel : ViewModel() {
         anchorList = anchorListManager.getAnchorList(iPlatform)
     }
 
-    var updateJob: Job? = null
+    private var updateJob: Job? = null
 
     //更新状态
     private val _liveDataUpdateStatus = MutableLiveData<UpdateStatus>().also {

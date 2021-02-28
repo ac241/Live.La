@@ -75,7 +75,7 @@ object AnchorClickAction {
                 }
             }
             context.getString(R.string.string_overlay_player) -> {
-                (context as MainActivity).playStream(anchor, list)
+                (context as MainActivity).playStreamOverlay(anchor, list)
             }
             context.getString(R.string.string_inner_player) -> {
                 val intent = Intent(context, PlayerActivity::class.java)

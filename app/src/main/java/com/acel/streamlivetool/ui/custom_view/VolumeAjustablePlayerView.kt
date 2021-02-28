@@ -30,7 +30,7 @@ class VolumeAjustablePlayerView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 downX = event.x
                 downY = event.y
-                if (downX > width / 2)
+                if (downX > width * 7 / 10)
                     handleVolume = true
             }
             MotionEvent.ACTION_MOVE -> {

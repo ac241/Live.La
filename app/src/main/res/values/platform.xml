@@ -5,8 +5,6 @@
     <string name="huya">虎牙</string>
     <string name="egameqq">企鹅电竞</string>
     <string name="huomao">火猫</string>
-    <string name="yy">YY</string>
-    <string name="longzhu">龙珠</string>
 
     <array name="platform">
         <item>douyu</item>

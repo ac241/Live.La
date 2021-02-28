@@ -143,7 +143,7 @@ class GetLOLMatchAction :
         )
         val builder = AlertDialog.Builder(context)
         builder.setView(R.layout.alert_additional_action)
-        AppUtil.mainThread {
+        mainThread {
             val dialog = builder.show()
             val textView =
                 dialog.findViewById<TextView>(R.id.textView_additional_action)
@@ -172,12 +172,9 @@ class GetLOLMatchAction :
             )
             map.forEach {
                 try {
-                    val list = (it.value as LinkedTreeMap<String, Any>).get("list")
+                    val list = (it.value as LinkedTreeMap<String, Any>)["list"]
                     if (list is Boolean) {
-                        (it.value as LinkedTreeMap<String, Any>).put(
-                            "list",
-                            null
-                        )
+                        (it.value as LinkedTreeMap<String, Any>)["list"] = null
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -188,7 +185,7 @@ class GetLOLMatchAction :
                     remove("scheduleList")
                     add("scheduleList", gson.toJsonTree(map).asJsonObject)
                 }
-            return Gson().fromJson<WanPlusLOLSchedule>(
+            return Gson().fromJson(
                 json,
                 object : TypeToken<WanPlusLOLSchedule>() {}.type
             )
@@ -229,7 +226,7 @@ class GetLOLMatchAction :
             )
             val builder = AlertDialog.Builder(context)
             builder.setView(R.layout.alert_additional_action)
-            AppUtil.mainThread {
+            mainThread {
                 val dialog = builder.show()
                 val textView =
                     dialog.findViewById<TextView>(R.id.textView_additional_action)

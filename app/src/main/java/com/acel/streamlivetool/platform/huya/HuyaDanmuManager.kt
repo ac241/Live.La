@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.platform.huya
 
-import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.WebSocketClient
 import com.acel.streamlivetool.platform.IPlatform
@@ -23,18 +22,11 @@ class HuyaDanmuManager : IPlatform.DanmuManager() {
     }
 
     class HuyaDanmuReceiver : DanmuReceiver {
-        var websocket: WebSocket? = null
+        private var websocket: WebSocket? = null
 
         override fun start() {
             val request = Request.Builder().url("wss://cdnws.api.huya.com").build()
             websocket = WebSocketClient.newWebSocket(request, object : WebSocketListener() {
-                override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                    super.onMessage(webSocket, bytes)
-                }
-
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    super.onMessage(webSocket, text)
-                }
 
                 override fun onOpen(webSocket: WebSocket, response: Response) {
                     super.onOpen(webSocket, response)
@@ -43,13 +35,6 @@ class HuyaDanmuManager : IPlatform.DanmuManager() {
                     // TODO: 2021/2/20 wup TARS jce
                 }
 
-                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    super.onClosed(webSocket, code, reason)
-                }
-
-                override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                    super.onFailure(webSocket, t, response)
-                }
             })
         }
 

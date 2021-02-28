@@ -66,10 +66,11 @@ class DanmuClient(viewModelScope: CoroutineScope) {
      */
     fun stop(reason: String = "") {
         synchronized(this) {
+            danmuJob?.cancel()
             anchor?.let {
                 PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
             }
-            anchor = null
+//            anchor = null
             stopCallBack(reason)
         }
     }

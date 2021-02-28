@@ -18,7 +18,7 @@ class OrientationEventListener(activity: PlayerActivity) :
     override fun onOrientationChanged(orientation: Int) {
         playerActivity?.apply {
             //仅横屏全屏生效
-            if (landscape && fullScreen) {
+            if (landscape && fullScreen.value!!) {
                 when (orientation) {
                     in (85..95) ->
                         playerActivity?.requestedOrientation =

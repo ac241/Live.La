@@ -106,10 +106,10 @@ object AppUtil {
             val pm = context.packageManager
             val pi = pm.getPackageInfo(context.packageName, 0)
             // versionName = pi.versionName;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                versioncode = pi.longVersionCode.toInt()
+            versioncode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                pi.longVersionCode.toInt()
             } else
-                versioncode = pi.versionCode
+                pi.versionCode
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }

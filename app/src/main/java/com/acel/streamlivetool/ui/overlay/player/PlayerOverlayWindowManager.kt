@@ -377,7 +377,7 @@ class PlayerOverlayWindowManager {
         player?.stop()
         playerOverlayWindow.remove()
         isShown = false
-        PlayerService.stopForegroundService(MyApplication.application)
+        PlayerService.stopForegroundService()
     }
 
     internal fun toggle() {
@@ -397,12 +397,11 @@ class PlayerOverlayWindowManager {
             playAnchorSteaming(anchor)
         }
         PlayerService.startWithForeground(
-            MyApplication.application,
             PlayerService.Companion.SourceType.PLAYER_OVERLAY
         )
     }
 
-    internal fun playList(anchor: Anchor, list: List<Anchor>) {
+    internal fun playList(anchor: Anchor, list: List<Anchor>?) {
         nowPlayList = list
         play(anchor)
     }

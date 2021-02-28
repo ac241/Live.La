@@ -104,11 +104,11 @@
     <string name="github_url">https://github.com/ac241/StreamLiveTool</string>
     <string name="room_id_format">房间号：%s</string>
     <string name="is_playing">播放中</string>
-    <string name="anchor_list">主播列表：</string>
     <string name="docor_line">docor_line</string>
     <string name="set_cookie_manual">点击手动设置cookie</string>
     <string name="please_fill_cookie">请输入Cookie</string>>
     <string name="video_quality">清晰度</string>>
     <string name="no_video_quality_to_choose">没有清晰度信息</string>
-    <string name="danmu_alpha">danmu_alpha</string>>
+    <string name="key_danmu_alpha">danmu_alpha</string>
+    <string name="danmu_alpha">弹幕透明度</string>
 </resources>

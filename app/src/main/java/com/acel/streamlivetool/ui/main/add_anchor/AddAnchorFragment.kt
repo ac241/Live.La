@@ -31,10 +31,10 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
 //        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         viewModel.apply {
-            liveDataResultSuccessed.observe(this@AddAnchorFragment, Observer {
+            liveDataResultSuccessed.observe(this@AddAnchorFragment, {
                 it?.let { addAnchorSuccess(it) }
             })
-            liveDataResultFailed.observe(this@AddAnchorFragment, Observer {
+            liveDataResultFailed.observe(this@AddAnchorFragment, {
                 it?.let { addAnchorFailed(it) }
             })
         }

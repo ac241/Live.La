@@ -23,7 +23,7 @@
         android:layout_gravity="start|bottom"
         android:layout_margin="20dp"
         android:contentDescription="@string/button_replay"
-        android:src="@drawable/ic_baseline_replay_24"
+        android:src="@drawable/ic_refresh"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -33,7 +33,7 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="20dp"
         android:contentDescription="@string/button_player_overlay_resize"
-        android:src="@drawable/ic_flip_screen"
+        android:src="@drawable/ic_full_screen_landscape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

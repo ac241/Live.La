@@ -17,7 +17,7 @@ import com.acel.streamlivetool.net.ImageLoader
 import kotlinx.android.synthetic.main.item_search_anchor.view.*
 
 class SearchListAdapter(val anchorList: List<Anchor>) : BaseAdapter() {
-    var checkItem: Int? = null
+    private var checkItem: Int? = null
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view: View

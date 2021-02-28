@@ -11,9 +11,8 @@ import com.acel.streamlivetool.service.PlayerService
 
 
 @Suppress("unused")
-class ForegroundListener(activity: PlayerActivity) : LifecycleObserver {
+class ForegroundListener : LifecycleObserver {
 
-    private var activity: PlayerActivity? = activity
     private var isForeground = false
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -29,30 +28,22 @@ class ForegroundListener(activity: PlayerActivity) : LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun destroy() {
         stopForeground()
-        activity = null
     }
 
     private fun startForeground() {
-        synchronized(isForeground){
-        if (!isForeground) {
-            activity?.apply {
-//            if (viewModel.isPlaying()) {
+        synchronized(isForeground) {
+            if (!isForeground) {
                 PlayerService.startWithForeground(
-                    this,
                     PlayerService.Companion.SourceType.PLAYER_ACTIVITY
                 )
-//            }
             }
             isForeground = true
-        }
         }
     }
 
     private fun stopForeground() {
         if (isForeground) {
-            activity?.apply {
-                PlayerService.stopForegroundService(this)
-            }
+            PlayerService.stopForegroundService()
             isForeground = false
         }
     }

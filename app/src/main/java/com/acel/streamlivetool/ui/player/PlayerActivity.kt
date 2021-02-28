@@ -1,24 +1,34 @@
 package com.acel.streamlivetool.ui.player
 
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.Keep
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.base.OverlayPlayerActivity
+import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
@@ -39,11 +49,12 @@ import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.danmaku.model.android.Danmakus
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : OverlayPlayerActivity() {
+    private var danmuTextSize: Float = 16f.toPx()
     private lateinit var binding: ActivityPlayerBinding
 
     internal val viewModel by viewModels<PlayerViewModel>()
-    internal var fullScreen = false
+    internal var fullScreen = MutableLiveData(false)
     internal var landscape = false
     private val orientationEventListener by lazy { OrientationEventListener(this) }
 
@@ -56,7 +67,7 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(binding.root)
         observeLiveData()
         initView()
-        lifecycle.addObserver(ForegroundListener(this))
+        lifecycle.addObserver(ForegroundListener())
         viewModel.setAnchorDataAndPlay(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -92,6 +103,7 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * 初始化view
      */
+    @SuppressLint("InflateParams")
     private fun initView() {
         //如果是横屏则切换
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -105,11 +117,10 @@ class PlayerActivity : AppCompatActivity() {
                         hideSystemUI()
             }
             player = viewModel.player
-            keepScreenOn = true
             hideController()
             findViewById<View>(R.id.btn_replay)?.setOnClickListener {
                 viewModel.replay()
-                it.animate().setDuration(1000).rotationBy(-360f).start()
+                it.animate().setDuration(1000).rotationBy(360f).start()
             }
             findViewById<View>(R.id.btn_zoom).setOnClickListener {
                 zoomClick()
@@ -166,7 +177,7 @@ class PlayerActivity : AppCompatActivity() {
 
                         override fun onStopTrackingTouch(seekBar: SeekBar?) {
                             defaultSharedPreferences.edit()
-                                .putFloat(getString(R.string.danmu_alpha), alpha).apply()
+                                .putFloat(getString(R.string.key_danmu_alpha), alpha).apply()
                             popupWindow.dismiss()
                         }
                     })
@@ -185,7 +196,15 @@ class PlayerActivity : AppCompatActivity() {
                         viewModel.stopAll()
                         true
                     }
-                    add("悬浮窗")
+                    add("悬浮窗").setOnMenuItemClickListener {
+                        viewModel.anchor.value?.let { it1 ->
+                            showPlayerOverlayWindowWithPermissionCheck(
+                                it1, viewModel.anchorList.value
+                            )
+                            finish()
+                        }
+                        true
+                    }
                 }
                 popupMenu.show()
             }
@@ -210,7 +229,7 @@ class PlayerActivity : AppCompatActivity() {
 
             })
             prepare(danmakuParser, danmakuContext)
-            alpha = defaultSharedPreferences.getFloat(getString(R.string.danmu_alpha), 0.6f)
+            alpha = defaultSharedPreferences.getFloat(getString(R.string.key_danmu_alpha), 0.6f)
         }
 
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
@@ -241,7 +260,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun zoomClick() {
-        if (!fullScreen)
+        if (!fullScreen.value!!)
             fullScreen()
         else {
             normalScreen()
@@ -252,18 +271,28 @@ class PlayerActivity : AppCompatActivity() {
      * 竖屏常规
      */
     private fun normalScreen() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        binding.playerView.layoutParams.apply {
-            this as ConstraintLayout.LayoutParams
-            height = 0
-            width = 0
-            dimensionRatio = "16:9"
-            binding.playerView.layoutParams = this
+        if (fullScreen.value!!) {
+            if (landscape) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                binding.playerView.layoutParams.apply {
+                    this as ConstraintLayout.LayoutParams
+                    height = 0
+                    width = 0
+                    dimensionRatio = "16:9"
+                    binding.playerView.layoutParams = this
+                }
+            } else {
+                val start = binding.playerView.height
+                val to = binding.root.width * 9 / 16
+                val animatorHelper = PlayerViewAnimateFromInToOutHelper(binding.playerView)
+                ObjectAnimator.ofInt(animatorHelper, "height", start, to)
+                    .setDuration(200).start()
+            }
+            showSystemUI()
+            fullScreen.value = false
+            landscape = false
+            disableOrientationListener()
         }
-        showSystemUI()
-        fullScreen = false
-        landscape = false
-        disableOrientationListener()
     }
 
     /**
@@ -293,7 +322,7 @@ class PlayerActivity : AppCompatActivity() {
             binding.playerView.layoutParams = this
         }
         hideSystemUI()
-        fullScreen = true
+        fullScreen.value = true
         landscape = true
         enableOrientationListener()
     }
@@ -303,16 +332,52 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun portraitFullScreen() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        binding.playerView.layoutParams.apply {
-            this as ConstraintLayout.LayoutParams
-            height = ConstraintLayout.LayoutParams.MATCH_PARENT
-            width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            dimensionRatio = null
-            binding.playerView.layoutParams = this
-        }
+        val start = binding.playerView.height
+        val to = binding.root.height
+        val animateHelper = PlayerViewAnimateFromOutToInHelper(binding.playerView)
+        ObjectAnimator.ofInt(animateHelper, "height", start, to)
+            .setDuration(200).start()
+
+//        binding.playerView.layoutParams.apply {
+//            this as ConstraintLayout.LayoutParams
+//            height = ConstraintLayout.LayoutParams.MATCH_PARENT
+//            width = ConstraintLayout.LayoutParams.MATCH_PARENT
+//            dimensionRatio = null
+//            binding.playerView.layoutParams = this
+//        }
         navigationBlack()
-        fullScreen = true
+        fullScreen.value = true
         landscape = false
+    }
+
+    inner class PlayerViewAnimateFromOutToInHelper(val view: View) {
+        fun getHeight(): Int {
+            return view.layoutParams.height
+        }
+
+        @Keep
+        fun setHeight(int: Int) {
+            val param = view.layoutParams.apply {
+                width = ConstraintLayout.LayoutParams.MATCH_PARENT
+                height = int
+            }
+            view.layoutParams = param
+        }
+    }
+
+    inner class PlayerViewAnimateFromInToOutHelper(val view: View) {
+        fun getHeight(): Int {
+            return view.layoutParams.height
+        }
+
+        @Keep
+        fun setHeight(int: Int) {
+            val param = view.layoutParams.apply {
+                width = ConstraintLayout.LayoutParams.MATCH_PARENT
+                height = int
+            }
+            view.layoutParams = param
+        }
     }
 
     /**
@@ -334,10 +399,14 @@ class PlayerActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         when (newConfig.orientation) {
-            Configuration.ORIENTATION_PORTRAIT ->
+            Configuration.ORIENTATION_PORTRAIT -> {
                 normalScreen()
-            Configuration.ORIENTATION_LANDSCAPE ->
+                danmuTextSize = 16f.toPx()
+            }
+            Configuration.ORIENTATION_LANDSCAPE -> {
                 landscapeFullScreen()
+                danmuTextSize = 18f.toPx()
+            }
             else -> {
             }
         }
@@ -368,7 +437,7 @@ class PlayerActivity : AppCompatActivity() {
                     text = msg
                     padding = 3
                     time = binding.danmakuView.currentTime.plus(1200)
-                    textSize = 16f.toPx()
+                    textSize = danmuTextSize
                     textColor = Color.WHITE
                     textShadowColor = Color.BLACK
                     priority = 1
@@ -383,7 +452,7 @@ class PlayerActivity : AppCompatActivity() {
      * sp转px
      */
     private fun Float.toPx(): Float {
-        val fontScale = resources.displayMetrics.scaledDensity
+        val fontScale = MyApplication.application.resources.displayMetrics.scaledDensity
         return (this * fontScale + 0.5f)
     }
 
@@ -406,17 +475,22 @@ class PlayerActivity : AppCompatActivity() {
                         PlayerViewModel.PlayerState.IS_PLAYING -> {
                             binding.progressBar.visibility = View.GONE
                             binding.errorMsg.visibility = View.GONE
+                            binding.playerView.keepScreenOn = true
                         }
                         PlayerViewModel.PlayerState.IS_LOADING ->
                             binding.progressBar.visibility = View.VISIBLE
-                        PlayerViewModel.PlayerState.IS_ENDED,
+                        PlayerViewModel.PlayerState.IS_ENDED -> {
+                            binding.playerView.keepScreenOn = false
+                        }
                         PlayerViewModel.PlayerState.IS_IDLE,
-                        PlayerViewModel.PlayerState.IS_ERROR ->
+                        PlayerViewModel.PlayerState.IS_ERROR -> {
                             binding.progressBar.visibility = View.GONE
+                            binding.playerView.keepScreenOn = false
+                        }
                     }
             }
             playerMessage.observe(this@PlayerActivity) {
-                if (it.isNotEmpty()) {
+                if (it.isNotEmpty() && !viewModel.isPlaying) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
                         text = it
@@ -429,7 +503,28 @@ class PlayerActivity : AppCompatActivity() {
                 binding.playerView.findViewById<TextView>(R.id.current_quality).text =
                     it?.description ?: getString(R.string.no_video_quality_to_choose)
             }
+            videoResolution.observe(this@PlayerActivity) {
+                setZoomButtonImage()
+            }
         }
+        fullScreen.observe(this) {
+            setZoomButtonImage()
+        }
+    }
+
+    private fun setZoomButtonImage() {
+        val resolution = viewModel.videoResolution.value
+        if (resolution != null) {
+            if (!fullScreen.value!!)
+                binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
+                    .setImageResource(if (resolution.first < resolution.second) R.drawable.ic_full_screen_portrait else R.drawable.ic_full_screen_landscape)
+            else
+                binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
+                    .setImageResource(R.drawable.ic_zoom_out)
+        } else
+            binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
+                .setImageResource(R.drawable.ic_full_screen_landscape)
+
     }
 
     /**
@@ -486,7 +581,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (fullScreen)
+        if (fullScreen.value!!)
             normalScreen()
         else
             super.onBackPressed()

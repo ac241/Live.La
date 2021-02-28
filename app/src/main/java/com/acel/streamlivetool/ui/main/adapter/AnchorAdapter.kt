@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -231,7 +230,6 @@ class AnchorAdapter(
         //长按
         holder.itemView.setOnLongClickListener {
             mPosition = position
-            Log.d("onBindViewHolder", "${getLongClickPosition()}")
             return@setOnLongClickListener false
         }
 

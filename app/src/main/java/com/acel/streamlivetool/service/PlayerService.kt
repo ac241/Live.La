@@ -6,13 +6,14 @@
 package com.acel.streamlivetool.service
 
 import android.app.*
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.ui.player.PlayerActivity
+import com.acel.streamlivetool.util.MainExecutor
 
 
 //@RuntimePermissions
@@ -121,8 +122,8 @@ class PlayerService : Service() {
         private const val PLAYER_NOTIFICATION_CHANNEL_NAME: String = "播放器前台服务"
 
         @JvmStatic
-        fun startWithForeground(context: Context, type: SourceType?) {
-            val intent = Intent(context, PlayerService::class.java)
+        fun startWithForeground(type: SourceType?) {
+            val intent = Intent(MyApplication.application, PlayerService::class.java)
             when (type) {
                 SourceType.PLAYER_ACTIVITY ->
                     intent.putExtra("source", SourceType.PLAYER_ACTIVITY)
@@ -134,13 +135,19 @@ class PlayerService : Service() {
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //                context.startForegroundService(intent)
 //            } else
-            context.startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                MyApplication.application.startForegroundService(intent)
+            else
+                MyApplication.application.startService(intent)
         }
 
         @JvmStatic
-        fun stopForegroundService(context: Context) {
-            val intent = Intent(context, PlayerService::class.java)
-            context.stopService(intent)
+        fun stopForegroundService() {
+            MainExecutor.execute {
+                Thread.sleep(100)
+                val intent = Intent(MyApplication.application, PlayerService::class.java)
+                MyApplication.application.stopService(intent)
+            }
         }
     }
 }

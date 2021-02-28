@@ -3,7 +3,6 @@ package com.acel.streamlivetool.ui.main
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,17 +10,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.base.OverlayPlayerActivity
+import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
@@ -29,19 +31,16 @@ import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
-import com.acel.streamlivetool.util.AnchorListUtil.getLivingAnchors
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
 import permissions.dispatcher.NeedsPermission
-import permissions.dispatcher.OnPermissionDenied
 import permissions.dispatcher.RuntimePermissions
 import kotlin.collections.set
 import kotlin.properties.Delegates
 
-
 @RuntimePermissions
-class MainActivity : AppCompatActivity() {
+class MainActivity : OverlayPlayerActivity() {
     private val mainFragment = GroupFragment.newInstance()
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
     private val displayPlatformPage by lazy {
@@ -74,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     val platforms by lazy {
         initPlatforms()
     }
+    private val playerFragment = PlayerFragment.getInstance()
 
     private fun initPlatforms(): MutableList<IPlatform> {
         val platforms = mutableListOf<IPlatform>()
@@ -138,6 +138,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
+
+//        var statusBarHeight1 = -1
+//        //获取status_bar_height资源的ID
+//        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+//        if (resourceId > 0) {
+//            //根据资源ID获取响应的尺寸值
+//            statusBarHeight1 = resources.getDimensionPixelSize(resourceId)
+//        }
+//        Log.e("WangJ", "状态栏-方法1:$statusBarHeight1");
+
     }
 
     private fun init() {
@@ -230,23 +240,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
-    fun showPlayerOverlayWindow(anchor: Anchor, anchorList: List<Anchor>) {
-        val livingAnchors = getLivingAnchors(anchorList)
-        PlayerOverlayWindowManager.instance.playList(anchor, livingAnchors)
-    }
-
-    @OnPermissionDenied(Manifest.permission.SYSTEM_ALERT_WINDOW)
-    internal fun showDeniedForSystemAlertWindow() {
-        toast("需要权限来使用悬浮窗功能。")
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        onActivityResult(requestCode)
-    }
-
-    fun playStream(
+    fun playStreamOverlay(
         anchor: Anchor,
         list: List<Anchor>
     ) {
@@ -287,7 +281,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        backPressedTime = System.currentTimeMillis()
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            backPressedTime = System.currentTimeMillis()
+        }
     }
 
     fun setToolbarTitle(title: String) {
@@ -306,20 +304,45 @@ class MainActivity : AppCompatActivity() {
     @Synchronized
     fun itemClick(view: View, context: MainActivity, anchor: Anchor, anchorList: List<Anchor>) {
         val avatar = view.findViewById<ImageView>(R.id.grid_anchor_avatar)
-        val location = IntArray(2)
-        avatar.getLocationInWindow(location)
+        val avatarLocation = IntArray(2)
+        avatar.getLocationInWindow(avatarLocation)
+        val tabIndex = platforms.indexOf(anchor.platformImpl())
+        if (tabIndex == -1) {
+            AnchorClickAction.itemClick(context, anchor, anchorList)
+            return
+        }
+        val tab = binding.tabLayout.getTabAt(tabIndex + 1)?.view!!
+        val tabLocation = IntArray(2)
+        tab.getLocationInWindow(tabLocation)
+        val targetX = tabLocation[0] + (tab.width - avatar.width) / 2
+        val targetY = tabLocation[1] + -(tab.height - avatar.height) / 2
+
         val drawable = avatar.drawable
         layoutInflater.inflate(R.layout.avatar, binding.root, true)
         val animateAvatar = binding.root.findViewById<ImageView>(R.id.animate_avatar)
         animateAvatar.apply {
             setImageDrawable(drawable)
-            x = location[0].toFloat()
-            y = location[1].toFloat()
-            animate().setDuration(300).translationY(793f).translationX(38f).scaleX(1.285f)
-                .scaleY(1.285f)
+            x = avatarLocation[0].toFloat()
+            y = avatarLocation[1].toFloat()
+            animate()
+                .setDuration(300)
+//                .translationX(targetX.toFloat())
+//                .translationY(targetY.toFloat())
+                .translationX(38f)
+                .translationY(793f - 68)
+//                .scaleX(1.285714f)
+//                .scaleY(1.285714f)
+                .setInterpolator(DecelerateInterpolator())
                 .withEndAction {
                     AnchorClickAction.itemClick(context, anchor, anchorList)
                     binding.root.removeView(animateAvatar)
+//                    supportFragmentManager.commit {
+//                        setReorderingAllowed(true)
+//                        addToBackStack(null)
+//                        replace(binding.fragmentContainer.id, playerFragment)
+//                        PlayerFragment.setAnchorData(anchor, null)
+////                            .setAnchorDayta(anchor)
+//                    }
                 }
                 .start()
         }
