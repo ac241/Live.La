@@ -3,16 +3,16 @@ package com.acel.streamlivetool.ui.main
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
-import android.view.animation.DecelerateInterpolator
+import android.view.*
 import android.widget.ImageView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
@@ -23,16 +23,18 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.ui.custom_view.FloatingAvatar
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
 import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
+import com.acel.streamlivetool.ui.player.PlayerFragment
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import com.acel.streamlivetool.util.toPx
 import com.google.android.material.tabs.TabLayoutMediator
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.RuntimePermissions
@@ -41,6 +43,7 @@ import kotlin.properties.Delegates
 
 @RuntimePermissions
 class MainActivity : OverlayPlayerActivity() {
+    private var playerFragment: PlayerFragment? = null
     private val mainFragment = GroupFragment.newInstance()
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
     private val displayPlatformPage by lazy {
@@ -73,7 +76,7 @@ class MainActivity : OverlayPlayerActivity() {
     val platforms by lazy {
         initPlatforms()
     }
-    private val playerFragment = PlayerFragment.getInstance()
+
 
     private fun initPlatforms(): MutableList<IPlatform> {
         val platforms = mutableListOf<IPlatform>()
@@ -138,27 +141,15 @@ class MainActivity : OverlayPlayerActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
+    }
 
-//        var statusBarHeight1 = -1
-//        //获取status_bar_height资源的ID
-//        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-//        if (resourceId > 0) {
-//            //根据资源ID获取响应的尺寸值
-//            statusBarHeight1 = resources.getDimensionPixelSize(resourceId)
-//        }
-//        Log.e("WangJ", "状态栏-方法1:$statusBarHeight1");
-
+    override fun onResume() {
+        super.onResume()
+        whiteStatusBar()
     }
 
     private fun init() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = resources.getColor(android.R.color.background_light, null)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        }
         setSupportActionBar(binding.toolbar)
-
         initViewPager()
         if (displayPlatformPage)
             TabLayoutMediator(
@@ -281,6 +272,18 @@ class MainActivity : OverlayPlayerActivity() {
     }
 
     override fun onBackPressed() {
+        if (playerFragment == null)
+            backPressed()
+        else {
+            playerFragment?.apply {
+                val result = handleBackPressed()
+                if (!result)
+                    backPressed()
+            }
+        }
+    }
+
+    private fun backPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
         } else {
@@ -302,49 +305,122 @@ class MainActivity : OverlayPlayerActivity() {
     }
 
     @Synchronized
-    fun itemClick(view: View, context: MainActivity, anchor: Anchor, anchorList: List<Anchor>) {
+    fun itemClick(itemView: View, context: MainActivity, anchor: Anchor, anchorList: List<Anchor>) {
+        val action = defaultSharedPreferences.getString(
+            MyApplication.application.getString(R.string.pref_key_item_click_action), ""
+        )
+        if (action == context.getString(R.string.string_inner_player))
+            startPlayerFragment(anchor, anchorList, itemView)
+        else
+            AnchorClickAction.itemClick(context, anchor, anchorList)
+    }
+
+    private fun startPlayerFragment(
+        anchor: Anchor,
+        anchorList: List<Anchor>,
+        view: View,
+    ) {
+        playerFragment =
+            PlayerFragment.newInstance(anchor, ArrayList<Anchor>().apply { addAll(anchorList) })
+
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            addToBackStack("player_fragment")
+            setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
+            replace(binding.fragmentContainer.id, playerFragment!!)
+        }
+
         val avatar = view.findViewById<ImageView>(R.id.grid_anchor_avatar)
         val avatarLocation = IntArray(2)
         avatar.getLocationInWindow(avatarLocation)
-        val tabIndex = platforms.indexOf(anchor.platformImpl())
-        if (tabIndex == -1) {
-            AnchorClickAction.itemClick(context, anchor, anchorList)
-            return
-        }
-        val tab = binding.tabLayout.getTabAt(tabIndex + 1)?.view!!
-        val tabLocation = IntArray(2)
-        tab.getLocationInWindow(tabLocation)
-        val targetX = tabLocation[0] + (tab.width - avatar.width) / 2
-        val targetY = tabLocation[1] + -(tab.height - avatar.height) / 2
 
-        val drawable = avatar.drawable
-        layoutInflater.inflate(R.layout.avatar, binding.root, true)
-        val animateAvatar = binding.root.findViewById<ImageView>(R.id.animate_avatar)
+        val rootLocation = IntArray(2)
+        binding.root.getLocationInWindow(rootLocation)
+
+        //复制一个drawable，防止item avatar变形
+        val drawable = avatar.drawable.toBitmap()
+
+        if (binding.root.findViewById<ImageView>(R.id.float_avatar) == null)
+            layoutInflater.inflate(R.layout.float_avatar, binding.root, true)
+        val animateAvatar = binding.root.findViewById<FloatingAvatar>(R.id.float_avatar)
         animateAvatar.apply {
-            setImageDrawable(drawable)
-            x = avatarLocation[0].toFloat()
-            y = avatarLocation[1].toFloat()
-            animate()
-                .setDuration(300)
-//                .translationX(targetX.toFloat())
-//                .translationY(targetY.toFloat())
-                .translationX(38f)
-                .translationY(793f - 68)
-//                .scaleX(1.285714f)
-//                .scaleY(1.285714f)
-                .setInterpolator(DecelerateInterpolator())
-                .withEndAction {
-                    AnchorClickAction.itemClick(context, anchor, anchorList)
+            setImageBitmap(drawable)
+            val targetDimens = context.resources.getDimension(R.dimen.player_fragment_avatar)
+            move(
+                currentLocation = Pair(
+                    avatarLocation[0].toFloat(),
+                    avatarLocation[1].toFloat() - rootLocation[1]
+                ),
+                targetLocation = Pair(16f.toPx(), 38f.toPx() + binding.root.width * 9 / 16),
+                currentDimens = Pair(avatar.width.toFloat(), avatar.height.toFloat()),
+                targetDimens = Pair(targetDimens, targetDimens),
+                duration = 300L,
+                doOnCancel = {
                     binding.root.removeView(animateAvatar)
-//                    supportFragmentManager.commit {
-//                        setReorderingAllowed(true)
-//                        addToBackStack(null)
-//                        replace(binding.fragmentContainer.id, playerFragment)
-//                        PlayerFragment.setAnchorData(anchor, null)
-////                            .setAnchorDayta(anchor)
-//                    }
+                },
+                doOnEnd = {
+                    binding.root.removeView(animateAvatar)
+                    playerFragment!!.showAvatar()
                 }
-                .start()
+            )
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    internal fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    // Set the content to appear under the system bars so that the
+                    // content doesn't resize when the system bars hide and show.
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    // Hide the nav bar and status bar
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    internal fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_VISIBLE)
+    }
+
+    /**
+     * 黑色底部导航栏
+     */
+    internal fun navigationBlack() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.navigationBarColor = Color.BLACK
+        }
+    }
+
+    fun playerFragmentDestroy() {
+        showSystemUI()
+    }
+
+    private fun whiteStatusBar() {
+        Log.d("acel_log@MainActivity#whiteStatusBar", "white")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.statusBarColor = resources.getColor(android.R.color.background_light, null)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+    }
+
+    fun blackStatusBar() {
+        Log.d("acel_log@MainActivity#black", "black")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                window.statusBarColor = Color.TRANSPARENT
+            } else {
+                window.statusBarColor = Color.BLACK
+            }
+            window.navigationBarColor = Color.TRANSPARENT
         }
     }
 }

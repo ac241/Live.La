@@ -48,7 +48,7 @@ class AppInitiation {
         list.add(Anchor("douyu", "毛阿姨不在", "469195", "469195"))
         list.add(Anchor("douyu", "女流66", "156277", "156277"))
         list.add(Anchor("bilibili", "阿P在家吗", "12856139", "12856139"))
-        list.add(Anchor("bilibili", "超carry的柴西", "21426464", "21426464"))
+        list.add(Anchor("bilibili", "超Carry的柴西", "21426464", "21426464"))
         list.add(Anchor("douyu", "小苏菲", "241431", "241431"))
         list.add(Anchor("bilibili", "凉子和猫", "1039633", "1039633"))
         list.forEach {

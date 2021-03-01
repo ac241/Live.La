@@ -9,9 +9,9 @@ import android.widget.TextView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Danmu
 
-class DanmuRecyclerViewAdapter(
+class DanmuListAdapter(
     private val values: List<Danmu>
-) : RecyclerView.Adapter<DanmuRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<DanmuListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)

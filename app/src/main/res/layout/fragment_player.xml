@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="#FFFFFF"
     android:clickable="true"
     android:focusable="true"
+    app:layoutDescription="@xml/fragment_player_scene"
     tools:context=".ui.player.PlayerActivity">
 
     <com.acel.streamlivetool.ui.custom_view.VolumeAjustablePlayerView
@@ -35,12 +36,13 @@
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/avatar"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="@dimen/player_fragment_avatar"
+        android:layout_height="@dimen/player_fragment_avatar"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:contentDescription="@string/avatar"
         android:scaleType="centerCrop"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:roundPercent="1"
@@ -162,7 +164,7 @@
         app:layout_constraintTop_toTopOf="@+id/player_view" />
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+        android:id="@+id/view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -23,7 +23,7 @@
             android:name=".ui.player.PlayerActivity"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+            android:theme="@style/Theme.Fade.InOut.NoActionBar" />
         <activity
             android:name=".ui.main.MainActivity"
             android:configChanges="orientation|screenSize"

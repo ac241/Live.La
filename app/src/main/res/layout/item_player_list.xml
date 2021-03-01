@@ -24,7 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/avatar" />
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <androidx.constraintlayout.utils.widget.ImageFilterView
             android:id="@+id/avatar"
             android:layout_width="25dp"
             android:layout_height="25dp"
@@ -34,7 +34,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/is_playing"
             app:layout_constraintTop_toTopOf="parent"
-            app:riv_corner_radius="30dip"
+            app:roundPercent="1"
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView

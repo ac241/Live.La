@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.acel.streamlivetool.ui.custom_view.FloatingAvatar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/float_avatar"
+    android:layout_width="@dimen/float_avatar_avatar"
+    android:layout_height="@dimen/float_avatar_avatar"
+    android:contentDescription="@string/avatar"
+    android:scaleType="centerCrop"
+    android:src="@android:color/black"
+    app:roundPercent="1" />

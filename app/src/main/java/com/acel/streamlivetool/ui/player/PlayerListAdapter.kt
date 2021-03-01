@@ -1,5 +1,7 @@
 package com.acel.streamlivetool.ui.player
 
+import android.app.Activity
+import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +17,8 @@ import com.acel.streamlivetool.platform.PlatformDispatcher
 import kotlinx.android.synthetic.main.item_player_list.view.*
 
 class PlayerListAdapter(
-    private val playerActivity: PlayerActivity,
+    private val context: Context,
+    private val viewModel: PlayerViewModel,
     private val list: List<Anchor>
 ) :
     RecyclerView.Adapter<PlayerListAdapter.ViewHolder>() {
@@ -27,7 +30,7 @@ class PlayerListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(playerActivity).inflate(R.layout.item_player_list, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.item_player_list, parent, false)
         )
     }
 
@@ -40,10 +43,10 @@ class PlayerListAdapter(
 
         holder.nickname?.apply {
             text = list[position].nickname
-            setOnClickListener { playerActivity.viewModel.playInList(position) }
+            setOnClickListener { viewModel.playInList(position) }
         }
         list[position].avatar?.let {
-            holder.avatar?.let { it1 -> ImageLoader.load(playerActivity, it, it1) }
+            holder.avatar?.let { it1 -> ImageLoader.load(context, it, it1) }
         }
         PlatformDispatcher.getPlatformImpl(list[position])?.iconRes?.let {
             holder.icon?.setImageResource(it)

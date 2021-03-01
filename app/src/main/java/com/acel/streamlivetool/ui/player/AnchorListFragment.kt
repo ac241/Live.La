@@ -25,10 +25,7 @@ class AnchorListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.listView.apply {
             adapter = viewModel.anchorList.value?.let {
-                PlayerListAdapter(
-                    requireActivity() as PlayerActivity,
-                    it
-                )
+                PlayerListAdapter(requireContext(), viewModel, it)
             }
         }
         viewModel.apply {
@@ -45,7 +42,6 @@ class AnchorListFragment : Fragment() {
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance() = AnchorListFragment()
     }

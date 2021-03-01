@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
@@ -107,7 +108,7 @@ class PlayerViewModel : ViewModel() {
     val isPlaying get() = playerStatus.value == PlayerState.IS_PLAYING
     val videoResolution = MutableLiveData(Pair(0, 0))
 
-    val anchor = MutableLiveData<Anchor>()
+    val anchor = MutableLiveData<Anchor?>()
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
 
     //当前主播在列表中的位置
@@ -223,6 +224,32 @@ class PlayerViewModel : ViewModel() {
         val anchor = list?.get(index) ?: return
         preparePlay(anchor)
     }
+
+    /**
+     * 设置主播数据并且播放
+     */
+    internal fun setAnchorDataAndPlay(anchor: Anchor, list: List<Anchor>?) {
+        resetData()
+        anchorList.apply {
+            if (list != null) {
+                anchorList.value?.clear()
+                val temp = removeGroup(list)
+                anchorList.value?.apply {
+                    addAll(temp)
+                }
+                anchorList.postValue(value)
+            }
+        }
+//        val anchor = list?.get(index) ?: return
+        preparePlay(anchor)
+    }
+
+    private fun resetData() {
+        playerMessage.value = ""
+        playerStatus.value = PlayerState.IS_IDLE
+        anchor.value = null
+    }
+
 
     /**
      * 准备播放

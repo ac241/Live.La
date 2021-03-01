@@ -43,7 +43,7 @@
 
     <string name="app_name">直播啦</string>
     <string name="title_activity_setting">设置</string>
-    <string name="main_page_add_anchor">主页新增直播间</string>
+    <string name="main_page_add_anchor">新增/搜索</string>
     <string name="confirm">确定</string>
     <string name="delete">删除</string>
     <string name="setting">设置</string>

@@ -27,7 +27,7 @@ class DanmuListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.rvDanmu.apply {
             adapter =
-                viewModel.danmuList.value?.let { DanmuRecyclerViewAdapter(it) }
+                viewModel.danmuList.value?.let { DanmuListAdapter(it) }
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 val layoutManager = this@apply.layoutManager as LinearLayoutManager
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

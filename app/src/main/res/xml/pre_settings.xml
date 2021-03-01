@@ -35,7 +35,7 @@
             android:title="@string/item_click_action_name"
             app:iconSpaceReserved="false" />
         <ListPreference
-            android:defaultValue="@string/string_open_app"
+            android:defaultValue="@string/string_overlay_player"
             android:entries="@array/pref_click_action_entries"
             android:entryValues="@array/pref_click_action_entry_values"
             android:key="@string/pref_key_second_button_click_action"
@@ -48,8 +48,8 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="@string/pref_key_group_mode_use_cookie"
-            android:title="@string/group_mode_use_cookie"
             android:summary="@string/group_mode_use_cookie_summary"
+            android:title="@string/group_mode_use_cookie"
             app:iconSpaceReserved="false" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -66,8 +66,8 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="@string/pref_key_app_description"
-            android:title="@string/app_description"
             android:summary="@string/pref_key_app_description_summary"
+            android:title="@string/app_description"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 </PreferenceScreen>

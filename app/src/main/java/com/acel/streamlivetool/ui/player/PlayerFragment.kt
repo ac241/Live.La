@@ -2,40 +2,35 @@ package com.acel.streamlivetool.ui.player
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.base.OverlayPlayerActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.databinding.ActivityPlayerBinding
+import com.acel.streamlivetool.databinding.FragmentPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.custom_view.addItemWhiteTextColor
 import com.acel.streamlivetool.ui.custom_view.blackAlphaPopupMenu
-import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.ui.main.MainActivity
+import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.acel.streamlivetool.util.toPx
 import kotlinx.coroutines.Dispatchers
@@ -49,42 +44,18 @@ import master.flame.danmaku.danmaku.model.IDanmakus
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.danmaku.model.android.Danmakus
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
-import kotlin.math.abs
 
-class PlayerActivity : OverlayPlayerActivity() {
-    private var danmuTextSize: Float = 16f.toPx()
-    private lateinit var binding: ActivityPlayerBinding
+class PlayerFragment : Fragment() {
+    private lateinit var binding: FragmentPlayerBinding
+    internal val viewModel by activityViewModels<PlayerViewModel>()
 
-    internal val viewModel by viewModels<PlayerViewModel>()
     internal var fullScreen = MutableLiveData(false)
     internal var landscape = false
-    private val orientationEventListener by lazy { OrientationEventListener(this) }
+    private val orientationEventListener by lazy { OrientationEventListenerF(this) }
 
     private var emitDanmuJob: Job? = null
 
-    @Suppress("DEPRECATION")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        initView()
-        observeLiveData()
-        lifecycle.addObserver(ForegroundListener())
-        viewModel.setAnchorDataAndPlay(intent)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                window.statusBarColor = Color.TRANSPARENT
-            } else {
-                window.statusBarColor = Color.BLACK
-            }
-            window.navigationBarColor = Color.TRANSPARENT
-        }
-        //自动切换屏幕
-        lifecycle.addObserver(orientationEventListener)
-    }
+    private var danmuTextSize: Float = 16f.toPx()
 
     private val danmakuContext = DanmakuContext.create().apply {
         setMaximumVisibleSizeInScreen(0)
@@ -97,9 +68,34 @@ class PlayerActivity : OverlayPlayerActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        intent?.let { viewModel.setAnchorDataAndPlay(it) }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let { bundle ->
+            val anchor = bundle.getParcelable<Anchor>("anchor")
+            val anchorList = bundle.getParcelableArrayList<Anchor>("anchor_list")
+            anchor?.let {
+                viewModel.setAnchorDataAndPlay(it, anchorList)
+            }
+        }
+
+        lifecycle.addObserver(ForegroundListener())
+        lifecycle.addObserver(orientationEventListener)
+        (requireActivity() as MainActivity).blackStatusBar()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentPlayerBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initView()
+        observeLiveData()
     }
 
     /**
@@ -116,7 +112,7 @@ class PlayerActivity : OverlayPlayerActivity() {
             setControllerVisibilityListener {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                     if (it == View.GONE)
-                        hideSystemUI()
+                        (requireActivity() as MainActivity).hideSystemUI()
             }
             player = viewModel.player
             hideController()
@@ -133,7 +129,7 @@ class PlayerActivity : OverlayPlayerActivity() {
                     val qualityList = viewModel.qualityList.value
                     if (qualityList != null && qualityList.isNotEmpty()) {
                         val popupMenu =
-                            blackAlphaPopupMenu(this@PlayerActivity, this)
+                            blackAlphaPopupMenu(requireContext(), this)
                         popupMenu.menu.apply {
                             viewModel.qualityList.value?.forEach { quality ->
                                 addItemWhiteTextColor(quality?.description)
@@ -145,14 +141,14 @@ class PlayerActivity : OverlayPlayerActivity() {
                         }
                         popupMenu.show()
                     } else {
-                        toast("没有更多的清晰度可以选择。")
+                        ToastUtil.toast("没有更多的清晰度可以选择。")
                     }
                 }
             }
             findViewById<ImageView>(R.id.controller_setting).setOnClickListener {
-                val view = LayoutInflater.from(this@PlayerActivity)
+                val view = LayoutInflater.from(requireContext())
                     .inflate(R.layout.popup_player_controller_setting, null, false)
-                val popupWindow = PopupWindow(this@PlayerActivity)
+                val popupWindow = PopupWindow(requireContext())
                 popupWindow.apply {
                     contentView = view
                     width = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -191,19 +187,20 @@ class PlayerActivity : OverlayPlayerActivity() {
         //icon图标
         binding.platformIcon.apply {
             setOnClickListener {
-                val popupMenu = PopupMenu(this@PlayerActivity, this)
+                val popupMenu = PopupMenu(requireContext(), this)
                 popupMenu.menu.apply {
                     add("打开app").setOnMenuItemClickListener {
-                        viewModel.startAppForCurrentAnchor(this@PlayerActivity)
+                        viewModel.startAppForCurrentAnchor(requireContext())
                         viewModel.stopAll()
                         true
                     }
                     add("悬浮窗").setOnMenuItemClickListener {
                         viewModel.anchor.value?.let { it1 ->
-                            showPlayerOverlayWindowWithPermissionCheck(
+                            (requireActivity() as MainActivity).showPlayerOverlayWindowWithPermissionCheck(
                                 it1, viewModel.anchorList.value
                             )
-                            finish()
+//                            finish()
+                            //todo
                         }
                         true
                     }
@@ -249,7 +246,7 @@ class PlayerActivity : OverlayPlayerActivity() {
             viewModel.restartDanmu("重新连接弹幕服务器")
         }
 
-        viewModel.danmuStatus.observe(this) {
+        viewModel.danmuStatus.observe(viewLifecycleOwner) {
             binding.danmuNotice.text = it.second
             if (it.first == PlayerViewModel.DanmuState.START)
                 startEmitDanmuJob()
@@ -275,7 +272,7 @@ class PlayerActivity : OverlayPlayerActivity() {
     private fun normalScreen() {
         if (fullScreen.value!!) {
             if (landscape) {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 binding.playerView.layoutParams.apply {
                     this as ConstraintLayout.LayoutParams
                     height = 0
@@ -290,7 +287,7 @@ class PlayerActivity : OverlayPlayerActivity() {
                 ObjectAnimator.ofInt(animatorHelper, "height", start, to)
                     .setDuration(200).start()
             }
-            showSystemUI()
+            (requireActivity() as MainActivity).showSystemUI()
             fullScreen.value = false
             landscape = false
             disableOrientationListener()
@@ -313,17 +310,18 @@ class PlayerActivity : OverlayPlayerActivity() {
         }
     }
 
+
     /**
      * 横屏全屏
      */
     private fun landscapeFullScreen() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         binding.playerView.layoutParams.apply {
             height = ConstraintLayout.LayoutParams.MATCH_PARENT
             width = ConstraintLayout.LayoutParams.MATCH_PARENT
             binding.playerView.layoutParams = this
         }
-        hideSystemUI()
+        (requireActivity() as MainActivity).hideSystemUI()
         fullScreen.value = true
         landscape = true
         enableOrientationListener()
@@ -333,7 +331,7 @@ class PlayerActivity : OverlayPlayerActivity() {
      * 竖屏全屏
      */
     private fun portraitFullScreen() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         val start = binding.playerView.height
         val to = binding.root.height
         val animateHelper = PlayerViewAnimateFromOutToInHelper(binding.playerView)
@@ -347,7 +345,7 @@ class PlayerActivity : OverlayPlayerActivity() {
 //            dimensionRatio = null
 //            binding.playerView.layoutParams = this
 //        }
-        navigationBlack()
+        (requireActivity() as MainActivity).navigationBlack()
         fullScreen.value = true
         landscape = false
     }
@@ -427,6 +425,9 @@ class PlayerActivity : OverlayPlayerActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding.danmakuView.release()
+        viewModel.stopAll()
+        normalScreen()
+        (requireActivity() as MainActivity).playerFragmentDestroy()
     }
 
     /**
@@ -455,17 +456,18 @@ class PlayerActivity : OverlayPlayerActivity() {
      */
     private fun observeLiveData() {
         viewModel.apply {
-            anchor.observe(this@PlayerActivity) {
+            anchor.observe(viewLifecycleOwner) {
                 if (it != null) {
                     displayAnchorDetail(it)
                     viewModel.getAnchorDetails(it)
                 }
             }
-            anchorDetails.observe(this@PlayerActivity) {
-                displayAnchorDetail(it)
+            anchorDetails.observe(viewLifecycleOwner) {
+                if (it == viewModel.anchor.value)
+                    displayAnchorDetail(it)
             }
 
-            playerStatus.observe(this@PlayerActivity) {
+            playerStatus.observe(viewLifecycleOwner) {
                 if (it != null)
                     when (it) {
                         PlayerViewModel.PlayerState.IS_PLAYING -> {
@@ -485,7 +487,7 @@ class PlayerActivity : OverlayPlayerActivity() {
                         }
                     }
             }
-            playerMessage.observe(this@PlayerActivity) {
+            playerMessage.observe(viewLifecycleOwner) {
                 if (it.isNotEmpty() && !viewModel.isPlaying) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
@@ -495,15 +497,15 @@ class PlayerActivity : OverlayPlayerActivity() {
                     binding.progressBar.visibility = View.GONE
                 }
             }
-            currentQuality.observe(this@PlayerActivity) {
+            currentQuality.observe(viewLifecycleOwner) {
                 binding.playerView.findViewById<TextView>(R.id.current_quality).text =
                     it?.description ?: getString(R.string.no_video_quality_to_choose)
             }
-            videoResolution.observe(this@PlayerActivity) {
+            videoResolution.observe(viewLifecycleOwner) {
                 setZoomButtonImage()
             }
         }
-        fullScreen.observe(this) {
+        fullScreen.observe(viewLifecycleOwner) {
             setZoomButtonImage()
         }
     }
@@ -548,6 +550,21 @@ class PlayerActivity : OverlayPlayerActivity() {
     }
 
     /**
+     * 淡入显示
+     */
+    private fun View.fadeIn() {
+        alpha = 0f
+        animate().setDuration(500).alpha(1f)
+    }
+
+//    override fun onBackPressed() {
+//        if (fullScreen.value!!)
+//            normalScreen()
+//        else
+//            super.onBackPressed()
+//    }
+
+    /**
      * 显示主播信息
      */
     private fun displayAnchorDetail(it: Anchor) {
@@ -568,49 +585,24 @@ class PlayerActivity : OverlayPlayerActivity() {
         }
     }
 
-    /**
-     * 淡入显示
-     */
-    private fun View.fadeIn() {
-        alpha = 0f
-        animate().setDuration(500).alpha(1f)
+    fun showAvatar() {
+        binding.avatar.visibility = View.VISIBLE
     }
 
-    override fun onBackPressed() {
-        if (fullScreen.value!!)
+    fun handleBackPressed(): Boolean {
+        return if (fullScreen.value!!) {
             normalScreen()
-        else
-            super.onBackPressed()
+            true
+        } else false
     }
 
-    @Suppress("DEPRECATION")
-    private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    // Hide the nav bar and status bar
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    companion object {
+        @JvmStatic
+        fun newInstance(anchor: Anchor, anchorList: ArrayList<Anchor>?) = PlayerFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable("anchor", anchor)
+                putParcelableArrayList("anchor_list", anchorList)
+            }
         }
     }
-
-    @Suppress("DEPRECATION")
-    private fun showSystemUI() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_VISIBLE)
-    }
-
-    /**
-     * 黑色底部导航栏
-     */
-    private fun navigationBlack() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.navigationBarColor = Color.BLACK
-        }
-    }
-
 }

@@ -41,18 +41,18 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="SmallSp" />
 
-        <com.makeramen.roundedimageview.RoundedImageView
+        <androidx.constraintlayout.utils.widget.ImageFilterView
             android:id="@+id/grid_anchor_avatar"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginStart="8dp"
             android:contentDescription="@string/avatar"
             android:scaleType="centerCrop"
+            android:src="@drawable/ic_default_image"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/grid_anchor_image"
-            app:riv_corner_radius="30dip"
-            app:srcCompat="@mipmap/ic_launcher" />
+            app:roundPercent="1" />
 
         <ImageView
             android:id="@+id/platform_icon"
