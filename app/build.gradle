@@ -77,8 +77,6 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    //rounded image view
-    implementation 'com.makeramen:roundedimageview:2.3.0'
     //gson
     implementation 'com.google.code.gson:gson:2.8.5'
     //retrofit

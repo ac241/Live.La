@@ -38,13 +38,6 @@ class OpenSourceActivity : AppCompatActivity() {
             "BSD, part MIT and Apache 2.0"
         ),
         Module(
-            "RoundedImageView",
-            "com.makeramen:roundedimageview",
-            "https://github.com/vinc3m1/RoundedImageView",
-            "Vincent Mi",
-            "Licensed under the Apache License, Version 2.0"
-        ),
-        Module(
             "rhino:1.7.9",
             "libs/rhino-1.7.9.jar",
             "https://github.com/mozilla/rhino",
