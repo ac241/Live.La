@@ -27,7 +27,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
     }
 
     enum class ErrorType {
-        NORMAL, NOT_SUPPORT
+        NORMAL, NOT_SUPPORT, COOKIE_INVALID
     }
 
     private fun isStarting() = state == State.START

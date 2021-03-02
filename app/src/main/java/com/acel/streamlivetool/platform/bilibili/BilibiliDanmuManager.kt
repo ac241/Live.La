@@ -40,7 +40,7 @@ class BilibiliDanmuManager :
 
         override fun start() {
             if (cookie.isEmpty()) {
-                danmuClient?.errorCallback("该平台登录后才能接收弹幕。")
+                danmuClient?.errorCallback("该平台登录后才能接收弹幕。", DanmuClient.ErrorType.COOKIE_INVALID)
                 return
             }
             val info = bilibiliService.getDanmuInfo(cookie, anchor.roomId).execute().body()

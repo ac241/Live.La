@@ -18,15 +18,18 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun setPlatformsChanges() {
-        changesList.add(MainActivity.OnNewIntentAction.PREF_PLATFORMS_CHANGED)
+        changesList.add(MainActivity.PREF_PLATFORMS_CHANGED)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         if (changesList.isNotEmpty()) {
             val intent = Intent(this, MainActivity::class.java)
-            intent.action = MainActivity.OnNewIntentAction.PREF_CHANGED
-            intent.putStringArrayListExtra("changes", changesList)
+            intent.action = MainActivity.ACTION_PREF_CHANGES
+            intent.putStringArrayListExtra(
+                MainActivity.EXTRA_KEY_PREF_CHANGES,
+                changesList
+            )
             startActivity(intent)
         }
     }

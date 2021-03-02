@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -20,6 +21,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
@@ -27,7 +29,6 @@ import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
-import com.acel.streamlivetool.ui.main.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
@@ -148,7 +149,6 @@ class GroupFragment : Fragment() {
         binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, drawable, null)
         }
-
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

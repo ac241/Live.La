@@ -20,7 +20,7 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="m">
         <activity
-            android:name=".ui.player.PlayerActivity"
+            android:name=".ui.player.WindowActivity"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.Fade.InOut.NoActionBar" />

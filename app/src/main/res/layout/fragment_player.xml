@@ -8,7 +8,7 @@
     android:clickable="true"
     android:focusable="true"
     app:layoutDescription="@xml/fragment_player_scene"
-    tools:context=".ui.player.PlayerActivity">
+    tools:context=".ui.player.WindowActivity">
 
     <com.acel.streamlivetool.ui.custom_view.VolumeAjustablePlayerView
         android:id="@+id/player_view"
@@ -25,9 +25,9 @@
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
-        android:layout_height="30dp"
+        android:layout_height="@dimen/player_fragment_title"
+        android:gravity="center_vertical"
         android:paddingHorizontal="10dp"
-        android:paddingTop="10dp"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,8 +38,8 @@
         android:id="@+id/avatar"
         android:layout_width="@dimen/player_fragment_avatar"
         android:layout_height="@dimen/player_fragment_avatar"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="@dimen/player_fragment_avatar_margin_start"
+        android:layout_marginTop="@dimen/player_fragment_avatar_margin_top"
         android:contentDescription="@string/avatar"
         android:scaleType="centerCrop"
         android:visibility="invisible"

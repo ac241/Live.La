@@ -1,10 +1,8 @@
 package com.acel.streamlivetool.ui.overlay.player
 
 import android.content.Context
-import android.util.Log
 import android.view.WindowManager
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
-import kotlinx.coroutines.delay
 
 class PlayerOverlayWindow : AbsOverlayWindow() {
     override val layoutId: Int = com.acel.streamlivetool.R.layout.layout_overlay_player
@@ -14,9 +12,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     override val defaultY: Int = 100
 
     companion object {
-        val instance by lazy {
-            PlayerOverlayWindow()
-        }
+        val instance by lazy { PlayerOverlayWindow() }
     }
 
     fun changeWindowSize(context: Context, width: Float, height: Float) {

@@ -115,7 +115,7 @@ class PlayerViewModel : ViewModel() {
     val anchorPosition = MutableLiveData(-1)
 
     //更新主播详情
-    val anchorDetails = MutableLiveData<Anchor>()
+    val anchorDetails = MutableLiveData<Anchor?>()
 
     //流质量
     val currentQuality = MutableLiveData<StreamingLive.Quality?>()
@@ -129,11 +129,11 @@ class PlayerViewModel : ViewModel() {
         Collections.synchronizedList(mutableListOf<Danmu>())
 
     //连接弹幕失败次数
-    var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
+    private var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
         if (new in (1..3))
             restartDanmu("意外连接断开，尝试重连。")
         if (new > 3)
-            danmuStatus.postValue(Pair(DanmuState.ERROR, "发生错误断开..."))
+            danmuStatus.postValue(Pair(DanmuState.ERROR, "重连失败，意外断开..."))
     }
 
     /**
@@ -161,7 +161,7 @@ class PlayerViewModel : ViewModel() {
                 mainThread {
                     danmuStatus.value = Pair(DanmuState.ERROR, "fail:$reason")
                 }
-                if (errorType != DanmuClient.ErrorType.NOT_SUPPORT)
+                if (errorType == DanmuClient.ErrorType.NORMAL)
                     danmuErrorTimes++
             }
 
@@ -245,9 +245,21 @@ class PlayerViewModel : ViewModel() {
     }
 
     private fun resetData() {
+        player.stop(true)
         playerMessage.value = ""
         playerStatus.value = PlayerState.IS_IDLE
         anchor.value = null
+        videoResolution.value = Pair(0, 0)
+        anchor.value = null
+        anchorList.value = anchorList.value?.apply { clear() }
+        anchorPosition.value = -1
+        anchorDetails.value = null
+        currentQuality.value = null
+        qualityList.value = null
+        danmuList.value = danmuList.value?.apply { clear() }
+        danmuStatus.value = Pair(DanmuState.IDLE, "")
+        preEmitDanmuList.clear()
+        danmuErrorTimes = 0
     }
 
 

@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.ui.main
 
-import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -8,7 +7,10 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
@@ -17,32 +19,28 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.base.OverlayPlayerActivity
+import com.acel.streamlivetool.base.OverlayWindowActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.custom_view.FloatingAvatar
+import com.acel.streamlivetool.ui.main.MainActivity.OnNewIntentAction.EXTRA_KEY_PREF_CHANGES
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
-import com.acel.streamlivetool.ui.overlay.list.ListOverlayWindowManager
-import com.acel.streamlivetool.ui.overlay.player.PlayerOverlayWindowManager
+import com.acel.streamlivetool.ui.player.PlayerServiceForegroundListener
 import com.acel.streamlivetool.ui.player.PlayerFragment
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import com.acel.streamlivetool.util.toPx
 import com.google.android.material.tabs.TabLayoutMediator
-import permissions.dispatcher.NeedsPermission
-import permissions.dispatcher.RuntimePermissions
 import kotlin.collections.set
 import kotlin.properties.Delegates
 
-@RuntimePermissions
-class MainActivity : OverlayPlayerActivity() {
+class MainActivity : OverlayWindowActivity() {
     private var playerFragment: PlayerFragment? = null
     private val mainFragment = GroupFragment.newInstance()
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
@@ -66,17 +64,27 @@ class MainActivity : OverlayPlayerActivity() {
         platforms.size > 0
     }
     private lateinit var binding: ActivityMainBinding
+    private var isPlayerFragmentShown = false
+    fun isPlayerFragmentShown() = isPlayerFragmentShown
 
-    object OnNewIntentAction {
-        const val PREF_CHANGED = "pref_changed"
+    companion object OnNewIntentAction {
+        private const val PLAYER_FRAGMENT_NAME = "player_fragment"
+
+        //--------pref changes
+        const val ACTION_PREF_CHANGES = "main_new_intent"
+        const val EXTRA_KEY_PREF_CHANGES = "key_pref_changes"
         const val PREF_PLATFORMS_CHANGED = "pref_platforms_changed"
         const val PREF_SHOW_IMAGE_CHANGED = "pref_show_image_changed"
+
+        //---------open fragment
+        const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
+        const val EXTRA_KEY_OPEN_FRAGMENT = "extra_key_fragment"
+        const val OPEN_PLAYER_FRAGMENT = "open_player_fragment"
     }
 
     val platforms by lazy {
         initPlatforms()
     }
-
 
     private fun initPlatforms(): MutableList<IPlatform> {
         val platforms = mutableListOf<IPlatform>()
@@ -122,16 +130,19 @@ class MainActivity : OverlayPlayerActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         when (intent?.action) {
-            OnNewIntentAction.PREF_CHANGED -> {
-                val changes = intent.getStringArrayListExtra("changes")
+            ACTION_PREF_CHANGES -> {
+                val changes = intent.getStringArrayListExtra(EXTRA_KEY_PREF_CHANGES)
                 changes?.forEach {
                     when (it) {
-                        OnNewIntentAction.PREF_PLATFORMS_CHANGED -> {
+                        PREF_PLATFORMS_CHANGED -> {
                             updatePlatformData()
                             (binding.viewPager.adapter as FragmentStateAdapter).notifyDataSetChanged()
                         }
                     }
                 }
+            }
+            ACTION_OPEN_FRAGMENT -> {
+
             }
         }
     }
@@ -141,11 +152,7 @@ class MainActivity : OverlayPlayerActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        whiteStatusBar()
+        lifecycle.addObserver(PlayerServiceForegroundListener(this))
     }
 
     private fun init() {
@@ -223,13 +230,6 @@ class MainActivity : OverlayPlayerActivity() {
         binding.viewPager.offscreenPageLimit = 1
     }
 
-    @NeedsPermission(Manifest.permission.SYSTEM_ALERT_WINDOW)
-    fun showListOverlayWindow(anchorList: List<Anchor>) {
-        ListOverlayWindowManager.instance.toggleShow(
-            this,
-            anchorList
-        )
-    }
 
     fun playStreamOverlay(
         anchor: Anchor,
@@ -285,6 +285,7 @@ class MainActivity : OverlayPlayerActivity() {
 
     private fun backPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
+            whiteStatusBar()
             supportFragmentManager.popBackStack()
         } else {
             backPressedTime = System.currentTimeMillis()
@@ -297,11 +298,6 @@ class MainActivity : OverlayPlayerActivity() {
 
     fun gotoMainPage() {
         binding.viewPager.setCurrentItem(0, true)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        PlayerOverlayWindowManager.instance.release()
     }
 
     @Synchronized
@@ -325,11 +321,19 @@ class MainActivity : OverlayPlayerActivity() {
 
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            addToBackStack("player_fragment")
+            addToBackStack(PLAYER_FRAGMENT_NAME)
             setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
             replace(binding.fragmentContainer.id, playerFragment!!)
+            isPlayerFragmentShown = true
         }
 
+        avatarMovingAnimate(view)
+    }
+
+    /**
+     * 头像移动至fragment的动画
+     */
+    private fun avatarMovingAnimate(view: View) {
         val avatar = view.findViewById<ImageView>(R.id.grid_anchor_avatar)
         val avatarLocation = IntArray(2)
         avatar.getLocationInWindow(avatarLocation)
@@ -346,13 +350,18 @@ class MainActivity : OverlayPlayerActivity() {
         animateAvatar.apply {
             setImageBitmap(drawable)
             val targetDimens = context.resources.getDimension(R.dimen.player_fragment_avatar)
+            val targetX = resources.getDimension(R.dimen.player_fragment_avatar_margin_start)
+            val targetY = resources.run {
+                binding.root.width * 9 / 16 + getDimension(R.dimen.player_fragment_title) +
+                        getDimension(R.dimen.player_fragment_avatar_margin_top)
+            }
             move(
-                currentLocation = Pair(
+                startLocation = Pair(
                     avatarLocation[0].toFloat(),
                     avatarLocation[1].toFloat() - rootLocation[1]
                 ),
-                targetLocation = Pair(16f.toPx(), 38f.toPx() + binding.root.width * 9 / 16),
-                currentDimens = Pair(avatar.width.toFloat(), avatar.height.toFloat()),
+                targetLocation = Pair(targetX, targetY),
+                startDimens = Pair(avatar.width.toFloat(), avatar.height.toFloat()),
                 targetDimens = Pair(targetDimens, targetDimens),
                 duration = 300L,
                 doOnCancel = {
@@ -396,12 +405,14 @@ class MainActivity : OverlayPlayerActivity() {
         }
     }
 
-    fun playerFragmentDestroy() {
-        showSystemUI()
+    fun onPlayerFragmentDestroy() {
+//        showSystemUI()
+//        whiteStatusBar()
+        if (supportFragmentManager.backStackEntryCount == 0)
+            isPlayerFragmentShown = false
     }
 
     private fun whiteStatusBar() {
-        Log.d("acel_log@MainActivity#whiteStatusBar", "white")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
@@ -411,7 +422,6 @@ class MainActivity : OverlayPlayerActivity() {
     }
 
     fun blackStatusBar() {
-        Log.d("acel_log@MainActivity#black", "black")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -423,4 +433,9 @@ class MainActivity : OverlayPlayerActivity() {
             window.navigationBarColor = Color.TRANSPARENT
         }
     }
+
+    fun closePlayerFragment() {
+        playerFragment?.let { supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1) }
+    }
+
 }

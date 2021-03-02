@@ -8,7 +8,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +25,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.base.OverlayPlayerActivity
+import com.acel.streamlivetool.base.OverlayWindowActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityPlayerBinding
@@ -49,9 +47,12 @@ import master.flame.danmaku.danmaku.model.IDanmakus
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.danmaku.model.android.Danmakus
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
-import kotlin.math.abs
 
-class PlayerActivity : OverlayPlayerActivity() {
+/**
+ * [PlayerFragment]
+ */
+@Deprecated("use PlayerFragment")
+class WindowActivity : OverlayWindowActivity() {
     private var danmuTextSize: Float = 16f.toPx()
     private lateinit var binding: ActivityPlayerBinding
 
@@ -69,7 +70,7 @@ class PlayerActivity : OverlayPlayerActivity() {
         setContentView(binding.root)
         initView()
         observeLiveData()
-        lifecycle.addObserver(ForegroundListener())
+//        lifecycle.addObserver(ForegroundListener())
         viewModel.setAnchorDataAndPlay(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -133,7 +134,7 @@ class PlayerActivity : OverlayPlayerActivity() {
                     val qualityList = viewModel.qualityList.value
                     if (qualityList != null && qualityList.isNotEmpty()) {
                         val popupMenu =
-                            blackAlphaPopupMenu(this@PlayerActivity, this)
+                            blackAlphaPopupMenu(this@WindowActivity, this)
                         popupMenu.menu.apply {
                             viewModel.qualityList.value?.forEach { quality ->
                                 addItemWhiteTextColor(quality?.description)
@@ -150,9 +151,9 @@ class PlayerActivity : OverlayPlayerActivity() {
                 }
             }
             findViewById<ImageView>(R.id.controller_setting).setOnClickListener {
-                val view = LayoutInflater.from(this@PlayerActivity)
+                val view = LayoutInflater.from(this@WindowActivity)
                     .inflate(R.layout.popup_player_controller_setting, null, false)
-                val popupWindow = PopupWindow(this@PlayerActivity)
+                val popupWindow = PopupWindow(this@WindowActivity)
                 popupWindow.apply {
                     contentView = view
                     width = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -191,10 +192,10 @@ class PlayerActivity : OverlayPlayerActivity() {
         //icon图标
         binding.platformIcon.apply {
             setOnClickListener {
-                val popupMenu = PopupMenu(this@PlayerActivity, this)
+                val popupMenu = PopupMenu(this@WindowActivity, this)
                 popupMenu.menu.apply {
                     add("打开app").setOnMenuItemClickListener {
-                        viewModel.startAppForCurrentAnchor(this@PlayerActivity)
+                        viewModel.startAppForCurrentAnchor(this@WindowActivity)
                         viewModel.stopAll()
                         true
                     }
@@ -455,17 +456,19 @@ class PlayerActivity : OverlayPlayerActivity() {
      */
     private fun observeLiveData() {
         viewModel.apply {
-            anchor.observe(this@PlayerActivity) {
+            anchor.observe(this@WindowActivity) {
                 if (it != null) {
                     displayAnchorDetail(it)
                     viewModel.getAnchorDetails(it)
                 }
             }
-            anchorDetails.observe(this@PlayerActivity) {
-                displayAnchorDetail(it)
+            anchorDetails.observe(this@WindowActivity) {
+                if (it != null) {
+                    displayAnchorDetail(it)
+                }
             }
 
-            playerStatus.observe(this@PlayerActivity) {
+            playerStatus.observe(this@WindowActivity) {
                 if (it != null)
                     when (it) {
                         PlayerViewModel.PlayerState.IS_PLAYING -> {
@@ -485,7 +488,7 @@ class PlayerActivity : OverlayPlayerActivity() {
                         }
                     }
             }
-            playerMessage.observe(this@PlayerActivity) {
+            playerMessage.observe(this@WindowActivity) {
                 if (it.isNotEmpty() && !viewModel.isPlaying) {
                     binding.errorMsg.apply {
                         visibility = View.VISIBLE
@@ -495,11 +498,11 @@ class PlayerActivity : OverlayPlayerActivity() {
                     binding.progressBar.visibility = View.GONE
                 }
             }
-            currentQuality.observe(this@PlayerActivity) {
+            currentQuality.observe(this@WindowActivity) {
                 binding.playerView.findViewById<TextView>(R.id.current_quality).text =
                     it?.description ?: getString(R.string.no_video_quality_to_choose)
             }
-            videoResolution.observe(this@PlayerActivity) {
+            videoResolution.observe(this@WindowActivity) {
                 setZoomButtonImage()
             }
         }

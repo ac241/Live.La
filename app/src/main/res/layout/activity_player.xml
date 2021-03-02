@@ -7,7 +7,7 @@
     android:background="@android:color/white"
     android:clickable="true"
     android:focusable="true"
-    tools:context=".ui.player.PlayerActivity">
+    tools:context=".ui.player.WindowActivity">
 
     <com.acel.streamlivetool.ui.custom_view.VolumeAjustablePlayerView
         android:id="@+id/player_view"

@@ -7,7 +7,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.player.PlayerActivity
+import com.acel.streamlivetool.ui.player.WindowActivity
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -78,7 +78,7 @@ object AnchorClickAction {
                 (context as MainActivity).playStreamOverlay(anchor, list)
             }
             context.getString(R.string.string_inner_player) -> {
-                val intent = Intent(context, PlayerActivity::class.java)
+                val intent = Intent(context, WindowActivity::class.java)
                 intent.putExtra("index", list.indexOf(anchor))
                 val arrayList = arrayListOf<Anchor>().also {
                     it.addAll(list)

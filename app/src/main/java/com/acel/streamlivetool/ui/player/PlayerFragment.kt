@@ -78,9 +78,7 @@ class PlayerFragment : Fragment() {
             }
         }
 
-        lifecycle.addObserver(ForegroundListener())
         lifecycle.addObserver(orientationEventListener)
-        (requireActivity() as MainActivity).blackStatusBar()
     }
 
     override fun onCreateView(
@@ -196,11 +194,12 @@ class PlayerFragment : Fragment() {
                     }
                     add("悬浮窗").setOnMenuItemClickListener {
                         viewModel.anchor.value?.let { it1 ->
-                            (requireActivity() as MainActivity).showPlayerOverlayWindowWithPermissionCheck(
+                            viewModel.stopAll()
+                            val activity = requireActivity() as MainActivity
+                            activity.showPlayerOverlayWindowWithPermissionCheck(
                                 it1, viewModel.anchorList.value
                             )
-//                            finish()
-                            //todo
+                            activity.closePlayerFragment()
                         }
                         true
                     }
@@ -350,6 +349,7 @@ class PlayerFragment : Fragment() {
         landscape = false
     }
 
+    @Suppress("unused")
     inner class PlayerViewAnimateFromOutToInHelper(val view: View) {
         fun getHeight(): Int {
             return view.layoutParams.height
@@ -365,6 +365,7 @@ class PlayerFragment : Fragment() {
         }
     }
 
+    @Suppress("unused")
     inner class PlayerViewAnimateFromInToOutHelper(val view: View) {
         fun getHeight(): Int {
             return view.layoutParams.height
@@ -415,6 +416,8 @@ class PlayerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.startDanmu()
+        (requireActivity() as MainActivity).blackStatusBar()
+        (requireActivity() as MainActivity).showSystemUI()
     }
 
     override fun onStop() {
@@ -426,8 +429,8 @@ class PlayerFragment : Fragment() {
         super.onDestroy()
         binding.danmakuView.release()
         viewModel.stopAll()
-        normalScreen()
-        (requireActivity() as MainActivity).playerFragmentDestroy()
+//        normalScreen()
+        (requireActivity() as MainActivity).onPlayerFragmentDestroy()
     }
 
     /**
@@ -463,7 +466,7 @@ class PlayerFragment : Fragment() {
                 }
             }
             anchorDetails.observe(viewLifecycleOwner) {
-                if (it == viewModel.anchor.value)
+                if (it != null && it == viewModel.anchor.value)
                     displayAnchorDetail(it)
             }
 

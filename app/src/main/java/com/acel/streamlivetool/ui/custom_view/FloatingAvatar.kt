@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.animation.DecelerateInterpolator
 import androidx.annotation.Keep
 import androidx.constraintlayout.utils.widget.ImageFilterView
@@ -25,16 +24,16 @@ class FloatingAvatar @JvmOverloads constructor(
 
     @Synchronized
     fun move(
-        currentLocation: Pair<Float, Float>,
+        startLocation: Pair<Float, Float>,
         targetLocation: Pair<Float, Float>,
-        currentDimens: Pair<Float, Float>,
+        startDimens: Pair<Float, Float>,
         targetDimens: Pair<Float, Float>,
         duration: Long,
         doOnCancel: () -> Unit,
         doOnEnd: () -> Unit
     ) {
-        this.currentLocation = currentLocation
-        this.currentDimens = currentDimens
+        this.currentLocation = startLocation
+        this.currentDimens = startDimens
         this.targetLocation = targetLocation
         this.targetDimens = targetDimens
         animator = ObjectAnimator.ofFloat(this, "moveTo", animateValueStart, animateValueEnd)

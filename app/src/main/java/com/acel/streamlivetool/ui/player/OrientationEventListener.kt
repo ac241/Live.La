@@ -10,10 +10,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
-class OrientationEventListener(activity: PlayerActivity) :
+class OrientationEventListener(activity: WindowActivity) :
     OrientationEventListener(activity),
     LifecycleObserver {
-    private var playerActivity: PlayerActivity? = activity
+    private var playerActivity: WindowActivity? = activity
 
     override fun onOrientationChanged(orientation: Int) {
         playerActivity?.apply {

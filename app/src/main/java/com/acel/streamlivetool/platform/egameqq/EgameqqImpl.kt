@@ -45,7 +45,6 @@ class EgameqqImpl : IPlatform {
             return null
         else {
             if (liveAndProfileInfo.data.key.retCode != 0) {
-                Log.d("acel_log#getAnchor", liveAndProfileInfo.data.key.retMsg)
                 return null
             } else {
                 liveAndProfileInfo.data.key.retBody.data.apply {

@@ -1,9 +1,12 @@
 package com.acel.streamlivetool.ui.overlay.player
 
+import android.content.Intent
 import android.net.Uri
 import android.view.View
 import android.widget.ProgressBar
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -28,9 +31,11 @@ import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.android.synthetic.main.layout_overlay_player.view.*
 
 
-class PlayerOverlayWindowManager {
+class PlayerOverlayWindowManager : LifecycleObserver {
     companion object {
         val instance by lazy { PlayerOverlayWindowManager() }
+        const val BROADCAST_ACTION = "com.acel.action.PLAYER_OVERLAY"
+        const val SHOWN_KEY = "is_shown"
     }
 
     //横屏参数
@@ -40,6 +45,8 @@ class PlayerOverlayWindowManager {
 
     //竖屏参数
     private val defaultWidthVertical = 135F
+
+    @Suppress("unused")
     private val defaultHeightVertical = 240F
     private val verticalMultipleList = listOf(1F, 1.7F, 2.5F)
 
@@ -59,16 +66,17 @@ class PlayerOverlayWindowManager {
     private val controllerView = containerView?.controllerView
 
     private var nowPlayList: List<Anchor>? = null
-    private val nowAnchor = MutableLiveData<Anchor>().also {
-        it.observeForever { anchor ->
-            controllerView?.textView_controller_title?.text = anchor.nickname
-            controllerView?.textView_controller_secondary_title?.text = anchor.title
-            //设置平台图标
-            PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let { id ->
-                controllerView?.btn_player_overlay_start_app?.setImageResource(id)
-            }
-            toggleController(anchor)
+    private val anchorObserver = Observer<Anchor> { anchor ->
+        controllerView?.textView_controller_title?.text = anchor.nickname
+        controllerView?.textView_controller_secondary_title?.text = anchor.title
+        //设置平台图标
+        PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let { id ->
+            controllerView?.btn_player_overlay_start_app?.setImageResource(id)
         }
+        toggleController(anchor)
+    }
+    private val nowAnchor = MutableLiveData<Anchor>().also {
+        it.observeForever(anchorObserver)
     }
 
     private fun toggleController(anchor: Anchor) {
@@ -368,16 +376,24 @@ class PlayerOverlayWindowManager {
         resizeWindowWithMultiple(nowResolution.first, nowResolution.second)
         isShown = true
         containerView?.controllerView?.visibility = View.GONE
+        sendShownBroadcast(true)
     }
 
     /**
      * 移除Player悬浮窗
      */
-    fun remove() {
+    private fun remove() {
         player?.stop()
         playerOverlayWindow.remove()
         isShown = false
         PlayerService.stopForegroundService()
+        sendShownBroadcast(false)
+    }
+
+    private fun sendShownBroadcast(boolean: Boolean) {
+        MyApplication.application.sendBroadcast(
+            Intent(BROADCAST_ACTION).apply { putExtra(SHOWN_KEY, boolean) }
+        )
     }
 
     internal fun toggle() {
@@ -474,5 +490,7 @@ class PlayerOverlayWindowManager {
     fun release() {
         remove()
         player?.release()
+        nowAnchor.removeObserver(anchorObserver)
     }
+
 }

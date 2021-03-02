@@ -230,7 +230,7 @@ interface IPlatform {
         danmuClient: DanmuClient
     ): Boolean {
         if (this.danmuManager == null) {
-            danmuClient.errorCallback("该平台暂不支持弹幕功能", DanmuClient.ErrorType.NOT_SUPPORT)
+            danmuClient.errorCallback("该平台弹幕功能还待建设", DanmuClient.ErrorType.NOT_SUPPORT)
             return false
         }
         this.danmuStop(danmuClient)
