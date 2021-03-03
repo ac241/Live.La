@@ -5,7 +5,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.net.WebSocketClient
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.ui.main.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuManager
 import kotlinx.coroutines.*
 import okhttp3.Request
 import okhttp3.Response
@@ -14,21 +14,21 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import java.util.regex.Matcher
 
-class DouyuDanmuManager : IPlatform.DanmuManager() {
+class DouyuDanmuClient : IPlatform.DanmuClient() {
 
     override fun generateReceiver(
         cookie: String,
         anchor: Anchor,
-        danmuClient: DanmuClient
-    ): DanmuReceiver = DouyuDanmuReceiver(anchor, cookie, danmuClient)
+        danmuManager: DanmuManager
+    ): DanmuReceiver = DouyuDanmuReceiver(anchor, cookie, danmuManager)
 
-    class DouyuDanmuReceiver(val anchor: Anchor, val cookie: String, danmuClient: DanmuClient) :
+    class DouyuDanmuReceiver(val anchor: Anchor, val cookie: String, danmuManager: DanmuManager) :
         DanmuReceiver {
 
         var roomid = anchor.roomId
         private var webSocket: WebSocket? = null
         private var heartbeatJob: Job? = null
-        private var danmuClient: DanmuClient? = danmuClient
+        private var danmuManager: DanmuManager? = danmuManager
 
         inner class DouyuWebsocketListener : WebSocketListener() {
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -39,7 +39,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
                         when (matcher.group(1)) {
                             "chatmsg" -> {
                                 val danmu = handleDanmu(msg)
-                                danmu?.let { danmuClient?.newDanmuCallback(it) }
+                                danmu?.let { danmuManager?.newDanmuCallback(it) }
                             }
                         }
                     }
@@ -51,7 +51,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
                 joinGroup()
                 receiveAllMsg()
                 heartBeat()
-                danmuClient?.startCallback()
+                danmuManager?.startCallback()
             }
 
             @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -72,11 +72,11 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                danmuClient?.errorCallback("${t.message}")
+                danmuManager?.errorCallback("${t.message}")
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                danmuClient?.stopCallBack(reason)
+                danmuManager?.stopCallBack(reason)
             }
         }
 
@@ -91,7 +91,7 @@ class DouyuDanmuManager : IPlatform.DanmuManager() {
         override fun stop() {
             webSocket?.close(1000, null)
             webSocket = null
-            danmuClient = null
+            danmuManager = null
             heartbeatJob?.cancel()
             heartbeatJob = null
         }

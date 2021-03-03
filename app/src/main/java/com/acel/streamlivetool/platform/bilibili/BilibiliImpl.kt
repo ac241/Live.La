@@ -27,7 +27,7 @@ class BilibiliImpl : IPlatform {
     override val iconRes: Int = R.drawable.ic_bilibili
     override val supportCookieMode: Boolean = true
     private val bilibiliService: BilibiliApi = retrofit.create(BilibiliApi::class.java)
-    override val danmuManager: IPlatform.DanmuManager? = BilibiliDanmuManager()
+    override val danmuClient: IPlatform.DanmuClient? = BilibiliDanmuClient()
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val anchor = Anchor()

@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 /**
  * 弹幕客户端，用于接收弹幕并推送给danmu view进行显示
  */
-class DanmuClient(viewModelScope: CoroutineScope) {
+class DanmuManager(viewModelScope: CoroutineScope) {
 
     private var anchor: Anchor? = null
     private var mListener: DanmuListener? = null
@@ -47,7 +47,7 @@ class DanmuClient(viewModelScope: CoroutineScope) {
             onConnecting(startMessage)
             danmuJob = scope?.launch(Dispatchers.IO) {
                 runCatching {
-                    anchor.platformImpl()?.danmuStart(anchor, this@DanmuClient)
+                    anchor.platformImpl()?.danmuStart(anchor, this@DanmuManager)
                 }.onFailure {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }

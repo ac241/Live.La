@@ -10,7 +10,7 @@ import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
-import com.acel.streamlivetool.ui.main.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuManager
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -216,25 +216,25 @@ interface IPlatform {
     /**
      * 弹幕接收器
      */
-    val danmuManager: DanmuManager?
+    val danmuClient: DanmuClient?
         get() = null
 
     /**
      * 弹幕开启
-     * 默认以[danmuManager]实现
+     * 默认以[danmuClient]实现
      * 如果你复写这个方法，你需要自行实现弹幕接收推送，并且需要同时复写[danmuStop]
      * @return success true/false  未实现 null
      */
     fun danmuStart(
         anchor: Anchor,
-        danmuClient: DanmuClient
+        danmuManager: DanmuManager
     ): Boolean {
-        if (this.danmuManager == null) {
-            danmuClient.errorCallback("该平台弹幕功能还没建设", DanmuClient.ErrorType.NOT_SUPPORT)
+        if (this.danmuClient == null) {
+            danmuManager.errorCallback("该平台弹幕功能还没建设", DanmuManager.ErrorType.NOT_SUPPORT)
             return false
         }
-        this.danmuStop(danmuClient)
-        this.danmuManager?.onDanmuStart(getCookie(), anchor, danmuClient)
+        this.danmuStop(danmuManager)
+        this.danmuClient?.onDanmuStart(getCookie(), anchor, danmuManager)
         return true
     }
 
@@ -242,9 +242,9 @@ interface IPlatform {
      * 弹幕关闭
      * & [danmuStart]
      */
-    fun danmuStop(danmuClient: DanmuClient): Boolean {
-        return if (this.danmuManager != null) {
-            this.danmuManager?.onDanmuStop(danmuClient)
+    fun danmuStop(danmuManager: DanmuManager): Boolean {
+        return if (this.danmuClient != null) {
+            this.danmuClient?.onDanmuStop(danmuManager)
             true
         } else
             false
@@ -253,7 +253,7 @@ interface IPlatform {
     /**
      * 弹幕管理器，用于连接弹幕服务器、接收弹幕、推送弹幕给弹幕客户端
      */
-    abstract class DanmuManager {
+    abstract class DanmuClient {
         private var danmuReceiver: DanmuReceiver? = null
 
         /**
@@ -271,7 +271,7 @@ interface IPlatform {
         abstract fun generateReceiver(
             cookie: String,
             anchor: Anchor,
-            danmuClient: DanmuClient
+            danmuManager: DanmuManager
         ): DanmuReceiver?
 
         /**
@@ -280,10 +280,10 @@ interface IPlatform {
         fun onDanmuStart(
             cookie: String,
             anchor: Anchor,
-            danmuClient: DanmuClient
+            danmuManager: DanmuManager
         ) {
             danmuReceiver?.stop()
-            danmuReceiver = generateReceiver(cookie, anchor, danmuClient)
+            danmuReceiver = generateReceiver(cookie, anchor, danmuManager)
             danmuReceiver?.start()
         }
 
@@ -292,7 +292,7 @@ interface IPlatform {
          * 弹幕关闭，默认关闭[DanmuReceiver]
          */
         @Suppress("UNUSED_PARAMETER")
-        fun onDanmuStop(danmuClient: DanmuClient) {
+        fun onDanmuStop(danmuManager: DanmuManager) {
             danmuReceiver?.stop()
         }
     }

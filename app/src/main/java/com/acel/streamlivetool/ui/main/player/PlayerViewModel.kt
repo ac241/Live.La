@@ -1,12 +1,9 @@
 package com.acel.streamlivetool.ui.main.player
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.bean.StreamingLive
@@ -14,19 +11,8 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
-import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
-import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
@@ -34,78 +20,8 @@ import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
 
-    /**
-     * 播放器
-     */
-    internal val player by lazy {
-        SimpleExoPlayer.Builder(MyApplication.application).build()
-    }.also {
-        it.value.apply {
-            playWhenReady = true
-            addListener(object : Player.EventListener {
-                override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    super.onIsPlayingChanged(isPlaying)
-                    if (isPlaying) {
-                        playerStatus.postValue(PlayerState.IS_PLAYING)
-                        playEndedTimes = 0
-                    }
-                }
 
-                override fun onIsLoadingChanged(isLoading: Boolean) {
-                    super.onIsLoadingChanged(isLoading)
-                    if (isLoading)
-                        playerStatus.postValue(PlayerState.IS_LOADING)
-                }
-
-                override fun onPlayerError(error: ExoPlaybackException) {
-                    super.onPlayerError(error)
-                    error.printStackTrace()
-                    playerMessage.postValue("播放失败。")
-                    playerStatus.postValue(PlayerState.IS_ERROR)
-                }
-
-                override fun onPlaybackStateChanged(state: Int) {
-                    super.onPlaybackStateChanged(state)
-                    if (playbackState == Player.STATE_ENDED) {
-                        playerStatus.postValue(PlayerState.IS_ENDED)
-//                        playerMessage.postValue("播放结束。")
-//                        stop()
-                        playEndedTimes++
-                    }
-                }
-            })
-            addVideoListener(object : VideoListener {
-                override fun onVideoSizeChanged(
-                    width: Int,
-                    height: Int,
-                    unappliedRotationDegrees: Int,
-                    pixelWidthHeightRatio: Float
-                ) {
-                    videoResolution.postValue(Pair(width, height))
-                }
-            })
-        }
-    }
-
-    //连接弹幕失败次数
-    var playEndedTimes: Int by Delegates.observable(0) { _, _, new ->
-        if (new in (1..3)) {
-            playerMessage.postValue("播放已断开尝试重连。")
-            replay()
-        }
-        if (new > 3) {
-            playerMessage.postValue("播放已经停止...$new")
-            player.stop(true)
-        }
-    }
-
-
-    //展示用的播放器信息
-    val playerMessage = MutableLiveData("")
-    val playerStatus = MutableLiveData(PlayerState.IS_IDLE)
-    val isPlaying get() = playerStatus.value == PlayerState.IS_PLAYING
-    val videoResolution = MutableLiveData(Pair(0, 0))
-
+    //----------主播相关------------
     val anchor = MutableLiveData<Anchor?>()
     val anchorList = MutableLiveData(mutableListOf<Anchor>())
 
@@ -115,9 +31,114 @@ class PlayerViewModel : ViewModel() {
     //更新主播详情
     val anchorDetails = MutableLiveData<Anchor?>()
 
+
+    //----------播放器相关------------
+    /**
+     * 播放器状态
+     */
+    enum class PlayerStatus { IDLE, PLAYING, LOADING, BUFFERING, PAUSE, ENDED, ERROR }
+
+    private val playerManager = PlayerManager().apply {
+        setListener(object : PlayerManager.Listener {
+            override fun onStatusChange(playerStatus: PlayerManager.PlayerStatus) {
+                val status = when (playerStatus) {
+                    PlayerManager.PlayerStatus.BUFFERING -> PlayerStatus.BUFFERING
+                    PlayerManager.PlayerStatus.IDLE -> PlayerStatus.IDLE
+                    PlayerManager.PlayerStatus.PLAYING -> {
+                        playEndedTimes = 0
+                        PlayerStatus.PLAYING
+                    }
+                    PlayerManager.PlayerStatus.LOADING -> PlayerStatus.LOADING
+                    PlayerManager.PlayerStatus.PAUSE -> PlayerStatus.PAUSE
+                    PlayerManager.PlayerStatus.ENDED -> {
+                        playEndedTimes++
+                        PlayerStatus.ENDED
+                    }
+                    PlayerManager.PlayerStatus.ERROR -> PlayerStatus.ERROR
+                }
+                this@PlayerViewModel.playerStatus.postValue(status)
+            }
+
+            override fun onMessage(message: String) {
+                playerMessage.postValue(message)
+            }
+
+            override fun onResolutionChange(resolution: Pair<Int, Int>) {
+                videoResolution.postValue(resolution)
+            }
+        })
+    }
+    val player: Player = playerManager.player
+
+    //展示用的播放器信息
+    val playerMessage = MutableLiveData("")
+    val playerStatus = MutableLiveData(PlayerStatus.IDLE)
+    val isPlaying get() = playerStatus.value == PlayerStatus.PLAYING
+    val videoResolution = MutableLiveData(Pair(0, 0))
+
     //流质量
     val currentQuality = MutableLiveData<StreamingLive.Quality?>()
     val qualityList = MutableLiveData<List<StreamingLive.Quality?>>()
+
+    //连接弹幕失败次数
+    var playEndedTimes: Int by Delegates.observable(0) { _, _, new ->
+        if (new in (1..3)) {
+            playerMessage.postValue("播放已断开尝试重连。")
+//            setMessage("播放已断开，尝试重连中...")
+            replay()
+        }
+        if (new > 3) {
+            playerMessage.postValue("播放已经停止...$new")
+//            setMessage("播放已经停止...$new")
+            playerManager.stop(true)
+        }
+    }
+
+    //----------弹幕相关------------
+    /**
+     * 弹幕状态
+     */
+    enum class DanmuState {
+        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
+    }
+
+    /**
+     * 弹幕客户端
+     */
+    private val danmuClient = DanmuManager(viewModelScope).apply {
+        setListener(object : DanmuManager.DanmuListener {
+            override fun onNewDanmu(danmu: Danmu) {
+                addDanmu(danmu)
+            }
+
+            override fun onConnecting(message: String) {
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.CONNECTING, message)
+                }
+            }
+
+            override fun onStop(reason: String) {
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.STOP, "stop:$reason")
+                }
+            }
+
+            override fun onError(reason: String, errorType: DanmuManager.ErrorType) {
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.ERROR, "fail:$reason")
+                }
+                if (errorType == DanmuManager.ErrorType.NORMAL)
+                    danmuErrorTimes++
+            }
+
+            override fun onStart() {
+                mainThread {
+                    danmuStatus.value = Pair(DanmuState.START, "弹幕链接成功")
+                }
+                danmuErrorTimes = 0
+            }
+        })
+    }
 
     val danmuList = MutableLiveData(Collections.synchronizedList(LinkedList<Danmu>()))
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
@@ -135,44 +156,6 @@ class PlayerViewModel : ViewModel() {
     }
 
     /**
-     * 弹幕客户端
-     */
-    private val danmuClient = DanmuClient(viewModelScope).apply {
-        setListener(object : DanmuClient.DanmuListener {
-            override fun onNewDanmu(danmu: Danmu) {
-                addDanmu(danmu)
-            }
-
-            override fun onConnecting(message: String) {
-                mainThread {
-                    danmuStatus.value = Pair(DanmuState.CONNECTING, message)
-                }
-            }
-
-            override fun onStop(reason: String) {
-                mainThread {
-                    danmuStatus.value = Pair(DanmuState.STOP, "stop:$reason")
-                }
-            }
-
-            override fun onError(reason: String, errorType: DanmuClient.ErrorType) {
-                mainThread {
-                    danmuStatus.value = Pair(DanmuState.ERROR, "fail:$reason")
-                }
-                if (errorType == DanmuClient.ErrorType.NORMAL)
-                    danmuErrorTimes++
-            }
-
-            override fun onStart() {
-                mainThread {
-                    danmuStatus.value = Pair(DanmuState.START, "弹幕链接成功")
-                }
-                danmuErrorTimes = 0
-            }
-        })
-    }
-
-    /**
      * 新增弹幕
      */
     private fun addDanmu(danmu: Danmu) {
@@ -185,43 +168,6 @@ class PlayerViewModel : ViewModel() {
         preEmitDanmuList.add(danmu)
     }
 
-    /**
-     * 播放器状态
-     */
-    enum class PlayerState {
-        IS_IDLE,
-        IS_PLAYING,
-        IS_LOADING,
-        IS_ENDED,
-        IS_ERROR
-    }
-
-    /**
-     * 弹幕状态
-     */
-    enum class DanmuState {
-        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
-    }
-
-    /**
-     * 设置主播数据并且播放
-     */
-    internal fun setAnchorDataAndPlay(intent: Intent) {
-        val index = intent.getIntExtra("index", -1)
-        val list = intent.getParcelableArrayListExtra<Anchor>("list")
-        anchorList.apply {
-            if (list != null) {
-                anchorList.value?.clear()
-                val temp = removeGroup(list)
-                anchorList.value?.apply {
-                    addAll(temp)
-                }
-                anchorList.postValue(value)
-            }
-        }
-        val anchor = list?.get(index) ?: return
-        preparePlay(anchor)
-    }
 
     /**
      * 设置主播数据并且播放
@@ -243,9 +189,9 @@ class PlayerViewModel : ViewModel() {
     }
 
     private fun resetData() {
-        player.stop(true)
+        playerManager.stop(true)
         playerMessage.value = ""
-        playerStatus.value = PlayerState.IS_IDLE
+        playerStatus.value = PlayerStatus.IDLE
         anchor.value = null
         videoResolution.value = Pair(0, 0)
         anchor.value = null
@@ -293,16 +239,16 @@ class PlayerViewModel : ViewModel() {
                     val streamingLive = anc.platformImpl()?.getStreamingLive(anc, quality)
                     val url = streamingLive?.url
                     if (url != null && url.isNotEmpty()) {
-                        play(url)
+                        playerManager.play(url)
                         currentQuality.postValue(streamingLive.currentQuality)
                         qualityList.postValue(streamingLive.qualityList)
                     } else {
-                        playerStatus.postValue(PlayerState.IS_ERROR)
+                        playerStatus.postValue(PlayerStatus.ERROR)
                         playerMessage.postValue("获取直播流失败。（empty）")
                         stopPlay()
                     }
                 }.onFailure {
-                    playerStatus.postValue(PlayerState.IS_ERROR)
+                    playerStatus.postValue(PlayerStatus.ERROR)
                     playerMessage.postValue("获取直播流失败。（error）")
                     it.printStackTrace()
                     stopPlay()
@@ -323,61 +269,16 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 播放流
-     */
-    private fun play(url: String) {
-        mainThread {
-            player.stop(true)
-        }
-        viewModelScope.runCatching {
-            if (url.isEmpty()) {
-                mainThread {
-                    player.stop()
-                    toast("直播流为空")
-                }
-                return@runCatching
-            }
-            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                MyApplication.application,
-                Util.getUserAgent(MyApplication.application, "com.acel.streamlivetool")
-            )
-            val uri = Uri.parse(url)
-            val videoSource: MediaSource
-
-            videoSource =
-                when {
-                    url.contains(".m3u8") ->
-                        HlsMediaSource.Factory(dataSourceFactory)
-                            .setAllowChunklessPreparation(true)
-                            .createMediaSource(MediaItem.fromUri(uri))
-                    else ->
-                        ProgressiveMediaSource.Factory(dataSourceFactory)
-                            .createMediaSource(MediaItem.fromUri(uri))
-                }
-            mainThread {
-                player.setMediaSource(videoSource)
-                player.prepare()
-            }
-        }.onFailure {
-            mainThread {
-                player.stop(true)
-            }
-            it.printStackTrace()
-        }
-
-    }
-
     override fun onCleared() {
-        player.stop()
-        player.release()
+        playerManager.stop()
+        playerManager.release()
         danmuClient.release()
         super.onCleared()
     }
 
     private fun stopPlay() {
         mainThread {
-            player.stop(true)
+            playerManager.stop(true)
         }
     }
 

@@ -37,7 +37,7 @@ class DouyuImpl : IPlatform {
     override val iconRes: Int = R.drawable.ic_douyu
     override val supportCookieMode: Boolean = true
     private val douyuService: DouyuApi = retrofit.create(DouyuApi::class.java)
-    override val danmuManager: IPlatform.DanmuManager = DouyuDanmuManager()
+    override val danmuClient: IPlatform.DanmuClient = DouyuDanmuClient()
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()

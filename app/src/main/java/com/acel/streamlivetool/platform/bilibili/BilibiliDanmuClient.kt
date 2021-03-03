@@ -6,7 +6,7 @@ import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.net.WebSocketClient
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.ui.main.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuManager
 import com.acel.streamlivetool.util.CookieUtil
 import com.acel.streamlivetool.util.ZlibUtil
 import kotlinx.coroutines.*
@@ -15,20 +15,20 @@ import okio.ByteString
 import java.nio.ByteBuffer
 import java.util.regex.Matcher
 
-class BilibiliDanmuManager :
-    IPlatform.DanmuManager() {
+class BilibiliDanmuClient :
+    IPlatform.DanmuClient() {
     override fun generateReceiver(
         cookie: String,
         anchor: Anchor,
-        danmuClient: DanmuClient
-    ): DanmuReceiver = BilibiliDanmuReceiver(anchor, cookie, danmuClient)
+        danmuManager: DanmuManager
+    ): DanmuReceiver = BilibiliDanmuReceiver(anchor, cookie, danmuManager)
 
     class BilibiliDanmuReceiver(
         val anchor: Anchor,
         val cookie: String,
-        danmuClient: DanmuClient
+        danmuManager: DanmuManager
     ) : DanmuReceiver {
-        private var danmuClient: DanmuClient? = danmuClient
+        private var danmuManager: DanmuManager? = danmuManager
 
         private val bilibiliService: BilibiliApi =
             RetrofitUtils.retrofit.create(BilibiliApi::class.java)
@@ -40,7 +40,7 @@ class BilibiliDanmuManager :
 
         override fun start() {
             if (cookie.isEmpty()) {
-                danmuClient?.errorCallback("该平台登录后才能接收弹幕。", DanmuClient.ErrorType.COOKIE_INVALID)
+                danmuManager?.errorCallback("该平台登录后才能接收弹幕。", DanmuManager.ErrorType.COOKIE_INVALID)
                 return
             }
             val info = bilibiliService.getDanmuInfo(cookie, anchor.roomId).execute().body()
@@ -105,7 +105,7 @@ class BilibiliDanmuManager :
         override fun stop() {
             webSocket?.close(1000, null)
             webSocket = null
-            danmuClient = null
+            danmuManager = null
             heartbeatJob?.cancel()
             heartbeatJob = null
         }
@@ -129,11 +129,11 @@ class BilibiliDanmuManager :
                 Log.d("acel_log@dispatch", "$string ")
             }
 
-            fun dispatch(danmuClient: DanmuClient, bs: ByteString) {
-                analyze(danmuClient, bs.toByteArray())
+            fun dispatch(danmuManager: DanmuManager, bs: ByteString) {
+                analyze(danmuManager, bs.toByteArray())
             }
 
-            private fun analyze(danmuClient: DanmuClient, sourceArray: ByteArray) {
+            private fun analyze(danmuManager: DanmuManager, sourceArray: ByteArray) {
                 //API说明参照 https://github.com/lovelyyoshino/Bilibili-Live-API/blob/master/API.WebSocket.md
                 //代码来源 https://github.com/DbgDebug/dbg-project/
                 try {
@@ -164,7 +164,7 @@ class BilibiliDanmuManager :
                             5 -> when (protocolVersion) {
                                 //JSON JSON纯文本
                                 0 -> {
-                                    handleDanmuJson(contentBytes, danmuClient)
+                                    handleDanmuJson(contentBytes, danmuManager)
                                 }
                                 //Int 32 Big Endian	Body 内容为房间人气值
                                 1 -> {
@@ -173,7 +173,7 @@ class BilibiliDanmuManager :
                                 //zlib压缩过的 Buffer
                                 2 -> {
                                     ZlibUtil.decompress(contentBytes)
-                                        ?.let { analyze(danmuClient, it) }
+                                        ?.let { analyze(danmuManager, it) }
                                 }
                             }
                             //进房回应
@@ -188,7 +188,7 @@ class BilibiliDanmuManager :
             }
 
 
-            private fun handleDanmuJson(contentBytes: ByteArray, danmuClient: DanmuClient) {
+            private fun handleDanmuJson(contentBytes: ByteArray, danmuManager: DanmuManager) {
                 val msg = String(contentBytes, Charsets.UTF_8)
                 var msgType: String? = ""
                 val mCmd: Matcher = DanmuPatternUtils.readCmd.matcher(msg)
@@ -199,7 +199,7 @@ class BilibiliDanmuManager :
                     when (msgType) {
                         "DANMU_MSG" -> {
                             val danmu = MessageHandleService.handleDanmu(msg)
-                            danmu?.let { danmuClient.newDanmuCallback(it) }
+                            danmu?.let { danmuManager.newDanmuCallback(it) }
                         }
                         // TODO: 2021/2/12 其他类型
                         //https://github.com/DbgDebug/dbg-project/blob/1c0faaaf577d04a02d50293337339900f0107cb9/dbg-service-admin/src/main/java/club/dbg/cms/admin/service/bilibili/DanmuReceiveThread.java#L171
@@ -272,28 +272,28 @@ class BilibiliDanmuManager :
         inner class BilibiliWebsocketListener : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 super.onOpen(webSocket, response)
-                danmuClient?.startCallback()
+                danmuManager?.startCallback()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                danmuClient?.let { DanmuDispatcher.dispatch(text) }
+                danmuManager?.let { DanmuDispatcher.dispatch(text) }
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                 super.onMessage(webSocket, bytes)
-                danmuClient?.let { DanmuDispatcher.dispatch(it, bytes) }
+                danmuManager?.let { DanmuDispatcher.dispatch(it, bytes) }
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosed(webSocket, code, reason)
-                danmuClient?.stopCallBack(reason)
+                danmuManager?.stopCallBack(reason)
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
-                danmuClient?.errorCallback("${t.message}")
+                danmuManager?.errorCallback("${t.message}")
             }
         }
     }

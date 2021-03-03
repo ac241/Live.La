@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -489,20 +488,23 @@ class PlayerFragment : Fragment() {
             playerStatus.observe(viewLifecycleOwner) {
                 if (it != null)
                     when (it) {
-                        PlayerViewModel.PlayerState.IS_PLAYING -> {
+                        PlayerViewModel.PlayerStatus.PLAYING -> {
                             binding.progressBar.visibility = View.GONE
                             binding.errorMsg.visibility = View.GONE
                             binding.playerView.keepScreenOn = true
                         }
-                        PlayerViewModel.PlayerState.IS_LOADING ->
+                        PlayerViewModel.PlayerStatus.LOADING,
+                        PlayerViewModel.PlayerStatus.BUFFERING ->
                             binding.progressBar.visibility = View.VISIBLE
-                        PlayerViewModel.PlayerState.IS_ENDED -> {
+                        PlayerViewModel.PlayerStatus.ENDED -> {
                             binding.playerView.keepScreenOn = false
                         }
-                        PlayerViewModel.PlayerState.IS_IDLE,
-                        PlayerViewModel.PlayerState.IS_ERROR -> {
+                        PlayerViewModel.PlayerStatus.IDLE,
+                        PlayerViewModel.PlayerStatus.ERROR -> {
                             binding.progressBar.visibility = View.GONE
                             binding.playerView.keepScreenOn = false
+                        }
+                        else -> {
                         }
                     }
             }
@@ -616,15 +618,25 @@ class PlayerFragment : Fragment() {
     }
 
     companion object {
+//        private val instance by lazy { PlayerFragment() }
         val DANMU_DEFAULT_TEXT_SIZE = 16f.toPx()
         val DANMU_LANDSCAPE_TEXT_SIZE = 20f.toPx()
 
         @JvmStatic
-        fun newInstance(anchor: Anchor, anchorList: ArrayList<Anchor>?) = PlayerFragment().apply {
+        fun newInstance(anchor: Anchor, anchorList: ArrayList<Anchor>?)
+                = PlayerFragment().apply {
             arguments = Bundle().apply {
                 putParcelable("anchor", anchor)
                 putParcelableArrayList("anchor_list", anchorList)
             }
         }
+//        : PlayerFragment {
+//            return instance.apply {
+//                arguments = Bundle().apply {
+//                    putParcelable("anchor", anchor)
+//                    putParcelableArrayList("anchor_list", anchorList)
+//                }
+//            }
+//        }
     }
 }
