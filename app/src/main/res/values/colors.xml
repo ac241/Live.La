@@ -5,7 +5,7 @@
     <color name="colorAccent">#5B9AD1</color>
     <color name="lightDark">#444444</color>
     <color name="textColor">#666666</color>
-    <color name="colorBackground">#F4F4F4</color>
+    <color name="colorGreyBackground">#F4F4F4</color>
     <color name="alphaBlack">#AA000000</color>
     <color name="alphaWhite">#AAFFFFFF</color>
 </resources>

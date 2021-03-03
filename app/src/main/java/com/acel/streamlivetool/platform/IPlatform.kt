@@ -10,7 +10,7 @@ import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
-import com.acel.streamlivetool.ui.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuClient
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -38,7 +38,7 @@ interface IPlatform {
 
     /**
      *  支持cookie模式
-     *  如果为true，需要复写 [getAnchorsWithCookieMode] [getLoginUrl] [checkLoginOk]
+     *  如果为true，需要复写 [getAnchorsByCookieMode] [getLoginUrl] [checkLoginOk]
      *  可能需要[loginWithPcAgent]
      */
     val supportCookieMode: Boolean
@@ -142,7 +142,7 @@ interface IPlatform {
      * Use [getCookie] to get saved cookie
      * @return AnchorsCookieMode
      */
-    fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+    fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         return ResultGetAnchorListByCookieMode(
             success = false,
             isCookieValid = false,
@@ -230,7 +230,7 @@ interface IPlatform {
         danmuClient: DanmuClient
     ): Boolean {
         if (this.danmuManager == null) {
-            danmuClient.errorCallback("该平台弹幕功能还待建设", DanmuClient.ErrorType.NOT_SUPPORT)
+            danmuClient.errorCallback("该平台弹幕功能还没建设", DanmuClient.ErrorType.NOT_SUPPORT)
             return false
         }
         this.danmuStop(danmuClient)

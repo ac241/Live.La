@@ -3,12 +3,11 @@ package com.acel.streamlivetool.platform.huya
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.WebSocketClient
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.ui.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import okio.ByteString
 import java.nio.ByteBuffer
 
 class HuyaDanmuManager : IPlatform.DanmuManager() {

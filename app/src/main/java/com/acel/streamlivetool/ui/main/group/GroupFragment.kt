@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -170,11 +169,11 @@ class GroupFragment : Fragment() {
             adapterShowImage
         else
             adapterNoImage
-        setGraphicAdapter()
+        setAdapter()
         binding.include.recyclerView.addOnScrollListener(AnchorGroupingListener())
     }
 
-    private fun setGraphicAdapter() {
+    private fun setAdapter() {
         binding.include.recyclerView.adapter = nowAnchorAdapter
     }
 
@@ -182,12 +181,12 @@ class GroupFragment : Fragment() {
         if (boolean) {
             if (!isShowImage()) {
                 nowAnchorAdapter = adapterShowImage
-                setGraphicAdapter()
+                setAdapter()
             }
         } else {
             if (isShowImage()) {
                 nowAnchorAdapter = adapterNoImage
-                setGraphicAdapter()
+                setAdapter()
             }
         }
     }

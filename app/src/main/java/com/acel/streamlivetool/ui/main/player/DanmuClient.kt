@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.player
+package com.acel.streamlivetool.ui.main.player
 
 import android.util.Log
 import com.acel.streamlivetool.bean.Anchor

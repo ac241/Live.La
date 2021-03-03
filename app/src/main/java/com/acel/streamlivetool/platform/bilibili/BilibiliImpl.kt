@@ -12,9 +12,7 @@ import com.acel.streamlivetool.platform.bilibili.bean.RoomPlayInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.CookieUtil.getCookieField
 import com.acel.streamlivetool.util.TimeUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 
 class BilibiliImpl : IPlatform {
@@ -32,25 +30,51 @@ class BilibiliImpl : IPlatform {
     override val danmuManager: IPlatform.DanmuManager? = BilibiliDanmuManager()
 
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
-        val roomInfo = bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
-        val info = roomInfo?.data
-        return if (roomInfo?.code == 0 && info != null) {
-            val roomId = info.room_id
-            val ownerName = getAnchorName(roomId.toLong())
-            Anchor(
-                platform = platform,
-                nickname = ownerName.toString(),
-                showId = roomId.toString(),
-                roomId = roomId.toString(),
-                status = info.live_status == 1,
-                title = info.title,
-                keyFrame = info.keyframe,
-                typeName = info.area_name,
-                online = info.online.toString(),
-                liveTime = info.live_time
-            )
-        } else
-            null
+        val anchor = Anchor()
+        var success = true
+        runBlocking {
+            val result = async(Dispatchers.IO) {
+                bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
+            }
+            val h5Info = async(Dispatchers.IO) {
+                bilibiliService.getH5InfoByRoom(queryAnchor.showId.toLong()).execute().body()
+            }
+            result.await().apply {
+                if (this != null) {
+                    val info = data
+                    if (code == 0 && info != null) {
+                        val roomId = info.room_id
+                        val ownerName = getAnchorName(roomId.toLong())
+                        anchor.apply {
+                            platform = this@BilibiliImpl.platform
+                            nickname = ownerName.toString()
+                            showId = roomId.toString()
+                            this.roomId = roomId.toString()
+                            status = info.live_status == 1
+                            title = info.title
+                            keyFrame = info.keyframe
+                            typeName = info.area_name
+                            online = info.online.toString()
+                            liveTime = info.live_time
+                        }
+                    } else {
+                        success = false
+                    }
+                } else
+                    success = false
+            }
+            h5Info.await().apply {
+                if (this != null) {
+                    val info = data
+                    if (code == 0) {
+                        anchor.avatar = info.anchor_info.base_info.face
+                    } else
+                        success = false
+                } else
+                    success = false
+            }
+        }
+        return if (success) anchor else null
     }
 
     private fun getAnchorName(roomId: Long): String? {
@@ -60,19 +84,47 @@ class BilibiliImpl : IPlatform {
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
-        val h5Info =
-            bilibiliService.getH5InfoByRoom(queryAnchor.roomId.toLong()).execute().body()
-        return if (h5Info?.code == 0) {
-            queryAnchor.apply {
-                status = h5Info.data.room_info.live_status == 1
-                title = h5Info.data.room_info.title
-                avatar = h5Info.data.anchor_info.base_info.face
-                keyFrame = h5Info.data.room_info.cover
-                typeName = h5Info.data.room_info.area_name
-                online = AnchorUtil.formatOnlineNumber(h5Info.data.room_info.online)
+        var success = true
+        runBlocking {
+            val result = async(Dispatchers.IO) {
+                bilibiliService.getRoomInfo(queryAnchor.showId).execute().body()
             }
-            true
-        } else false
+            val h5Info = async(Dispatchers.IO) {
+                bilibiliService.getH5InfoByRoom(queryAnchor.showId.toLong()).execute().body()
+            }
+            result.await().apply {
+                if (this != null) {
+                    val info = data
+                    if (code == 0 && info != null) {
+                        queryAnchor.apply {
+                            keyFrame = info.keyframe
+                        }
+                    } else {
+                        success = false
+                    }
+                } else
+                    success = false
+            }
+            h5Info.await().apply {
+                if (this != null) {
+                    val info = data
+                    if (code == 0) {
+                        queryAnchor.avatar = info.anchor_info.base_info.face
+                        queryAnchor.apply {
+                            status = data.room_info.live_status == 1
+                            title = data.room_info.title
+                            avatar = data.anchor_info.base_info.face
+                            keyFrame = data.room_info.cover
+                            typeName = data.room_info.area_name
+                            online = AnchorUtil.formatOnlineNumber(data.room_info.online)
+                        }
+                    } else
+                        success = false
+                } else
+                    success = false
+            }
+        }
+        return success
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
@@ -151,10 +203,10 @@ class BilibiliImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+    override fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         getCookie().let { cookie ->
             if (cookie.isEmpty())
-                return super.getAnchorsWithCookieMode()
+                return super.getAnchorsByCookieMode()
             var cookieOk = true
             var message = ""
             val anchorList = mutableListOf<Anchor>()

@@ -142,9 +142,9 @@ class HuomaoImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+    override fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         if (getCookie().isEmpty())
-            return super.getAnchorsWithCookieMode()
+            return super.getAnchorsByCookieMode()
         val subscribe = huomaoService.getUsersSubscribe(getCookie()).execute().body()
         subscribe?.let {
             val list = subscribe.data.usersSubChannels
@@ -172,7 +172,7 @@ class HuomaoImpl : IPlatform {
                 anchorList = anchorList
             )
         }
-        return super.getAnchorsWithCookieMode()
+        return super.getAnchorsByCookieMode()
     }
 
     override fun getLoginUrl(): String {

@@ -1,13 +1,11 @@
 package com.acel.streamlivetool.util
 
 import android.content.Context
-import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.player.WindowActivity
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -78,13 +76,7 @@ object AnchorClickAction {
                 (context as MainActivity).playStreamOverlay(anchor, list)
             }
             context.getString(R.string.string_inner_player) -> {
-                val intent = Intent(context, WindowActivity::class.java)
-                intent.putExtra("index", list.indexOf(anchor))
-                val arrayList = arrayListOf<Anchor>().also {
-                    it.addAll(list)
-                }
-                intent.putParcelableArrayListExtra("list", arrayList)
-                context.startActivity(intent)
+                toast("player_activity_is_dp")
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")

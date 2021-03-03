@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val ARG_PARAM1 = "param1"
+private const val PLATFORM_KEY = "platform_key"
 
 @SuppressLint("UseCompatLoadingForDrawables")
 class CookieFragment : Fragment() {
@@ -49,7 +49,7 @@ class CookieFragment : Fragment() {
 
     private val iconDrawable by lazy {
         @Suppress("DEPRECATION") val drawable =
-            PlatformDispatcher.getPlatformImpl(arguments?.getString(ARG_PARAM1)!!)?.iconRes?.let {
+            PlatformDispatcher.getPlatformImpl(arguments?.getString(PLATFORM_KEY)!!)?.iconRes?.let {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     resources.getDrawable(it, null)
                 } else {
@@ -75,13 +75,20 @@ class CookieFragment : Fragment() {
     }
 
     fun setShowImage(boolean: Boolean) {
-        nowAnchorAdapter = if (boolean) adapterShowImage else adapterNoImage
-        setAdapter()
+        if (boolean) {
+            if (!isShowImage()) {
+                nowAnchorAdapter = adapterShowImage
+                setAdapter()
+            }
+        } else {
+            if (isShowImage()) {
+                nowAnchorAdapter = adapterNoImage
+                setAdapter()
+            }
+        }
     }
 
-    fun isShowImage(): Boolean {
-        return nowAnchorAdapter == adapterShowImage
-    }
+    private fun isShowImage(): Boolean = nowAnchorAdapter == adapterShowImage
 
     private lateinit var _binding: FragmentCookieModeBinding
     private val binding
@@ -92,7 +99,7 @@ class CookieFragment : Fragment() {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(CookieLifecycle(this))
         arguments?.let {
-            viewModel.bindPlatform(it.getString(ARG_PARAM1)!!)
+            viewModel.bindPlatform(it.getString(PLATFORM_KEY)!!)
         }
         setHasOptionsMenu(true)
 
@@ -101,7 +108,7 @@ class CookieFragment : Fragment() {
                 if (it == null)
                     return@observe
                 when (it) {
-                    CookieViewModel.UpdateStatus.PREPARE, CookieViewModel.UpdateStatus.FINISH ->
+                    CookieViewModel.UpdateStatus.IDLE, CookieViewModel.UpdateStatus.FINISH ->
                         updateFinish()
                     CookieViewModel.UpdateStatus.UPDATING ->
                         updating()
@@ -258,9 +265,8 @@ class CookieFragment : Fragment() {
         when (item.itemId) {
             R.id.action_list_overlay -> {
                 if (isVisible)
-                    (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
-                        viewModel.anchorList as MutableList<Anchor>
-                    )
+                    (requireActivity() as MainActivity)
+                        .showListOverlayWindowWithPermissionCheck(viewModel.anchorList as MutableList<Anchor>)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -275,7 +281,7 @@ class CookieFragment : Fragment() {
         fun newInstance(platform: String) =
             CookieFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, platform)
+                    putString(PLATFORM_KEY, platform)
                 }
             }
     }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/group_container"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:clipChildren="false"
-
     android:layout_height="match_parent">
 
     <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
@@ -20,4 +17,4 @@
         android:id="@+id/include_process_toast"
         layout="@layout/group_fragment_toast" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

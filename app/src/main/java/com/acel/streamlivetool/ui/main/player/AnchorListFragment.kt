@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.player
+package com.acel.streamlivetool.ui.main.player
 
 import android.os.Bundle
 import android.view.LayoutInflater

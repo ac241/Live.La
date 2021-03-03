@@ -1,16 +1,14 @@
-package com.acel.streamlivetool.ui.player
+package com.acel.streamlivetool.ui.main.player
 
 /**
  * @author acel
  * 用于显示/关闭前台通知
  */
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.main.MainActivity
-import org.mozilla.javascript.tools.jsc.Main
 
 
 @Suppress("unused")

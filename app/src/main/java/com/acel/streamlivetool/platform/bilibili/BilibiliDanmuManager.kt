@@ -6,7 +6,7 @@ import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.net.WebSocketClient
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.ui.player.DanmuClient
+import com.acel.streamlivetool.ui.main.player.DanmuClient
 import com.acel.streamlivetool.util.CookieUtil
 import com.acel.streamlivetool.util.ZlibUtil
 import kotlinx.coroutines.*

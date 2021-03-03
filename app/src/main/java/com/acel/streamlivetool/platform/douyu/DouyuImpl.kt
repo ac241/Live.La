@@ -233,8 +233,7 @@ class DouyuImpl : IPlatform {
         return null
     }
 
-    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
-
+    override fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         fun addToList(list: MutableList<Anchor>, followed: Followed) {
             followed.data.list.forEach {
                 list.add(
@@ -260,7 +259,7 @@ class DouyuImpl : IPlatform {
 
         getCookie().run {
             if (this.isEmpty())
-                return super.getAnchorsWithCookieMode()
+                return super.getAnchorsByCookieMode()
             else {
                 val followed = douyuService.getFollowed(this).execute().body()
                 if (followed?.error != 0)

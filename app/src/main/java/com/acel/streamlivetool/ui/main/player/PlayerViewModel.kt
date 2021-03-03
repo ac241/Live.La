@@ -1,9 +1,8 @@
-package com.acel.streamlivetool.ui.player
+package com.acel.streamlivetool.ui.main.player
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,7 +30,6 @@ import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {

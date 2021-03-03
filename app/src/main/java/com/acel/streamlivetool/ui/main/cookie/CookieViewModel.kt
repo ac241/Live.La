@@ -17,10 +17,10 @@ import kotlinx.coroutines.launch
 
 
 class CookieViewModel : ViewModel() {
+    private lateinit var iPlatform: IPlatform
     private val anchorListManager = AnchorListManager.instance
     lateinit var anchorList: List<Anchor>
     lateinit var platform: String
-    private lateinit var iPlatform: IPlatform
 
     fun bindPlatform(platform: String) {
         this.platform = platform
@@ -34,14 +34,14 @@ class CookieViewModel : ViewModel() {
 
     //更新状态
     private val _liveDataUpdateStatus = MutableLiveData<UpdateStatus>().also {
-        it.value = UpdateStatus.PREPARE
+        it.value = UpdateStatus.IDLE
     }
 
     val liveDataUpdateState: LiveData<UpdateStatus>
         get() = _liveDataUpdateStatus
 
     enum class UpdateStatus {
-        PREPARE, UPDATING, FINISH
+        IDLE, UPDATING, FINISH
     }
 
     //数据更新
@@ -57,19 +57,20 @@ class CookieViewModel : ViewModel() {
         get() = _liveDataShowLoginText
 
     //更新结果的提示信息
-    private val _liveDataUpdateAnchorMsg =
-        MutableLiveData<UpdateAnchorMsg>().also { it.value = UpdateAnchorMsg(false, null) }
-    val liveDataUpdateAnchorMsg: LiveData<UpdateAnchorMsg>
-        get() = _liveDataUpdateAnchorMsg
+    private val _liveDataUpdateAnchorResultMsg =
+        MutableLiveData<UpdateAnchorResultMsg>().also {
+            it.value = UpdateAnchorResultMsg(false, null)
+        }
+    val liveDataUpdateAnchorMsg: LiveData<UpdateAnchorResultMsg>
+        get() = _liveDataUpdateAnchorResultMsg
 
-    data class UpdateAnchorMsg(var show: Boolean, var msg: String?)
+    data class UpdateAnchorResultMsg(var show: Boolean, var msg: String?)
 
-    private fun MutableLiveData<UpdateAnchorMsg>.update(show: Boolean, msg: String?) {
+    private fun MutableLiveData<UpdateAnchorResultMsg>.update(show: Boolean, msg: String?) {
         value?.show = show
         value?.msg = msg
         this.postValue(value)
     }
-    //live data end
 
     internal fun updateAnchorList() {
         updateJob?.cancel()
@@ -89,16 +90,15 @@ class CookieViewModel : ViewModel() {
                         with(result.anchorList) {
                             if (this != null) {
                                 if (this.isEmpty()) {
-                                    _liveDataUpdateAnchorMsg.update(
+                                    _liveDataUpdateAnchorResultMsg.update(
                                         true,
                                         if (result.message.isEmpty()) "无数据" else result.message
                                     )
                                 } else
-                                    _liveDataUpdateAnchorMsg.update(
+                                    _liveDataUpdateAnchorResultMsg.update(
                                         false,
                                         null
                                     )
-
                                 notifyDataChange()
                             }
                         }
@@ -109,9 +109,9 @@ class CookieViewModel : ViewModel() {
                 Log.d("getAnchorsCookieMode", "cookie mode获取主播属性失败：cause:${it.javaClass.name}")
                 it.printStackTrace()
             }
+            _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
         }
         updateJob?.start()
-        _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
     }
 
 

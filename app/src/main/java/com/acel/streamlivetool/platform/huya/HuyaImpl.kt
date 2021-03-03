@@ -151,10 +151,10 @@ class HuyaImpl : IPlatform {
         return list
     }
 
-    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+    override fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         getCookie().run {
             if (this.isEmpty())
-                return super.getAnchorsWithCookieMode()
+                return super.getAnchorsByCookieMode()
             else {
                 val subscribe = getSubscribe(this)
                 if (subscribe?.status != 1000L)

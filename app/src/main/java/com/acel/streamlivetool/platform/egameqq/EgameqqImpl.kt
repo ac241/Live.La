@@ -3,7 +3,6 @@ package com.acel.streamlivetool.platform.egameqq
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
@@ -146,9 +145,9 @@ class EgameqqImpl : IPlatform {
         return getAnchor(Anchor(platform, "", roomId, roomId))
     }
 
-    override fun getAnchorsWithCookieMode(): ResultGetAnchorListByCookieMode {
+    override fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
         if (getCookie().isEmpty())
-            return super.getAnchorsWithCookieMode()
+            return super.getAnchorsByCookieMode()
         val list = egameqqService.getFollowList(getCookie()).execute().body()
         if (list?.ecode != 0)
             return ResultGetAnchorListByCookieMode(

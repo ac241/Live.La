@@ -2,11 +2,11 @@ package com.acel.streamlivetool.ui.main
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,9 +14,12 @@ import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.OverlayWindowActivity
@@ -26,12 +29,11 @@ import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.custom_view.FloatingAvatar
-import com.acel.streamlivetool.ui.main.MainActivity.OnNewIntentAction.EXTRA_KEY_PREF_CHANGES
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
-import com.acel.streamlivetool.ui.player.PlayerServiceForegroundListener
-import com.acel.streamlivetool.ui.player.PlayerFragment
+import com.acel.streamlivetool.ui.main.player.PlayerFragment
+import com.acel.streamlivetool.ui.main.player.PlayerServiceForegroundListener
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -153,6 +155,7 @@ class MainActivity : OverlayWindowActivity() {
         setContentView(binding.root)
         init()
         lifecycle.addObserver(PlayerServiceForegroundListener(this))
+        whiteStatusBar()
     }
 
     private fun init() {
@@ -212,24 +215,25 @@ class MainActivity : OverlayWindowActivity() {
     }
 
     private fun initViewPager() {
-        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun getItemCount(): Int {
-                return if (displayPlatformPage) platforms.size + 1 else 1
-            }
-
-            override fun createFragment(position: Int): Fragment {
-                return when (position) {
-                    0 -> mainFragment
-                    else -> platformFragments[platforms[position - 1]] as Fragment
+        binding.viewPager.apply {
+            adapter = object : FragmentStateAdapter(this@MainActivity) {
+                override fun getItemCount(): Int {
+                    return if (displayPlatformPage) platforms.size + 1 else 1
                 }
+
+                override fun createFragment(position: Int): Fragment {
+                    return when (position) {
+                        0 -> mainFragment
+                        else -> platformFragments[platforms[position - 1]] as Fragment
+                    }
+                }
+            }.also {
+                it.stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.ALLOW
             }
-
-        }.also {
-            it.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT
+            offscreenPageLimit = 1
         }
-        binding.viewPager.offscreenPageLimit = 1
     }
-
 
     fun playStreamOverlay(
         anchor: Anchor,
@@ -326,8 +330,8 @@ class MainActivity : OverlayWindowActivity() {
             replace(binding.fragmentContainer.id, playerFragment!!)
             isPlayerFragmentShown = true
         }
-
-        avatarMovingAnimate(view)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+            avatarMovingAnimate(view)
     }
 
     /**
@@ -408,8 +412,10 @@ class MainActivity : OverlayWindowActivity() {
     fun onPlayerFragmentDestroy() {
 //        showSystemUI()
 //        whiteStatusBar()
-        if (supportFragmentManager.backStackEntryCount == 0)
+        if (supportFragmentManager.backStackEntryCount == 0) {
             isPlayerFragmentShown = false
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
+        }
     }
 
     private fun whiteStatusBar() {
