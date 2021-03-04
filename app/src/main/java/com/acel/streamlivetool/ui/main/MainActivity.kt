@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -301,7 +302,6 @@ class MainActivity : OverlayWindowActivity() {
         binding.viewPager.setCurrentItem(0, true)
     }
 
-    @Synchronized
     fun itemClick(itemView: View, context: MainActivity, anchor: Anchor, anchorList: List<Anchor>) {
         val action = defaultSharedPreferences.getString(
             MyApplication.application.getString(R.string.pref_key_item_click_action), ""
@@ -312,23 +312,33 @@ class MainActivity : OverlayWindowActivity() {
             AnchorClickAction.itemClick(context, anchor, anchorList)
     }
 
+    private var lastItemClickTime = 0L
+    private var itemClickSleepTime = 300L
+
     private fun startPlayerFragment(
         anchor: Anchor,
         anchorList: List<Anchor>,
         view: View,
     ) {
-        playerFragment =
-            PlayerFragment.newInstance(anchor, ArrayList<Anchor>().apply { addAll(anchorList) })
+        synchronized(lastItemClickTime) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastItemClickTime < itemClickSleepTime) {
+                return
+            }
+            lastItemClickTime = currentTime
+            playerFragment =
+                PlayerFragment.newInstance(anchor, ArrayList<Anchor>().apply { addAll(anchorList) })
 
-        supportFragmentManager.commit {
-            setReorderingAllowed(true)
-            addToBackStack(PLAYER_FRAGMENT_NAME)
-            setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
-            replace(binding.fragmentContainer.id, playerFragment!!)
-            isPlayerFragmentShown = true
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                addToBackStack(PLAYER_FRAGMENT_NAME)
+                setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
+                replace(binding.fragmentContainer.id, playerFragment!!)
+                isPlayerFragmentShown = true
+            }
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                avatarMovingAnimate(view)
         }
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-            avatarMovingAnimate(view)
     }
 
     /**
