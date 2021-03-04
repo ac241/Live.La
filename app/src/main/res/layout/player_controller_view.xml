@@ -33,7 +33,7 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="10dp"
         android:contentDescription="@string/button_player_overlay_resize"
-        android:src="@drawable/ic_full_screen_landscape"
+        android:src="@drawable/ic_maximize"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

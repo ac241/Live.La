@@ -536,13 +536,13 @@ class PlayerFragment : Fragment() {
         if (resolution != null) {
             if (!fullScreen.value!!)
                 binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
-                    .setImageResource(if (resolution.first < resolution.second) R.drawable.ic_full_screen_portrait else R.drawable.ic_full_screen_landscape)
+                    .setImageResource(if (resolution.first < resolution.second) R.drawable.ic_full_screen_portrait else R.drawable.ic_maximize)
             else
                 binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
-                    .setImageResource(R.drawable.ic_zoom_out)
+                    .setImageResource(R.drawable.ic_minimize)
         } else
             binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
-                .setImageResource(R.drawable.ic_full_screen_landscape)
+                .setImageResource(R.drawable.ic_maximize)
 
     }
 
@@ -618,13 +618,12 @@ class PlayerFragment : Fragment() {
     }
 
     companion object {
-//        private val instance by lazy { PlayerFragment() }
+        //        private val instance by lazy { PlayerFragment() }
         val DANMU_DEFAULT_TEXT_SIZE = 16f.toPx()
         val DANMU_LANDSCAPE_TEXT_SIZE = 20f.toPx()
 
         @JvmStatic
-        fun newInstance(anchor: Anchor, anchorList: ArrayList<Anchor>?)
-                = PlayerFragment().apply {
+        fun newInstance(anchor: Anchor, anchorList: ArrayList<Anchor>?) = PlayerFragment().apply {
             arguments = Bundle().apply {
                 putParcelable("anchor", anchor)
                 putParcelableArrayList("anchor_list", anchorList)
