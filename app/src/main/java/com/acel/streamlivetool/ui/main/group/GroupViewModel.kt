@@ -21,13 +21,13 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.platform.huya.HuyaImpl
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
 import com.acel.streamlivetool.util.ToastUtil.toast
-import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
 import com.bumptech.glide.util.Util.assertMainThread
 import kotlinx.coroutines.*
 import java.util.*
@@ -215,21 +215,7 @@ class GroupViewModel : ViewModel() {
                 builder.apply {
                     setMessage("您还未关注${anchor.nickname}，是否关注？")
                     setPositiveButton("是") { dialog: DialogInterface, _: Int ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            runCatching {
-                                val result = it.follow(anchor)
-                                withContext(Dispatchers.Main) {
-                                    toast(result.msg)
-                                    if (result.success)
-                                        updateAllAnchor()
-                                }
-
-                            }.onFailure { thw ->
-                                thw.printStackTrace()
-                                withContext(Dispatchers.Main) {
-                                    toast("关注失败，发生错误")
-                                }
-                            }
+                        followAnchor(context, anchor) {
                             dialog.dismiss()
                         }
                     }
@@ -462,19 +448,41 @@ class GroupViewModel : ViewModel() {
         updateAnchorsTask?.cancel()
     }
 
-    fun followAnchor(anchor: Anchor) {
+    fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = PlatformDispatcher.getPlatformImpl(anchor.platform)?.follow(anchor)
+            val platformImpl = anchor.platformImpl()
+            val result = platformImpl?.follow(anchor)
             result?.let {
                 withContext(Dispatchers.Main) {
                     if (it.success) {
                         toast("关注成功：${anchor.nickname}")
                         updateAllAnchorByCookie()
-                    } else
-                        toast("关注失败：${it.msg}，如多次失败请自行关注。")
+                    } else {
+                        when (platformImpl.platform) {
+                            "huya" -> {
+                                if (it.code == -10003) {
+                                    toast(it.msg)
+                                    (platformImpl as HuyaImpl)
+                                        .showVerifyCodeWindow(context, it.data) {
+                                            followAnchor(context, anchor, actionOnEnd)
+                                        }
+                                    return@withContext
+                                } else {
+                                    toast("关注失败：${it.msg}，如多次失败请自行关注。")
+                                }
+                            }
+                            else ->
+                                toast("关注失败：${it.msg}，如多次失败请自行关注。")
+                        }
+                    }
+                    actionOnEnd.invoke()
                 }
             }
         }
+    }
+
+    private fun showVerifyCodeWindow() {
+
     }
 
     private val checkFollowedAnchors = mutableListOf<Anchor>()

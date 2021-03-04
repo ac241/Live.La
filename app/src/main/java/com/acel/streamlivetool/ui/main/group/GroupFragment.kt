@@ -242,7 +242,7 @@ class GroupFragment : Fragment() {
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
                     val position = nowAnchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
-                    viewModel.followAnchor(anchor)
+                    viewModel.followAnchor(requireContext(),anchor) {}
                 }
                 else -> {
                     val position = nowAnchorAdapter.getLongClickPosition()

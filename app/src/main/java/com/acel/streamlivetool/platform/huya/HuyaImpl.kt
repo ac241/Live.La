@@ -1,8 +1,17 @@
 package com.acel.streamlivetool.platform.huya
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.util.Log
+import android.view.LayoutInflater
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AlertDialog
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Result
@@ -12,6 +21,8 @@ import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.huya.HuyaImpl.PatternUtil.getMatchString
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import com.acel.streamlivetool.util.*
+import com.acel.streamlivetool.util.AppUtil.mainThread
+import kotlinx.android.synthetic.main.alert_browser_page.*
 import java.net.URLEncoder
 import java.util.regex.Pattern
 
@@ -199,7 +210,7 @@ class HuyaImpl : IPlatform {
     override fun loginWithPcAgent(): Boolean = true
 
     override val loginTips: String
-        get() = "虎牙的cookie有效期约为7天"
+        get() = "虎牙的cookie有效期约为7天，显示不全请旋转屏幕"
 
     override fun getLoginUrl(): String {
         return "https://www.huya.com/myfollow"
@@ -218,13 +229,77 @@ class HuyaImpl : IPlatform {
                 response?.apply {
                     return if (status == 1)
                         Result(true, "关注成功")
-                    else
-                        Result(false, message)
+                    else {
+                        if (response.status == -10003)
+                            Result(
+                                false, "需要校验验证码",
+                                code = response.status,
+                                data = response.data.replace("{\"url\":\"", "")
+                                    .replace("\"}", "")
+                            )
+                        else {
+                            Result(false, message, code = response.status)
+                        }
+                    }
                 }
             }
         }
         return Result(false, "发生错误")
     }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    fun showVerifyCodeWindow(context: Context, url: String, doOnVerified: () -> Unit) {
+        val builder = AlertDialog.Builder(context)
+        builder.apply {
+            setTitle("需要校验验证码")
+            setMessage("请在验证完成后点击确认")
+            setView(R.layout.verify_window)
+            setPositiveButton("确认") { d, i ->
+                d.dismiss()
+                doOnVerified.invoke()
+            }
+            setNegativeButton("取消") { d, _ ->
+                d.dismiss()
+            }
+        }
+        mainThread {
+            val cookieManager: CookieManager = CookieManager.getInstance()
+            cookieManager.setCookie(url, getCookie())
+            val alertDialog = builder.show()
+            alertDialog.findViewById<WebView>(R.id.webView)?.apply {
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    setSupportMultipleWindows(true)
+                    //缩放
+                    setSupportZoom(true)
+                    builtInZoomControls = true
+                    displayZoomControls = false
+                    //自适应
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                        layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+                    userAgentString =
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                }
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        loadUrl("javascript:\$(\".app-download\").remove()")
+                        loadUrl("javascript:\$(\".filter\").click()")
+                        loadUrl("javascript:\$(\".slide-list li:contains('LPL')\")[0].click()\n")
+                        loadUrl("javascript:\$(\".tip-list button\").click()")
+                    }
+                }
+                loadUrl(url)
+            }
+        }
+    }
+
 
     private object PatternUtil {
         val showId: Pattern = Pattern.compile("<h2 class=\"roomid\">房间号 : (.*?)</h2>")

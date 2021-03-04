@@ -6,9 +6,10 @@
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/edit_cookie"
-        android:hint="@string/please_fill_cookie"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="@string/please_fill_cookie"
+        android:maxHeight="300dp" />
 
     <Button
         android:id="@+id/commit"
