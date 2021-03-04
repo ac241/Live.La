@@ -1,6 +1,9 @@
 package com.acel.streamlivetool.ui.main.group
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.text.SpannableStringBuilder
@@ -17,11 +20,15 @@ import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAI
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
+import com.bumptech.glide.util.Util.assertMainThread
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -78,6 +85,8 @@ class GroupViewModel : ViewModel() {
     var lastUpdateTime = 0L
     private var updateAnchorsTask: Job? = null
 
+    val showCheckedFollowDialog = MutableLiveData<Anchor?>()
+
     @Synchronized
     private fun notifyAnchorListChange() {
         AnchorListUtil.sortAnchorListByStatus(sortedAnchorList.value!!)
@@ -111,6 +120,7 @@ class GroupViewModel : ViewModel() {
      */
     @Synchronized
     fun updateAllAnchor() {
+        assertMainThread()
         _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         if (groupModeUseCookie)
             updateAllAnchorByCookie()
@@ -120,6 +130,7 @@ class GroupViewModel : ViewModel() {
             }
         lastUpdateTime = System.currentTimeMillis()
     }
+
 
     /**
      * 删除anchor
@@ -158,14 +169,92 @@ class GroupViewModel : ViewModel() {
                     }
                 }
             }
+
             val resultList = mutableListOf<UpdateResult>()
             updateTaskList.forEach {
                 resultList.add(it.await())
             }
             showUpdateResult(resultList)
             updateFinish()
+
+            //检查刚添加的anchor是否关注
+            checkFollowed(resultList)
         }
         updateAnchorsTask?.start()
+    }
+
+    private fun checkFollowed(resultList: MutableList<UpdateResult>) {
+        checkFollowedAnchors.forEach check@{ anchor ->
+            resultList.forEach result@{
+                if (it.iPlatform == anchor.platformImpl() && it.isSuccess) {
+                    val checkIndex = sortedAnchorList.value?.indexOf(anchor)
+                    checkIndex?.apply {
+                        if (this != -1) {
+                            val checkedAnchor = sortedAnchorList.value?.get(this)
+                            checkedAnchor?.apply {
+                                if (!addToCheckedFollowed()) {
+                                    mainThread {
+                                        showCheckedFollowDialog.value = anchor
+                                    }
+                                    checkFollowedAnchors.remove(anchor)
+                                    return@check
+                                }
+                            }
+                        }
+                    }
+                } else
+                    return@result
+            }
+        }
+    }
+
+    fun showFollowDialog(context: Context, anchor: Anchor) {
+        val builder = AlertDialog.Builder(context)
+        anchor.platformImpl()?.let {
+            if (it.supportFollow) {
+                builder.apply {
+                    setMessage("您还未关注${anchor.nickname}，是否关注？")
+                    setPositiveButton("是") { dialog: DialogInterface, _: Int ->
+                        viewModelScope.launch(Dispatchers.IO) {
+                            runCatching {
+                                val result = it.follow(anchor)
+                                withContext(Dispatchers.Main) {
+                                    toast(result.msg)
+                                    if (result.success)
+                                        updateAllAnchor()
+                                }
+
+                            }.onFailure { thw ->
+                                thw.printStackTrace()
+                                withContext(Dispatchers.Main) {
+                                    toast("关注失败，发生错误")
+                                }
+                            }
+                            dialog.dismiss()
+                        }
+                    }
+                    setNegativeButton("否") { dialog: DialogInterface, _: Int ->
+                        dialog.dismiss()
+                    }
+                }
+            } else {
+                builder.apply {
+                    setMessage("您还未关注${anchor.nickname}，${it.platformName}暂不支持直接关注，是否打开${it.platformName}app关注？")
+                    setPositiveButton("是") { dialog: DialogInterface, _: Int ->
+                        viewModelScope.launch(Dispatchers.IO) {
+                            it.startApp(MyApplication.application, anchor)
+                            dialog.dismiss()
+                        }
+                    }
+                    setNegativeButton("否") { dialog: DialogInterface, _: Int ->
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+        mainThread {
+            builder.show()
+        }
     }
 
     /**
@@ -232,7 +321,7 @@ class GroupViewModel : ViewModel() {
                     anchorList.forEach {
                         val index = targetList.indexOf(it)
                         if (index == -1)
-                            it.setNonExistentHint()
+                            it.setNotFollowedHint()
                         else {
                             //更新信息
                             it.update(targetList[index])
@@ -345,10 +434,12 @@ class GroupViewModel : ViewModel() {
     /**
      * 关注列表中不包含改主播时修改
      */
-    private fun Anchor.setNonExistentHint() {
+    private fun Anchor.setNotFollowedHint() {
         title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
         status = false
     }
+
+    private fun Anchor.addToCheckedFollowed() = title != FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 
     /**
      * 更新主播数据
@@ -376,14 +467,20 @@ class GroupViewModel : ViewModel() {
             val result = PlatformDispatcher.getPlatformImpl(anchor.platform)?.follow(anchor)
             result?.let {
                 withContext(Dispatchers.Main) {
-                    if (it.first) {
+                    if (it.success) {
                         toast("关注成功：${anchor.nickname}")
                         updateAllAnchorByCookie()
                     } else
-                        toast("关注失败：${it.second}，如多次失败请自行关注。")
+                        toast("关注失败：${it.msg}，如多次失败请自行关注。")
                 }
             }
         }
+    }
+
+    private val checkFollowedAnchors = mutableListOf<Anchor>()
+
+    fun addToCheckedFollowed(anchor: Anchor) {
+        checkFollowedAnchors.add(anchor)
     }
 }
 

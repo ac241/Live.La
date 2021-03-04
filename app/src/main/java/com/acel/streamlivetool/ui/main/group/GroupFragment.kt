@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
+import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
@@ -76,37 +77,6 @@ class GroupFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         lifecycle.addObserver(GroupLifecycle(this))
-        /**
-         * observe liveData
-         */
-        viewModel.apply {
-            sortedAnchorList.observe(this@GroupFragment, {
-                refreshAnchorAttribute()
-            })
-            liveDataUpdateStatus.observe(this@GroupFragment, {
-                if (it == null)
-                    return@observe
-                when (it) {
-                    GroupViewModel.UpdateStatus.PREPARE, GroupViewModel.UpdateStatus.FINISH ->
-                        updateFinish()
-                    GroupViewModel.UpdateStatus.UPDATING ->
-                        updating()
-                }
-            })
-            updateErrorMsg.observe(this@GroupFragment, {
-                it?.let {
-                    if (it.isNotEmpty()) {
-                        snackBar.setText(it)
-                        snackBar.setSpanClickable()
-                        snackBar.show()
-                    }
-                }
-            })
-            updateSuccess.observe(this@GroupFragment, {
-                snackBar.dismiss()
-//                completeUpdateDetails("主页 更新成功。")
-            })
-        }
     }
 
     /**
@@ -147,6 +117,42 @@ class GroupFragment : Fragment() {
         drawable?.setBounds(0, 0, 40, 40)
         binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, drawable, null)
+        }
+        /**
+         * observe liveData
+         */
+        viewModel.apply {
+            sortedAnchorList.observe(viewLifecycleOwner, {
+                refreshAnchorAttribute()
+            })
+            liveDataUpdateStatus.observe(viewLifecycleOwner, {
+                if (it == null)
+                    return@observe
+                when (it) {
+                    GroupViewModel.UpdateStatus.PREPARE, GroupViewModel.UpdateStatus.FINISH ->
+                        updateFinish()
+                    GroupViewModel.UpdateStatus.UPDATING ->
+                        updating()
+                }
+            })
+            updateErrorMsg.observe(viewLifecycleOwner, {
+                it?.let {
+                    if (it.isNotEmpty()) {
+                        snackBar.setText(it)
+                        snackBar.setSpanClickable()
+                        snackBar.show()
+                    }
+                }
+            })
+            updateSuccess.observe(viewLifecycleOwner, {
+                snackBar.dismiss()
+//                completeUpdateDetails("主页 更新成功。")
+            })
+            showCheckedFollowDialog.observe(viewLifecycleOwner, {
+                it?.let {
+                    viewModel.showFollowDialog(requireActivity(), it)
+                }
+            })
         }
     }
 
@@ -299,6 +305,10 @@ class GroupFragment : Fragment() {
 
     fun scrollToTop() {
         binding.include.recyclerView.smoothScrollToPosition(0)
+    }
+
+    fun checkFollowed(anchor: Anchor) {
+        viewModel.addToCheckedFollowed(anchor)
     }
 
     companion object {

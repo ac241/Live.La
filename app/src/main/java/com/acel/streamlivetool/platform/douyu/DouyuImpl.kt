@@ -7,6 +7,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
@@ -314,10 +315,11 @@ class DouyuImpl : IPlatform {
         return "https://passport.douyu.com/index/login"
     }
 
-    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+    override val supportFollow: Boolean = true
+    override fun follow(anchor: Anchor): Result {
         getCookie().let { cookie ->
             if (cookie.isEmpty())
-                return Pair(false, "未登录")
+                return Result(false, "未登录")
             val response = douyuService.initCsrf(cookie).execute()
             val setCookie = response.headers().get("Set-Cookie") ?: ""
             val ctn = CookieUtil.getCookieField(setCookie, "acf_ccn")
@@ -326,12 +328,12 @@ class DouyuImpl : IPlatform {
                     douyuService.follow("$setCookie;$cookie", anchor.roomId, c).execute().body()
                 result?.apply {
                     return if (error == 0)
-                        Pair(true, "关注成功")
+                        Result(true, "关注成功")
                     else
-                        Pair(false, msg)
+                        Result(false, msg)
                 }
             }
         }
-        return Pair(false, "发生错误")
+        return Result(false, "发生错误")
     }
 }

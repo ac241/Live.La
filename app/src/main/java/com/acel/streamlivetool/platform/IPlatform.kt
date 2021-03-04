@@ -6,6 +6,7 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
@@ -204,14 +205,20 @@ interface IPlatform {
     }
 
     /**
+     * 是否支持关注功能
+     */
+    val supportFollow
+        get() = false
+
+    /**
      * 关注
      */
-    fun follow(anchor: Anchor): Pair<Boolean, String> = Pair(false, "该平台不支持。")
+    fun follow(anchor: Anchor): Result = Result(false, "该平台不支持。", support = false)
 
     /**
      * 取消关注
      */
-    fun unFollow(anchor: Anchor): Pair<Boolean, String> = Pair(false, "该平台不支持。")
+    fun unFollow(anchor: Anchor): Result = Result(false, "该平台不支持。", support = false)
 
     /**
      * 弹幕接收器

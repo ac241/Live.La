@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
@@ -283,10 +284,11 @@ class BilibiliImpl : IPlatform {
         return "https://passport.bilibili.com/login"
     }
 
-    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+    override val supportFollow: Boolean = true
+    override fun follow(anchor: Anchor): Result {
         getCookie().let { cookie ->
             if (cookie.isEmpty())
-                return Pair(false, "未登录")
+                return Result(success = false, msg = "未登录")
             val roomInfo = bilibiliService.getRoomInfo(anchor.roomId).execute().body()
             roomInfo?.let { info ->
                 info.data?.uid?.let { uid ->
@@ -295,16 +297,15 @@ class BilibiliImpl : IPlatform {
                         val response = bilibiliService.follow(cookie, uid, j).execute().body()
                         response?.apply {
                             return if (code == 0)
-                                Pair(true, "关注成功")
+                                Result(success = true, msg = "关注成功")
                             else
-                                Pair(false, message)
+                                Result(success = false, msg = message)
                         }
                     }
                 }
 
             }
-
         }
-        return Pair(false, "发生错误")
+        return Result(success = true, msg = "发生错误")
     }
 }

@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -31,8 +30,11 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
 //        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         viewModel.apply {
-            liveDataResultSuccessed.observe(this@AddAnchorFragment, {
-                it?.let { addAnchorSuccess(it) }
+            liveDataResultSuccess.observe(this@AddAnchorFragment, {
+                it?.let {
+                    addAnchorSuccess(it)
+                    (requireActivity() as MainActivity).checkFollowed(it)
+                }
             })
             liveDataResultFailed.observe(this@AddAnchorFragment, {
                 it?.let { addAnchorFailed(it) }
@@ -111,9 +113,9 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun addAnchorSuccess(name: String) {
+    private fun addAnchorSuccess(anchor: Anchor) {
         mainThread {
-            toast("添加成功$name")
+            toast("添加成功${anchor.nickname}")
             (requireActivity() as MainActivity).gotoMainPage()
         }
     }

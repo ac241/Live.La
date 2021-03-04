@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
@@ -43,16 +44,20 @@ class HuyaImpl : IPlatform {
             if (showId != null && showId.isNotEmpty()) {
                 val nickname = html.getMatchString(PatternUtil.nickName)
                     ?.let { it1 -> UnicodeUtil.decodeUnicode(it1) }
-                val uid = html.getMatchString(PatternUtil.uid)
+                var avatarUrl = TextUtil.subString(html, "<span class=\"pic-clip\">", "alt=\"")
+                    ?.getMatchString(PatternUtil.avatar)
+                avatarUrl?.let {
+                    if (!it.contains("https:"))
+                        avatarUrl = "https:$avatarUrl"
+                }
                 return Anchor(
                     platform = platform,
                     nickname = nickname.toString(),
                     showId = showId,
-                    roomId = uid.toString(),
+                    roomId = html.getMatchString(PatternUtil.uid).toString(),
                     status = html.getMatchString(PatternUtil.status) == "true",
                     title = html.getMatchString(PatternUtil.title),
-                    avatar = TextUtil.subString(html, "<span class=\"pic-clip\">", "alt=\"")
-                        ?.getMatchString(PatternUtil.avatar),
+                    avatar = avatarUrl,
                     keyFrame = html.getMatchString(PatternUtil.keyFrame),
                     typeName = html.getMatchString(PatternUtil.typeName),
                     online = html.getMatchString(PatternUtil.online)
@@ -63,40 +68,19 @@ class HuyaImpl : IPlatform {
     }
 
     override fun updateAnchorData(queryAnchor: Anchor): Boolean {
-        val html: String? = getMHtml(queryAnchor)
-        return if (html != null) {
+        val anchor = getAnchor(queryAnchor)
+        return if (anchor != null) {
             queryAnchor.apply {
-                val tempStatus = TextUtil.subString(html, "ISLIVE =", ";")?.trim() == "true"
-                status = tempStatus
-                title = TextUtil.subStringAfterAny(
-                    html,
-                    "class=\"live-info-desc\"",
-                    "<h1>",
-                    "</h1>"
-                ) ?: "获取标题失败"
-                avatar = TextUtil.subStringAfterAny(
-                    html,
-                    "class=\"live-info-img\"",
-                    "<img src=\"",
-                    "\""
-                )
-                typeName = TextUtil.subString(html, "<span class=\"title\">", "</span>")
-
-
-                if (tempStatus) {
-                    getHtml(queryAnchor)?.let { pcHtml ->
-                        keyFrame = TextUtil.subString(pcHtml, "\"screenshot\":\"", "\",")
-                            ?.replace("\\", "")
-                        online =
-                            TextUtil.subString(pcHtml, "\"totalCount\":", ",")?.trim()?.toInt()
-                                ?.let {
-                                    AnchorUtil.formatOnlineNumber(it)
-                                }
-                    }
-                }
+                status = anchor.status
+                title = anchor.title
+                avatar = anchor.avatar
+                typeName = anchor.typeName
+                keyFrame = anchor.keyFrame
+                online = anchor.online
             }
             true
-        } else false
+        } else
+            false
     }
 
     override fun supportUpdateAnchorsByCookie(): Boolean = true
@@ -221,10 +205,11 @@ class HuyaImpl : IPlatform {
         return "https://www.huya.com/myfollow"
     }
 
-    override fun follow(anchor: Anchor): Pair<Boolean, String> {
+    override val supportFollow: Boolean = true
+    override fun follow(anchor: Anchor): Result {
         getCookie().let { cookie ->
             if (cookie.isEmpty())
-                return Pair(false, "未登录")
+                return Result(false, "未登录")
             val uid = CookieUtil.getCookieField(cookie, "yyuid")
             uid?.let { u ->
                 val response =
@@ -232,13 +217,13 @@ class HuyaImpl : IPlatform {
                         .execute().body()
                 response?.apply {
                     return if (status == 1)
-                        Pair(true, "关注成功")
+                        Result(true, "关注成功")
                     else
-                        Pair(false, message)
+                        Result(false, message)
                 }
             }
         }
-        return Pair(false, "发生错误")
+        return Result(false, "发生错误")
     }
 
     private object PatternUtil {

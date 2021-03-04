@@ -26,9 +26,9 @@ class AddAnchorViewModel : ViewModel() {
     private val anchorRepository =
         AnchorRepository.getInstance()
 
-    private val _liveDataResultSuccessed = MutableLiveData<String?>().also { it.value = null }
-    val liveDataResultSuccessed
-        get() = _liveDataResultSuccessed
+    private val _liveDataResultSuccess = MutableLiveData<Anchor?>()
+    val liveDataResultSuccess
+        get() = _liveDataResultSuccess
 
     private val _liveDataResultFailed = MutableLiveData<String?>().also { it.value = null }
     val liveDataResultFailed
@@ -97,13 +97,13 @@ class AddAnchorViewModel : ViewModel() {
     private fun insertAnchor(anchor: Anchor) {
         val result = anchorRepository.insertAnchor(anchor)
         if (result.first)
-            _liveDataResultSuccessed.postValue(anchor.nickname)
+            _liveDataResultSuccess.postValue(anchor)
         else
             _liveDataResultFailed.postValue(result.second)
     }
 
     fun restoreLiveData() {
-        _liveDataResultSuccessed.value = null
+        _liveDataResultSuccess.value = null
         _liveDataResultFailed.value = null
     }
 }

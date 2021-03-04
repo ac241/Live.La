@@ -14,12 +14,9 @@ import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.OverlayWindowActivity
@@ -442,6 +439,10 @@ class MainActivity : OverlayWindowActivity() {
 
     fun closePlayerFragment() {
         playerFragment?.let { supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1) }
+    }
+
+    fun checkFollowed(anchor: Anchor) {
+        mainFragment.checkFollowed(anchor)
     }
 
 }
