@@ -32,8 +32,8 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
         viewModel.apply {
             liveDataResultSuccess.observe(this@AddAnchorFragment, {
                 it?.let {
-                    addAnchorSuccess(it)
                     (requireActivity() as MainActivity).checkFollowed(it)
+                    addAnchorSuccess(it)
                 }
             })
             liveDataResultFailed.observe(this@AddAnchorFragment, {

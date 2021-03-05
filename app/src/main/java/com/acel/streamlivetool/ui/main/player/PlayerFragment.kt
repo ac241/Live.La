@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,8 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.ui.custom_view.AdjustType
+import com.acel.streamlivetool.ui.custom_view.AdjustablePlayerView
 import com.acel.streamlivetool.ui.custom_view.addItemWhiteTextColor
 import com.acel.streamlivetool.ui.custom_view.blackAlphaPopupMenu
 import com.acel.streamlivetool.ui.main.MainActivity
@@ -108,20 +111,18 @@ class PlayerFragment : Fragment() {
      */
     @SuppressLint("InflateParams")
     private fun initView() {
-        //如果是横屏则切换
-        lifecycleScope.launch(Dispatchers.Default) {
-            //等待100，以免出现未隐藏navigation bar的问题
-            delay(100)
-            withContext(Dispatchers.Main) {
-                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
-                        landscapeFullScreen()
-                }
-            }
-        }
 
         //播放view 设置controller
         binding.playerView.apply {
+            setOnAdjustListener(object : AdjustablePlayerView.AdjustListener {
+                override fun onAdjust(type: AdjustType, progress: Int) {
+                    binding.adjustPrompt.showProgress(type, progress)
+                }
+
+                override fun onCancel() {
+                    binding.adjustPrompt.hide()
+                }
+            })
             setControllerVisibilityListener {
                 if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
                     if (it == View.GONE)
@@ -259,17 +260,6 @@ class PlayerFragment : Fragment() {
         binding.danmuNotice.setOnClickListener {
             viewModel.restartDanmu("重新连接弹幕服务器")
         }
-
-        viewModel.danmuStatus.observe(viewLifecycleOwner) {
-            binding.danmuNotice.text = it.second
-            if (it.first == PlayerViewModel.DanmuState.START)
-                startEmitDanmuJob()
-            if (it.first == PlayerViewModel.DanmuState.ERROR || it.first == PlayerViewModel.DanmuState.STOP) {
-                stopEmitDanmuJob()
-                binding.danmakuView.clearDanmakusOnScreen()
-            }
-        }
-
     }
 
     private fun zoomClick() {
@@ -431,8 +421,20 @@ class PlayerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.startDanmu()
+
         (requireActivity() as MainActivity).blackStatusBar()
         (requireActivity() as MainActivity).showSystemUI()
+        //如果是横屏则切换
+        lifecycleScope.launch(Dispatchers.Default) {
+            //等待100，以免出现未隐藏navigation bar的问题
+            delay(100)
+            withContext(Dispatchers.Main) {
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                        landscapeFullScreen()
+                }
+            }
+        }
     }
 
     override fun onStop() {
@@ -524,6 +526,15 @@ class PlayerFragment : Fragment() {
             }
             videoResolution.observe(viewLifecycleOwner) {
                 setZoomButtonImage()
+            }
+            danmuStatus.observe(viewLifecycleOwner) {
+                binding.danmuNotice.text = it.second
+                if (it.first == PlayerViewModel.DanmuState.START)
+                    startEmitDanmuJob()
+                if (it.first == PlayerViewModel.DanmuState.ERROR || it.first == PlayerViewModel.DanmuState.STOP) {
+                    stopEmitDanmuJob()
+                    binding.danmakuView.clearDanmakusOnScreen()
+                }
             }
         }
         fullScreen.observe(viewLifecycleOwner) {
