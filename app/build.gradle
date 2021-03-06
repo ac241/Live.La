@@ -10,8 +10,8 @@ android {
         applicationId "com.acel.streamlivetool"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 110
-        versionName "1.1.0"
+        versionCode 111
+        versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -75,8 +75,8 @@ dependencies {
     //room
     def room_version = "2.2.5"
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
     //gson
     implementation 'com.google.code.gson:gson:2.8.5'
     //retrofit

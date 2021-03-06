@@ -10,7 +10,7 @@ import kotlin.random.Random
 class OpenSourceActivity : AppCompatActivity() {
     val list = listOf(
         Module(
-            "androidx",
+            "androidx&Jetpack",
             "-",
             "-",
             "Google",
@@ -73,7 +73,7 @@ class OpenSourceActivity : AppCompatActivity() {
             "Apache License Version 2.0, January 2004"
         ),
         Module(
-            "图标",
+            "图片资源",
             "iconfont.cn",
             "https://www.iconfont.cn/user/detail?uid=133781",
             "搞设计的搬运工",
@@ -134,6 +134,7 @@ class OpenSourceActivity : AppCompatActivity() {
         stringBuilder.append("--------------------\n")
         stringBuilder.append(" " + module.name + "\n")
         stringBuilder.append("--------------------\n")
+        stringBuilder.append("  " + module.`package` + "\n")
         stringBuilder.append("  " + module.path + "\n")
         stringBuilder.append("  " + module.author + "\n")
         stringBuilder.append("  " + module.licensed + "\n\n")

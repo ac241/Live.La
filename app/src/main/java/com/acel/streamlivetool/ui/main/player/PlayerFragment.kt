@@ -70,6 +70,10 @@ class PlayerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        (requireActivity() as MainActivity).blackStatusBar()
+        (requireActivity() as MainActivity).showSystemUI()
+
         arguments?.let { bundle ->
             val anchor = bundle.getParcelable<Anchor>("anchor")
             val anchorList = bundle.getParcelableArrayList<Anchor>("anchor_list")
@@ -422,8 +426,6 @@ class PlayerFragment : Fragment() {
         super.onResume()
         viewModel.startDanmu()
 
-        (requireActivity() as MainActivity).blackStatusBar()
-        (requireActivity() as MainActivity).showSystemUI()
         //如果是横屏则切换
         lifecycleScope.launch(Dispatchers.Default) {
             //等待100，以免出现未隐藏navigation bar的问题

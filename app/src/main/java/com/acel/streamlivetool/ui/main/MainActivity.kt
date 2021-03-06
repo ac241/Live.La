@@ -14,6 +14,8 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
@@ -41,6 +43,7 @@ import kotlin.collections.set
 import kotlin.properties.Delegates
 
 class MainActivity : OverlayWindowActivity() {
+
     private var playerFragment: PlayerFragment? = null
     private val mainFragment = GroupFragment.newInstance()
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
@@ -388,23 +391,27 @@ class MainActivity : OverlayWindowActivity() {
 
     @Suppress("DEPRECATION")
     internal fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    // Hide the nav bar and status bar
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        }
+        val opt = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+
+        window.decorView.systemUiVisibility =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                (opt or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            } else {
+                opt
+            }
     }
 
-    @Suppress("DEPRECATION")
+    private val windowInsetsController by lazy { ViewCompat.getWindowInsetsController(binding.root) }
+
     internal fun showSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_VISIBLE)
+//        windowInsetsController?.apply { show(WindowInsetsCompat.Type.systemBars()) }
     }
 
     /**

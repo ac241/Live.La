@@ -75,6 +75,7 @@ class AdjustablePlayerView @JvmOverloads constructor(
 
     private val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
     private val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    private var justAdjust = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -94,7 +95,7 @@ class AdjustablePlayerView @JvmOverloads constructor(
 
                 when (handleType) {
                     HANDLE_TYPE_LIGHT -> {
-                        val offsetPercent = offsetY / height * 1.5f
+                        val offsetPercent = offsetY / height
 //                        if (abs(offsetPercent) > 0.05)
 //                            return true
                         val value = currentBrightness + offsetPercent
@@ -104,11 +105,12 @@ class AdjustablePlayerView @JvmOverloads constructor(
                             AdjustType.BRIGHTNESS,
                             (currentBrightness * 100).toInt()
                         )
+                        justAdjust = true
                         lastMoveY = if (lastMoveY == 0f) downY else event.y
                     }
 
                     HANDLE_TYPE_VOLUME -> {
-                        val offsetPercent = offsetY / height / 2
+                        val offsetPercent = offsetY / height
                         val nowVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                         //当前音量 + (移动差值/view高度) * 最大音量
                         var volume = (nowVolume + offsetPercent * maxVolume).toInt()
@@ -135,18 +137,20 @@ class AdjustablePlayerView @JvmOverloads constructor(
                             AdjustType.VOLUME,
                             (volume.toFloat() / maxVolume * 100).toInt()
                         )
+                        justAdjust = true
                         //记录上次调整时的Y
                         lastMoveY = if (lastMoveY == 0f) downY else event.y
                     }
                 }
-
             }
             MotionEvent.ACTION_UP -> {
                 if (abs(event.y - downY) < 5)
                     performClick()
                 //重置参数
                 resetHandle()
-                adjustListener?.onCancel()
+                if (justAdjust)
+                    adjustListener?.onCancel()
+                justAdjust = false
             }
         }
         return true
