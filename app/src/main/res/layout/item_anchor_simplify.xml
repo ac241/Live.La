@@ -9,6 +9,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/item_background"
     app:cardCornerRadius="6dp"
     app:cardElevation="0dp">
 
@@ -32,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:textColor="#555555"
+            android:textColor="@color/item_main_text_color"
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/grid_anchor_title"
             app:layout_constraintStart_toEndOf="@+id/grid_anchor_avatar"
@@ -40,7 +41,7 @@
             app:layout_constraintVertical_chainStyle="packed" />
 
         <include
-            layout="@layout/text_view_graphic_type_name"
+            layout="@layout/text_view_type_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -63,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
             android:layout_marginTop="5dp"
+            android:textColor="@color/item_secondary_text_color"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/grid_anchor_name"

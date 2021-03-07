@@ -6,9 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.databinding.FragmentPlayerAnchorListBinding
 
-class AnchorListFragment : Fragment() {
+class AnchorListFragment : BaseFragment() {
     private val viewModel by activityViewModels<PlayerViewModel>()
     private lateinit var binding: FragmentPlayerAnchorListBinding
 

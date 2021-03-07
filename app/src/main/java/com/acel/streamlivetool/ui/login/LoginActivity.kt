@@ -18,13 +18,14 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
 
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()
     var platformImpl: IPlatform? = null
 
@@ -40,6 +41,7 @@ class LoginActivity : AppCompatActivity() {
             window.statusBarColor = resources.getColor(android.R.color.background_light)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
+
 
         val platform = intent.getStringExtra("platform") ?: return
         platformImpl = PlatformDispatcher.getPlatformImpl(platform)

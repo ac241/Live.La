@@ -139,8 +139,12 @@ class CookieFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-        binding.cookieSwipeRefresh.setOnRefreshListener {
-            viewModel.updateAnchorList()
+        binding.cookieSwipeRefresh.apply {
+            setOnRefreshListener {
+                viewModel.updateAnchorList()
+            }
+            setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
+            setColorSchemeResources(R.color.colorPrimary)
         }
         binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)

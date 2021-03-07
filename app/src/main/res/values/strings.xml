@@ -52,7 +52,7 @@
     <string name="second_button_action_name">点击侧边键时</string>
     <string name="open_source_modules">开源组件</string>
     <string name="app_description">软件描述</string>
-    <string name="pref_key_app_description_summary">by acel，此项目已经开源。</string>
+    <string name="pref_key_app_description_summary">by acel，此项目已经开源。本软件仅供学习交流，严禁用于商业用途，否则对各直播平台构成侵权，后果自负。</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="clear_all_cookie">清除所有登录信息</string>

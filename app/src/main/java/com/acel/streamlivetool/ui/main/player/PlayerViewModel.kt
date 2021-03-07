@@ -151,9 +151,9 @@ class PlayerViewModel : ViewModel() {
     //连接弹幕失败次数
     private var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
         if (new in (1..3))
-            restartDanmu("意外连接断开，尝试重连。")
+            restartDanmu("连接失败，尝试重连...$new")
         if (new > 3)
-            danmuStatus.postValue(Pair(DanmuState.ERROR, "重连失败，意外断开..."))
+            danmuStatus.postValue(Pair(DanmuState.ERROR, "重连失败，已断开..."))
     }
 
     /**

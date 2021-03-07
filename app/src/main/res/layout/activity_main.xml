@@ -6,7 +6,7 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorGreyBackground"
+    android:background="@color/universal_background"
     tools:ignore="Overdraw">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -20,14 +20,16 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/navigation"
             app:layout_scrollFlags="scroll|enterAlways"
             app:titleTextAppearance="@style/toolbar_text_style"
-            app:titleTextColor="@color/textColor">
+            app:titleTextColor="@color/toolbar_text_color">
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:background="@color/navigation"
                 app:layout_scrollFlags="scroll" />
 
         </androidx.appcompat.widget.Toolbar>

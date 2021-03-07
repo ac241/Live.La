@@ -27,7 +27,7 @@ import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import kotlinx.android.synthetic.main.item_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
-import kotlinx.android.synthetic.main.text_view_graphic_type_name.view.*
+import kotlinx.android.synthetic.main.text_view_type_name.view.*
 
 
 class AnchorAdapter(

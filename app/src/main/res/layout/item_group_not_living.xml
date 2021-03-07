@@ -4,10 +4,10 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorGreyBackground"
+    android:background="@color/universal_background"
     android:gravity="center_vertical"
     android:padding="5dp"
     android:text="@string/not_living"
-    android:textColor="@color/lightDark"
+    android:textColor="@color/item_secondary_text_color"
     android:textSize="16sp"
     android:textStyle="bold" />

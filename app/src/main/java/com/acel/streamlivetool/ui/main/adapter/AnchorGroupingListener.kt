@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.util.CommonColor
 
 class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     companion object {
@@ -27,13 +28,14 @@ class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     private val livingTitle = MyApplication.application.getString(R.string.is_living)
 
     @SuppressLint("ResourceType")
-    private val livingColor =
-        Color.parseColor(MyApplication.application.getString(R.color.colorPrimary))
+    private val livingColor = CommonColor.notLivingColor ?: 0
+
     private val notLivingTitle = MyApplication.application.getString(R.string.not_living)
 
     @SuppressLint("ResourceType")
     private val notLivingColor =
-        Color.parseColor(MyApplication.application.getString(R.color.lightDark))
+        Color.parseColor(MyApplication.application.getString(R.color.item_secondary_text_color))
+
     private var nowTitle = 0
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {

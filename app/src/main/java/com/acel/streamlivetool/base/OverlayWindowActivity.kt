@@ -17,7 +17,7 @@ import permissions.dispatcher.OnPermissionDenied
 import permissions.dispatcher.RuntimePermissions
 
 @RuntimePermissions
-open class OverlayWindowActivity : AppCompatActivity() {
+open class OverlayWindowActivity : BaseActivity() {
     private var playerOverlayBroadcastReceiver: PlayerOverlayBroadcastReceiver? = null
     private var isPlayerOverlayShown = false
     private var playerOverlayWindowManager: PlayerOverlayWindowManager? = null

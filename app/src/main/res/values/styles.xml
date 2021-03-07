@@ -29,15 +29,16 @@
         <item name="colorOnSecondary">@android:color/white</item>
     </style>
 
-    <style name="Theme.Acel.NoActionBar" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.Acel.NoActionBar" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">#FFFFFF</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorSecondary">@color/colorAccent</item>
         <item name="colorOnSecondary">@android:color/white</item>
+
     </style>
 
-    <style name="Theme.Fade.InOut.NoActionBar" parent="@style/Theme.Acel.NoActionBar">
+    <style name="Theme.Fade.InOut.NoActionBar" parent="@style/Widget.AppCompat.TextView">
         <item name="android:windowAnimationStyle">@style/activity_fade</item>
     </style>
 
@@ -51,7 +52,7 @@
     <style name="toolbar_text_style">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColor">@color/toolbar_text_color</item>
     </style>
 
     <style name="player_overlay_button">
@@ -73,4 +74,5 @@
     <style name="popup_menu_style_black_alpha">
         <item name="android:popupBackground">@color/alphaBlack</item>
     </style>
+
 </resources>

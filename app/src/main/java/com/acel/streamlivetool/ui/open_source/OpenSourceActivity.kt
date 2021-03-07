@@ -4,10 +4,11 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_open_source.*
 import kotlin.random.Random
 
-class OpenSourceActivity : AppCompatActivity() {
+class OpenSourceActivity : BaseActivity() {
     val list = listOf(
         Module(
             "androidx&Jetpack",

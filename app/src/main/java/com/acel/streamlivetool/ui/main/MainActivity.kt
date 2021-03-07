@@ -13,9 +13,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +36,7 @@ import com.acel.streamlivetool.ui.main.player.PlayerFragment
 import com.acel.streamlivetool.ui.main.player.PlayerServiceForegroundListener
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
+import com.acel.streamlivetool.util.CommonColor
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 import com.google.android.material.tabs.TabLayoutMediator
@@ -157,6 +158,16 @@ class MainActivity : OverlayWindowActivity() {
         init()
         lifecycle.addObserver(PlayerServiceForegroundListener(this))
         whiteStatusBar()
+        CommonColor.bindResource(resources)
+        Log.d(
+            "acel_log@#create",
+            "${ResourcesCompat.getColor(resources, R.color.grey_background, null)}"
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        CommonColor.unbindResource()
     }
 
     private fun init() {
@@ -436,8 +447,8 @@ class MainActivity : OverlayWindowActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = resources.getColor(android.R.color.background_light, null)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            window.statusBarColor = resources.getColor(R.color.background_light, null)
+            windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
         }
     }
 
@@ -461,5 +472,6 @@ class MainActivity : OverlayWindowActivity() {
     fun checkFollowed(anchor: Anchor) {
         mainFragment.checkFollowed(anchor)
     }
+
 
 }

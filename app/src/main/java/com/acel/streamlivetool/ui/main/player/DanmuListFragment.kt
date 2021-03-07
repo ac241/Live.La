@@ -8,9 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.databinding.FragmentDanmuListBinding
 
-class DanmuListFragment : Fragment() {
+class DanmuListFragment : BaseFragment() {
     private val viewModel by activityViewModels<PlayerViewModel>()
     private lateinit var binding: FragmentDanmuListBinding
 

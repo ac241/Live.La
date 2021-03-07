@@ -4,9 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.ui.main.MainActivity
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseActivity() {
 
     private val changesList = arrayListOf<String>()
 

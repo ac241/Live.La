@@ -100,11 +100,15 @@ class GroupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-        binding.groupSwipeRefresh.setOnRefreshListener {
-            viewModel.sortedAnchorList.value?.let {
-                if (it.isNotEmpty())
-                    viewModel.updateAllAnchor()
+        binding.groupSwipeRefresh.apply {
+            setOnRefreshListener {
+                viewModel.sortedAnchorList.value?.let {
+                    if (it.isNotEmpty())
+                        viewModel.updateAllAnchor()
+                }
             }
+            setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
+            setColorSchemeResources(R.color.colorPrimary)
         }
         processViewAlpha = binding.includeProcessToast.textViewUpdateAnchorsDetails.alpha
 
@@ -242,7 +246,7 @@ class GroupFragment : Fragment() {
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
                     val position = nowAnchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
-                    viewModel.followAnchor(requireContext(),anchor) {}
+                    viewModel.followAnchor(requireContext(), anchor) {}
                 }
                 else -> {
                     val position = nowAnchorAdapter.getLongClickPosition()

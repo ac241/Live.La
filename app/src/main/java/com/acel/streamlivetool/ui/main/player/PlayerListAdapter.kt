@@ -18,18 +18,26 @@ class PlayerListAdapter(
     private val context: Context,
     private val viewModel: PlayerViewModel,
     private val list: List<Anchor>
-) :
-    RecyclerView.Adapter<PlayerListAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PlayerListAdapter.ViewHolder>() {
+
+    companion object {
+        const val TYPE_LIVING = 1
+        const val TYPE_NOT_LIVING = 2
+    }
 
     private var nowCheckedPosition = -1
 
-    private val colorNormal = Color.parseColor("#FFFFFF")
-    private val colorUnLiving = Color.parseColor("#E3E3E3")
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            LayoutInflater.from(context).inflate(R.layout.item_player_list, parent, false)
-        )
+        return when (viewType) {
+            TYPE_LIVING -> ViewHolder(
+                LayoutInflater.from(context).inflate(R.layout.item_player_list, parent, false)
+            )
+            else -> ViewHolder(
+                LayoutInflater.from(context)
+                    .inflate(R.layout.item_player_list_not_living, parent, false)
+            )
+        }
+
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -37,7 +45,7 @@ class PlayerListAdapter(
             holder.isPlaying?.visibility = View.VISIBLE
         } else
             holder.isPlaying?.visibility = View.GONE
-        holder.itemView.setBackgroundColor(if (list[position].status) colorNormal else colorUnLiving)
+//        holder.itemView.setBackgroundColor(if (list[position].status) colorNormal else colorUnLiving)
 
         holder.nickname?.apply {
             text = list[position].nickname
@@ -49,7 +57,10 @@ class PlayerListAdapter(
         PlatformDispatcher.getPlatformImpl(list[position])?.iconRes?.let {
             holder.icon?.setImageResource(it)
         }
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        return if (list[position].status) TYPE_LIVING else TYPE_NOT_LIVING
     }
 
     override fun getItemCount(): Int = list.size

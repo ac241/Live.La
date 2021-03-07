@@ -5,7 +5,7 @@
     android:name="com.acel.streamlivetool.ui.player.DanmuListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorGreyBackground"
+    android:background="@color/universal_background"
     tools:context=".ui.main.player.DanmuListFragment">
 
     <androidx.recyclerview.widget.RecyclerView

@@ -17,12 +17,14 @@ import android.widget.TextView
 import androidx.annotation.Keep
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentPlayerBinding
@@ -45,7 +47,7 @@ import master.flame.danmaku.danmaku.model.android.DanmakuContext
 import master.flame.danmaku.danmaku.model.android.Danmakus
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser
 
-class PlayerFragment : Fragment() {
+class PlayerFragment : BaseFragment() {
     private lateinit var binding: FragmentPlayerBinding
     internal val viewModel by activityViewModels<PlayerViewModel>()
 
