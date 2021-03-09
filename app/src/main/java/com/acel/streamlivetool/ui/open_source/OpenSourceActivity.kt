@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
+import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_open_source.*
+import kotlin.properties.Delegates
 import kotlin.random.Random
 
 class OpenSourceActivity : BaseActivity() {
@@ -76,13 +78,15 @@ class OpenSourceActivity : BaseActivity() {
         Module(
             "图片资源",
             "iconfont.cn",
-            "https://www.iconfont.cn/user/detail?uid=133781",
-            "搞设计的搬运工",
+            "https://www.iconfont.cn/",
+            "感谢所有图片作者",
             "本app仅用于非商业用途"
         )
     )
     private val stringBuilder = StringBuilder()
-    private var titleClickTimes = 0
+    private var titleClickTimes by Delegates.observable(0, onChange = { _, _, new ->
+        if (new == 10) toast("别点了，这版本已经没有彩蛋了...")
+    })
     private val colors =
         arrayOf(
             "#f16d7a", "#e27386", "#f55066", "#ef5464", "#ae716e", "#cb8e85", "#cf8878",

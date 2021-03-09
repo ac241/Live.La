@@ -21,6 +21,7 @@ import com.acel.streamlivetool.anchor_additional.action.bean.WanPlusLOLSchedule
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.net.RetrofitUtils
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.TextUtil
@@ -68,7 +69,7 @@ class GetLOLMatchAction :
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun showWanplusPage(context: Context) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialogTool.newAlertDialog(context)
         builder.setView(R.layout.alert_browser_page)
         mainThread {
             val dialog = builder.show()
@@ -141,7 +142,7 @@ class GetLOLMatchAction :
             R.string.lol_match_html,
             matchStr.toString()
         )
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialogTool.newAlertDialog(context)
         builder.setView(R.layout.alert_additional_action)
         mainThread {
             val dialog = builder.show()
@@ -224,7 +225,7 @@ class GetLOLMatchAction :
                 R.string.lol_match_html,
                 matches.toString()
             )
-            val builder = AlertDialog.Builder(context)
+            val builder = AlertDialogTool.newAlertDialog(context)
             builder.setView(R.layout.alert_additional_action)
             mainThread {
                 val dialog = builder.show()

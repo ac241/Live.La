@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/grid_anchor_secondary_status"
+    android:id="@+id/secondary_status"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/text_view_radius_background"
-    android:backgroundTint="#666666"
-    android:paddingHorizontal="4dp"
-    android:textColor="#FFFFFF"
+    android:paddingHorizontal="5dp"
+    android:paddingVertical="1dp"
+    android:textColor="@color/default_text_color"
     android:textSize="10sp"
     tools:ignore="SmallSp,UnusedAttribute" />

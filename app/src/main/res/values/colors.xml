@@ -13,10 +13,12 @@
     <color name="swipe_refresh">#FFFFFF</color>
     <color name="background_light">#FFFFFFFF</color>
     <color name="item_main_text_color">#555555</color>
-    <color name="item_secondary_text_color">#8a000000</color>
+    <color name="default_text_color">#8a000000</color>
     <color name="decor_line">#d3d3d3</color>
     <color name="grey_background">#E3E3E3</color>
     <color name="type_name_background">#F3F3F3</color>
     <color name="type_name_text_color">#777777</color>
     <color name="additional_action_tint_color">#55666666</color>
+    <color name="light_dark_background">#333333</color>
+    <color name="light_dark_text_color">#F3F3F3</color>
 </resources>

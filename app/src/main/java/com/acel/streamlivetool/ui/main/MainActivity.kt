@@ -7,15 +7,14 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +27,8 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.custom_view.FloatingAvatar
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
+import com.acel.streamlivetool.ui.custom.FloatingAvatar
 import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
@@ -157,12 +157,8 @@ class MainActivity : OverlayWindowActivity() {
         setContentView(binding.root)
         init()
         lifecycle.addObserver(PlayerServiceForegroundListener(this))
-        whiteStatusBar()
+        whiteSystemBar()
         CommonColor.bindResource(resources)
-        Log.d(
-            "acel_log@#create",
-            "${ResourcesCompat.getColor(resources, R.color.grey_background, null)}"
-        )
     }
 
     override fun onDestroy() {
@@ -196,7 +192,7 @@ class MainActivity : OverlayWindowActivity() {
     private fun showClearCookieAlert(position: Int) {
         binding.viewPager.setCurrentItem(position, true)
         //清除cookie
-        val dialogBuilder = AlertDialog.Builder(this)
+        val dialogBuilder = AlertDialogTool.newAlertDialog(this)
             .setTitle(
                 getString(
                     R.string.clear_platform_cookie_alert,
@@ -301,7 +297,8 @@ class MainActivity : OverlayWindowActivity() {
 
     private fun backPressed() {
         if (supportFragmentManager.backStackEntryCount > 0) {
-            whiteStatusBar()
+            whiteSystemBar()
+//            showSystemUI()
             supportFragmentManager.popBackStack()
         } else {
             backPressedTime = System.currentTimeMillis()
@@ -435,24 +432,25 @@ class MainActivity : OverlayWindowActivity() {
     }
 
     fun onPlayerFragmentDestroy() {
-//        showSystemUI()
-//        whiteStatusBar()
         if (supportFragmentManager.backStackEntryCount == 0) {
             isPlayerFragmentShown = false
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
         }
     }
 
-    private fun whiteStatusBar() {
+    private fun whiteSystemBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(R.color.background_light, null)
+            window.navigationBarColor = resources.getColor(R.color.background_light, null)
             windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
+            windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
         }
     }
 
-    fun blackStatusBar() {
+    fun blackSystemBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -461,7 +459,7 @@ class MainActivity : OverlayWindowActivity() {
             } else {
                 window.statusBarColor = Color.BLACK
             }
-            window.navigationBarColor = Color.TRANSPARENT
+            window.navigationBarColor = resources.getColor(R.color.background_light, null)
         }
     }
 
@@ -473,5 +471,8 @@ class MainActivity : OverlayWindowActivity() {
         mainFragment.checkFollowed(anchor)
     }
 
+    fun getPlayingAnchor(): Anchor? {
+        return playerFragment?.viewModel?.anchor?.value
+    }
 
 }

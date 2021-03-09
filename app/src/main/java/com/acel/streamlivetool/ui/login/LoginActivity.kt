@@ -17,10 +17,12 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -34,11 +36,12 @@ class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        ViewCompat.getWindowInsetsController(window.decorView)?.isAppearanceLightStatusBars = !isNightMode()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = resources.getColor(android.R.color.background_light)
+            window.statusBarColor = resources.getColor(R.color.background_light, null)
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
 
@@ -107,7 +110,7 @@ class LoginActivity : BaseActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun setCookieManual(view: View) {
-        val alertDialog = AlertDialog.Builder(this).setTitle("手动设置Cookie")
+        val alertDialog = AlertDialogTool.newAlertDialog(this).setTitle("手动设置Cookie")
             .setView(R.layout.alert_set_cookie_manual)
             .show()
         alertDialog.findViewById<Button>(R.id.commit)?.setOnClickListener {

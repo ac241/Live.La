@@ -20,6 +20,7 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 import com.acel.streamlivetool.platform.huya.HuyaImpl.PatternUtil.getMatchString
 import com.acel.streamlivetool.platform.huya.bean.Subscribe
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.*
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import kotlinx.android.synthetic.main.alert_browser_page.*
@@ -249,7 +250,7 @@ class HuyaImpl : IPlatform {
 
     @SuppressLint("SetJavaScriptEnabled")
     fun showVerifyCodeWindow(context: Context, url: String, doOnVerified: () -> Unit) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialogTool.newAlertDialog(context)
         builder.apply {
             setTitle("需要校验验证码")
             setMessage("请在验证完成后点击确认")

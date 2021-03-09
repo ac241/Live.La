@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,6 @@ import android.widget.TextView
 import androidx.annotation.Keep
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -30,10 +28,10 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentPlayerBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
-import com.acel.streamlivetool.ui.custom_view.AdjustType
-import com.acel.streamlivetool.ui.custom_view.AdjustablePlayerView
-import com.acel.streamlivetool.ui.custom_view.addItemWhiteTextColor
-import com.acel.streamlivetool.ui.custom_view.blackAlphaPopupMenu
+import com.acel.streamlivetool.ui.custom.AdjustType
+import com.acel.streamlivetool.ui.custom.AdjustablePlayerView
+import com.acel.streamlivetool.ui.custom.addItemWhiteTextColor
+import com.acel.streamlivetool.ui.custom.blackAlphaPopupMenu
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.ToastUtil
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -73,7 +71,7 @@ class PlayerFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (requireActivity() as MainActivity).blackStatusBar()
+        (requireActivity() as MainActivity).blackSystemBar()
         (requireActivity() as MainActivity).showSystemUI()
 
         arguments?.let { bundle ->
@@ -558,7 +556,6 @@ class PlayerFragment : BaseFragment() {
         } else
             binding.playerView.findViewById<ImageView>(R.id.btn_zoom)
                 .setImageResource(R.drawable.ic_maximize)
-
     }
 
     /**
@@ -611,7 +608,15 @@ class PlayerFragment : BaseFragment() {
             }
             binding.nickname.text = nickname
             binding.playerView.findViewById<TextView>(R.id.controller_nickname).text = nickname
-            binding.include.typeName.text = typeName
+            binding.includeType.typeName.text = typeName
+            secondaryStatus.let {
+                if (it != null && it.isNotEmpty()) {
+                    binding.includeSecondaryStatus.secondaryStatus.visibility = View.VISIBLE
+                    binding.includeSecondaryStatus.secondaryStatus.text = secondaryStatus
+                } else {
+                    binding.includeSecondaryStatus.secondaryStatus.visibility = View.GONE
+                }
+            }
             binding.roomId.text = getString(R.string.room_id_format, showId)
             binding.title.text = title
             binding.playerView.findViewById<TextView>(R.id.controller_title).text = title

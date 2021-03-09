@@ -5,13 +5,16 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.forEach
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
 import com.acel.streamlivetool.util.AppUtil.getAppName
 import com.acel.streamlivetool.util.AppUtil.getAppVersionName
@@ -20,11 +23,6 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        view.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.background_light, null))
-    }
 
     /**
      * 设置后通知
@@ -62,7 +60,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
     override fun onCreatePreferences(p0: Bundle?, p1: String?) {
         addPreferencesFromResource(R.xml.pre_settings)
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        preferenceScreen.forEach {
 
+        }
         findPreference<Preference>(getString(R.string.pref_key_about_open_source))?.setOnPreferenceClickListener {
             startActivity(Intent(context, OpenSourceActivity::class.java))
             true
@@ -74,7 +74,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
         findPreference<Preference>(getString(R.string.pref_key_app_description))?.apply {
             title = "${getAppName(requireContext())} ${getAppVersionName(requireContext())}"
             setOnPreferenceClickListener {
-                AlertDialog.Builder(requireContext())
+                AlertDialogTool.newAlertDialog(requireContext())
                     .setTitle("项目地址：")
                     .setMessage(getString(R.string.github_url))
                     .show()
@@ -97,7 +97,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
     }
 
     private fun clearCookie() {
-        val builder = context?.let { AlertDialog.Builder(it) }
+        val builder = context?.let { AlertDialogTool.newAlertDialog(it) }
         builder
             ?.setTitle(getString(R.string.clear_all_cookie_alert))
             ?.setPositiveButton(getString(R.string.yes)) { _, _ ->

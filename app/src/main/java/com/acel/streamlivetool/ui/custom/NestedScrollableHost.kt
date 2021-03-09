@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.acel.streamlivetool.ui.custom_view
+package com.acel.streamlivetool.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet

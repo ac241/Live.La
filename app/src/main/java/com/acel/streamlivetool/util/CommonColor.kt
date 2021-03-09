@@ -18,6 +18,6 @@ object CommonColor {
         }
     val notLivingColor
         get() = resources?.let {
-            ResourcesCompat.getColor(it, R.color.item_secondary_text_color, null)
+            ResourcesCompat.getColor(it, R.color.default_text_color, null)
         }
 }

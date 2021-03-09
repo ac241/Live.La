@@ -22,13 +22,14 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
+import com.acel.streamlivetool.util.AppUtil.assertMainThread
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
 import com.acel.streamlivetool.util.ToastUtil.toast
-import com.bumptech.glide.util.Util.assertMainThread
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -123,8 +124,10 @@ class GroupViewModel : ViewModel() {
         assertMainThread()
         _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         if (groupModeUseCookie)
+        //使用cookie方式
             updateAllAnchorByCookie()
         else
+        //使用直接更新
             sortedAnchorList.value?.forEach { anchor ->
                 updateAnchor(anchor)
             }
@@ -144,11 +147,13 @@ class GroupViewModel : ViewModel() {
      */
     private fun updateAllAnchorByCookie() {
         updateAnchorsTask?.cancel()
-        val platforms = PlatformDispatcher.getAllPlatformInstance()
         updateAnchorsTask = scope.launch(Dispatchers.IO) {
+            val platforms = PlatformDispatcher.getAllPlatformInstance()
+            //平台更新进度列表
             val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
+            //遍历所有平台
             platforms.forEach { platformEntry ->
-                //同平台的anchor列表
+                //同平台的anchors
                 val samePlatformAnchorList = mutableListOf<Anchor>()
                 sortedAnchorList.value?.forEach {
                     if (it.platform == platformEntry.key)
@@ -209,7 +214,7 @@ class GroupViewModel : ViewModel() {
     }
 
     fun showFollowDialog(context: Context, anchor: Anchor) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialogTool.newAlertDialog(context)
         anchor.platformImpl()?.let {
             if (it.supportFollow) {
                 builder.apply {
@@ -298,7 +303,7 @@ class GroupViewModel : ViewModel() {
     ): UpdateResult {
         var updateResult =
             UpdateResult(isSuccess = false, resultType = ResultType.ERROR, iPlatform = iPlatform)
-        runCatching {
+        viewModelScope.runCatching {
             //更新平台anchor list
             val result = anchorListManager.updateAnchorList(iPlatform)
             result?.apply {
@@ -479,10 +484,6 @@ class GroupViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    private fun showVerifyCodeWindow() {
-
     }
 
     private val checkFollowedAnchors = mutableListOf<Anchor>()

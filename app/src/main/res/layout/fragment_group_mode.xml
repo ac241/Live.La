@@ -3,15 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
+    <com.acel.streamlivetool.ui.custom.MySwipeRefreshLayout
         android:id="@+id/group_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <include
-            android:id="@+id/include"
+            android:id="@+id/include_type"
             layout="@layout/layout_anchor_recycler_view" />
-    </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
+    </com.acel.streamlivetool.ui.custom.MySwipeRefreshLayout>
 
     <include
         android:id="@+id/include_process_toast"

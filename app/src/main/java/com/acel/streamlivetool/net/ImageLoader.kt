@@ -1,12 +1,16 @@
 package com.acel.streamlivetool.net
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.acel.streamlivetool.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import java.io.File
+
 
 object ImageLoader {
     private val requestOption = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -29,5 +33,7 @@ object ImageLoader {
         }
         return null
     }
+
+
 }
 

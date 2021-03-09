@@ -8,6 +8,6 @@
     android:gravity="center_vertical"
     android:padding="5dp"
     android:text="@string/not_living"
-    android:textColor="@color/item_secondary_text_color"
+    android:textColor="@color/default_text_color"
     android:textSize="16sp"
     android:textStyle="bold" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.acel.streamlivetool.ui.custom_view.FloatingAvatar xmlns:android="http://schemas.android.com/apk/res/android"
+<com.acel.streamlivetool.ui.custom.FloatingAvatar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/float_avatar"
     android:layout_width="@dimen/float_avatar_avatar"

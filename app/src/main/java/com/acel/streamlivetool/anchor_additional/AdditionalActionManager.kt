@@ -10,6 +10,7 @@ import android.content.Context
 import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
 import com.acel.streamlivetool.anchor_additional.action.GetLOLMatchAction
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -50,7 +51,7 @@ class AdditionalActionManager {
                 1 ->
                     actions[0].doAction(context, anchor)
                 else -> {
-                    val builder = AlertDialog.Builder(context)
+                    val builder = AlertDialogTool.newAlertDialog(context)
                     val arrayList = arrayListOf<String>()
                     it.forEach { action ->
                         arrayList.add(action.actionName)

@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.custom_view
+package com.acel.streamlivetool.ui.custom
 
 import android.animation.Animator
 import android.animation.ObjectAnimator

@@ -69,7 +69,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textColor="@color/item_main_text_color"
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/type_name"
             app:layout_constraintStart_toEndOf="@+id/grid_anchor_avatar"

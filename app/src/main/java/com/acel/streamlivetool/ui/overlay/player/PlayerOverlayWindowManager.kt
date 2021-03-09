@@ -4,12 +4,14 @@ import android.content.Intent
 import android.net.Uri
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
@@ -29,6 +31,9 @@ import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoListener
 import kotlinx.android.synthetic.main.layout_overlay_player.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 
 class PlayerOverlayWindowManager : LifecycleObserver {
@@ -412,9 +417,19 @@ class PlayerOverlayWindowManager : LifecycleObserver {
             show()
             playAnchorSteaming(anchor)
         }
-        PlayerService.startWithForeground(
-            PlayerService.Companion.SourceType.PLAYER_OVERLAY
-        )
+        runBlocking {
+            val bitmap = withContext(Dispatchers.IO) {
+                anchor.avatar?.let {
+                    ImageLoader.getDrawable(MyApplication.application, it)?.toBitmap()
+                }
+            }
+            bitmap?.let {
+                PlayerService.startWithForeground(
+                    PlayerService.Companion.SourceType.PLAYER_OVERLAY, anchor, it
+                )
+            }
+        }
+
     }
 
     internal fun playList(anchor: Anchor, list: List<Anchor>?) {

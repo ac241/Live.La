@@ -14,6 +14,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.main.MainActivity
+import com.bumptech.glide.util.Util
 import kotlin.system.exitProcess
 
 
@@ -131,4 +132,21 @@ object AppUtil {
         return versionName
     }
 
+    /**
+     * Throws an [java.lang.IllegalArgumentException] if called on a thread other than the main
+     * thread.
+     */
+    fun assertMainThread() {
+        require(Util.isOnMainThread()) { "You must call this method on the main thread" }
+    }
+
+    /** Throws an [java.lang.IllegalArgumentException] if called on the main thread.  */
+    fun assertBackgroundThread() {
+        require(Util.isOnBackgroundThread()) { "You must call this method on a background thread" }
+    }
+
+    /** Returns `true` if called on the main thread, `false` otherwise.  */
+    fun isOnMainThread(): Boolean {
+        return Looper.myLooper() == Looper.getMainLooper()
+    }
 }

@@ -2,9 +2,8 @@ package com.acel.streamlivetool.ui.main.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.text.Spannable
-import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
 import android.view.*
 import android.widget.ImageView
@@ -18,7 +17,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
 import com.acel.streamlivetool.net.ImageLoader
-import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
 import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
@@ -116,36 +115,29 @@ class AnchorAdapter(
         }
     }
 
+    private val spannableStringBuffer = SpannableStringBuilder()
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolderGroup)
             return
+
         val anchor: Anchor = anchorList[position]
         holder as ViewHolderGraphic
+
         holder.itemView.tag = if (anchor.status) STATUS_LIVING else STATUS_NOT_LIVING
         //主播名
         holder.anchorName.text = anchor.nickname
         //平台名
         holder.platform.visibility = View.GONE
+
         //平台图标
         if (modeType == MODE_GROUP) {
-            PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
+            anchor.platformImpl()?.iconRes?.let {
                 holder.icon?.setImageResource(it)
             }
         }
-//        if (modeType == MODE_GROUP) {
-//            if (getItemViewType(position) == VIEW_TYPE_ANCHOR) {
-//                holder.platform.visibility = View.GONE
-//                PlatformDispatcher.getPlatformImpl(anchor)?.iconRes?.let {
-//                    holder.icon?.setImageResource(it)
-//                }
-//            } else
-//                holder.platform.text =
-//                    PlatformDispatcher.getPlatformImpl(anchor)?.platformName ?: "unknown"
-//        } else {
-//            holder.platform.visibility = View.GONE
-//        }
+
         //直播类型
         if (anchor.typeName != null) {
             holder.typeName.text = anchor.typeName
@@ -154,7 +146,6 @@ class AnchorAdapter(
             holder.typeName.visibility = View.GONE
 
         //title
-
         holder.title.text = anchor.title ?: "-"
 
         //直播时间
@@ -171,6 +162,7 @@ class AnchorAdapter(
                 holder.avatar.setImageResource(R.drawable.ic_load_img_fail)
             }
         }
+
         //如果是显图类型
         if (getItemViewType(position) == VIEW_TYPE_ANCHOR) {
             //图片
@@ -187,26 +179,34 @@ class AnchorAdapter(
             //热度
             anchor.online?.apply {
                 if (isNotEmpty()) {
-                    val span = SpannableString("  $this")
-                    span.setSpan(onlineImageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    holder.online?.text = span
+                    spannableStringBuffer.clear()
+                    spannableStringBuffer.append(" $this")
+//                    val span = SpannableString("  $this")
+                    spannableStringBuffer.setSpan(
+                        onlineImageSpan,
+                        0,
+                        1,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    holder.online?.text = spannableStringBuffer
                 }
             }
         }
+
         //直播状态
-        if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
-            && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
-        ) {
-            holder.status.visibility = View.VISIBLE
-            if (anchor.status) {
-                holder.status.text = context.getString(R.string.is_living)
-                holder.status.setTextColor(Color.parseColor("#4CAF50"))
-            } else {
-                holder.status.text = context.getString(R.string.not_living)
-                holder.status.setTextColor(Color.WHITE)
-            }
-        } else
-            holder.status.visibility = View.GONE
+//        if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
+//            && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
+//        ) {
+//            holder.status.visibility = View.VISIBLE
+//            if (anchor.status) {
+//                holder.status.text = context.getString(R.string.is_living)
+//                holder.status.setTextColor(Color.parseColor("#4CAF50"))
+//            } else {
+//                holder.status.text = context.getString(R.string.not_living)
+//                holder.status.setTextColor(Color.WHITE)
+//            }
+//        } else
+//            holder.status.visibility = View.GONE
         //二级状态
         with(anchor.secondaryStatus) {
             if (this != null && isNotEmpty()) {
@@ -217,13 +217,10 @@ class AnchorAdapter(
             }
         }
 
-        //直播间Id
-//        viewHolder.roomId.text = anchor.showId
-
         //item click
         holder.itemView.setOnClickListener {
             context as MainActivity
-            context.itemClick(it,context, anchor, anchorList)
+            context.itemClick(it, context, anchor, anchorList)
 //            itemClick(context, anchor, anchorList)
         }
 
@@ -308,11 +305,12 @@ class AnchorAdapter(
         val platform: TextView = itemView.grid_anchor_platform
         val image: ImageView = itemView.grid_anchor_image
         val avatar: ImageView = itemView.grid_anchor_avatar
-        val status: TextView = itemView.grid_anchor_status
+
+        //        val status: TextView = itemView.grid_anchor_status
         val secondBtn: ImageView = itemView.grid_anchor_second_btn
         val title: TextView = itemView.grid_anchor_title
         val additionBtn: ImageView = itemView.grid_anchor_addition_action
-        val secondaryStatus: TextView = itemView.grid_anchor_secondary_status
+        val secondaryStatus: TextView = itemView.secondary_status
         val roomId: TextView = itemView.grid_anchor_roomId
         val typeName: TextView = itemView.type_name
         val online: TextView? = itemView.grid_anchor_online ?: null

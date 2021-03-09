@@ -5,9 +5,11 @@ import android.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -50,7 +52,7 @@ class AddAnchorViewModel : ViewModel() {
                     mainThread { toast("搜索结果为空。") }
                     return@execute
                 }
-                val builder = AlertDialog.Builder(activity)
+                val builder = AlertDialogTool.newAlertDialog(activity)
                 var choiceAnchor: Anchor? = anchorList[0]
                 val adapter = SearchListAdapter(anchorList)
                 builder.setSingleChoiceItems(adapter, 0)

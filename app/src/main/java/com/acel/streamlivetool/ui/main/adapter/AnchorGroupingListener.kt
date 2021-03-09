@@ -8,7 +8,6 @@
 package com.acel.streamlivetool.ui.main.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -28,13 +27,13 @@ class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     private val livingTitle = MyApplication.application.getString(R.string.is_living)
 
     @SuppressLint("ResourceType")
-    private val livingColor = CommonColor.notLivingColor ?: 0
+    private val livingColor = CommonColor.livingColor ?: 0
 
     private val notLivingTitle = MyApplication.application.getString(R.string.not_living)
 
     @SuppressLint("ResourceType")
-    private val notLivingColor =
-        Color.parseColor(MyApplication.application.getString(R.color.item_secondary_text_color))
+    private val notLivingColor = CommonColor.notLivingColor ?: 0
+//    Color.parseColor(MyApplication.application.getString(R.color.item_secondary_text_color))
 
     private var nowTitle = 0
 

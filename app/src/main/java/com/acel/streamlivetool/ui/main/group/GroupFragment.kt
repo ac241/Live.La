@@ -15,6 +15,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.*
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -63,7 +64,14 @@ class GroupFragment : Fragment() {
 
     private var updateProcessAnimate: ViewPropertyAnimator? = null
     var processViewAlpha: Float = 0.5f
-    private val snackBar by lazy { Snackbar.make(requireActivity().main_container, "", 5000) }
+    private val snackBar by lazy {
+        Snackbar.make(requireActivity().main_container, "", 5000).apply {
+            setBackgroundTint(
+                ResourcesCompat.getColor(resources, R.color.light_dark_background, null)
+            )
+            setTextColor(ResourcesCompat.getColor(resources, R.color.light_dark_text_color, null))
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -114,12 +122,12 @@ class GroupFragment : Fragment() {
 
         val drawable =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                resources.getDrawable(R.drawable.ic_home_page, null)
+                resources.getDrawable(R.drawable.ic_home_page)
             } else {
                 resources.getDrawable(R.drawable.ic_home_page)
             }
         drawable?.setBounds(0, 0, 40, 40)
-        binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, drawable, null)
         }
         /**
@@ -166,7 +174,7 @@ class GroupFragment : Fragment() {
     }
 
     private fun iniRecyclerViewLayoutManager(orientation: Int) {
-        binding.include.recyclerView.layoutManager =
+        binding.includeType.recyclerView.layoutManager =
             StaggeredGridLayoutManager(
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
                 StaggeredGridLayoutManager.VERTICAL
@@ -180,11 +188,12 @@ class GroupFragment : Fragment() {
         else
             adapterNoImage
         setAdapter()
-        binding.include.recyclerView.addOnScrollListener(AnchorGroupingListener())
+        binding.includeType.recyclerView.addOnScrollListener(AnchorGroupingListener())
+        binding.includeType.recyclerView.setItemViewCacheSize(30)
     }
 
     private fun setAdapter() {
-        binding.include.recyclerView.adapter = nowAnchorAdapter
+        binding.includeType.recyclerView.adapter = nowAnchorAdapter
     }
 
     fun setShowImage(boolean: Boolean) {
@@ -308,7 +317,7 @@ class GroupFragment : Fragment() {
     }
 
     fun scrollToTop() {
-        binding.include.recyclerView.smoothScrollToPosition(0)
+        binding.includeType.recyclerView.smoothScrollToPosition(0)
     }
 
     fun checkFollowed(anchor: Anchor) {

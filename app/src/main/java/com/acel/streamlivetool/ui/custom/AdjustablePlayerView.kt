@@ -2,7 +2,7 @@
  * @author acel
  * 2021/2/13
  */
-package com.acel.streamlivetool.ui.custom_view
+package com.acel.streamlivetool.ui.custom
 
 import android.annotation.SuppressLint
 import android.app.Activity

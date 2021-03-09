@@ -24,15 +24,15 @@
             android:gravity="center"
             android:visibility="gone" />
 
-        <com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout
+        <com.acel.streamlivetool.ui.custom.MySwipeRefreshLayout
             android:id="@+id/cookie_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <include
-                android:id="@+id/include"
+                android:id="@+id/include_type"
                 layout="@layout/layout_anchor_recycler_view" />
-        </com.acel.streamlivetool.ui.custom_view.MySwipeRefreshLayout>
+        </com.acel.streamlivetool.ui.custom.MySwipeRefreshLayout>
 
 
     </LinearLayout>

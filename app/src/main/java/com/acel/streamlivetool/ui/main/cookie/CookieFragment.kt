@@ -146,7 +146,7 @@ class CookieFragment : Fragment() {
             setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
             setColorSchemeResources(R.color.colorPrimary)
         }
-        binding.include.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)
         }
 
@@ -183,7 +183,7 @@ class CookieFragment : Fragment() {
     }
 
     private fun iniRecyclerViewLayoutManager(orientation: Int) {
-        binding.include.recyclerView.layoutManager =
+        binding.includeType.recyclerView.layoutManager =
             StaggeredGridLayoutManager(
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
                 StaggeredGridLayoutManager.VERTICAL
@@ -197,11 +197,11 @@ class CookieFragment : Fragment() {
         else
             adapterNoImage
         setAdapter()
-        binding.include.recyclerView.addOnScrollListener(AnchorGroupingListener())
+        binding.includeType.recyclerView.addOnScrollListener(AnchorGroupingListener())
     }
 
     private fun setAdapter() {
-        binding.include.recyclerView.adapter = nowAnchorAdapter
+        binding.includeType.recyclerView.adapter = nowAnchorAdapter
     }
 
     private fun showLoginTextView() {
@@ -277,7 +277,7 @@ class CookieFragment : Fragment() {
     }
 
     fun scrollToTop() {
-        binding.include.recyclerView.smoothScrollToPosition(0)
+        binding.includeType.recyclerView.smoothScrollToPosition(0)
     }
 
     companion object {
