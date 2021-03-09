@@ -7,6 +7,6 @@
     android:background="@drawable/text_view_radius_background"
     android:paddingHorizontal="5dp"
     android:paddingVertical="1dp"
-    android:textColor="@color/default_text_color"
+    android:textColor="@color/text_color_secondary"
     android:textSize="10sp"
     tools:ignore="SmallSp,UnusedAttribute" />

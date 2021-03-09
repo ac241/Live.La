@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/main_page_add_anchor"
-        android:textColor="@color/default_text_color"
+        android:textColor="@color/text_color_secondary"
         android:textSize="20sp" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:textColorHint="@color/default_text_color">
+        android:textColorHint="@color/text_color_secondary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_anchor_id_add_anchor"

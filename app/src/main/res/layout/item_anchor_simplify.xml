@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
             android:layout_marginTop="5dp"
-            android:textColor="@color/default_text_color"
+            android:textColor="@color/text_color_secondary"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/grid_anchor_name"

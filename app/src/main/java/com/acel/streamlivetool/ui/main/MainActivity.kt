@@ -1,6 +1,5 @@
 package com.acel.streamlivetool.ui.main
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration

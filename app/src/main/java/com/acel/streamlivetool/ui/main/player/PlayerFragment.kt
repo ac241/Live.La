@@ -464,7 +464,7 @@ class PlayerFragment : BaseFragment() {
                     time = binding.danmakuView.currentTime.plus(1200)
                     textSize = danmuDefaultTextSize
                     textColor = Color.WHITE
-//                    textShadowColor = Color.BLACK
+                    textShadowColor = Color.GRAY
                     priority = 1
                 }
             danmaku?.let {

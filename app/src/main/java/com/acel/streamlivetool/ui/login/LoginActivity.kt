@@ -36,7 +36,8 @@ class LoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        ViewCompat.getWindowInsetsController(window.decorView)?.isAppearanceLightStatusBars = !isNightMode()
+        ViewCompat.getWindowInsetsController(window.decorView)?.isAppearanceLightStatusBars =
+            !isNightMode()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -67,6 +68,8 @@ class LoginActivity : BaseActivity() {
                             impl.saveCookie(cookieStr)
                             toast("添加成功")
                             finish()
+                        } else {
+                            webView.loadUrl("javascript:$('#nav-login').click()")
                         }
                     }
                 }

@@ -203,7 +203,7 @@ class HuyaImpl : IPlatform {
     }
 
     override fun checkLoginOk(cookie: String): Boolean {
-        if (cookie.contains("udb_biztoken") && cookie.contains("udb_passport"))
+        if (cookie.contains("udb_biztoken") && cookie.contains("udb_passport")&&cookie.contains("guid="))
             return true
         return false
     }
@@ -214,7 +214,7 @@ class HuyaImpl : IPlatform {
         get() = "虎牙的cookie有效期约为7天，显示不全请旋转屏幕"
 
     override fun getLoginUrl(): String {
-        return "https://www.huya.com/myfollow"
+        return "https://www.huya.com/333003"
     }
 
     override val supportFollow: Boolean = true
@@ -225,7 +225,12 @@ class HuyaImpl : IPlatform {
             val uid = CookieUtil.getCookieField(cookie, "yyuid")
             uid?.let { u ->
                 val response =
-                    huyaService.follow(cookie, anchor.roomId, u, System.currentTimeMillis())
+                    huyaService.follow(
+                        cookie,
+                        anchor.roomId,
+                        u,
+                        System.currentTimeMillis()
+                    )
                         .execute().body()
                 response?.apply {
                     return if (status == 1)
