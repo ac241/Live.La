@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.util
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.ui.main.adapter.AnchorStatusGroup
+import com.acel.streamlivetool.ui.main.adapter.AnchorSection
 
 object AnchorListUtil {
     /**
@@ -35,8 +35,8 @@ object AnchorListUtil {
      * 插入直播状态分组提示
      */
     fun insertStatusPlaceHolder(list: MutableList<Anchor>) {
-        list.remove(AnchorStatusGroup.LIVING_GROUP)
-        list.remove(AnchorStatusGroup.NOT_LIVING_GROUP)
+        list.remove(AnchorSection.ANCHOR_SECTION_LIVING)
+        list.remove(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
         var livingIndex: Int = -1
         var sleepingIndex: Int = -1
         run breaking@{
@@ -51,11 +51,11 @@ object AnchorListUtil {
             }
         }
         if (livingIndex != -1)
-            list.add(livingIndex, AnchorStatusGroup.LIVING_GROUP)
+            list.add(livingIndex, AnchorSection.ANCHOR_SECTION_LIVING)
         if (sleepingIndex != -1)
             list.add(
-                if (list.contains(AnchorStatusGroup.LIVING_GROUP)) sleepingIndex + 1 else sleepingIndex,
-                AnchorStatusGroup.NOT_LIVING_GROUP
+                if (list.contains(AnchorSection.ANCHOR_SECTION_LIVING)) sleepingIndex + 1 else sleepingIndex,
+                AnchorSection.ANCHOR_SECTION_NOT_LIVING
             )
     }
 
@@ -74,7 +74,7 @@ object AnchorListUtil {
     fun removeGroup(anchorList: List<Anchor>): List<Anchor> {
         val list = mutableListOf<Anchor>()
         anchorList.forEach {
-            if (it != AnchorStatusGroup.LIVING_GROUP && it != AnchorStatusGroup.NOT_LIVING_GROUP)
+            if (it != AnchorSection.ANCHOR_SECTION_LIVING && it != AnchorSection.ANCHOR_SECTION_NOT_LIVING)
                 list.add(it)
         }
         return list

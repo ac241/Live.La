@@ -28,7 +28,7 @@ import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
+import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
@@ -91,12 +91,12 @@ class GroupFragment : Fragment() {
      * 反射设置snackbar文字可点击
      */
     private fun Snackbar.setSpanClickable() {
-        val snackbarContentLayout =
+        val snackBarContentLayout =
             ((view as Snackbar.SnackbarLayout).getChildAt(0) as SnackbarContentLayout)
         try {
-            val controller = snackbarContentLayout::class.java.getDeclaredField("messageView")
+            val controller = snackBarContentLayout::class.java.getDeclaredField("messageView")
             controller.isAccessible = true
-            val messageView = controller.get(snackbarContentLayout) as TextView
+            val messageView = controller.get(snackBarContentLayout) as TextView
             messageView.movementMethod = LinkMovementMethod.getInstance()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -127,7 +127,7 @@ class GroupFragment : Fragment() {
                 resources.getDrawable(R.drawable.ic_home_page)
             }
         drawable?.setBounds(0, 0, 40, 40)
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status)?.apply {
             setCompoundDrawables(null, null, drawable, null)
         }
         /**
@@ -188,8 +188,10 @@ class GroupFragment : Fragment() {
         else
             adapterNoImage
         setAdapter()
-        binding.includeType.recyclerView.addOnScrollListener(AnchorGroupingListener())
-        binding.includeType.recyclerView.setItemViewCacheSize(30)
+        binding.includeType.recyclerView.apply {
+            setItemViewCacheSize(30)
+            addItemDecoration(AnchorItemDecoration())
+        }
     }
 
     private fun setAdapter() {

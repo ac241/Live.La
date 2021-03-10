@@ -16,6 +16,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.util.CommonColor
 
+@Deprecated("已使用itemDecoration替代")
 class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     companion object {
         const val STATUS_GROUP_TITLE_LIVING = 996
@@ -59,12 +60,12 @@ class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     }
 
     private fun FrameLayout.hideTitle(tag: Any) {
-        findViewById<TextView>(R.id.status_living).visibility = View.GONE
+        findViewById<TextView>(R.id.status).visibility = View.GONE
         nowTitle = tag as Int
     }
 
     private fun FrameLayout.showNotLivingTitle() {
-        findViewById<TextView>(R.id.status_living).apply {
+        findViewById<TextView>(R.id.status).apply {
             this.visibility = View.VISIBLE
             this.text = notLivingTitle
             this.setTextColor(notLivingColor)
@@ -73,7 +74,7 @@ class AnchorGroupingListener : RecyclerView.OnScrollListener() {
     }
 
     private fun FrameLayout.showLivingTitle() {
-        findViewById<TextView>(R.id.status_living).apply {
+        findViewById<TextView>(R.id.status).apply {
             this.visibility = View.VISIBLE
             this.text = livingTitle
             this.setTextColor(livingColor)

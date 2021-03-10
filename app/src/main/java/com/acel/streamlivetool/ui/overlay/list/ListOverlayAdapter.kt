@@ -23,7 +23,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
-            VIEW_TYPE_LIVING_GROUP_TITLE ->
+            VIEW_TYPE_SECTION_LIVING ->
                 holder =
                     ViewHolderGroup(
                         LayoutInflater.from(parent.context)
@@ -33,7 +33,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                                     STATUS_GROUP_TITLE_LIVING
                             }
                     )
-            VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
+            VIEW_TYPE_SECTION_NOT_LIVING ->
                 holder =
                     ViewHolderGroup(
                         LayoutInflater.from(parent.context)
@@ -54,10 +54,10 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     override fun getItemViewType(position: Int): Int {
         return when (anchorList[position]) {
-            AnchorStatusGroup.LIVING_GROUP ->
-                VIEW_TYPE_LIVING_GROUP_TITLE
-            AnchorStatusGroup.NOT_LIVING_GROUP ->
-                VIEW_TYPE_NOT_LIVING_GROUP_TITLE
+            AnchorSection.ANCHOR_SECTION_LIVING ->
+                VIEW_TYPE_SECTION_LIVING
+            AnchorSection.ANCHOR_SECTION_NOT_LIVING ->
+                VIEW_TYPE_SECTION_NOT_LIVING
             else ->
                 VIEW_TYPE_ANCHOR
         }
@@ -76,8 +76,8 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
             this.title.text =
                 anchor.title ?: "-"
             //直播状态
-            if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
-                && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
+            if (!anchorList.contains(AnchorSection.ANCHOR_SECTION_LIVING)
+                && !anchorList.contains(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
             ) {
                 holder.status.visibility = View.VISIBLE
                 if (anchor.status) {

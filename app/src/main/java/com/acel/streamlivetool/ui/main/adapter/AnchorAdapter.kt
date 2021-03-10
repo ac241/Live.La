@@ -19,8 +19,6 @@ import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.MainActivity
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_LIVING
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener.Companion.STATUS_NOT_LIVING
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -41,28 +39,28 @@ class AnchorAdapter(
     private val onlineImageSpan =
         ImageSpan(context, R.drawable.ic_online_hot)
 
+    private var livingSectionPosition = -1
+    private var notLivingSectionPosition = -1
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
-            VIEW_TYPE_LIVING_GROUP_TITLE ->
+            VIEW_TYPE_SECTION_LIVING ->
                 holder = ViewHolderGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_group_living, parent, false)
+                        .inflate(R.layout.item_section_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
-                                .isFullSpan = true
-                            it.tag = AnchorGroupingListener.STATUS_GROUP_TITLE_LIVING
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
+                                true
                         }
                 )
-            VIEW_TYPE_NOT_LIVING_GROUP_TITLE ->
+            VIEW_TYPE_SECTION_NOT_LIVING ->
                 holder = ViewHolderGroup(
                     LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_group_not_living, parent, false)
+                        .inflate(R.layout.item_section_not_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
-                                .isFullSpan = true
-                            it.tag =
-                                AnchorGroupingListener.STATUS_GROUP_TITLE_NOT_LIVING
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
+                                true
                         }
                 )
             VIEW_TYPE_ANCHOR_SIMPLIFY ->
@@ -70,8 +68,8 @@ class AnchorAdapter(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_anchor_simplify, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
-                                .isFullSpan = true
+                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
+                                true
                         }
                 )
             else ->
@@ -98,10 +96,10 @@ class AnchorAdapter(
     override fun getItemViewType(position: Int): Int {
         try {
             return when (anchorList[position]) {
-                AnchorStatusGroup.LIVING_GROUP ->
-                    VIEW_TYPE_LIVING_GROUP_TITLE
-                AnchorStatusGroup.NOT_LIVING_GROUP ->
-                    VIEW_TYPE_NOT_LIVING_GROUP_TITLE
+                AnchorSection.ANCHOR_SECTION_LIVING ->
+                    VIEW_TYPE_SECTION_LIVING
+                AnchorSection.ANCHOR_SECTION_NOT_LIVING ->
+                    VIEW_TYPE_SECTION_NOT_LIVING
                 else -> {
                     if (anchorList[position].status)
                         VIEW_TYPE_ANCHOR
@@ -125,7 +123,6 @@ class AnchorAdapter(
         val anchor: Anchor = anchorList[position]
         holder as ViewHolderGraphic
 
-        holder.itemView.tag = if (anchor.status) STATUS_LIVING else STATUS_NOT_LIVING
         //主播名
         holder.anchorName.text = anchor.nickname
         //平台名
@@ -262,7 +259,15 @@ class AnchorAdapter(
     }
 
     fun getLongClickPosition(): Int = mPosition
-    fun notifyAnchorsChange() = notifyDataSetChanged()
+
+    fun notifyAnchorsChange() {
+        livingSectionPosition = anchorList.indexOf(AnchorSection.ANCHOR_SECTION_LIVING)
+        notLivingSectionPosition = anchorList.indexOf(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
+        notifyDataSetChanged()
+    }
+
+    fun getNotLivingSectionPosition(): Int = notLivingSectionPosition
+    fun getLivingSectionPosition(): Int = livingSectionPosition
 
     inner class ViewHolderGraphic(itemView: View) :
         RecyclerView.ViewHolder(itemView),
@@ -317,5 +322,4 @@ class AnchorAdapter(
         val liveTime: TextView = itemView.grid_anchor_live_time
         val icon: ImageView? = itemView.platform_icon
     }
-
 }

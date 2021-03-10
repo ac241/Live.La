@@ -29,7 +29,7 @@ import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
-import com.acel.streamlivetool.ui.main.adapter.AnchorGroupingListener
+import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.util.PreferenceConstant
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -146,7 +146,7 @@ class CookieFragment : Fragment() {
             setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
             setColorSchemeResources(R.color.colorPrimary)
         }
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status_living)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)
         }
 
@@ -197,7 +197,7 @@ class CookieFragment : Fragment() {
         else
             adapterNoImage
         setAdapter()
-        binding.includeType.recyclerView.addOnScrollListener(AnchorGroupingListener())
+        binding.includeType.recyclerView.addItemDecoration(AnchorItemDecoration(iconDrawable))
     }
 
     private fun setAdapter() {

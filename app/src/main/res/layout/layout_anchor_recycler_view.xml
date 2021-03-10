@@ -9,16 +9,17 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="3dp"/>
+        android:paddingHorizontal="3dp" />
 
     <FrameLayout
         android:id="@+id/group_title_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="3dp">
+        android:paddingHorizontal="3dp"
+        android:visibility="gone">
 
         <include
-            layout="@layout/item_group_living"
+            layout="@layout/item_section_living"
             android:visibility="gone" />
     </FrameLayout>
 </FrameLayout>
