@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#5B9AD1</color>
+    <color name="colorPrimaryDark">#5B9AD1</color>
+    <color name="colorAccent">#5B9AD1</color>
+    <color name="toolbar_text_color">#666666</color>
+    <color name="universal_background">#222B30</color>
+    <color name="alphaBlack">#AA000000</color>
+    <color name="alphaWhite">#AAFFFFFF</color>
+    <color name="item_background">#314047</color>
+    <color name="navigation">#273238</color>
+    <color name="swipe_refresh">#35444B</color>
+    <color name="background_light">#273238</color>
+    <color name="item_main_text_color">#F9F9F9</color>
+    <color name="text_color_primary">#FFFFFFFF</color>
+    <color name="text_color_secondary">#B1B1B1</color>
+    <color name="decor_line">#1B2327</color>
+    <color name="grey_background">#253035</color>
+    <color name="type_name_background">#202A2E</color>
+    <color name="type_name_text_color">#CCCCCC</color>
+    <color name="additional_action_tint_color">@color/text_color_secondary</color>
+</resources>
