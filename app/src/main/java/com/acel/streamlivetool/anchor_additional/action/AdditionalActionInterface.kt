@@ -14,7 +14,7 @@ interface AdditionalActionInterface {
     val actionName: String
 
     /**
-     * 传入的anchor是否匹配扩展功能
+     * 传入的anchor是否匹配扩展功能，adapter中执行，尽量不要进行复杂操作或创建对象
      */
     fun match(anchor: Anchor): Boolean
 

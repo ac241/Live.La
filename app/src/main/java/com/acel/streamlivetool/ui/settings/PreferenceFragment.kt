@@ -3,12 +3,9 @@ package com.acel.streamlivetool.ui.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.res.ResourcesCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.forEach
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
@@ -18,25 +15,13 @@ import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
 import com.acel.streamlivetool.util.AppUtil.getAppName
 import com.acel.streamlivetool.util.AppUtil.getAppVersionName
+import com.acel.streamlivetool.util.PreferenceVariable
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
 class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
-    /**
-     * 设置后通知
-     */
-    private val prefChangeArray by lazy {
-        arrayOf(
-            resources.getString(R.string.pref_key_additional_action_btn),
-            resources.getString(R.string.pref_key_cookie_mode_platform_showable),
-            resources.getString(R.string.pref_key_show_anchor_image_when_mobile_data),
-            resources.getString(R.string.pref_key_show_anchor_image),
-            resources.getString(R.string.pref_key_group_mode_use_cookie),
-            resources.getString(R.string.pref_key_group_mode_use_cookie)
-        )
-    }
     private val entriesMap =
         mutableMapOf<String, Pair<Array<String>, Array<String>>>().also {
             MyApplication.application.resources.let { res ->
@@ -81,17 +66,27 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 true
             }
         }
+
+        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_key_enable_night_mode))?.setOnPreferenceChangeListener { _, newValue ->
+            newValue as Boolean
+            requireActivity().recreate()
+            true
+        }
+        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_key_night_mode_follow_system))?.setOnPreferenceChangeListener { _, newValue ->
+            newValue as Boolean
+            requireActivity().recreate()
+            true
+        }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        key?.let {
+            PreferenceVariable.update(key)
+        }
         if (isAdded) {
             if (key != null) {
                 if (entriesMap.keys.contains(key))
                     setListPreferenceSummary(key)
-            }
-            //设置后重启应用
-            if (prefChangeArray.contains(key)) {
-                (requireActivity() as SettingsActivity).setPlatformsChanges()
             }
         }
     }

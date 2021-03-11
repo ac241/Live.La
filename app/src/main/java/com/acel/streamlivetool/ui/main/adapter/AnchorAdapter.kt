@@ -2,6 +2,7 @@ package com.acel.streamlivetool.ui.main.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
@@ -21,7 +22,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.defaultSharedPreferences
+import com.acel.streamlivetool.util.PreferenceVariable.showAdditionalActionButton
 import kotlinx.android.synthetic.main.item_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_type_name.view.*
@@ -31,13 +32,13 @@ class AnchorAdapter(
     private val context: Context,
     private val anchorList: List<Anchor>,
     private val modeType: Int,
-    private val showAnchorImage: Boolean
+    var showImage: Boolean,
+    private val iconDrawable: Drawable
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mPosition: Int = -1
     private val additionalActionManager = AdditionalActionManager.instance
-    private val onlineImageSpan =
-        ImageSpan(context, R.drawable.ic_online_hot)
+    private val onlineImageSpan = ImageSpan(context, R.drawable.ic_online_hot)
 
     private var livingSectionPosition = -1
     private var notLivingSectionPosition = -1
@@ -52,6 +53,10 @@ class AnchorAdapter(
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
                                 true
+                            iconDrawable.setBounds(0, 0, 40, 40)
+                            it.findViewById<TextView>(R.id.status)?.apply {
+                                setCompoundDrawables(null, null, iconDrawable, null)
+                            }
                         }
                 )
             VIEW_TYPE_SECTION_NOT_LIVING ->
@@ -61,6 +66,10 @@ class AnchorAdapter(
                         .also {
                             (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
                                 true
+                            iconDrawable.setBounds(0, 0, 40, 40)
+                            it.findViewById<TextView>(R.id.status)?.apply {
+                                setCompoundDrawables(null, null, iconDrawable, null)
+                            }
                         }
                 )
             VIEW_TYPE_ANCHOR_SIMPLIFY ->
@@ -74,7 +83,7 @@ class AnchorAdapter(
                 )
             else ->
                 //是否显示图片
-                holder = if (showAnchorImage) ViewHolderGraphic(
+                holder = if (showImage) ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_anchor, parent, false)
                 ) else ViewHolderGraphic(
@@ -234,25 +243,26 @@ class AnchorAdapter(
         }
 
         //附加功能按钮
-        val actions = additionalActionManager.match(anchor)
-        if (
-            defaultSharedPreferences.getBoolean(
-                context.getString(R.string.pref_key_additional_action_btn),
-                false
-            ) && actions != null
-        ) {
-            holder.additionBtn.apply {
-                visibility = View.VISIBLE
-                if (actions.size == 1)
-                    setImageResource(actions[0].iconResourceId)
-                else
-                    setImageResource(R.drawable.ic_additional_button)
-                setOnClickListener {
-                    MainExecutor.execute {
-                        additionalActionManager.doActions(anchor, context)
+        if (showAdditionalActionButton) {
+            val match = additionalActionManager.match(anchor)
+            if (match) {
+                val actions = additionalActionManager.getActions(anchor)
+                actions?.let {
+                    holder.additionBtn.apply {
+                        visibility = View.VISIBLE
+                        if (it.size == 1)
+                            setImageResource(it[0].iconResourceId)
+                        else
+                            setImageResource(R.drawable.ic_additional_button)
+                        setOnClickListener {
+                            MainExecutor.execute {
+                                additionalActionManager.doActions(anchor, context)
+                            }
+                        }
                     }
                 }
-            }
+            } else
+                holder.additionBtn.visibility = View.GONE
         } else {
             holder.additionBtn.visibility = View.GONE
         }

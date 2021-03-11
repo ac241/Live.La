@@ -9,7 +9,7 @@
     <string name="pref_key_show_anchor_image_when_mobile_data">pref_key_show_image_when_mobile_data</string>
     <string name="pref_key_anchor_item_click_action">pref_key_anchor_item_click_action</string>
     <string name="pref_key_show_anchor_image">pref_key_show_anchor_image</string>
-    <string name="pref_key_cookie_mode_platform_showable">pref_key_cookie_mode_platform_showable</string>
+    <string name="pref_key_cookie_mode_platform_displayable">pref_key_cookie_mode_platform_showable</string>
     <string name="pref_key_group_mode_use_cookie">pref_key_group_mode_use_cookie</string>
 
 
@@ -52,7 +52,7 @@
     <string name="second_button_action_name">点击侧边键时</string>
     <string name="open_source_modules">开源组件</string>
     <string name="app_description">软件描述</string>
-    <string name="app_description_summary">by acel，此项目已经开源。本软件仅供学习交流，严禁用于商业用途，否则对各直播平台构成侵权，后果自负。</string>
+    <string name="app_description_summary">by acel，此项目已经开源。本软件仅供学习交流，严禁用于任何商业用途，否则对各直播平台构成侵权，后果自负。</string>
     <string name="login_first">请先登录</string>
     <string name="please_login">请登录帐号，登录成功后会自动关闭页面。</string>
     <string name="clear_all_cookie">清除所有登录信息</string>
@@ -111,4 +111,12 @@
     <string name="no_video_quality_to_choose">没有清晰度信息</string>
     <string name="key_danmu_alpha">danmu_alpha</string>
     <string name="danmu_alpha">弹幕透明度</string>
+    <string name="enable_night_mode">开启夜间模式</string>
+    <string name="pref_key_enable_night_mode">pref_key_enable_night_mode</string>
+    <string name="pref_key_night_mode_follow_system">pref_key_night_mode_follow_system</string>
+    <string name="night_mode_follow_system">跟随系统</string>
+    <string name="night_mode">夜间模式</string>
+    <string name="basic_setting">基本设置</string>
+    <string name="image">图片</string>
+    <string name="app_message">软件信息</string>
 </resources>

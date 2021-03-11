@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +32,7 @@ import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
-import com.acel.streamlivetool.util.PreferenceConstant
+import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -43,52 +44,27 @@ private const val PLATFORM_KEY = "platform_key"
 @SuppressLint("UseCompatLoadingForDrawables")
 class CookieFragment : Fragment() {
 
-    private lateinit var nowAnchorAdapter: AnchorAdapter
-
     internal val viewModel by viewModels<CookieViewModel>()
 
     private val iconDrawable by lazy {
-        @Suppress("DEPRECATION") val drawable =
-            PlatformDispatcher.getPlatformImpl(arguments?.getString(PLATFORM_KEY)!!)?.iconRes?.let {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    resources.getDrawable(it, null)
-                } else {
-                    resources.getDrawable(it)
-                }
-            }
-        drawable?.setBounds(0, 0, 40, 40)
-        drawable
-    }
-    private val adapterShowImage by lazy {
-        AnchorAdapter(
-            requireContext(),
-            viewModel.anchorList,
-            MODE_COOKIE, true
-        )
-    }
-    private val adapterNoImage by lazy {
-        AnchorAdapter(
-            requireContext(),
-            viewModel.anchorList,
-            MODE_COOKIE, false
-        )
-    }
-
-    fun setShowImage(boolean: Boolean) {
-        if (boolean) {
-            if (!isShowImage()) {
-                nowAnchorAdapter = adapterShowImage
-                setAdapter()
-            }
-        } else {
-            if (isShowImage()) {
-                nowAnchorAdapter = adapterNoImage
-                setAdapter()
+        PlatformDispatcher.getPlatformImpl(arguments?.getString(PLATFORM_KEY)!!)?.iconRes?.let {
+            ResourcesCompat.getDrawable(resources, it, null)?.apply {
+                setBounds(0, 0, 40, 40)
             }
         }
     }
+    private val anchorAdapter by lazy {
+        AnchorAdapter(requireContext(), viewModel.anchorList, MODE_COOKIE, true, iconDrawable!!)
+    }
 
-    private fun isShowImage(): Boolean = nowAnchorAdapter == adapterShowImage
+    fun setShowImage(boolean: Boolean) {
+        anchorAdapter.apply {
+            if (boolean != showImage) {
+                showImage = boolean
+                notifyAnchorsChange()
+            }
+        }
+    }
 
     private lateinit var _binding: FragmentCookieModeBinding
     private val binding
@@ -115,7 +91,7 @@ class CookieFragment : Fragment() {
                 }
             })
             liveDataDataChanged.observe(this@CookieFragment, {
-                nowAnchorAdapter.notifyAnchorsChange()
+                anchorAdapter.notifyAnchorsChange()
             })
             liveDataShowLoginText.observe(this@CookieFragment, {
                 if (it) showLoginTextView()
@@ -192,17 +168,13 @@ class CookieFragment : Fragment() {
 
     private fun initRecyclerView() {
         iniRecyclerViewLayoutManager(resources.configuration.orientation)
-        nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
-            adapterShowImage
-        else
-            adapterNoImage
-        setAdapter()
-        binding.includeType.recyclerView.addItemDecoration(AnchorItemDecoration(iconDrawable))
+        binding.includeType.recyclerView.adapter = anchorAdapter
+        anchorAdapter.showImage = (showAnchorImage)
+        iconDrawable?.let {
+            binding.includeType.recyclerView.addItemDecoration(AnchorItemDecoration(it))
+        }
     }
 
-    private fun setAdapter() {
-        binding.includeType.recyclerView.adapter = nowAnchorAdapter
-    }
 
     private fun showLoginTextView() {
         binding.textViewLoginFirst.visibility = View.VISIBLE
@@ -246,13 +218,13 @@ class CookieFragment : Fragment() {
             when (item.itemId) {
                 R.id.action_item_add_to_main_mode -> {
                     val position =
-                        nowAnchorAdapter.getLongClickPosition()
+                        anchorAdapter.getLongClickPosition()
                     val result = AnchorRepository.getInstance()
                         .insertAnchor(viewModel.anchorList[position])
                     toast(result.second)
                 }
                 else -> {
-                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val position = anchorAdapter.getLongClickPosition()
                     val anchor = viewModel.anchorList[position]
                     HandleContextItemSelect.handle(
                         requireContext(),

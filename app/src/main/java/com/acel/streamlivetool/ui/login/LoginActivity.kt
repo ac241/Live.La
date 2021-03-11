@@ -23,6 +23,7 @@ import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
+import com.acel.streamlivetool.util.TimeUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -46,11 +47,10 @@ class LoginActivity : BaseActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
 
-
         val platform = intent.getStringExtra("platform") ?: return
         platformImpl = PlatformDispatcher.getPlatformImpl(platform)
         if (platformImpl == null) {
-            toast("意外的平台，终止继续")
+            toast("设定外的平台，终止..")
         }
         platformImpl?.let { impl ->
             if (impl.loginTips.isNotEmpty())
@@ -58,6 +58,10 @@ class LoginActivity : BaseActivity() {
                     text = impl.loginTips
                     visibility = View.VISIBLE
                 }
+            impl.getLastLoginTime().let {
+                lastLoginTime.text = if (it != -1L) "上次登录时间：${TimeUtil.timestampToString(it)}" else "没有登录记录"
+            }
+
             webView.webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)

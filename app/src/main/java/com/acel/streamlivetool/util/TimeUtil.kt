@@ -11,7 +11,14 @@ import java.util.*
 object TimeUtil {
     private val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
     fun timestampToString(timeStamp: Long): String {
-        val diff = System.currentTimeMillis() - timeStamp * 1000
+        if (timeStamp < 0)
+            throw IllegalArgumentException("negative number illegal:$timeStamp")
+        val fixStamp = when (timeStamp.toString().length) {
+            10 -> timeStamp * 1000
+            13 -> timeStamp
+            else -> throw IllegalArgumentException("not support")
+        }
+        val diff = System.currentTimeMillis() - fixStamp
         return when {
             //小于60秒
             diff < 60_000 ->

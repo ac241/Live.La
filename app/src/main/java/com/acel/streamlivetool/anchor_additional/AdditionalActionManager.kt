@@ -5,7 +5,6 @@
 
 package com.acel.streamlivetool.anchor_additional
 
-import android.app.AlertDialog
 import android.content.Context
 import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
 import com.acel.streamlivetool.anchor_additional.action.GetLOLMatchAction
@@ -24,12 +23,15 @@ class AdditionalActionManager {
         GetLOLMatchAction.instance
     )
 
-    fun match(anchor: Anchor): List<AdditionalActionInterface>? {
-        val list = getActions(anchor)
-        return if (list != null && list.isNotEmpty()) list else null
+    fun match(anchor: Anchor): Boolean {
+        for (action in actionList) {
+            if (action.match(anchor))
+                return true
+        }
+        return false
     }
 
-    private fun getActions(anchor: Anchor): List<AdditionalActionInterface>? {
+    fun getActions(anchor: Anchor): List<AdditionalActionInterface>? {
         val list = mutableListOf<AdditionalActionInterface>()
         actionList.forEach {
             if (it.match(anchor))

@@ -3,6 +3,7 @@ package com.acel.streamlivetool.base
 import android.app.Application
 import android.content.Context
 import androidx.multidex.MultiDex
+import com.acel.streamlivetool.util.PreferenceVariable
 
 class MyApplication : Application() {
     companion object {
@@ -13,6 +14,7 @@ class MyApplication : Application() {
         super.onCreate()
         application = this
         AppInitiation.getInstance().init()
+        PreferenceVariable.init()
     }
 
     override fun attachBaseContext(base: Context?) {

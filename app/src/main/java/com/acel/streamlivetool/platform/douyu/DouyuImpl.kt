@@ -308,12 +308,9 @@ class DouyuImpl : IPlatform {
 
     override fun loginWithPcAgent(): Boolean = true
 
-    override val loginTips: String
-        get() = "斗鱼的cookie有效期约为7天，昵称登录可能无法使用。"
+    override val loginTips: String = "斗鱼昵称登录可能无法使用,cookie有效期约为7天。"
 
-    override fun getLoginUrl(): String {
-        return "https://passport.douyu.com/index/login"
-    }
+    override fun getLoginUrl(): String = "https://passport.douyu.com/index/login"
 
     override val supportFollow: Boolean = true
     override fun follow(anchor: Anchor): Result {

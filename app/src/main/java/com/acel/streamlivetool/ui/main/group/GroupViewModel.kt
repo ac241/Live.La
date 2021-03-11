@@ -28,13 +28,12 @@ import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AppUtil.assertMainThread
 import com.acel.streamlivetool.util.AppUtil.mainThread
-import com.acel.streamlivetool.util.PreferenceConstant.groupModeUseCookie
+import com.acel.streamlivetool.util.PreferenceVariable.groupUseCookie
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.*
 import java.util.*
 
 class GroupViewModel : ViewModel() {
-
 
     //数据库读取的主页anchorList
     private val anchorRepository =
@@ -123,7 +122,7 @@ class GroupViewModel : ViewModel() {
     fun updateAllAnchor() {
         assertMainThread()
         _liveDataUpdateStatus.value = UpdateStatus.UPDATING
-        if (groupModeUseCookie)
+        if (groupUseCookie)
         //使用cookie方式
             updateAllAnchorByCookie()
         else

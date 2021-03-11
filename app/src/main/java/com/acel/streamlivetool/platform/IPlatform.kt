@@ -49,6 +49,12 @@ interface IPlatform {
      */
     val retrofit: Retrofit get() = RetrofitUtils.retrofit
 
+    private val keyCookie
+        get() = "${platform}_cookie"
+
+    private val keyLastLoginTime
+        get() = "${platform}_last_login_time"
+
     /**
      * 获取直播间信息
      * @param queryAnchor Anchor
@@ -181,7 +187,8 @@ interface IPlatform {
      */
     fun saveCookie(cookie: String) {
         defaultSharedPreferences.edit()
-            .putString("${platform}_cookie", cookie)
+            .putString(keyCookie, cookie)
+            .putLong(keyLastLoginTime, System.currentTimeMillis())
             .apply()
     }
 
@@ -189,10 +196,7 @@ interface IPlatform {
      * 读取cookie
      */
     fun getCookie(): String {
-        val cookie = defaultSharedPreferences.getString(
-            "${platform}_cookie",
-            ""
-        )
+        val cookie = defaultSharedPreferences.getString(keyCookie, "")
         return cookie ?: ""
     }
 
@@ -200,8 +204,16 @@ interface IPlatform {
      * 清除cookie
      */
     fun clearCookie() {
-        defaultSharedPreferences.edit().remove("${platform}_cookie")
+        defaultSharedPreferences.edit().remove(keyCookie)
             .apply()
+    }
+
+    /**
+     * 上次登录时间
+     * @return -1 无
+     */
+    fun getLastLoginTime(): Long {
+        return defaultSharedPreferences.getLong(keyLastLoginTime, -1)
     }
 
     /**

@@ -4,8 +4,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImage
-import com.acel.streamlivetool.util.PreferenceConstant.showAnchorImageWhenMobileData
+import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
+import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImageWhenMobileData
 
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
     private var resumeTimes = 0
@@ -24,11 +24,7 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
             }
         }
         resumeTimes++
-        //隐藏刷新按钮
-//        groupFragment.updateFinish()
-
         //切换显示图片
-
         if (showAnchorImage) {
             //如果显示图片
             if (AppUtil.isWifiConnected()) {

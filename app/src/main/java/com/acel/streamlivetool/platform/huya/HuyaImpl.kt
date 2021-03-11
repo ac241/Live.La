@@ -5,13 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.util.Log
-import android.view.LayoutInflater
 import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.appcompat.app.AlertDialog
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Result
@@ -23,7 +20,6 @@ import com.acel.streamlivetool.platform.huya.bean.Subscribe
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.*
 import com.acel.streamlivetool.util.AppUtil.mainThread
-import kotlinx.android.synthetic.main.alert_browser_page.*
 import java.net.URLEncoder
 import java.util.regex.Pattern
 
@@ -211,7 +207,7 @@ class HuyaImpl : IPlatform {
     override fun loginWithPcAgent(): Boolean = true
 
     override val loginTips: String
-        get() = "虎牙的cookie有效期约为7天，显示不全请旋转屏幕"
+        get() = "虎牙 显示不全请旋转屏幕，cookie有效期约为7天，"
 
     override fun getLoginUrl(): String {
         return "https://www.huya.com/333003"
@@ -260,7 +256,7 @@ class HuyaImpl : IPlatform {
             setTitle("需要校验验证码")
             setMessage("请在验证完成后点击确认")
             setView(R.layout.verify_window)
-            setPositiveButton("确认") { d, i ->
+            setPositiveButton("确认") { d, _ ->
                 d.dismiss()
                 doOnVerified.invoke()
             }

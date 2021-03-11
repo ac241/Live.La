@@ -28,7 +28,6 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorSecondary">@color/colorAccent</item>
         <item name="colorOnSecondary">@android:color/white</item>
-
         <item name="android:textColorHint">@color/text_color_secondary</item>
         <item name="android:textColorPrimary">@color/text_color_primary</item>
         <item name="android:textColorSecondary">@color/text_color_secondary</item>
@@ -45,6 +44,10 @@
     <style name="Theme.Acel.NoActionBar" parent="@style/Theme.Acel">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Acel.Toast.Animate" parent="Theme.Acel">
+        <item name="android:windowAnimationStyle">@android:style/Animation.Toast</item>
     </style>
 
     <style name="default_action_bar" parent="@style/Widget.MaterialComponents.ActionBar.Primary">

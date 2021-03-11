@@ -614,7 +614,8 @@ class PlayerFragment : BaseFragment() {
                     binding.includeSecondaryStatus.secondaryStatus.visibility = View.VISIBLE
                     binding.includeSecondaryStatus.secondaryStatus.text = secondaryStatus
                 } else {
-                    binding.includeSecondaryStatus.secondaryStatus.visibility = View.GONE
+                    if (binding.includeSecondaryStatus.secondaryStatus.text.isEmpty())
+                        binding.includeSecondaryStatus.secondaryStatus.visibility = View.GONE
                 }
             }
             binding.roomId.text = getString(R.string.room_id_format, showId)

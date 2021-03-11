@@ -5,12 +5,12 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 
-class AnchorItemDecoration(private val iconDrawable: Drawable? = null) : RecyclerView.ItemDecoration() {
+class AnchorItemDecoration(private val iconDrawable: Drawable) :
+    RecyclerView.ItemDecoration() {
     private var floatingLivingView: View? = null
     private var floatingNotLivingView: View? = null
     private var nowFloatingView: View? = null
@@ -26,9 +26,12 @@ class AnchorItemDecoration(private val iconDrawable: Drawable? = null) : Recycle
 
         initFloatingView(parent)
 
-        if (firstVisiblePosition != 0) {
-            nowFloatingView = floatingLivingView
-            var offsetY = 0f
+        var offsetY = 0f
+        nowFloatingView = floatingLivingView
+        if (firstVisiblePosition == 0) {
+            if (adapter.getItemViewType(0) == VIEW_TYPE_SECTION_NOT_LIVING)
+                nowFloatingView = floatingNotLivingView
+        } else {
             val notLivingPosition = adapter.getNotLivingSectionPosition()
             val notLivingSectionView =
                 layoutManager.findViewByPosition(notLivingPosition)
@@ -41,12 +44,11 @@ class AnchorItemDecoration(private val iconDrawable: Drawable? = null) : Recycle
                 if (notLivingPosition < firstVisiblePosition)
                     nowFloatingView = floatingNotLivingView
             }
-
-            c.save()
-            c.translate(parent.paddingStart.toFloat(), offsetY)
-            nowFloatingView?.draw(c)
-            c.restore()
         }
+        c.save()
+        c.translate(parent.paddingStart.toFloat(), offsetY)
+        nowFloatingView?.draw(c)
+        c.restore()
     }
 
     private fun initFloatingView(parent: RecyclerView) {
@@ -58,16 +60,10 @@ class AnchorItemDecoration(private val iconDrawable: Drawable? = null) : Recycle
                     sectionView?.let {
                         measure(it.width, it.height)
                         layout(0, 0, it.width, it.height)
-
                     }
-
-                    val drawable = iconDrawable ?: ResourcesCompat.getDrawable(
-                        parent.context.resources,
-                        R.drawable.ic_home_page, null
-                    )
-                    drawable?.setBounds(0, 0, 40, 40)
+                    iconDrawable.setBounds(0, 0, 40, 40)
                     findViewById<TextView>(R.id.status)?.apply {
-                        setCompoundDrawables(null, null, drawable, null)
+                        setCompoundDrawables(null, null, iconDrawable, null)
                     }
                 }
             floatingNotLivingView = LayoutInflater.from(parent.context)
@@ -78,13 +74,9 @@ class AnchorItemDecoration(private val iconDrawable: Drawable? = null) : Recycle
                         measure(it.width, it.height)
                         layout(0, 0, it.width, it.height)
                     }
-                    val drawable = iconDrawable ?: ResourcesCompat.getDrawable(
-                        parent.context.resources,
-                        R.drawable.ic_home_page, null
-                    )
-                    drawable?.setBounds(0, 0, 40, 40)
+                    iconDrawable.setBounds(0, 0, 40, 40)
                     findViewById<TextView>(R.id.status)?.apply {
-                        setCompoundDrawables(null, null, drawable, null)
+                        setCompoundDrawables(null, null, iconDrawable, null)
                     }
                 }
         }

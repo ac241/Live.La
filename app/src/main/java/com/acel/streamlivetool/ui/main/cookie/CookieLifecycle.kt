@@ -5,7 +5,8 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.PreferenceConstant
+import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
+import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImageWhenMobileData
 
 class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObserver {
     private var lastGetAnchorsTime = 0L
@@ -28,20 +29,17 @@ class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObs
         //设置toolbar文字
         (cookieFragment.requireActivity() as MainActivity).setToolbarTitle("平台")
 
-        //隐藏刷新按钮
-//        cookieFragment.updateFinish()
-
 
         //切换显示图片
 
-        if (PreferenceConstant.showAnchorImage) {
+        if (showAnchorImage) {
             //如果显示图片
             if (AppUtil.isWifiConnected()) {
                 //如果wifi连接
                 cookieFragment.setShowImage(true)
             } else {
                 //如果wifi未连接
-                if (PreferenceConstant.showAnchorImageWhenMobileData) {
+                if (showAnchorImageWhenMobileData) {
                     //如果流量时显示图片
                     cookieFragment.setShowImage(true)
                 } else {

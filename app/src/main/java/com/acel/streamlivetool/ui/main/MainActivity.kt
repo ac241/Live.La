@@ -51,7 +51,7 @@ class MainActivity : OverlayWindowActivity() {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val displayablePlatformSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
             setOf()
         )
         if (displayablePlatformSet != null)
@@ -93,7 +93,7 @@ class MainActivity : OverlayWindowActivity() {
         val platforms = mutableListOf<IPlatform>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_showable),
+            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
             setOf()
         )
 
@@ -443,9 +443,10 @@ class MainActivity : OverlayWindowActivity() {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(R.color.background_light, null)
             window.navigationBarColor = resources.getColor(R.color.background_light, null)
-            windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
             windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
+            if (!isNightMode()) window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
     }
 

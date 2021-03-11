@@ -30,7 +30,6 @@ import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
-import com.acel.streamlivetool.util.PreferenceConstant
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,19 +41,15 @@ import kotlinx.coroutines.withContext
 class GroupFragment : Fragment() {
 
     val viewModel by viewModels<GroupViewModel>()
-    private lateinit var nowAnchorAdapter: AnchorAdapter
-    private val adapterShowImage by lazy {
-        AnchorAdapter(
-            requireContext(),
-            viewModel.sortedAnchorList.value!!,
-            MODE_GROUP, true
-        )
+
+    private val iconDrawable by lazy {
+        ResourcesCompat.getDrawable(resources, R.drawable.ic_home_page, null)?.apply {
+            setBounds(0, 0, 40, 40)
+        }
     }
-    private val adapterNoImage by lazy {
+    private val anchorAdapter by lazy {
         AnchorAdapter(
-            requireContext(),
-            viewModel.sortedAnchorList.value!!,
-            MODE_GROUP, false
+            requireContext(), viewModel.sortedAnchorList.value!!, MODE_GROUP, false, iconDrawable!!
         )
     }
 
@@ -73,6 +68,7 @@ class GroupFragment : Fragment() {
         }
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -88,7 +84,7 @@ class GroupFragment : Fragment() {
     }
 
     /**
-     * 反射设置snackbar文字可点击
+     * 反射设置snackBar文字可点击
      */
     private fun Snackbar.setSpanClickable() {
         val snackBarContentLayout =
@@ -158,7 +154,6 @@ class GroupFragment : Fragment() {
             })
             updateSuccess.observe(viewLifecycleOwner, {
                 snackBar.dismiss()
-//                completeUpdateDetails("主页 更新成功。")
             })
             showCheckedFollowDialog.observe(viewLifecycleOwner, {
                 it?.let {
@@ -183,43 +178,27 @@ class GroupFragment : Fragment() {
 
     private fun initRecyclerView() {
         iniRecyclerViewLayoutManager(resources.configuration.orientation)
-        nowAnchorAdapter = if (PreferenceConstant.showAnchorImage)
-            adapterShowImage
-        else
-            adapterNoImage
-        setAdapter()
         binding.includeType.recyclerView.apply {
+            adapter = anchorAdapter
             setItemViewCacheSize(30)
-            addItemDecoration(AnchorItemDecoration())
+            iconDrawable?.let {
+                addItemDecoration(AnchorItemDecoration(it))
+            }
         }
-    }
-
-    private fun setAdapter() {
-        binding.includeType.recyclerView.adapter = nowAnchorAdapter
     }
 
     fun setShowImage(boolean: Boolean) {
-        if (boolean) {
-            if (!isShowImage()) {
-                nowAnchorAdapter = adapterShowImage
-                setAdapter()
-            }
-        } else {
-            if (isShowImage()) {
-                nowAnchorAdapter = adapterNoImage
-                setAdapter()
+        anchorAdapter.apply {
+            if (boolean != showImage) {
+                showImage = boolean
+                notifyAnchorsChange()
             }
         }
     }
 
-    private fun isShowImage(): Boolean =
-        nowAnchorAdapter == adapterShowImage
-
-
     @Synchronized
     fun refreshAnchorAttribute() {
-        nowAnchorAdapter.notifyAnchorsChange()
-//        updateFinish()
+        anchorAdapter.notifyAnchorsChange()
     }
 
     private var updatingTime: Long = 0L
@@ -251,16 +230,16 @@ class GroupFragment : Fragment() {
         if (isResumed)
             when (item.itemId) {
                 R.id.action_item_delete -> {
-                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val position = anchorAdapter.getLongClickPosition()
                     viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
                 }
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
-                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val position = anchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     viewModel.followAnchor(requireContext(), anchor) {}
                 }
                 else -> {
-                    val position = nowAnchorAdapter.getLongClickPosition()
+                    val position = anchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     HandleContextItemSelect.handle(
                         requireContext(),
