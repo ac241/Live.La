@@ -1,7 +1,6 @@
 package com.acel.streamlivetool.ui.main.group
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -90,7 +89,7 @@ class GroupViewModel : ViewModel() {
     @Synchronized
     private fun notifyAnchorListChange() {
         AnchorListUtil.sortAnchorListByStatus(sortedAnchorList.value!!)
-        AnchorListUtil.insertStatusPlaceHolder(sortedAnchorList.value!!)
+        AnchorListUtil.insertSection(sortedAnchorList.value!!)
         sortedAnchorList.postValue(sortedAnchorList.value)
     }
 

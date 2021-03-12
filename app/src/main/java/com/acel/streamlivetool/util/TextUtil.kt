@@ -10,7 +10,7 @@ object TextUtil {
             str.substring(startIndex + startStr.length, endIndex)
     }
 
-    fun subStringAfterAny(
+    fun subStringAfter(
         str: String,
         afterWhat: String,
         startStr: String,

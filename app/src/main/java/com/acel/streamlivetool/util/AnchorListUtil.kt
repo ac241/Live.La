@@ -32,31 +32,43 @@ object AnchorListUtil {
     }
 
     /**
-     * 插入直播状态分组提示
+     * 插入分组
      */
-    fun insertStatusPlaceHolder(list: MutableList<Anchor>) {
+    fun insertSection(list: MutableList<Anchor>) {
         list.remove(AnchorSection.ANCHOR_SECTION_LIVING)
         list.remove(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
         var livingIndex: Int = -1
-        var sleepingIndex: Int = -1
+        var notLivingIndex: Int = -1
         run breaking@{
             list.forEachIndexed { index, anchor ->
                 if (anchor.status) {
                     if (livingIndex == -1)
                         livingIndex = 0
                 } else {
-                    sleepingIndex = index
+                    notLivingIndex = index
                     return@breaking
                 }
             }
         }
         if (livingIndex != -1)
             list.add(livingIndex, AnchorSection.ANCHOR_SECTION_LIVING)
-        if (sleepingIndex != -1)
+        if (notLivingIndex != -1)
             list.add(
-                if (list.contains(AnchorSection.ANCHOR_SECTION_LIVING)) sleepingIndex + 1 else sleepingIndex,
+                if (list.contains(AnchorSection.ANCHOR_SECTION_LIVING)) notLivingIndex + 1 else notLivingIndex,
                 AnchorSection.ANCHOR_SECTION_NOT_LIVING
             )
+    }
+
+    /**
+     * 移除分组
+     */
+    fun removeSection(anchorList: List<Anchor>): List<Anchor> {
+        val list = mutableListOf<Anchor>()
+        anchorList.forEach {
+            if (it != AnchorSection.ANCHOR_SECTION_LIVING && it != AnchorSection.ANCHOR_SECTION_NOT_LIVING)
+                list.add(it)
+        }
+        return list
     }
 
     /**
@@ -71,12 +83,4 @@ object AnchorListUtil {
         return list
     }
 
-    fun removeGroup(anchorList: List<Anchor>): List<Anchor> {
-        val list = mutableListOf<Anchor>()
-        anchorList.forEach {
-            if (it != AnchorSection.ANCHOR_SECTION_LIVING && it != AnchorSection.ANCHOR_SECTION_NOT_LIVING)
-                list.add(it)
-        }
-        return list
-    }
 }

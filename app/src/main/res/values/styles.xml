@@ -31,7 +31,7 @@
         <item name="android:textColorHint">@color/text_color_secondary</item>
         <item name="android:textColorPrimary">@color/text_color_primary</item>
         <item name="android:textColorSecondary">@color/text_color_secondary</item>
-        <!--        <item name="android:listViewStyle">@style/default_list_view_style</item>-->
+        <item name="android:listViewStyle">@style/default_list_view_style</item>
         <item name="android:itemTextAppearance">@style/default_list_item_style</item>
         <item name="alertDialogTheme">@style/default_dialog_theme</item>
         <item name="popupMenuBackground">@color/background_light</item>
@@ -115,6 +115,10 @@
 
     <style name="popup_menu_style_black_alpha">
         <item name="android:popupBackground">@color/alphaBlack</item>
+    </style>
+
+    <style name="default_list_view_style">
+        <item name="android:itemTextAppearance">@style/default_list_item_style</item>
     </style>
 
 </resources>

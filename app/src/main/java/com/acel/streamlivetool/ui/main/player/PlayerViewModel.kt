@@ -1,7 +1,6 @@
 package com.acel.streamlivetool.ui.main.player
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +8,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
-import com.acel.streamlivetool.util.AnchorListUtil.removeGroup
+import com.acel.streamlivetool.util.AnchorListUtil.removeSection
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toastOnMainThread
@@ -178,7 +177,7 @@ class PlayerViewModel : ViewModel() {
         anchorList.apply {
             if (list != null) {
                 anchorList.value?.clear()
-                val temp = removeGroup(list)
+                val temp = removeSection(list)
                 anchorList.value?.apply {
                     addAll(temp)
                 }
