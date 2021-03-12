@@ -97,4 +97,14 @@
         app:layout_constraintTop_toTopOf="@+id/current_quality"
         app:srcCompat="@drawable/exo_ic_settings" />
 
+    <ImageView
+        android:id="@+id/btn_danmu_visible"
+        style="@style/player_overlay_button"
+        android:layout_gravity="start|bottom"
+        android:layout_margin="10dp"
+        android:contentDescription="@string/button_replay"
+        android:src="@drawable/ic_danmu_show"
+        app:layout_constraintBottom_toBottomOf="@id/btn_replay"
+        app:layout_constraintStart_toEndOf="@id/btn_replay"
+        app:layout_constraintTop_toTopOf="@id/btn_replay" />
 </androidx.constraintlayout.widget.ConstraintLayout>

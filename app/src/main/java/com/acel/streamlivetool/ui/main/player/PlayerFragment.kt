@@ -198,7 +198,17 @@ class PlayerFragment : BaseFragment() {
                         }
                     })
                 }
-
+            }
+            findViewById<ImageView>(R.id.btn_danmu_visible).setOnClickListener {
+                (it as ImageView).apply {
+                    if (binding.danmakuView.visibility == View.VISIBLE) {
+                        binding.danmakuView.hide()
+                        setImageResource(R.drawable.ic_danmu_hide)
+                    } else {
+                        binding.danmakuView.show()
+                        setImageResource(R.drawable.ic_danmu_show)
+                    }
+                }
             }
         }
 

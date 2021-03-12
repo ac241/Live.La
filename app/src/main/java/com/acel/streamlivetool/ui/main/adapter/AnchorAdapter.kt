@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.bean.Anchor
@@ -102,7 +101,7 @@ class AnchorAdapter(
                 AnchorSection.ANCHOR_SECTION_NOT_LIVING ->
                     VIEW_TYPE_SECTION_NOT_LIVING
                 else -> {
-                    if (anchorList[position].status)
+                    if (anchorList[position].status && showImage)
                         VIEW_TYPE_ANCHOR
                     else
                         VIEW_TYPE_ANCHOR_SIMPLIFY
