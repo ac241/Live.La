@@ -201,7 +201,7 @@ class PlayerFragment : BaseFragment() {
             }
             findViewById<ImageView>(R.id.btn_danmu_visible).setOnClickListener {
                 (it as ImageView).apply {
-                    if (binding.danmakuView.visibility == View.VISIBLE) {
+                    if (binding.danmakuView.isShown) {
                         binding.danmakuView.hide()
                         setImageResource(R.drawable.ic_danmu_hide)
                     } else {
