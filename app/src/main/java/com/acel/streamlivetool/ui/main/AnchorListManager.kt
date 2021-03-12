@@ -11,7 +11,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.util.AnchorListUtil.insertStatusPlaceHolder
+import com.acel.streamlivetool.util.AnchorListUtil.insertSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -59,7 +59,7 @@ class AnchorListManager {
                         platformAnchorListMap[iPlatform]?.apply {
                             clear()
                             addAll(it)
-                            insertStatusPlaceHolder(this)
+                            insertSection(this)
                         }
                     }
                 res

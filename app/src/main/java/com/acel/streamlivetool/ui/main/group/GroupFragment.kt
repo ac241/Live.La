@@ -19,7 +19,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
@@ -29,6 +29,7 @@ import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
+import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
@@ -52,6 +53,7 @@ class GroupFragment : Fragment() {
             requireContext(), viewModel.sortedAnchorList.value!!, MODE_GROUP, false, iconDrawable!!
         )
     }
+    private val anchorItemDecoration by lazy { iconDrawable?.let { AnchorItemDecoration(it) } }
 
     private lateinit var _binding: FragmentGroupModeBinding
     private val binding
@@ -170,10 +172,13 @@ class GroupFragment : Fragment() {
 
     private fun iniRecyclerViewLayoutManager(orientation: Int) {
         binding.includeType.recyclerView.layoutManager =
-            StaggeredGridLayoutManager(
-                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
-                StaggeredGridLayoutManager.VERTICAL
-            )
+            GridLayoutManager(
+                requireContext(),
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
+            ).apply {
+                spanSizeLookup = AnchorSpanSizeLookup(anchorAdapter, this)
+            }
+        anchorItemDecoration?.setOrientation(orientation)
     }
 
     private fun initRecyclerView() {
@@ -181,9 +186,7 @@ class GroupFragment : Fragment() {
         binding.includeType.recyclerView.apply {
             adapter = anchorAdapter
             setItemViewCacheSize(30)
-            iconDrawable?.let {
-                addItemDecoration(AnchorItemDecoration(it))
-            }
+            anchorItemDecoration?.let { addItemDecoration(it) }
         }
     }
 

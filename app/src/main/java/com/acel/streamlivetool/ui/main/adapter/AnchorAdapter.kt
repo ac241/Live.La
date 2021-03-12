@@ -51,8 +51,8 @@ class AnchorAdapter(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_section_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-                                true
+//                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
+//                                true
                             iconDrawable.setBounds(0, 0, 40, 40)
                             it.findViewById<TextView>(R.id.status)?.apply {
                                 setCompoundDrawables(null, null, iconDrawable, null)
@@ -64,8 +64,8 @@ class AnchorAdapter(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_section_not_living, parent, false)
                         .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-                                true
+//                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
+//                                true
                             iconDrawable.setBounds(0, 0, 40, 40)
                             it.findViewById<TextView>(R.id.status)?.apply {
                                 setCompoundDrawables(null, null, iconDrawable, null)
@@ -76,10 +76,6 @@ class AnchorAdapter(
                 holder = ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_anchor_simplify, parent, false)
-                        .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-                                true
-                        }
                 )
             else ->
                 //是否显示图片
@@ -89,10 +85,6 @@ class AnchorAdapter(
                 ) else ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_anchor_simplify, parent, false)
-                        .also {
-                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams)
-                                .isFullSpan = true
-                        }
                 )
         }
         return holder
@@ -278,6 +270,17 @@ class AnchorAdapter(
 
     fun getNotLivingSectionPosition(): Int = notLivingSectionPosition
     fun getLivingSectionPosition(): Int = livingSectionPosition
+
+    /**
+     * @return int size , null follow default
+     */
+    fun isFullSpan(position: Int): Boolean {
+        return when (getItemViewType(position)) {
+            VIEW_TYPE_SECTION_LIVING, VIEW_TYPE_SECTION_NOT_LIVING, VIEW_TYPE_ANCHOR_SIMPLIFY ->
+                true
+            else -> false
+        }
+    }
 
     inner class ViewHolderGraphic(itemView: View) :
         RecyclerView.ViewHolder(itemView),

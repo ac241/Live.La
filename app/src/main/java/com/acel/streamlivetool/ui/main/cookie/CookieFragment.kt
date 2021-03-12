@@ -6,7 +6,6 @@
 
 package com.acel.streamlivetool.ui.main.cookie
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -19,6 +18,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
@@ -31,6 +31,7 @@ import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
+import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -41,7 +42,6 @@ import kotlinx.coroutines.withContext
 
 private const val PLATFORM_KEY = "platform_key"
 
-@SuppressLint("UseCompatLoadingForDrawables")
 class CookieFragment : Fragment() {
 
     internal val viewModel by viewModels<CookieViewModel>()
@@ -160,10 +160,16 @@ class CookieFragment : Fragment() {
 
     private fun iniRecyclerViewLayoutManager(orientation: Int) {
         binding.includeType.recyclerView.layoutManager =
-            StaggeredGridLayoutManager(
-                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
-                StaggeredGridLayoutManager.VERTICAL
-            )
+            GridLayoutManager(
+                requireContext(),
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
+            ).apply {
+                spanSizeLookup = AnchorSpanSizeLookup(anchorAdapter, this)
+            }
+//            StaggeredGridLayoutManager(
+//                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
+//                StaggeredGridLayoutManager.VERTICAL
+//            )
     }
 
     private fun initRecyclerView() {
