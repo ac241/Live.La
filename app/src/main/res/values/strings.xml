@@ -119,4 +119,8 @@
     <string name="basic_setting">基本设置</string>
     <string name="image">图片</string>
     <string name="app_message">软件信息</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="please_fill_anchor_name">请输入主播名</string>
+    <string name="update_anchor_data">更新主播数据</string>
 </resources>

@@ -28,7 +28,8 @@ import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.custom.FloatingAvatar
-import com.acel.streamlivetool.ui.main.add_anchor.AddAnchorFragment
+import com.acel.streamlivetool.ui.main.add_eidt_anchor.AddAnchorFragment
+import com.acel.streamlivetool.ui.main.add_eidt_anchor.EditAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.main.player.PlayerFragment
@@ -473,6 +474,10 @@ class MainActivity : OverlayWindowActivity() {
 
     fun getPlayingAnchor(): Anchor? {
         return playerFragment?.viewModel?.anchor?.value
+    }
+
+    fun showEditAnchorFragment(anchor: Anchor) {
+        EditAnchorFragment.getInstance(anchor).show(supportFragmentManager, "edit_anchor")
     }
 
 }

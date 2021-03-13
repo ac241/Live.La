@@ -3,7 +3,7 @@
  * @author acel
  */
 
-package com.acel.streamlivetool.ui.main.add_anchor
+package com.acel.streamlivetool.ui.main.add_eidt_anchor
 
 import android.view.View
 import android.view.ViewGroup

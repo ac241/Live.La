@@ -230,19 +230,17 @@ class GroupFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        if (isResumed)
+        if (isResumed) {
+            val position = anchorAdapter.getLongClickPosition()
             when (item.itemId) {
                 R.id.action_item_delete -> {
-                    val position = anchorAdapter.getLongClickPosition()
                     viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
                 }
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
-                    val position = anchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     viewModel.followAnchor(requireContext(), anchor) {}
                 }
                 else -> {
-                    val position = anchorAdapter.getLongClickPosition()
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     HandleContextItemSelect.handle(
                         requireContext(),
@@ -252,6 +250,7 @@ class GroupFragment : Fragment() {
                     )
                 }
             }
+        }
         return super.onContextItemSelected(item)
     }
 

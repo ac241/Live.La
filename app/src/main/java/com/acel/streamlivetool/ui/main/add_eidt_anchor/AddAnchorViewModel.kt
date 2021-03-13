@@ -1,11 +1,9 @@
-package com.acel.streamlivetool.ui.main.add_anchor
+package com.acel.streamlivetool.ui.main.add_eidt_anchor
 
 import android.app.Activity
-import android.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher

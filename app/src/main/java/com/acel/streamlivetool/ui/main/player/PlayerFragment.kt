@@ -22,10 +22,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentPlayerBinding
+import com.acel.streamlivetool.databinding.ItemFragmentDanmuListBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.custom.AdjustType
@@ -232,6 +234,16 @@ class PlayerFragment : BaseFragment() {
                             activity.closePlayerFragment()
                         }
                         true
+                    }
+                    viewModel.anchor.value?.let { a ->
+                        if (AdditionalActionManager.instance.match(a)) {
+                            AdditionalActionManager.instance.getActions(a)?.forEach {
+                                add(it.actionName).setOnMenuItemClickListener { _ ->
+                                    it.doAction(requireContext(), a)
+                                    true
+                                }
+                            }
+                        }
                     }
                 }
                 popupMenu.show()

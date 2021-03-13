@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main.add_anchor
+package com.acel.streamlivetool.ui.main.add_eidt_anchor
 
 import android.content.Context
 import android.os.Bundle

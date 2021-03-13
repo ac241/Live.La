@@ -298,6 +298,14 @@ class AnchorAdapter(
                 menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))
             when (modeType) {
                 MODE_GROUP -> {
+                    menu?.add("编辑")?.apply {
+                        setOnMenuItemClickListener {
+                            val position = getLongClickPosition()
+                            val anchor = anchorList[position]
+                            (context as MainActivity).showEditAnchorFragment(anchor)
+                            true
+                        }
+                    }
                     (itemView.context as AppCompatActivity).menuInflater.inflate(
                         R.menu.anchor_item_menu,
                         menu

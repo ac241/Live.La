@@ -37,7 +37,8 @@ class GetLOLMatchAction :
         Anchor("douyu", "英雄联盟赛事", "522424", "522424"),
         Anchor("huya", "英雄联盟赛事", "660000", "1346609715"),
         Anchor("bilibili", "哔哩哔哩英雄联盟赛事", "7734200", "7734200"),
-        Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257")
+        Anchor("egameqq", "LPL夏季赛主舞台", "58049", "367958257"),
+        Anchor("douyu", "解说米勒", "5067522", "5067522")
     )
 
     override fun match(anchor: Anchor) = anchorList.contains(anchor)
