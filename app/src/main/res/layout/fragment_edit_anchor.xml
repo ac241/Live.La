@@ -13,16 +13,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@id/update_anchor_data"
+        app:layout_constraintEnd_toStartOf="@id/get_newest_anchor_data"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/update_anchor_data"
+        android:id="@+id/get_newest_anchor_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:text="@string/update_anchor_data"
+        android:text="@string/get_newest_anchor_data"
         android:textColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

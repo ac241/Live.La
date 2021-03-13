@@ -289,13 +289,13 @@ class AnchorAdapter(
             v: View?,
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
+            menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
+            if (liveTime.text.isNotEmpty())
+                menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))
             val subMenu = menu?.addSubMenu("打开为")
             (itemView.context as AppCompatActivity).menuInflater.inflate(
                 R.menu.anchor_item_menu_open_as, subMenu
             )
-            menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
-            if (liveTime.text.isNotEmpty())
-                menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))
             when (modeType) {
                 MODE_GROUP -> {
                     menu?.add("编辑")?.apply {
