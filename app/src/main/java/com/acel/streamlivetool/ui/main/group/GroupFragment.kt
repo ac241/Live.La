@@ -25,6 +25,7 @@ import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
+import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
@@ -234,7 +235,16 @@ class GroupFragment : Fragment() {
             val position = anchorAdapter.getLongClickPosition()
             when (item.itemId) {
                 R.id.action_item_delete -> {
-                    viewModel.deleteAnchor(viewModel.sortedAnchorList.value!![position])
+                    val anchor = viewModel.sortedAnchorList.value!![position]
+                    AlertDialogTool.newAlertDialog(requireContext())
+                        .setTitle("是否删除${anchor.nickname}")
+                        .setPositiveButton("是") { _, _ ->
+                            viewModel.deleteAnchor(anchor)
+                        }
+                        .setNegativeButton("否") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]
