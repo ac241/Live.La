@@ -28,6 +28,7 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
+        viewModel.restoreLiveData()
 //        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         viewModel.apply {
             liveDataResultSuccess.observe(this@AddAnchorFragment, {

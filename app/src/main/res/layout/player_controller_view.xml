@@ -59,8 +59,7 @@
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="@id/controller_title"
         app:layout_constraintTop_toBottomOf="@id/controller_title"
-        app:roundPercent="1"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:roundPercent="1" />
 
     <TextView
         android:id="@+id/controller_nickname"
@@ -101,7 +100,7 @@
         android:id="@+id/btn_danmu_visible"
         style="@style/player_overlay_button"
         android:layout_gravity="start|bottom"
-        android:layout_margin="10dp"
+        android:layout_marginStart="20dp"
         android:contentDescription="@string/button_replay"
         android:src="@drawable/ic_danmu_show"
         app:layout_constraintBottom_toBottomOf="@id/btn_replay"

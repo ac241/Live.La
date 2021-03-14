@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.ui.main.add_eidt_anchor
 
 import android.app.Activity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -27,11 +28,11 @@ class AddAnchorViewModel : ViewModel() {
         AnchorRepository.getInstance()
 
     private val _liveDataResultSuccess = MutableLiveData<Anchor?>()
-    val liveDataResultSuccess
+    val liveDataResultSuccess: LiveData<Anchor?>
         get() = _liveDataResultSuccess
 
     private val _liveDataResultFailed = MutableLiveData<String?>().also { it.value = null }
-    val liveDataResultFailed
+    val liveDataResultFailed: LiveData<String?>
         get() = _liveDataResultFailed
 
 
@@ -106,5 +107,6 @@ class AddAnchorViewModel : ViewModel() {
         _liveDataResultSuccess.value = null
         _liveDataResultFailed.value = null
     }
+
 }
 
