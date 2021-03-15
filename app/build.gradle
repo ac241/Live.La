@@ -98,11 +98,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.13.1'
     //danmaku
     implementation 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
-//
+    //jwt
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
-//    implementation 'com.auth0:java-jwt:3.14.0'
-//    implementation 'com.fasterxml.jackson.core:jackson-core:2.11.0'
-//    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-//    implementation files('libs/commons-codec-1.15.jar')
-
 }
