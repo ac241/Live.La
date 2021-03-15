@@ -21,15 +21,13 @@ class BilibiliDanmuClient :
         cookie: String,
         anchor: Anchor,
         danmuManager: DanmuManager
-    ): DanmuReceiver = BilibiliDanmuReceiver(anchor, cookie, danmuManager)
+    ): DanmuReceiver = BilibiliDanmuReceiver(cookie,anchor , danmuManager)
 
     class BilibiliDanmuReceiver(
-        val anchor: Anchor,
-        val cookie: String,
+        cookie: String,
+        anchor: Anchor,
         danmuManager: DanmuManager
-    ) : DanmuReceiver {
-        private var danmuManager: DanmuManager? = danmuManager
-
+    ) : DanmuReceiver(cookie, anchor, danmuManager) {
         private val bilibiliService: BilibiliApi =
             RetrofitUtils.retrofit.create(BilibiliApi::class.java)
         private var webSocket: WebSocket? = null
@@ -84,7 +82,7 @@ class BilibiliDanmuClient :
 
                 //循环心跳包
                 heartbeatJob = GlobalScope.launch(Dispatchers.IO) {
-                    kotlin.runCatching {
+                    runCatching {
                         while (true) {
                             webSocket?.send(
                                 ByteString.of(heartbeatHeadPack, 0, heartbeatHeadPack.size)
@@ -103,9 +101,9 @@ class BilibiliDanmuClient :
         }
 
         override fun stop() {
+            super.stop()
             webSocket?.close(1000, null)
             webSocket = null
-            danmuManager = null
             heartbeatJob?.cancel()
             heartbeatJob = null
         }

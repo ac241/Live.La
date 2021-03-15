@@ -199,7 +199,7 @@ class HuyaImpl : IPlatform {
     }
 
     override fun checkLoginOk(cookie: String): Boolean {
-        if (cookie.contains("udb_biztoken") && cookie.contains("udb_passport")&&cookie.contains("guid="))
+        if (cookie.contains("udb_biztoken") && cookie.contains("udb_passport") && cookie.contains("guid="))
             return true
         return false
     }
@@ -323,5 +323,5 @@ class HuyaImpl : IPlatform {
         }
     }
 
-//    override val danmuManager: IPlatform.DanmuManager = HuyaDanmuManager()
+    override val danmuClient: IPlatform.DanmuClient = HuyaDanmuClient()
 }

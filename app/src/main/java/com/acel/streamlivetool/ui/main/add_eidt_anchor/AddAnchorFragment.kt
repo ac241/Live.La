@@ -28,7 +28,6 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AddAnchorFragmentStyle)
-        viewModel.restoreLiveData()
 //        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         viewModel.apply {
             liveDataResultSuccess.observe(this@AddAnchorFragment, {
@@ -36,9 +35,11 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
                     (requireActivity() as MainActivity).checkFollowed(it)
                     addAnchorSuccess(it)
                 }
+                viewModel.restoreLiveData()
             })
             liveDataResultFailed.observe(this@AddAnchorFragment, {
                 it?.let { addAnchorFailed(it) }
+                viewModel.restoreLiveData()
             })
         }
     }
@@ -104,7 +105,6 @@ class AddAnchorFragment : BottomSheetDialogFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.restoreLiveData()
         hideKeyboard()
     }
 

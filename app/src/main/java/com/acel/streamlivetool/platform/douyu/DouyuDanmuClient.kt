@@ -20,17 +20,17 @@ class DouyuDanmuClient : IPlatform.DanmuClient() {
         cookie: String,
         anchor: Anchor,
         danmuManager: DanmuManager
-    ): DanmuReceiver = DouyuDanmuReceiver(anchor, cookie, danmuManager)
+    ): DanmuReceiver = DouyuDanmuReceiver(cookie, anchor, danmuManager)
 
-    class DouyuDanmuReceiver(val anchor: Anchor, val cookie: String, danmuManager: DanmuManager) :
-        DanmuReceiver {
+    class DouyuDanmuReceiver(cookie: String, anchor: Anchor, danmuManager: DanmuManager) :
+        DanmuReceiver(cookie, anchor, danmuManager) {
 
         var roomid = anchor.roomId
         private var webSocket: WebSocket? = null
         private var heartbeatJob: Job? = null
-        private var danmuManager: DanmuManager? = danmuManager
 
         inner class DouyuWebsocketListener : WebSocketListener() {
+
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                 val result = messageDecoder(bytes.toByteArray())
                 result?.forEach { msg ->
@@ -89,9 +89,9 @@ class DouyuDanmuClient : IPlatform.DanmuClient() {
         }
 
         override fun stop() {
+            super.stop()
             webSocket?.close(1000, null)
             webSocket = null
-            danmuManager = null
             heartbeatJob?.cancel()
             heartbeatJob = null
         }

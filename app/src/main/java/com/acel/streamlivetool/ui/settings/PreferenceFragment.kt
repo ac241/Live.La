@@ -3,6 +3,12 @@ package com.acel.streamlivetool.ui.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.webkit.WebView
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -77,6 +83,70 @@ class SettingsFragment : PreferenceFragmentCompat(),
             requireActivity().recreate()
             true
         }
+        findPreference<Preference>(getString(R.string.pref_key_huya_danmu_data))?.setOnPreferenceClickListener {
+            dialogHuyaDanmuData()
+            true
+        }
+    }
+
+    private fun dialogHuyaDanmuData() {
+        val dialog = AlertDialogTool.newAlertDialog(requireContext())
+            .setTitle(R.string.huya_danmu_data)
+            .setView(R.layout.layout_huya_danmu_data)
+            .setNegativeButton("取消", null)
+            .create()
+
+        dialog.apply {
+            setOnShowListener {
+                val appIdView = dialog.findViewById<EditText>(R.id.appId)
+                val secretView = dialog.findViewById<EditText>(R.id.secret)
+                val spAppId = defaultSharedPreferences.getString(
+                    getString(R.string.key_huya_danmu_app_id),
+                    ""
+                )
+                val spSecret = defaultSharedPreferences.getString(
+                    getString(R.string.key_huya_danmu_secret),
+                    ""
+                )
+                if (!spAppId.isNullOrEmpty() && !spSecret.isNullOrEmpty()) {
+                    appIdView?.setText(spAppId)
+                    secretView?.setText(spSecret)
+                }
+                findViewById<Button>(R.id.save)?.setOnClickListener {
+                    val appId =
+                        appIdView?.text.toString()
+                    val secret =
+                        secretView?.text.toString()
+                    if (appId.isEmpty()) {
+                        appIdView?.error = "请填写"
+                        return@setOnClickListener
+                    }
+                    if (secret.isEmpty()) {
+                        secretView?.error = "请填写"
+                        return@setOnClickListener
+                    }
+                    defaultSharedPreferences.edit()
+                        .putString(getString(R.string.key_huya_danmu_app_id), appId)
+                        .putString(getString(R.string.key_huya_danmu_secret), secret)
+                        .apply()
+                    dialog.dismiss()
+                    toast("保存成功")
+                }
+                findViewById<TextView>(R.id.how_to_get_huya_danmu_data)?.setOnClickListener {
+                    dialog.findViewById<WebView>(R.id.webView)?.apply {
+                        if (visibility == View.GONE) {
+                            visibility = View.VISIBLE
+                            loadUrl("file:///android_asset/how_to_get_huya_developer_data.html")
+                        } else {
+                            visibility = View.GONE
+                        }
+                    }
+                }
+
+            }
+
+        }
+        dialog.show()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {

@@ -123,4 +123,13 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="please_fill_anchor_name">请输入主播名</string>
     <string name="get_newest_anchor_data">获取最新数据</string>
+    <string name="pref_key_huya_danmu_data">pref_key_huya_developer_data</string>
+    <string name="huya_danmu_data">虎牙弹幕数据</string>
+    <string name="key_huya_danmu_app_id">key_huya_danmu_app_id</string>
+    <string name="key_huya_danmu_secret">key_huya_danmu_secret</string>
+    <string name="huya_danmu_app_id_hint">开发者ID</string>
+    <string name="huya_danmu_secret_hint">开发者密钥</string>
+    <string name="how_to_get_huya_danmu_data">如何获取开发者数据？</string>
+    <string name="save">保存</string>
+
 </resources>

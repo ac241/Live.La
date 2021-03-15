@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.annotation.CallSuper
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -278,9 +279,17 @@ interface IPlatform {
         /**
          * 默认的弹幕接收器
          */
-        interface DanmuReceiver {
-            fun start()
-            fun stop()
+        abstract class DanmuReceiver(
+            val cookie: String,
+            val anchor: Anchor,
+            var danmuManager: DanmuManager?
+        ) {
+            abstract fun start()
+
+            @CallSuper
+            open fun stop() {
+                danmuManager = null
+            }
         }
 
         /**
