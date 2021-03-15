@@ -3,7 +3,6 @@ package com.acel.streamlivetool.ui.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
@@ -167,7 +166,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
             ?.setTitle(getString(R.string.clear_all_cookie_alert))
             ?.setPositiveButton(getString(R.string.yes)) { _, _ ->
                 val platforms = mutableListOf<IPlatform>().also {
-                    for (entry in PlatformDispatcher.getAllPlatformInstance()) {
+                    for (entry in PlatformDispatcher.getAllPlatformImpl()) {
                         if (entry.value.supportCookieMode)
                             it.add(entry.value)
                     }

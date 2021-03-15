@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
 
 @Entity
 class Anchor() : Parcelable {
@@ -48,6 +49,12 @@ class Anchor() : Parcelable {
      */
     @Ignore
     var liveTime: String? = null
+
+    /**
+     * 扩展按钮功能
+     */
+    @Ignore
+    var additionalActions: List<AdditionalActionInterface>? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readLong()

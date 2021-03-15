@@ -56,6 +56,9 @@ class GroupViewModel : ViewModel() {
                         newAnchor.update(oldList[index])
                     }
                 }
+            it.value?.apply {
+                AnchorListUtil.appointAdditionalActions(this)
+            }
             it.postValue(it.value)
             notifyAnchorListChange()
             updateAllAnchor()
@@ -146,7 +149,7 @@ class GroupViewModel : ViewModel() {
     private fun updateAllAnchorByCookie() {
         updateAnchorsTask?.cancel()
         updateAnchorsTask = scope.launch(Dispatchers.IO) {
-            val platforms = PlatformDispatcher.getAllPlatformInstance()
+            val platforms = PlatformDispatcher.getAllPlatformImpl()
             //平台更新进度列表
             val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
             //遍历所有平台
@@ -195,13 +198,13 @@ class GroupViewModel : ViewModel() {
                         if (this != -1) {
                             val checkedAnchor = sortedAnchorList.value?.get(this)
                             checkedAnchor?.apply {
-                                if (!addToCheckedFollowed()) {
+                                if (!checkedFollowed()) {
                                     mainThread {
                                         showCheckedFollowDialog.value = anchor
                                     }
-                                    checkFollowedAnchors.remove(anchor)
                                     return@check
                                 }
+                                checkFollowedAnchors.remove(anchor)
                             }
                         }
                     }
@@ -428,7 +431,7 @@ class GroupViewModel : ViewModel() {
         status = false
     }
 
-    private fun Anchor.addToCheckedFollowed() = title != FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+    private fun Anchor.checkedFollowed() = title != FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 
     /**
      * 更新主播数据
@@ -486,7 +489,7 @@ class GroupViewModel : ViewModel() {
 
     private val checkFollowedAnchors = mutableListOf<Anchor>()
 
-    fun addToCheckedFollowed(anchor: Anchor) {
+    fun checkedFollowed(anchor: Anchor) {
         checkFollowedAnchors.add(anchor)
     }
 }

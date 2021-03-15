@@ -10,14 +10,16 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
+import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
 import com.acel.streamlivetool.net.ImageLoader
-import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.platform.PlatformDispatcher.getIconDrawable
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
@@ -113,7 +115,9 @@ class AnchorAdapter(
         }
     }
 
-    private val spannableStringBuffer = SpannableStringBuilder()
+    private val spannableStringBuilder = SpannableStringBuilder()
+    private val drawableLoadFail =
+        ResourcesCompat.getDrawable(context.resources, R.drawable.ic_load_img_fail, null)
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -130,9 +134,7 @@ class AnchorAdapter(
 
         //平台图标
         if (modeType == MODE_GROUP) {
-            anchor.platformImpl()?.iconRes?.let {
-                holder.icon?.setImageResource(it)
-            }
+            holder.icon?.setImageDrawable(anchor.getIconDrawable())
         }
 
         //直播类型
@@ -156,7 +158,7 @@ class AnchorAdapter(
             if (this != null) {
                 ImageLoader.load(context, this, holder.avatar)
             } else {
-                holder.avatar.setImageResource(R.drawable.ic_load_img_fail)
+                holder.avatar.setImageDrawable(drawableLoadFail)
             }
         }
 
@@ -165,45 +167,27 @@ class AnchorAdapter(
             //图片
             with(anchor.keyFrame) {
                 if (this != null) {
-                    ImageLoader.load(
-                        context,
-                        this,
-                        holder.image
-                    )
+                    ImageLoader.load(context, this, holder.image)
                 } else
-                    holder.image.setImageResource(R.drawable.ic_load_img_fail)
+                    holder.image.setImageDrawable(drawableLoadFail)
             }
             //热度
             anchor.online?.apply {
                 if (isNotEmpty()) {
-                    spannableStringBuffer.clear()
-                    spannableStringBuffer.append(" $this")
-//                    val span = SpannableString("  $this")
-                    spannableStringBuffer.setSpan(
+                    spannableStringBuilder.clear()
+                    //加一个空格等待替换
+                    spannableStringBuilder.append(" $this")
+                    spannableStringBuilder.setSpan(
                         onlineImageSpan,
                         0,
                         1,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
-                    holder.online?.text = spannableStringBuffer
+                    holder.online?.text = spannableStringBuilder
                 }
             }
         }
 
-        //直播状态
-//        if (!anchorList.contains(AnchorStatusGroup.LIVING_GROUP)
-//            && !anchorList.contains(AnchorStatusGroup.NOT_LIVING_GROUP)
-//        ) {
-//            holder.status.visibility = View.VISIBLE
-//            if (anchor.status) {
-//                holder.status.text = context.getString(R.string.is_living)
-//                holder.status.setTextColor(Color.parseColor("#4CAF50"))
-//            } else {
-//                holder.status.text = context.getString(R.string.not_living)
-//                holder.status.setTextColor(Color.WHITE)
-//            }
-//        } else
-//            holder.status.visibility = View.GONE
         //二级状态
         with(anchor.secondaryStatus) {
             if (this != null && isNotEmpty()) {
@@ -214,46 +198,17 @@ class AnchorAdapter(
             }
         }
 
-        //item click
-        holder.itemView.setOnClickListener {
-            context as MainActivity
-            context.itemClick(it, context, anchor, anchorList)
-//            itemClick(context, anchor, anchorList)
-        }
-
-        //长按
-        holder.itemView.setOnLongClickListener {
-            mPosition = position
-            return@setOnLongClickListener false
-        }
-
-        //第二按键点击
-        holder.secondBtn.visibility = View.VISIBLE
-        holder.secondBtn.setOnClickListener {
-            secondBtnClick(context, anchor, anchorList)
-        }
-
         //附加功能按钮
-        if (showAdditionalActionButton) {
-            val match = additionalActionManager.match(anchor)
-            if (match) {
-                val actions = additionalActionManager.getActions(anchor)
-                actions?.let {
-                    holder.additionBtn.apply {
-                        visibility = View.VISIBLE
-                        if (it.size == 1)
-                            setImageResource(it[0].iconResourceId)
-                        else
-                            setImageResource(R.drawable.ic_additional_button)
-                        setOnClickListener {
-                            MainExecutor.execute {
-                                additionalActionManager.doActions(anchor, context)
-                            }
-                        }
-                    }
+        if (showAdditionalActionButton && anchor.additionalActions != null) {
+            anchor.additionalActions?.let {
+                holder.additionBtn.apply {
+                    visibility = View.VISIBLE
+                    if (it.size == 1)
+                        setImageDrawable(it[0].iconDrawable)
+                    else
+                        setImageDrawable(AdditionalActionInterface.iconDrawableDefault)
                 }
-            } else
-                holder.additionBtn.visibility = View.GONE
+            }
         } else {
             holder.additionBtn.visibility = View.GONE
         }
@@ -283,12 +238,13 @@ class AnchorAdapter(
 
     inner class ViewHolderGraphic(itemView: View) :
         RecyclerView.ViewHolder(itemView),
-        View.OnCreateContextMenuListener {
+        View.OnCreateContextMenuListener, View.OnClickListener {
         override fun onCreateContextMenu(
             menu: ContextMenu?,
             v: View?,
             menuInfo: ContextMenu.ContextMenuInfo?
         ) {
+            mPosition = absoluteAdapterPosition
             menu?.setHeaderTitle("${anchorName.text}(${roomId.text})")
             if (liveTime.text.isNotEmpty())
                 menu?.add(context.getString(R.string.live_time_formatter, liveTime.text))
@@ -322,17 +278,13 @@ class AnchorAdapter(
             }
         }
 
-        init {
-            itemView.setOnCreateContextMenuListener(this)
-        }
-
         val anchorName: TextView = itemView.grid_anchor_name
         val platform: TextView = itemView.grid_anchor_platform
         val image: ImageView = itemView.grid_anchor_image
         val avatar: ImageView = itemView.grid_anchor_avatar
 
         //        val status: TextView = itemView.grid_anchor_status
-        val secondBtn: ImageView = itemView.grid_anchor_second_btn
+        private val secondBtn: ImageView = itemView.grid_anchor_second_btn
         val title: TextView = itemView.grid_anchor_title
         val additionBtn: ImageView = itemView.grid_anchor_addition_action
         val secondaryStatus: TextView = itemView.secondary_status
@@ -341,5 +293,30 @@ class AnchorAdapter(
         val online: TextView? = itemView.grid_anchor_online ?: null
         val liveTime: TextView = itemView.grid_anchor_live_time
         val icon: ImageView? = itemView.platform_icon
+
+        init {
+            itemView.apply {
+                setOnCreateContextMenuListener(this@ViewHolderGraphic)
+                setOnClickListener(this@ViewHolderGraphic)
+            }
+
+            secondBtn.setOnClickListener {
+                val position = absoluteAdapterPosition
+                secondBtnClick(context, anchorList[position], anchorList)
+            }
+            additionBtn.setOnClickListener {
+                val position = absoluteAdapterPosition
+                MainExecutor.execute {
+                    additionalActionManager.doActions(anchorList[position], context)
+                }
+            }
+        }
+
+        override fun onClick(v: View?) {
+            val position = absoluteAdapterPosition
+            context as MainActivity
+            context.itemClick(itemView, context, anchorList[position], anchorList)
+        }
+
     }
 }

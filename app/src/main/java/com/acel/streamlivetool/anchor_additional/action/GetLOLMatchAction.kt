@@ -9,9 +9,12 @@ package com.acel.streamlivetool.anchor_additional.action
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.res.ResourcesCompat
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil.mainThread
@@ -25,8 +28,10 @@ class GetLOLMatchAction :
         }
     }
 
-    override val iconResourceId: Int
-        get() = R.drawable.ic_lpl_schedule
+    override val iconResourceId: Int = R.drawable.ic_lpl_schedule
+    override val iconDrawable: Drawable =
+        ResourcesCompat.getDrawable(MyApplication.application.resources, iconResourceId, null)
+            ?: error("image error")
 
     override val actionName: String
         get() = "英雄联盟本周赛程"

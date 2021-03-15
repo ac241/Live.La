@@ -1,12 +1,24 @@
 package com.acel.streamlivetool.anchor_additional.action
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import androidx.core.content.res.ResourcesCompat
 import com.acel.streamlivetool.R
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 
 interface AdditionalActionInterface {
+    companion object {
+        val iconDrawableDefault = ResourcesCompat.getDrawable(
+            MyApplication.application.resources,
+            R.drawable.ic_additional_button,
+            null
+        )
+    }
+
     val iconResourceId: Int
-        get() = R.drawable.ic_additional_button
+
+    val iconDrawable: Drawable
 
     /**
      * 功能名

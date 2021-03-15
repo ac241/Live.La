@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.util
 
+import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.main.adapter.AnchorSection
 
@@ -69,6 +70,19 @@ object AnchorListUtil {
                 list.add(it)
         }
         return list
+    }
+
+    private val additionalActionManager = AdditionalActionManager.instance
+
+    /**
+     *
+     */
+    fun appointAdditionalActions(anchorList: List<Anchor>) {
+        for (anchor in anchorList) {
+            if (anchor.additionalActions != null)
+                continue
+            anchor.additionalActions = additionalActionManager.getActions(anchor)
+        }
     }
 
     /**

@@ -314,7 +314,7 @@ class GroupFragment : Fragment() {
     }
 
     fun checkFollowed(anchor: Anchor) {
-        viewModel.addToCheckedFollowed(anchor)
+        viewModel.checkedFollowed(anchor)
     }
 
     companion object {

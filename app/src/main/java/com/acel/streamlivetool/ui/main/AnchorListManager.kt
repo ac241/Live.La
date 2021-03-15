@@ -11,6 +11,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
+import com.acel.streamlivetool.util.AnchorListUtil.appointAdditionalActions
 import com.acel.streamlivetool.util.AnchorListUtil.insertSection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -27,7 +28,7 @@ class AnchorListManager {
     private val lastUpdateTimeMap = mutableMapOf<IPlatform, MutableLiveData<Long>>()
 
     init {
-        PlatformDispatcher.getAllPlatformInstance().also { it ->
+        PlatformDispatcher.getAllPlatformImpl().also { it ->
             it.values.forEach {
                 initPlatform(it)
             }
@@ -37,6 +38,7 @@ class AnchorListManager {
     fun initPlatform(iPlatform: IPlatform) {
         if (lastUpdateTimeMap[iPlatform] == null)
             lastUpdateTimeMap[iPlatform] = MutableLiveData()
+
         if (platformAnchorListMap[iPlatform] == null)
             platformAnchorListMap[iPlatform] = mutableListOf()
     }
@@ -60,6 +62,7 @@ class AnchorListManager {
                             clear()
                             addAll(it)
                             insertSection(this)
+                            appointAdditionalActions(this)
                         }
                     }
                 res
