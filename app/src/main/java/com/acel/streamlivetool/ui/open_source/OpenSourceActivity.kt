@@ -76,6 +76,14 @@ class OpenSourceActivity : BaseActivity() {
             "Apache License Version 2.0, January 2004"
         ),
         Module(
+            "jjwt:0.9.25",
+            "io.jsonwebtoken",
+            "https://github.com/jwtk/jjwt",
+            "Les Hazlewood",
+            "Apache License Version 2.0, January 2004"
+        ),
+
+        Module(
             "图片资源",
             "iconfont.cn",
             "https://www.iconfont.cn/",
