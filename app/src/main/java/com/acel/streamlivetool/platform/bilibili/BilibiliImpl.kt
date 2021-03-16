@@ -18,9 +18,7 @@ import kotlinx.coroutines.*
 
 class BilibiliImpl : IPlatform {
     companion object {
-        val INSTANCE by lazy {
-            BilibiliImpl()
-        }
+        val INSTANCE by lazy { BilibiliImpl() }
     }
 
     override val platform: String = "bilibili"
