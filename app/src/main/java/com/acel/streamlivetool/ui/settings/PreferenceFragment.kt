@@ -20,7 +20,7 @@ import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
 import com.acel.streamlivetool.util.AppUtil.getAppName
 import com.acel.streamlivetool.util.AppUtil.getAppVersionName
-import com.acel.streamlivetool.util.PreferenceVariable
+import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 

@@ -88,6 +88,7 @@ class AdjustPromptView @JvmOverloads constructor(
     private val greyAlphaPaint = Paint().apply { color = Color.parseColor("#99CCCCCC") }
     private val progressColorPaint = Paint().apply {
         color = ResourcesCompat.getColor(context.resources, R.color.colorPrimary, null)
+        isAntiAlias = true
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

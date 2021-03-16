@@ -128,7 +128,7 @@ class BilibiliImpl : IPlatform {
         return success
     }
 
-    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun supportCookieMode(): Boolean = true
 
 
     override fun getStreamingLive(

@@ -15,4 +15,6 @@ object AnchorSection {
         "notLiving",
         "notLiving"
     )
+
+    fun Anchor.isSection() = this == ANCHOR_SECTION_LIVING || this == ANCHOR_SECTION_NOT_LIVING
 }

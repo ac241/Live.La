@@ -1,7 +1,8 @@
-package com.acel.streamlivetool.util
+package com.acel.streamlivetool.const_value
 
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
+import com.acel.streamlivetool.util.defaultSharedPreferences
 
 object PreferenceVariable {
 

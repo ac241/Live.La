@@ -91,7 +91,7 @@ class HuyaImpl : IPlatform {
             false
     }
 
-    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun supportCookieMode(): Boolean = true
 
     override fun getStreamingLive(
         queryAnchor: Anchor,

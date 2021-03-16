@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.ui.main.AnchorListManager
+import com.acel.streamlivetool.manager.AnchorUpdateManager
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class CookieViewModel : ViewModel() {
     private lateinit var iPlatform: IPlatform
-    private val anchorListManager = AnchorListManager.instance
+    private val anchorListManager = AnchorUpdateManager.instance
     lateinit var anchorList: List<Anchor>
     lateinit var platform: String
 
@@ -78,7 +78,7 @@ class CookieViewModel : ViewModel() {
         updateJob = viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val result =
-                    anchorListManager.updateAnchorList(iPlatform)
+                    anchorListManager.getAnchorsByCookie(iPlatform)
                 if (result != null) {
                     if (!result.success && !result.isCookieValid) {
                         _liveDataShowLoginText.postValue(true)

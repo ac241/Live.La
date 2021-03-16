@@ -23,7 +23,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.getIconDrawable
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.util.PreferenceVariable.showAdditionalActionButton
+import com.acel.streamlivetool.const_value.PreferenceVariable.showAdditionalActionButton
 import kotlinx.android.synthetic.main.item_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_type_name.view.*

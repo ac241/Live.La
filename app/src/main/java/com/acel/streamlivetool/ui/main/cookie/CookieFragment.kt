@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
@@ -33,7 +32,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
-import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
+import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

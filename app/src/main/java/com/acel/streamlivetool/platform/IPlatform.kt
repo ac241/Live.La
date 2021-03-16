@@ -72,39 +72,22 @@ interface IPlatform {
     /**
      * 是否支持以cookie方式更新数据
      */
-    fun supportUpdateAnchorsByCookie() = false
+    fun supportCookieMode() = false
 
     /**
-     * 主页以cookie方式获取主播列表
-     * dependency [supportUpdateAnchorsByCookie],it must return true
-     * use [getCookie] to get cookie string
-     * 必须调用[setHintWhenFollowListDidNotContainsTheAnchor]给列表中不含的anchor设置提醒
-     * @return 如果成功，返回对象的第一个参数应该为true
+     * cookie方式获取列表
+     * Use [getCookie] to get saved cookie
+     * @return AnchorsCookieMode
      */
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("已弃用")
-    fun updateAnchorsDataByCookie(queryList: List<Anchor>): ResultUpdateAnchorByCookie =
-        ResultUpdateAnchorByCookie(false)
-
-    /**
-     * 设置提醒词
-     */
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("已弃用")
-    fun Anchor.setHintWhenFollowListDidNotContainsTheAnchor() {
-//        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+    fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
+        return ResultGetAnchorListByCookieMode(
+            success = false,
+            isCookieValid = false,
+            anchorList = null,
+            message = ""
+        )
     }
 
-    /**
-     * 设置提醒词
-     */
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("已弃用")
-    fun List<Anchor>.setHintWhenFollowListDidNotContainsTheAnchor() {
-//        forEach {
-////            it.title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
-//        }
-    }
 
     /**
      * 获取直播流
@@ -143,20 +126,6 @@ interface IPlatform {
                 toast(context.getString(R.string.streaming_url_is_null))
             }
         }
-    }
-
-    /**
-     * cookie方式获取列表
-     * Use [getCookie] to get saved cookie
-     * @return AnchorsCookieMode
-     */
-    fun getAnchorsByCookieMode(): ResultGetAnchorListByCookieMode {
-        return ResultGetAnchorListByCookieMode(
-            success = false,
-            isCookieValid = false,
-            anchorList = null,
-            message = ""
-        )
     }
 
     /**

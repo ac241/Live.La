@@ -2,44 +2,45 @@ package com.acel.streamlivetool.ui.main.group
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
+import com.acel.streamlivetool.const_value.PreferenceVariable.groupUseCookie
 import com.acel.streamlivetool.db.AnchorRepository
+import com.acel.streamlivetool.manager.AnchorUpdateManager
+import com.acel.streamlivetool.manager.UpdateResultReceiver
+import com.acel.streamlivetool.manager.UpdateResultReceiver.*
 import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.platform.huya.HuyaImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.login.LoginActivity
-import com.acel.streamlivetool.ui.main.AnchorListManager
 import com.acel.streamlivetool.util.AnchorListUtil
-import com.acel.streamlivetool.util.AppUtil.assertMainThread
+import com.acel.streamlivetool.util.AnchorUtil.isFollowed
+import com.acel.streamlivetool.util.AnchorUtil.update
 import com.acel.streamlivetool.util.AppUtil.mainThread
-import com.acel.streamlivetool.util.PreferenceVariable.groupUseCookie
 import com.acel.streamlivetool.util.ToastUtil.toast
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
-class GroupViewModel : ViewModel() {
+class GroupViewModel : ViewModel(), UpdateResultReceiver {
 
     //数据库读取的主页anchorList
     private val anchorRepository =
         AnchorRepository.getInstance()
 
-    private val anchorListManager = AnchorListManager.instance
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val anchorListManager = AnchorUpdateManager.instance
 
     //排序后的anchorList
     val sortedAnchorList = MediatorLiveData<MutableList<Anchor>>().also {
@@ -96,41 +97,24 @@ class GroupViewModel : ViewModel() {
         sortedAnchorList.postValue(sortedAnchorList.value)
     }
 
-    /**
-     * 单个anchor更新，不需要cookie
-     */
-    private fun updateAnchor(anchor: Anchor) {
-        viewModelScope.launch(Dispatchers.IO) {
-            kotlin.runCatching {
-                val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
-                platformImpl?.let {
-                    val result = platformImpl.updateAnchorData(anchor)
-                    if (result)
-                        notifyAnchorListChange()
-                }
-                updateFinish()
-            }.onFailure {
-                Log.d("updateAnchor", "更新主播信息失败：cause:${it.javaClass.name}------$anchor")
-                it.printStackTrace()
-                updateFinish()
-            }
-        }
-    }
 
     /**
      * 更新全部anchor
      */
     @Synchronized
     fun updateAllAnchor() {
-        assertMainThread()
-        _liveDataUpdateStatus.value = UpdateStatus.UPDATING
-        if (groupUseCookie)
-        //使用cookie方式
-            updateAllAnchorByCookie()
-        else
+        mainThread {
+            _liveDataUpdateStatus.value = UpdateStatus.UPDATING
+        }
+        if (groupUseCookie) {
+            //使用cookie方式
+            sortedAnchorList.value?.let {
+                anchorListManager.updateAllAnchorByCookie(this, it, viewModelScope)
+            }
+        } else
         //使用直接更新
-            sortedAnchorList.value?.forEach { anchor ->
-                updateAnchor(anchor)
+            sortedAnchorList.value?.let {
+                anchorListManager.updateAnchors(this, it, viewModelScope)
             }
         lastUpdateTime = System.currentTimeMillis()
     }
@@ -143,116 +127,102 @@ class GroupViewModel : ViewModel() {
         anchorRepository.deleteAnchor(anchor)
     }
 
-    /**
-     * 以cookie方式更新所有主播信息
-     */
-    private fun updateAllAnchorByCookie() {
+    override fun onCleared() {
+        super.onCleared()
         updateAnchorsTask?.cancel()
-        updateAnchorsTask = scope.launch(Dispatchers.IO) {
-            val platforms = PlatformDispatcher.getAllPlatformImpl()
-            //平台更新进度列表
-            val updateTaskList = mutableListOf<Deferred<UpdateResult>>()
-            //遍历所有平台
-            platforms.forEach { platformEntry ->
-                //同平台的anchors
-                val samePlatformAnchorList = mutableListOf<Anchor>()
-                sortedAnchorList.value?.forEach {
-                    if (it.platform == platformEntry.key)
-                        samePlatformAnchorList.add(it)
-                }
-                if (samePlatformAnchorList.size > 0) {
-                    if (platformEntry.value.supportUpdateAnchorsByCookie()) {
-                        //支持cookie方式
-                        val task = async {
-                            updatePlatformAnchorList(platformEntry.value, samePlatformAnchorList)
+    }
+
+    fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val platformImpl = anchor.platformImpl()
+            val result = platformImpl?.follow(anchor)
+            result?.let {
+                withContext(Dispatchers.Main) {
+                    if (it.success) {
+                        toast("关注成功：${anchor.nickname}")
+                        sortedAnchorList.value?.let { it1 ->
+                            anchorListManager.updateAllAnchorByCookie(
+                                this@GroupViewModel,
+                                it1,
+                                viewModelScope
+                            )
                         }
-                        updateTaskList.add(task)
                     } else {
-                        //不支持cookie方式，使用逐条更新
-                        samePlatformAnchorList.forEach {
-                            updateAnchor(it)
-                        }
-                    }
-                }
-            }
-
-            val resultList = mutableListOf<UpdateResult>()
-            updateTaskList.forEach {
-                resultList.add(it.await())
-            }
-            showUpdateResult(resultList)
-            updateFinish()
-
-            //检查刚添加的anchor是否关注
-            checkFollowed(resultList)
-        }
-        updateAnchorsTask?.start()
-    }
-
-    private fun checkFollowed(resultList: MutableList<UpdateResult>) {
-        checkFollowedAnchors.forEach check@{ anchor ->
-            resultList.forEach result@{
-                if (it.iPlatform == anchor.platformImpl() && it.isSuccess) {
-                    val checkIndex = sortedAnchorList.value?.indexOf(anchor)
-                    checkIndex?.apply {
-                        if (this != -1) {
-                            val checkedAnchor = sortedAnchorList.value?.get(this)
-                            checkedAnchor?.apply {
-                                if (!checkedFollowed()) {
-                                    mainThread {
-                                        showCheckedFollowDialog.value = anchor
-                                    }
-                                    return@check
+                        when (platformImpl.platform) {
+                            "huya" -> {
+                                if (it.code == -10003) {
+                                    toast(it.msg)
+                                    (platformImpl as HuyaImpl)
+                                        .showVerifyCodeWindow(context, it.data) {
+                                            followAnchor(context, anchor, actionOnEnd)
+                                        }
+                                    return@withContext
+                                } else {
+                                    toast("关注失败：${it.msg}，如多次失败请自行关注。")
                                 }
-                                checkFollowedAnchors.remove(anchor)
                             }
+                            else ->
+                                toast("关注失败：${it.msg}，如多次失败请自行关注。")
                         }
                     }
-                } else
-                    return@result
+                    actionOnEnd.invoke()
+                }
             }
         }
     }
 
-    fun showFollowDialog(context: Context, anchor: Anchor) {
-        val builder = AlertDialogTool.newAlertDialog(context)
-        anchor.platformImpl()?.let {
-            if (it.supportFollow) {
-                builder.apply {
-                    setMessage("您还未关注${anchor.nickname}，是否关注？")
-                    setPositiveButton("是") { dialog: DialogInterface, _: Int ->
-                        followAnchor(context, anchor) {
-                            dialog.dismiss()
-                        }
-                    }
-                    setNegativeButton("否") { dialog: DialogInterface, _: Int ->
-                        dialog.dismiss()
-                    }
-                }
-            } else {
-                builder.apply {
-                    setMessage("您还未关注${anchor.nickname}，${it.platformName}暂不支持直接关注，是否打开${it.platformName}app关注？")
-                    setPositiveButton("是") { dialog: DialogInterface, _: Int ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            it.startApp(MyApplication.application, anchor)
-                            dialog.dismiss()
-                        }
-                    }
-                    setNegativeButton("否") { dialog: DialogInterface, _: Int ->
-                        dialog.dismiss()
-                    }
-                }
-            }
+    private val checkFollowedAnchors = mutableSetOf<Anchor>()
+
+    fun checkedFollowed(anchor: Anchor) {
+        checkFollowedAnchors.add(anchor)
+    }
+
+    override fun onUpdateFinish(resultList: List<ResultSingleAnchor>) {
+        updateFinish()
+        notifyAnchorListChange()
+        showUpdateResult(resultList)
+    }
+
+    override fun onCookieModeUpdateFinish(resultList: List<ResultCookieMode>) {
+        updateFinish()
+        notifyAnchorListChange()
+        showUpdateResultCookieMode(resultList)
+        //检查刚添加的anchor是否关注
+        checkFollowed(resultList)
+    }
+
+    /**
+     * 结束更新
+     */
+    private fun updateFinish() {
+        _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
+    }
+
+    private fun showUpdateResult(list: List<ResultSingleAnchor>) {
+        val builder = SpannableStringBuilder()
+        var failed = 0
+        list.forEach {
+            if (!it.success)
+                failed++
         }
-        mainThread {
-            builder.show()
+        if (failed > 0) {
+            builder.append("更新失败($failed/${list.size})")
+            builder.setSpan(
+                ErrorColorSpan(),
+                0,
+                builder.length,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
+            _updateErrorMsg.postValue(builder)
+        } else {
+            _updateSuccess.postValue(true)
         }
     }
 
     /**
-     * 显示更新结果
+     * 显示更新结果 cookie mode
      */
-    private fun showUpdateResult(list: MutableList<UpdateResult>) {
+    private fun showUpdateResultCookieMode(list: List<ResultCookieMode>) {
         var builder: SpannableStringBuilder? = null
         var failed = 0
         list.forEach { result ->
@@ -283,7 +253,6 @@ class GroupViewModel : ViewModel() {
                             Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                         )
                     }
-                    //为什么要+1？？？
                 }
             }
         }
@@ -295,93 +264,16 @@ class GroupViewModel : ViewModel() {
     }
 
     /**
-     * 更新主页中某平台的anchor list
-     * @param iPlatform 平台impl
+     * snack bar 错误提示
      */
-    private fun updatePlatformAnchorList(
-        iPlatform: IPlatform,
-        anchorList: MutableList<Anchor>
-    ): UpdateResult {
-        var updateResult =
-            UpdateResult(isSuccess = false, resultType = ResultType.ERROR, iPlatform = iPlatform)
-        viewModelScope.runCatching {
-            //更新平台anchor list
-            val result = anchorListManager.updateAnchorList(iPlatform)
-            result?.apply {
-                updateResult = if (success && isCookieValid) {
-                    val targetList = anchorListManager.getAnchorList(iPlatform)
-                    anchorList.forEach {
-                        val index = targetList.indexOf(it)
-                        if (index == -1)
-                            it.setNotFollowedHint()
-                        else {
-                            //更新信息
-                            it.update(targetList[index])
-                        }
-                    }
-                    notifyAnchorListChange()
-                    UpdateResult(
-                        isSuccess = true,
-                        resultType = ResultType.SUCCESS,
-                        iPlatform = iPlatform
-                    )
-                } else {
-                    UpdateResult(
-                        isSuccess = false,
-                        resultType = ResultType.COOKIE_INVALID,
-                        iPlatform = iPlatform
-                    )
-                }
-            }
-        }.onFailure {
-            Log.d(
-                "updateAllAnchorByCookie",
-                "更新主播信息失败：cause:${it.javaClass.name}------"
-            )
-            val resultType = when (it) {
-                is java.net.SocketTimeoutException -> ResultType.NET_TIME_OUT
-                is java.net.UnknownHostException -> ResultType.NET_ERROR
-                is java.net.ConnectException -> ResultType.NET_ERROR
-                else -> ResultType.ERROR
-            }
-            updateResult = UpdateResult(
-                isSuccess = false,
-                resultType = resultType,
-                iPlatform = iPlatform
-            )
-            it.printStackTrace()
-            updateFinish()
+    private class ErrorColorSpan : ClickableSpan() {
+        override fun updateDrawState(ds: TextPaint) {
+            super.updateDrawState(ds)
+            ds.color = Color.RED
+            ds.isUnderlineText = false
         }
-        return updateResult
-    }
 
-    /**
-     * 更新结果
-     */
-    data class UpdateResult(
-        val isSuccess: Boolean,
-        val resultType: ResultType,
-        val iPlatform: IPlatform
-    )
-
-    /**
-     * 更新结果的类型
-     */
-    enum class ResultType {
-        WAIT, SUCCESS, FAILED, COOKIE_INVALID, CAN_NOT_TRACK, ERROR, NET_TIME_OUT, NET_ERROR;
-
-        fun getValue(): String? {
-            return when (this) {
-                WAIT -> "等待"
-                SUCCESS -> "完成"
-                FAILED -> "失败"
-                ERROR -> "发生错误"
-                COOKIE_INVALID -> "未登录"
-                NET_TIME_OUT -> "超时"
-                CAN_NOT_TRACK -> "无法追踪"
-                NET_ERROR -> "网络错误"
-            }
-        }
+        override fun onClick(widget: View) {}
     }
 
     /**
@@ -403,94 +295,69 @@ class GroupViewModel : ViewModel() {
         }
     }
 
-    /**
-     * snack bar 错误提示
-     */
-    private class ErrorColorSpan : ClickableSpan() {
-        override fun updateDrawState(ds: TextPaint) {
-            super.updateDrawState(ds)
-            ds.color = Color.RED
-            ds.isUnderlineText = false
-        }
-
-        override fun onClick(widget: View) {}
-    }
-
-    /**
-     * 结束更新
-     */
-    private fun updateFinish() {
-        _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
-    }
-
-    /**
-     * 关注列表中不包含改主播时修改
-     */
-    private fun Anchor.setNotFollowedHint() {
-        title = FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
-        status = false
-    }
-
-    private fun Anchor.checkedFollowed() = title != FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
-
-    /**
-     * 更新主播数据
-     */
-    private fun Anchor.update(newAnchor: Anchor) {
-        title = newAnchor.title
-        otherParams = newAnchor.otherParams
-        status = newAnchor.status
-        title = newAnchor.title
-        avatar = newAnchor.avatar
-        keyFrame = newAnchor.keyFrame
-        secondaryStatus = newAnchor.secondaryStatus
-        typeName = newAnchor.typeName
-        online = newAnchor.online
-        liveTime = newAnchor.liveTime
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        updateAnchorsTask?.cancel()
-    }
-
-    fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val platformImpl = anchor.platformImpl()
-            val result = platformImpl?.follow(anchor)
-            result?.let {
-                withContext(Dispatchers.Main) {
-                    if (it.success) {
-                        toast("关注成功：${anchor.nickname}")
-                        updateAllAnchorByCookie()
-                    } else {
-                        when (platformImpl.platform) {
-                            "huya" -> {
-                                if (it.code == -10003) {
-                                    toast(it.msg)
-                                    (platformImpl as HuyaImpl)
-                                        .showVerifyCodeWindow(context, it.data) {
-                                            followAnchor(context, anchor, actionOnEnd)
-                                        }
-                                    return@withContext
-                                } else {
-                                    toast("关注失败：${it.msg}，如多次失败请自行关注。")
-                                }
+    private fun checkFollowed(resultList: List<ResultCookieMode>) {
+        checkFollowedAnchors.forEach check@{ anchor ->
+            resultList.forEach result@{
+                if (it.iPlatform == anchor.platformImpl() && it.isSuccess) {
+                    val checkIndex = sortedAnchorList.value?.indexOf(anchor)
+                    checkIndex?.apply {
+                        if (this != -1) {
+                            val checkedAnchor = sortedAnchorList.value?.get(this)
+                            checkedAnchor?.apply {
+                                if (!isFollowed())
+                                    mainThread {
+                                        showCheckedFollowDialog.value = anchor
+                                    }
+//                                checkFollowedAnchors.remove(anchor)
+                                return@check
                             }
-                            else ->
-                                toast("关注失败：${it.msg}，如多次失败请自行关注。")
                         }
                     }
-                    actionOnEnd.invoke()
-                }
+                } else
+                    return@result
             }
         }
     }
 
-    private val checkFollowedAnchors = mutableListOf<Anchor>()
-
-    fun checkedFollowed(anchor: Anchor) {
-        checkFollowedAnchors.add(anchor)
+    fun showFollowDialog(context: Context, anchor: Anchor) {
+        val builder = AlertDialogTool.newAlertDialog(context)
+        anchor.platformImpl()?.let {
+            if (it.supportFollow) {
+                builder.apply {
+                    setMessage("您还未关注${anchor.nickname}，是否关注？")
+                    setPositiveButton("是") { _, _ ->
+                        followAnchor(context, anchor) {
+                            checkFollowedAnchors.remove(anchor)
+                        }
+                    }
+                    setNegativeButton("否") { _, _ ->
+                        checkFollowedAnchors.remove(anchor)
+                    }
+                    setOnCancelListener {
+                        checkFollowedAnchors.remove(anchor)
+                    }
+                }
+            } else {
+                builder.apply {
+                    setMessage("您还未关注${anchor.nickname}，${it.platformName}暂不支持直接关注，是否打开${it.platformName}app关注？")
+                    setPositiveButton("是") { _, _ ->
+                        viewModelScope.launch(Dispatchers.IO) {
+                            it.startApp(MyApplication.application, anchor)
+                            checkFollowedAnchors.remove(anchor)
+                        }
+                    }
+                    setNegativeButton("否") { _, _ ->
+                        checkFollowedAnchors.remove(anchor)
+                    }
+                    setOnCancelListener {
+                        checkFollowedAnchors.remove(anchor)
+                    }
+                }
+            }
+        }
+        mainThread {
+            builder.show()
+        }
     }
 }
 

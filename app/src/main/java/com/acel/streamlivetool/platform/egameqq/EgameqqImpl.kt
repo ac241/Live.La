@@ -91,7 +91,7 @@ class EgameqqImpl : IPlatform {
         return false
     }
 
-    override fun supportUpdateAnchorsByCookie(): Boolean = true
+    override fun supportCookieMode(): Boolean = true
 
     override fun getStreamingLive(queryAnchor: Anchor, queryQuality: StreamingLive.Quality?): StreamingLive? {
         val liveAndProfileInfo =

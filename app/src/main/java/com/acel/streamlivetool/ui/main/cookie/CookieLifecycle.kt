@@ -5,8 +5,8 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImage
-import com.acel.streamlivetool.util.PreferenceVariable.showAnchorImageWhenMobileData
+import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
+import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImageWhenMobileData
 
 class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObserver {
     private var lastGetAnchorsTime = 0L
