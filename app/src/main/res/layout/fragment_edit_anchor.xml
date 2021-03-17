@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_light"
     android:padding="10dp"
+    android:theme="@style/Theme.Acel"
     tools:context=".ui.main.add_eidt_anchor.EditAnchorFragment">
 
     <TextView
