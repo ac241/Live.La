@@ -1,7 +1,6 @@
 package com.acel.streamlivetool.ui.main.player
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,7 +70,7 @@ class PlayerListAdapter(
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nickname: TextView? = itemView.nickname
+        val nickname: TextView? = itemView.controller_nickname
         val avatar: ImageView? = itemView.avatar
         val icon: ImageView? = itemView.platform_icon
         val isPlaying: ImageView? = itemView.is_playing

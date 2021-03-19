@@ -37,6 +37,8 @@
         <item name="android:contextPopupMenuStyle" tools:targetApi="n">
             @style/default_context_menu
         </item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges
+        </item>
     </style>
 
     <style name="Theme.Acel.NoActionBar" parent="@style/Theme.Acel">

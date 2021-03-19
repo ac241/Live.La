@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class EditAnchorFragment : BottomSheetDialogFragment() {
-    lateinit var binding: FragmentEditAnchorBinding
+    private lateinit var binding: FragmentEditAnchorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class EditAnchorFragment : BottomSheetDialogFragment() {
         return binding.root
     }
 
-    var newestData: Anchor? = null
+    private var newestData: Anchor? = null
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

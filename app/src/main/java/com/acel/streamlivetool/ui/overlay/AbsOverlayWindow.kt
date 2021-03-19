@@ -4,86 +4,129 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.os.Build
-import android.util.DisplayMetrics
-import android.view.*
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
+import androidx.annotation.CallSuper
 import com.acel.streamlivetool.base.MyApplication
 import kotlin.math.abs
 
+
 abstract class AbsOverlayWindow {
-    private val applicationContext = MyApplication.application.applicationContext
-    private val windowManager =
+    private var applicationContext: Context? = MyApplication.application.applicationContext
+    private var windowManager: WindowManager? =
         MyApplication.application.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private var outMetrics = DisplayMetrics().also { windowManager.defaultDisplay.getMetrics(it) }
-    private var widthPixels = outMetrics.widthPixels
-    private var heightPixels = outMetrics.heightPixels
-    abstract val layoutId: Int
-    abstract val widthDp: Float
-    abstract val heightDp: Float
-    abstract val defaultX: Int
-    abstract val defaultY: Int
-    val layoutParams by lazy { WindowManager.LayoutParams() }
-    private lateinit var mLayout: View
+
+    private var displayWidthPixels = 0
+    private var displayHeightPixels = 0
+
+    private val layoutParams = WindowManager.LayoutParams().apply {
+        flags =
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        gravity = Gravity.TOP or Gravity.START
+
+        @Suppress("DEPRECATION")
+        type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else
+            WindowManager.LayoutParams.TYPE_PHONE
+        format = PixelFormat.RGBA_8888
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+    }
+
+    private val defaultX: Int = 0
+    private val defaultY: Int = 0
+
+    private val defaultWidth: Int = 200
+    private val defaultHeight: Int = 200
+
+    lateinit var rootView: View
     var isShown: Boolean = false
+    private var isCreated: Boolean = false
 
+    private val configurationChangeBroadcastReceiver = ConfigurationChangeBroadcastReceiver()
 
-    init {
-        ConfigurationChangeBroadcastReceiver().register()
-    }
+    /**
+     * @return 创建window时的root view
+     */
+    abstract fun onCreateWindow(): View
 
-    @Suppress("DEPRECATION")
-    fun create(): AbsOverlayWindow {
-        val layout = LayoutInflater.from(applicationContext).inflate(layoutId, null)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
+    @Synchronized
+    private fun create() {
+        if (!isCreated) {
+            resetDisplayPixels()
+            val view = onCreateWindow()
+            layoutParams.apply {
+                x = defaultX
+                y = defaultY
+                width = defaultWidth
+                height = defaultHeight
+            }
+            rootView = view
+            makeWindowMovable()
+            isCreated = true
+            onWindowCreated()
         }
-        layoutParams.format = PixelFormat.RGBA_8888
-        layoutParams.width = dp2px(widthDp).toInt()
-        layoutParams.height = dp2px(heightDp).toInt()
-        layoutParams.gravity = Gravity.TOP or Gravity.START
-        layoutParams.x = defaultX
-        layoutParams.y = defaultY
-        layoutParams.flags =
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        this.mLayout = layout
-        setMovable()
-        show()
-        return this
     }
 
+    open fun onWindowCreated() {}
+
+    @Synchronized
     fun show() {
-        if (isShown) {
-            updateView()
+        if (!isCreated)
+            create()
+        if (!isShown)
+            windowManager?.addView(rootView, layoutParams)
+        isShown = true
+        configurationChangeBroadcastReceiver.register()
+        onWindowShowed()
+    }
 
-        } else {
-            windowManager.addView(mLayout, layoutParams)
-            isShown = true
+    open fun onWindowShowed() {}
+
+    @Synchronized
+    fun hide() {
+        if (isShown)
+            windowManager?.removeView(rootView)
+        isShown = false
+        configurationChangeBroadcastReceiver.unregister()
+        onWindowHide()
+    }
+
+    open fun onWindowHide() {}
+
+    @CallSuper
+    open fun release() {
+        hide()
+        applicationContext = null
+        windowManager = null
+    }
+
+    /**
+     * 更新长宽
+     */
+    fun resize(width: Int, height: Int) {
+        layoutParams.apply {
+            this.width = width
+            this.height = height
         }
+        fixPosition()
     }
 
-    fun remove() {
-        val windowManager =
-            applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        if (isShown) {
-            windowManager.removeView(mLayout)
-            isShown = false
-        }
-    }
 
-    fun getLayout(): View {
-        return mLayout
-    }
-
-    protected fun dp2px(dp: Float): Float =
-        (0.5f + dp * Resources.getSystem().displayMetrics.density)
-
-
-    private fun setMovable() {
-        mLayout.setOnTouchListener(object : View.OnTouchListener {
+    /**
+     * 使在touch时可跟随移动
+     */
+    private fun makeWindowMovable() {
+        rootView.setOnTouchListener(object : View.OnTouchListener {
             var lastRawX = 0f
             var lastRawY = 0f
             var downX = 0f
@@ -106,8 +149,9 @@ abstract class AbsOverlayWindow {
                         updateView()
                     }
                     MotionEvent.ACTION_UP -> {
-                        resetWindowMetrics()
+//                        resetWindowMetrics()
                         fixPosition()
+                        updateView()
                         if (abs(event.rawX - downX) < 5 && abs(event.rawY - downY) < 5)
                             view.performClick()
                     }
@@ -117,78 +161,73 @@ abstract class AbsOverlayWindow {
         })
     }
 
-    inner class ConfigurationChangeBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (!isShown)
-                return
-            fixPositionFlipping()
-        }
-
-        fun register() {
-            MyApplication.application.registerReceiver(
-                ConfigurationChangeBroadcastReceiver(),
-                IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
-            )
-        }
+    private fun updateView() {
+        if (isShown)
+            windowManager?.updateViewLayout(rootView, layoutParams)
     }
 
-    protected fun fixPositionFlipping() {
-        val nowWidth = widthPixels
-        val nowHeight = heightPixels
-        resetWindowMetrics()
-
-        layoutParams.apply {
-            x = widthPixels * x / nowWidth
-            y = heightPixels * y / nowHeight
-        }
-        fixPosition()
-    }
-
-    protected fun fixPosition() {
+    /**
+     * 修正窗口位置
+     */
+    private fun fixPosition() {
         layoutParams.apply {
             when {
                 x < 0 ->
                     x = 0
-                x > widthPixels - layoutParams.width ->
-                    x = widthPixels - layoutParams.width
+                x > displayWidthPixels - layoutParams.width -> {
+                    x = displayWidthPixels - layoutParams.width
+                }
             }
             when {
-                y < (0 - getStatusBarHeight()) ->
-                    y = 0 - getStatusBarHeight()
-                y > heightPixels - layoutParams.height ->
-                    y = heightPixels - layoutParams.height - getStatusBarHeight()
+                y < (0) ->
+                    y = 0
+                y > displayHeightPixels - layoutParams.height ->
+                    y = displayHeightPixels - layoutParams.height
             }
         }
         updateView()
     }
 
-    private fun updateView() {
-        if (isShown)
-            windowManager.updateViewLayout(mLayout, layoutParams)
-    }
-
-    private fun resetWindowMetrics() {
+    /**
+     * 重设屏幕长宽
+     */
+    private fun resetDisplayPixels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            windowManager.currentWindowMetrics.bounds.apply {
-                widthPixels = width()
-                heightPixels = height()
+            windowManager!!.currentWindowMetrics.bounds.apply {
+                displayWidthPixels = width()
+                displayHeightPixels = height()
             }
         } else {
-            outMetrics = DisplayMetrics().also {
-                windowManager.defaultDisplay.getMetrics(it)
-            }
-            widthPixels = outMetrics.widthPixels
-            heightPixels = outMetrics.heightPixels
+            displayWidthPixels = applicationContext!!.resources.displayMetrics.widthPixels
+            displayHeightPixels = applicationContext!!.resources.displayMetrics.heightPixels
         }
+        fixPosition()
     }
 
-    private fun getStatusBarHeight(): Int {
-        val resources = MyApplication.application.resources
-        val resourceId = MyApplication.application.resources.getIdentifier(
-            "status_bar_height",
-            "dimen",
-            "android"
-        )
-        return resources.getDimensionPixelSize(resourceId)
+    /**
+     * 屏幕旋转接收器
+     */
+    inner class ConfigurationChangeBroadcastReceiver : BroadcastReceiver() {
+        private var registered = false
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (!isShown)
+                return
+            resetDisplayPixels()
+        }
+
+        fun register() {
+            if (!registered)
+                MyApplication.application.registerReceiver(
+                    this,
+                    IntentFilter("android.intent.action.CONFIGURATION_CHANGED")
+                )
+            registered = true
+        }
+
+        fun unregister() {
+            if (registered)
+                MyApplication.application.unregisterReceiver(this)
+            registered = false
+        }
     }
 }

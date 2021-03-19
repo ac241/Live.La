@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.bean.StreamingLive
+import com.acel.streamlivetool.manager.PlayerManager
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.util.AnchorListUtil.removeSection
 import com.acel.streamlivetool.util.AppUtil
@@ -40,27 +41,37 @@ class PlayerViewModel : ViewModel() {
 
     private val playerManager = PlayerManager().apply {
         setListener(object : PlayerManager.Listener {
-            override fun onStatusChange(playerStatus: PlayerManager.PlayerStatus) {
-                val status = when (playerStatus) {
-                    PlayerManager.PlayerStatus.BUFFERING -> PlayerStatus.BUFFERING
-                    PlayerManager.PlayerStatus.IDLE -> PlayerStatus.IDLE
+            override fun onStatusChange(
+                playerStatus: PlayerManager.PlayerStatus,
+                message: String?
+            ) {
+                when (playerStatus) {
+                    PlayerManager.PlayerStatus.BUFFERING -> {
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.BUFFERING)
+                    }
+                    PlayerManager.PlayerStatus.IDLE -> {
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.IDLE)
+                    }
                     PlayerManager.PlayerStatus.PLAYING -> {
                         playEndedTimes = 0
-                        PlayerStatus.PLAYING
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.PLAYING)
                     }
-                    PlayerManager.PlayerStatus.LOADING -> PlayerStatus.LOADING
-                    PlayerManager.PlayerStatus.PAUSE -> PlayerStatus.PAUSE
+                    PlayerManager.PlayerStatus.LOADING -> {
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.LOADING)
+                    }
+                    PlayerManager.PlayerStatus.PAUSE -> {
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.PAUSE)
+                    }
                     PlayerManager.PlayerStatus.ENDED -> {
                         playEndedTimes++
-                        PlayerStatus.ENDED
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.ENDED)
                     }
-                    PlayerManager.PlayerStatus.ERROR -> PlayerStatus.ERROR
+                    PlayerManager.PlayerStatus.ERROR -> {
+                        this@PlayerViewModel.playerStatus.postValue(PlayerStatus.ERROR)
+                        if (message != null)
+                            playerMessage.postValue(message)
+                    }
                 }
-                this@PlayerViewModel.playerStatus.postValue(status)
-            }
-
-            override fun onMessage(message: String) {
-                playerMessage.postValue(message)
             }
 
             override fun onResolutionChange(resolution: Pair<Int, Int>) {

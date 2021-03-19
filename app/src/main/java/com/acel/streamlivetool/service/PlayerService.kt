@@ -91,7 +91,7 @@ class PlayerService : Service() {
                     action = MainActivity.ACTION_OPEN_FRAGMENT
                     putExtra(
                         MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
-                        MainActivity.OPEN_PLAYER_FRAGMENT
+                        MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
                     )
                 }
             else -> Intent()

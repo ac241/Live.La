@@ -1,6 +1,7 @@
 package com.acel.streamlivetool.util
 
 import android.content.Context
+import android.content.Intent
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -76,7 +77,15 @@ object AnchorClickAction {
                 (context as MainActivity).playStreamOverlay(anchor, list)
             }
             context.getString(R.string.string_inner_player) -> {
-                toast("player_activity_is_dp")
+                context.startActivity(Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    setAction(MainActivity.ACTION_OPEN_FRAGMENT)
+                    putExtra(
+                        MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
+                        MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
+                    )
+                    putExtra(MainActivity.EXTRA_KEY_ANCHOR, anchor)
+                })
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")

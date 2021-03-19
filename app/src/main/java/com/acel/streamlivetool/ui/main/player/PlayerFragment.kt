@@ -27,7 +27,6 @@ import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.FragmentPlayerBinding
-import com.acel.streamlivetool.databinding.ItemFragmentDanmuListBinding
 import com.acel.streamlivetool.net.ImageLoader.loadImage
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.custom.AdjustType
@@ -86,7 +85,7 @@ class PlayerFragment : BaseFragment() {
 
         lifecycleScope.launchWhenCreated {
             //等待500确保弹幕开启
-            delay(300)
+            delay(500)
             if (
                 viewModel.danmuStatus.value?.first != PlayerViewModel.DanmuState.CONNECTING &&
                 viewModel.danmuStatus.value?.first != PlayerViewModel.DanmuState.START
@@ -138,7 +137,7 @@ class PlayerFragment : BaseFragment() {
             hideController()
             findViewById<View>(R.id.btn_replay)?.setOnClickListener {
                 viewModel.replay()
-                it.animate().setDuration(1000).rotationBy(360f).start()
+                it.animate().setDuration(1000).rotationBy(-360f).start()
             }
             findViewById<View>(R.id.btn_zoom).setOnClickListener {
                 zoomClick()

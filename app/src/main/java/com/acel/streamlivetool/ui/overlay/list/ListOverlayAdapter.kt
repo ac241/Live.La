@@ -25,7 +25,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
         when (viewType) {
             VIEW_TYPE_SECTION_LIVING ->
                 holder =
-                    ViewHolderGroup(
+                    ViewHolderSection(
                         LayoutInflater.from(parent.context)
                             .inflate(R.layout.item_overlay_status_living, parent, false)
                             .also {
@@ -35,7 +35,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
                     )
             VIEW_TYPE_SECTION_NOT_LIVING ->
                 holder =
-                    ViewHolderGroup(
+                    ViewHolderSection(
                         LayoutInflater.from(parent.context)
                             .inflate(R.layout.item_overlay_status_not_living, parent, false)
                             .also {
@@ -66,7 +66,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderGroup)
+        if (holder is ViewHolderSection)
             return
         holder as ViewHolder
         val anchor: Anchor = anchorList[position]
@@ -110,5 +110,7 @@ class ListOverlayAdapter(val context: Context, val anchorList: List<Anchor>) :
         val status: TextView = itemView.anchor_status
         val title: TextView = itemView.anchor_title
     }
+
+    class ViewHolderSection(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 }

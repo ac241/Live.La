@@ -65,6 +65,6 @@ class SearchListAdapter(val anchorList: List<Anchor>) : BaseAdapter() {
     class ViewHolder(view: View) {
         val checked: ImageView = view.checked
         val avatar: ImageView = view.avatar
-        val name: TextView = view.nickname
+        val name: TextView = view.controller_nickname
     }
 }

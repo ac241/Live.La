@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -83,7 +84,8 @@ class MainActivity : OverlayWindowActivity() {
         //---------open fragment
         const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
         const val EXTRA_KEY_OPEN_FRAGMENT = "extra_key_fragment"
-        const val OPEN_PLAYER_FRAGMENT = "open_player_fragment"
+        const val EXTRA_VALUE_OPEN_PLAYER_FRAGMENT = "open_player_fragment"
+        const val EXTRA_KEY_ANCHOR = "extra_key_anchor"
     }
 
     val platforms by lazy {
@@ -146,7 +148,14 @@ class MainActivity : OverlayWindowActivity() {
                 }
             }
             ACTION_OPEN_FRAGMENT -> {
-
+                when (intent.getStringExtra(EXTRA_KEY_OPEN_FRAGMENT)) {
+                    EXTRA_VALUE_OPEN_PLAYER_FRAGMENT -> {
+                        val anchor = intent.getParcelableExtra<Anchor>(EXTRA_KEY_ANCHOR)
+                        if (anchor != null) {
+                            startPlayerFragment(anchor, null)
+                        }
+                    }
+                }
             }
         }
     }
@@ -159,6 +168,25 @@ class MainActivity : OverlayWindowActivity() {
         lifecycle.addObserver(PlayerServiceForegroundListener(this))
         whiteSystemBar()
         CommonColor.bindResource(resources)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.apply {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                window.attributes = this
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            hideSystemUI()
+        } else {
+            if (isPlayerFragmentShown)
+                blackSystemBar()
+            else
+                whiteSystemBar()
+        }
     }
 
     override fun onDestroy() {
@@ -318,7 +346,7 @@ class MainActivity : OverlayWindowActivity() {
             MyApplication.application.getString(R.string.pref_key_item_click_action), ""
         )
         if (action == context.getString(R.string.string_inner_player))
-            startPlayerFragment(anchor, anchorList, itemView)
+            startPlayerFragmentWithAnimate(anchor, anchorList, itemView)
         else
             AnchorClickAction.itemClick(context, anchor, anchorList)
     }
@@ -326,7 +354,7 @@ class MainActivity : OverlayWindowActivity() {
     private var lastItemClickTime = 0L
     private var itemClickSleepTime = 300L
 
-    private fun startPlayerFragment(
+    private fun startPlayerFragmentWithAnimate(
         anchor: Anchor,
         anchorList: List<Anchor>,
         view: View,
@@ -337,18 +365,29 @@ class MainActivity : OverlayWindowActivity() {
                 return
             }
             lastItemClickTime = currentTime
-            playerFragment =
-                PlayerFragment.newInstance(anchor, ArrayList<Anchor>().apply { addAll(anchorList) })
-
-            supportFragmentManager.commit {
-                setReorderingAllowed(true)
-                addToBackStack(PLAYER_FRAGMENT_NAME)
-                setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
-                replace(binding.fragmentContainer.id, playerFragment!!)
-                isPlayerFragmentShown = true
-            }
+            startPlayerFragment(anchor, anchorList)
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                 avatarMovingAnimate(view)
+        }
+    }
+
+    private fun startPlayerFragment(
+        anchor: Anchor,
+        anchorList: List<Anchor>?
+    ) {
+        closePlayerFragment()
+        playerFragment =
+            PlayerFragment.newInstance(
+                anchor,
+                if (anchorList == null) null else ArrayList<Anchor>().apply { addAll(anchorList) }
+            )
+
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            addToBackStack(PLAYER_FRAGMENT_NAME)
+            setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
+            replace(binding.fragmentContainer.id, playerFragment!!)
+            isPlayerFragmentShown = true
         }
     }
 
@@ -399,23 +438,18 @@ class MainActivity : OverlayWindowActivity() {
 
     @Suppress("DEPRECATION")
     internal fun hideSystemUI() {
-        val opt = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                // Hide the nav bar and status bar
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
-
         window.decorView.systemUiVisibility =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                (opt or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-            } else {
-                opt
-            }
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
     }
 
     private val windowInsetsController by lazy { ViewCompat.getWindowInsetsController(binding.root) }
 
+    @Suppress("DEPRECATION")
     internal fun showSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_VISIBLE)
@@ -438,35 +472,37 @@ class MainActivity : OverlayWindowActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun whiteSystemBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = resources.getColor(R.color.background_light, null)
-            window.navigationBarColor = resources.getColor(R.color.background_light, null)
-            if (!isNightMode()) window.decorView.systemUiVisibility =
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = ResourcesCompat.getColor(resources, R.color.background_light, null)
+        window.navigationBarColor =
+            ResourcesCompat.getColor(resources, R.color.background_light, null)
+        if (!isNightMode()) if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
         windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
         windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
-
     }
 
+    @Suppress("DEPRECATION")
     fun blackSystemBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                window.statusBarColor = Color.TRANSPARENT
-            } else {
-                window.statusBarColor = Color.BLACK
-            }
-            window.navigationBarColor = resources.getColor(R.color.background_light, null)
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.statusBarColor = Color.TRANSPARENT
+        } else {
+            window.statusBarColor = Color.BLACK
         }
+        window.navigationBarColor =
+            ResourcesCompat.getColor(resources, R.color.background_light, null)
+
     }
 
     fun closePlayerFragment() {
-        playerFragment?.let { supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1) }
+         supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1)
     }
 
     fun checkFollowed(anchor: Anchor) {

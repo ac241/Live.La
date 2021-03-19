@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.ui.main.player
+package com.acel.streamlivetool.manager
 
 import android.net.Uri
 import com.acel.streamlivetool.base.MyApplication
@@ -30,13 +30,9 @@ class PlayerManager {
         this.listener = listener
     }
 
-    private fun setStatus(playerStatus: PlayerStatus) {
+    private fun setStatus(playerStatus: PlayerStatus, message: String? = null) {
         this.playerStatus = playerStatus
-        listener?.onStatusChange(playerStatus)
-    }
-
-    private fun setMessage(message: String) {
-        listener?.onMessage(message)
+        listener?.onStatusChange(playerStatus, message)
     }
 
     private fun setResolution(width: Int, height: Int) {
@@ -65,7 +61,6 @@ class PlayerManager {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     super.onIsPlayingChanged(isPlaying)
                     if (isPlaying) {
-//                        playerStatus.postValue(PlayerViewModel.PlayerState.PLAYING)
                         setStatus(PlayerStatus.PLAYING)
                     }
                 }
@@ -74,16 +69,12 @@ class PlayerManager {
                     super.onIsLoadingChanged(isLoading)
                     if (isLoading)
                         setStatus(PlayerStatus.LOADING)
-//                        playerStatus.postValue(PlayerViewModel.PlayerState.LOADING)
                 }
 
                 override fun onPlayerError(error: ExoPlaybackException) {
                     super.onPlayerError(error)
                     error.printStackTrace()
-//                    playerMessage.postValue("播放失败。")
-                    setMessage("播放失败。")
-                    setStatus(PlayerStatus.ERROR)
-//                    playerStatus.postValue(PlayerViewModel.PlayerState.ERROR)
+                    setStatus(PlayerStatus.ERROR, "播放失败。")
                 }
 
                 override fun onPlaybackStateChanged(state: Int) {
@@ -93,9 +84,6 @@ class PlayerManager {
                             setStatus(PlayerStatus.BUFFERING)
                         Player.STATE_ENDED -> {
                             setStatus(PlayerStatus.ENDED)
-//                            playerStatus.postValue(PlayerViewModel.PlayerState.ENDED)
-//                        playerMessage.postValue("播放结束。")
-//                        stop()
                         }
                         Player.STATE_IDLE -> {
                         }
@@ -118,7 +106,6 @@ class PlayerManager {
                     pixelWidthHeightRatio: Float
                 ) {
                     setResolution(width, height)
-//                    videoResolution.postValue(Pair(width, height))
                 }
             })
         }
@@ -165,16 +152,14 @@ class PlayerManager {
             AppUtil.mainThread {
                 stop(true)
             }
-            setStatus(PlayerStatus.ERROR)
-            setMessage("exception:${e.message}")
+            setStatus(PlayerStatus.ERROR, "exception:${e.message}")
             e.printStackTrace()
         }
 
     }
 
     interface Listener {
-        fun onStatusChange(playerStatus: PlayerStatus)
-        fun onMessage(message: String)
+        fun onStatusChange(playerStatus: PlayerStatus, message: String?)
         fun onResolutionChange(resolution: Pair<Int, Int>)
     }
 

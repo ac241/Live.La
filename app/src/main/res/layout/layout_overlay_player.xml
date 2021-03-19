@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
@@ -12,183 +11,22 @@
         android:id="@+id/btn_player_overlay_video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#55000000">
+        android:background="#55000000"
+        android:focusable="false"
+        app:controller_layout_id="@layout/layout_overlay_player_controller_view" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/controllerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#55000000"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/textView_controller_title"
-            app:layout_constraintStart_toStartOf="@+id/textView_controller_title">
-
-            <TextView
-                android:id="@+id/textView_controller_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.6"
-                android:background="@android:color/black"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="2dp"
-                android:textColor="@android:color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView_controller_secondary_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:alpha="0.6"
-                android:background="@android:color/black"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="2dp"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                app:layout_constraintStart_toStartOf="@id/textView_controller_title"
-                app:layout_constraintTop_toBottomOf="@id/textView_controller_title" />
-
-            <TextView
-                android:id="@+id/textView_anchor_list_process"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:alpha="0.6"
-                android:background="@android:color/black"
-                android:padding="5dp"
-                android:textColor="@android:color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_close"
-                style="@style/player_overlay_button"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_gravity="end|top"
-                android:contentDescription="@string/button_player_overlay_close"
-                android:src="@drawable/ic_baseline_close_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_resize"
-                style="@style/player_overlay_button"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="1dp"
-                android:contentDescription="@string/button_player_overlay_resize"
-                android:src="@drawable/ic_baseline_crop_free_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_replay"
-                style="@style/player_overlay_button"
-                android:layout_gravity="start|bottom"
-                android:contentDescription="@string/button_replay"
-                android:src="@drawable/ic_baseline_replay_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_previous"
-                style="@style/player_overlay_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="30dp"
-                android:contentDescription="@string/button_play_previous"
-                android:src="@drawable/ic_controller_previous_enable"
-                app:layout_constraintBottom_toBottomOf="@+id/btn_player_overlay_replay"
-                app:layout_constraintEnd_toStartOf="@+id/guideline2"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView_previous_anchor_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:alpha="0.6"
-                android:textColor="@android:color/white"
-                android:textSize="8sp"
-                app:layout_constraintEnd_toEndOf="@+id/btn_player_overlay_previous"
-                app:layout_constraintStart_toStartOf="@+id/btn_player_overlay_previous"
-                app:layout_constraintTop_toBottomOf="@+id/btn_player_overlay_previous"
-                tools:ignore="SmallSp" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_next"
-                style="@style/player_overlay_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="30dp"
-                android:contentDescription="@string/button_play_next"
-                android:src="@drawable/ic_controller_next_enable"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline2"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView_next_anchor_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:alpha="0.6"
-                android:textColor="@android:color/white"
-                android:textSize="8sp"
-                app:layout_constraintEnd_toEndOf="@+id/btn_player_overlay_next"
-                app:layout_constraintStart_toStartOf="@+id/btn_player_overlay_next"
-                app:layout_constraintTop_toBottomOf="@+id/btn_player_overlay_next"
-                tools:ignore="SmallSp" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintGuide_percent="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/previous_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:constraint_referenced_ids="textView_previous_anchor_name,btn_player_overlay_previous" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/next_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:constraint_referenced_ids="btn_player_overlay_next,textView_next_anchor_name" />
-
-            <ImageView
-                android:id="@+id/btn_player_overlay_start_app"
-                style="@style/player_overlay_button"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_gravity="end|center_vertical"
-                android:contentDescription="@string/start_app"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_call_missed_outgoing_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.exoplayer2.ui.PlayerView>
-    <!--controller-->
+    <include
+        android:id="@+id/controller_include"
+        layout="@layout/layout_overlay_player_controller_view" />
 
     <ProgressBar
-        android:id="@+id/player_overlay_process_bar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:id="@+id/progress_bar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center" />
 
     <TextView
-        android:id="@+id/textView_player_error_msg"
+        android:id="@+id/error_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

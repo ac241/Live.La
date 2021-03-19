@@ -17,8 +17,13 @@
             android:contentDescription="@string/button_list_overlay_movable"
             android:src="@drawable/ic_movable" />
 
-        <include
-            layout="@layout/layout_overlay_anchor_recycler_view" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            style="@style/overlay_alpha"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="3dp" />
+
     </LinearLayout>
 
     <ImageView
