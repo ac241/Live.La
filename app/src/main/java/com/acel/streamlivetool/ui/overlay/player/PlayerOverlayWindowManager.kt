@@ -30,7 +30,6 @@ class PlayerOverlayWindowManager {
 
     fun release() {
         isReleased = true
-
         playerWindow.release()
     }
 }
