@@ -33,9 +33,7 @@ object PlatformDispatcher {
         }
         platformMap.forEach {
             ResourcesCompat.getDrawable(MyApplication.application.resources, it.value.iconRes, null)
-                ?.let { it1 ->
-                    platformIconDrawableMap[it.value] = it1
-                }
+                ?.let { it1 -> platformIconDrawableMap[it.value] = it1 }
         }
     }
 

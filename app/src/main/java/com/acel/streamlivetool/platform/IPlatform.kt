@@ -11,7 +11,6 @@ import com.acel.streamlivetool.bean.Result
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
-import com.acel.streamlivetool.platform.bean.ResultUpdateAnchorByCookie
 import com.acel.streamlivetool.ui.main.player.DanmuManager
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast

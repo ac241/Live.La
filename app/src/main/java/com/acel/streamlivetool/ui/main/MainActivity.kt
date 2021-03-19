@@ -444,11 +444,12 @@ class MainActivity : OverlayWindowActivity() {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.statusBarColor = resources.getColor(R.color.background_light, null)
             window.navigationBarColor = resources.getColor(R.color.background_light, null)
-            windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
-            windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
             if (!isNightMode()) window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
+        windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+        windowInsetsController?.isAppearanceLightStatusBars = !isNightMode()
+
     }
 
     fun blackSystemBar() {

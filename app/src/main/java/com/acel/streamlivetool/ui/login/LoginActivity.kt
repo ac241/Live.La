@@ -59,7 +59,8 @@ class LoginActivity : BaseActivity() {
                     visibility = View.VISIBLE
                 }
             impl.getLastLoginTime().let {
-                lastLoginTime.text = if (it != -1L) "上次登录时间：${TimeUtil.timestampToString(it)}" else "没有登录记录"
+                lastLoginTime.text =
+                    if (it != -1L) "上次登录时间：${TimeUtil.timestampToString(it)}" else "没有登录记录"
             }
 
             webView.webViewClient = object : WebViewClient() {
@@ -108,11 +109,12 @@ class LoginActivity : BaseActivity() {
     @Suppress("DEPRECATION")
     override fun onDestroy() {
         super.onDestroy()
-        webView.clearCache(true)
+        webView.destroy()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.removeAllCookies(null)
         } else
             cookieManager.removeAllCookie()
+
     }
 
     @Suppress("UNUSED_PARAMETER")

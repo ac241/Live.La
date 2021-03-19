@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
     android:keepScreenOn="true">
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/btn_player_overlay_video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#55000000" >
+        android:background="#55000000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/controllerView"
@@ -58,8 +60,7 @@
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <ImageView
                 android:id="@+id/btn_player_overlay_close"
@@ -174,8 +175,7 @@
                 android:src="@drawable/ic_baseline_call_missed_outgoing_24"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                 />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.exoplayer2.ui.PlayerView>
