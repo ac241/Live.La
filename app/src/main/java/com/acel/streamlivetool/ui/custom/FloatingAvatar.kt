@@ -20,7 +20,7 @@ class FloatingAvatar @JvmOverloads constructor(
     var targetDimens = Pair(0f, 0f)
     private val animateValueStart = 0f
     private val animateValueEnd = 1000f
-    val decelerateInterpolator = DecelerateInterpolator()
+    private val decelerateInterpolator = DecelerateInterpolator()
 
     @Synchronized
     fun move(

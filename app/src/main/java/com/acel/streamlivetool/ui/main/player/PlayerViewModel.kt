@@ -1,9 +1,14 @@
 package com.acel.streamlivetool.ui.main.player
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
 import com.acel.streamlivetool.bean.StreamingLive
@@ -21,6 +26,19 @@ import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
 
+    companion object {
+        const val BROADCAST_PLAYER_STATUS = "broadcast_player_action"
+        const val BROADCAST_CHANGE_PLAYER_STATUS = "broadcast_change_player_status"
+        const val KEY_PLAYER_STATUS = "KEY_PLAYER_STATUS"
+        const val PLAYER_STATUS_PLAY = 5
+        const val PLAYER_STATUS_PAUSE = 6
+        const val PLAYER_STATUS_STOP = 7
+    }
+
+    var changePlayerStatusReceiver: ChangePlayerStatusReceiver? =
+        ChangePlayerStatusReceiver().apply {
+            register()
+        }
 
     //----------主播相关------------
     val anchor = MutableLiveData<Anchor?>()
@@ -55,12 +73,14 @@ class PlayerViewModel : ViewModel() {
                     PlayerManager.PlayerStatus.PLAYING -> {
                         playEndedTimes = 0
                         this@PlayerViewModel.playerStatus.postValue(PlayerStatus.PLAYING)
+                        sendStatusBroadcast(PLAYER_STATUS_PLAY)
                     }
                     PlayerManager.PlayerStatus.LOADING -> {
                         this@PlayerViewModel.playerStatus.postValue(PlayerStatus.LOADING)
                     }
                     PlayerManager.PlayerStatus.PAUSE -> {
                         this@PlayerViewModel.playerStatus.postValue(PlayerStatus.PAUSE)
+                        sendStatusBroadcast(PLAYER_STATUS_PAUSE)
                     }
                     PlayerManager.PlayerStatus.ENDED -> {
                         playEndedTimes++
@@ -70,6 +90,7 @@ class PlayerViewModel : ViewModel() {
                         this@PlayerViewModel.playerStatus.postValue(PlayerStatus.ERROR)
                         if (message != null)
                             playerMessage.postValue(message)
+                        sendStatusBroadcast(PLAYER_STATUS_STOP)
                     }
                 }
             }
@@ -79,6 +100,14 @@ class PlayerViewModel : ViewModel() {
             }
         })
     }
+
+    private fun sendStatusBroadcast(status: Int) {
+        val intent = Intent(BROADCAST_PLAYER_STATUS).apply {
+            putExtra(KEY_PLAYER_STATUS, status)
+        }
+        MyApplication.application.sendBroadcast(intent)
+    }
+
     val player: Player = playerManager.player
 
     //展示用的播放器信息
@@ -102,6 +131,7 @@ class PlayerViewModel : ViewModel() {
             playerMessage.postValue("播放已经停止...$new")
 //            setMessage("播放已经停止...$new")
             playerManager.stop(true)
+            sendStatusBroadcast(PLAYER_STATUS_STOP)
         }
     }
 
@@ -284,6 +314,8 @@ class PlayerViewModel : ViewModel() {
         playerManager.stop()
         playerManager.release()
         danmuClient.release()
+        changePlayerStatusReceiver?.unregister()
+        changePlayerStatusReceiver = null
         super.onCleared()
     }
 
@@ -380,6 +412,45 @@ class PlayerViewModel : ViewModel() {
             danmu
         } else
             null
+    }
+
+    inner class ChangePlayerStatusReceiver : BroadcastReceiver() {
+        private var isRegistered = false
+        override fun onReceive(context: Context?, intent: Intent) {
+            val status = intent.getIntExtra(KEY_PLAYER_STATUS, -1)
+            if (status == -1)
+                return
+            when (status) {
+                PLAYER_STATUS_PLAY -> {
+                    if (!playerManager.isPlaying())
+                        replay()
+                }
+                PLAYER_STATUS_PAUSE -> {
+                    stopPlay()
+                    sendStatusBroadcast(PLAYER_STATUS_PAUSE)
+                }
+                PLAYER_STATUS_STOP -> {
+                    stopPlay()
+                }
+            }
+        }
+
+        fun register() {
+            if (!isRegistered) {
+                MyApplication.application.registerReceiver(
+                    this,
+                    IntentFilter(BROADCAST_CHANGE_PLAYER_STATUS)
+                )
+                isRegistered = true
+            }
+        }
+
+        fun unregister() {
+            if (isRegistered) {
+                MyApplication.application.unregisterReceiver(this)
+                isRegistered = false
+            }
+        }
     }
 
 }

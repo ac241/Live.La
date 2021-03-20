@@ -41,6 +41,11 @@ class PlayerManager {
         listener?.onResolutionChange(resolution)
     }
 
+    fun pause() {
+        setStatus(PlayerStatus.PAUSE)
+        player.pause()
+    }
+
     fun stop(reset: Boolean = false) {
         player.stop(reset)
     }
@@ -48,6 +53,8 @@ class PlayerManager {
     fun release() {
         player.release()
     }
+
+    fun isPlaying() = player.isPlaying
 
     /**
      * 播放器
@@ -94,9 +101,7 @@ class PlayerManager {
                                 setStatus(PlayerStatus.PLAYING)
                         }
                     }
-
                 }
-
             })
             addVideoListener(object : VideoListener {
                 override fun onVideoSizeChanged(
@@ -118,6 +123,7 @@ class PlayerManager {
     internal fun play(url: String) {
         AppUtil.mainThread {
             stop(true)
+            player.playWhenReady = true
         }
         try {
             if (url.isEmpty()) {

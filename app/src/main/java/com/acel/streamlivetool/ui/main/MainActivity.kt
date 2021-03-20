@@ -502,7 +502,7 @@ class MainActivity : OverlayWindowActivity() {
     }
 
     fun closePlayerFragment() {
-         supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1)
+        supportFragmentManager.popBackStack(PLAYER_FRAGMENT_NAME, 1)
     }
 
     fun checkFollowed(anchor: Anchor) {
@@ -518,3 +518,4 @@ class MainActivity : OverlayWindowActivity() {
     }
 
 }
+

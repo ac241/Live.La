@@ -6,6 +6,7 @@ import java.util.concurrent.Executors
 
 object MainExecutor {
     private val poolExecutor = Executors.newFixedThreadPool(20)
+
     fun execute(method: () -> Unit) {
         poolExecutor.execute {
             try {
