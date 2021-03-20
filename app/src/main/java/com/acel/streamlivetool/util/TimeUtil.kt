@@ -31,8 +31,7 @@ object TimeUtil {
                 "${diff / 3_600_000}小时前"
             //大于一天
             else ->
-                formatter.format(timeStamp * 1000)
-//            "${diff / 86_400_000}天前"
+                formatter.format(timeStamp)
         }
     }
 }
