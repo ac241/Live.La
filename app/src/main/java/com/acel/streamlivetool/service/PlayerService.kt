@@ -90,23 +90,23 @@ class PlayerService : Service() {
         R.layout.layout_player_notification
     )
 
-    private fun foreGroundNotification(sourceType: SourceType, playOrPause: Int?): Notification? {
-        val intent = when (sourceType) {
-            SourceType.PLAYER_FRAGMENT ->
-                Intent(this, SourceType.PLAYER_FRAGMENT.getActivityClass()).apply {
-                    action = MainActivity.ACTION_OPEN_FRAGMENT
-                    putExtra(
-                        MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
-                        MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
-                    )
-                }
-            else -> Intent()
+    private val intentStartPlayerPage =
+        Intent(MyApplication.application, SourceType.PLAYER_FRAGMENT.getActivityClass()).apply {
+            action = MainActivity.ACTION_OPEN_FRAGMENT
+            putExtra(
+                MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
+                MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
+            )
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
+    private val pendingIntentStartPlayerPage: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this, 0, intentStartPlayerPage,
             FLAG_UPDATE_CURRENT
         )
+    }
+
+    private fun foreGroundNotification(sourceType: SourceType, playOrPause: Int?): Notification? {
         val builder = when (sourceType) {
             SourceType.PLAYER_FRAGMENT ->
                 NotificationCompat.Builder(this, PLAYER_NOTIFICATION_CHANNEL_ID).apply {
@@ -127,8 +127,8 @@ class PlayerService : Service() {
                         )
                     }
                     setCustomContentView(playerRemoteView)
-
                     setBtnOnClickListener(playOrPause)
+                    setContentIntent(pendingIntentStartPlayerPage)
                 }
             SourceType.PLAYER_OVERLAY ->
                 NotificationCompat.Builder(this, PLAYER_OVERLAY_NOTIFICATION_CHANNEL_ID).apply {
@@ -140,10 +140,10 @@ class PlayerService : Service() {
                     } else
                         setSmallIcon(R.mipmap.ic_launcher)
                     setContentText("${anchor?.nickname} ${sourceType.getName()}播放中")
-                    setContentIntent(pendingIntent)
                 }
             else -> NotificationCompat.Builder(this, PLAYER_NOTIFICATION_CHANNEL_ID)
         }
+
 
         return builder.build()
     }

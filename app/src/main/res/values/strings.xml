@@ -131,5 +131,7 @@
     <string name="huya_danmu_secret_hint">开发者密钥</string>
     <string name="how_to_get_huya_danmu_data">如何获取开发者数据？</string>
     <string name="save">保存</string>
+    <string name="play_or_pause">播放或暂停</string>
+    <string name="close">关闭</string>
 
 </resources>

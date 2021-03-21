@@ -65,8 +65,8 @@ object PlatformDispatcher {
         return platformList
     }
 
-    fun Anchor.getIconDrawable(): Drawable {
-        return platformIconDrawableMap[platformImpl()] ?: error("can't get platform icon drawable?")
+    fun Anchor.getIconDrawable(): Drawable? {
+        return platformIconDrawableMap[platformImpl()]
     }
 
     fun Anchor.platformImpl(): IPlatform? {
