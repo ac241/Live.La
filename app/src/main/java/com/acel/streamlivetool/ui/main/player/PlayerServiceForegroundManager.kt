@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 
 
 @Suppress("unused")
-class PlayerServiceForegroundListener(mainActivity: MainActivity) : LifecycleObserver {
+class PlayerServiceForegroundManager(mainActivity: MainActivity) : LifecycleObserver {
     private var avatarBitmap: Bitmap? = null
     private var mainActivity: MainActivity? = mainActivity
     private var isForeground = false
@@ -65,7 +65,7 @@ class PlayerServiceForegroundListener(mainActivity: MainActivity) : LifecycleObs
                             ImageLoader.getDrawable(mainActivity!!, it1)?.toBitmap()
                         }
                         avatarBitmap?.let { it1 ->
-                            PlayerService.startWithForeground(
+                            PlayerService.startForegroundService(
                                 PlayerService.Companion.SourceType.PLAYER_FRAGMENT, it, it1
                             )
                             notificationActionReceiver?.register()
@@ -91,7 +91,7 @@ class PlayerServiceForegroundListener(mainActivity: MainActivity) : LifecycleObs
     private fun updateForeground(playOrPause: Int? = null) {
         mainActivity?.getPlayingAnchor()?.let {
             avatarBitmap?.let { it1 ->
-                PlayerService.startWithForeground(
+                PlayerService.startForegroundService(
                     PlayerService.Companion.SourceType.PLAYER_FRAGMENT, it, it1, playOrPause
                 )
             }

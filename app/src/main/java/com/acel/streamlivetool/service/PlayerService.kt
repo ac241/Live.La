@@ -11,6 +11,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -135,7 +136,9 @@ class PlayerService : Service() {
                     setLargeIcon(tempStorageOverlayPlayingAnchorAvatar)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         setSmallIcon(
-                            IconCompat.createWithBitmap(tempStorageOverlayPlayingAnchorAvatar)
+                            IconCompat.createWithBitmap(
+                                tempStorageOverlayPlayingAnchorAvatar
+                            )
                         )
                     } else
                         setSmallIcon(R.mipmap.ic_launcher)
@@ -143,7 +146,6 @@ class PlayerService : Service() {
                 }
             else -> NotificationCompat.Builder(this, PLAYER_NOTIFICATION_CHANNEL_ID)
         }
-
 
         return builder.build()
     }
@@ -236,12 +238,13 @@ class PlayerService : Service() {
         const val BROADCAST_CHANGE_PLAYER_STATUS_ACTION = "broadcast_change_player_status_action"
 
         @JvmStatic
-        fun startWithForeground(
+        fun startForegroundService(
             type: SourceType?,
             anchor: Anchor,
             avatar: Bitmap,
             playOrPause: Int? = null
         ) {
+            Log.d("acel_log@PlayerService#startForegroundService", "aa")
             val intent = Intent(MyApplication.application, PlayerService::class.java)
             intent.putExtra(KEY_ANCHOR, anchor)
             when (type) {

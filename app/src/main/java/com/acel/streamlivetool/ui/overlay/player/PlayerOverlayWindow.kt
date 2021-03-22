@@ -3,20 +3,21 @@ package com.acel.streamlivetool.ui.overlay.player
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.manager.PlayerManager
+import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.layout_overlay_player.view.*
 import kotlinx.android.synthetic.main.layout_overlay_player_controller_view.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class PlayerOverlayWindow : AbsOverlayWindow() {
 
@@ -49,16 +50,17 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
             ) {
                 when (playerStatus) {
                     PlayerManager.PlayerStatus.BUFFERING -> {
-                        rootView.progress_bar.visibility = View.INVISIBLE
+                        rootView.progress_bar.visibility = View.VISIBLE
                     }
                     PlayerManager.PlayerStatus.IDLE -> {
                     }
                     PlayerManager.PlayerStatus.PLAYING -> {
                         rootView.progress_bar.visibility = View.INVISIBLE
                         rootView.error_msg.visibility = View.INVISIBLE
+                        startForegroundService()
                     }
                     PlayerManager.PlayerStatus.LOADING -> {
-                        rootView.progress_bar.visibility = View.INVISIBLE
+                        rootView.progress_bar.visibility = View.VISIBLE
                     }
                     PlayerManager.PlayerStatus.PAUSE -> {
                     }
@@ -135,6 +137,29 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
 
     override fun onWindowHide() {
         playerManager.stop(true)
+        PlayerService.stopForegroundService()
+    }
+
+    override fun onWindowShowed() {
+        super.onWindowShowed()
+        startForegroundService()
+    }
+
+    private fun startForegroundService() {
+        currentAnchor.value?.let { anchor ->
+            runBlocking {
+                val bitmap = withContext(Dispatchers.IO) {
+                    anchor.avatar?.let {
+                        ImageLoader.getDrawable(MyApplication.application, it)?.toBitmap()
+                    }
+                }
+                bitmap?.let {
+                    PlayerService.startForegroundService(
+                        PlayerService.Companion.SourceType.PLAYER_OVERLAY, anchor, it
+                    )
+                }
+            }
+        }
     }
 
     override fun onWindowCreated() {

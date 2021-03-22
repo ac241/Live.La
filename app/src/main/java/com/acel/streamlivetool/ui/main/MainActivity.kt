@@ -34,7 +34,7 @@ import com.acel.streamlivetool.ui.main.add_eidt_anchor.EditAnchorFragment
 import com.acel.streamlivetool.ui.main.cookie.CookieFragment
 import com.acel.streamlivetool.ui.main.group.GroupFragment
 import com.acel.streamlivetool.ui.main.player.PlayerFragment
-import com.acel.streamlivetool.ui.main.player.PlayerServiceForegroundListener
+import com.acel.streamlivetool.ui.main.player.PlayerServiceForegroundManager
 import com.acel.streamlivetool.ui.settings.SettingsActivity
 import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.CommonColor
@@ -165,7 +165,7 @@ class MainActivity : OverlayWindowActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
-        lifecycle.addObserver(PlayerServiceForegroundListener(this))
+        lifecycle.addObserver(PlayerServiceForegroundManager(this))
         whiteSystemBar()
         CommonColor.bindResource(resources)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

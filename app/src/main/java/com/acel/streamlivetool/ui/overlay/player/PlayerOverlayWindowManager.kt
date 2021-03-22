@@ -27,7 +27,6 @@ class PlayerOverlayWindowManager {
         playerWindow.play(anchor, list)
     }
 
-
     fun release() {
         isReleased = true
         playerWindow.release()
