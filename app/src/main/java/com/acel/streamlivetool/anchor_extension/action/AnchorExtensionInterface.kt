@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.anchor_additional.action
+package com.acel.streamlivetool.anchor_extension.action
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -7,7 +7,10 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 
-interface AdditionalActionInterface {
+/**
+ * 主播扩展功能，比如显示LPL比赛信息
+ */
+interface AnchorExtensionInterface {
     companion object {
         val iconDrawableDefault = ResourcesCompat.getDrawable(
             MyApplication.application.resources,

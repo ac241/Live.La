@@ -13,17 +13,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
-import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
+import com.acel.streamlivetool.anchor_extension.AnchorExtensionManager
+import com.acel.streamlivetool.anchor_extension.action.AnchorExtensionInterface
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue.FOLLOW_LIST_DID_NOT_CONTAINS_THIS_ANCHOR
 import com.acel.streamlivetool.const_value.ConstValue.ITEM_ID_FOLLOW_ANCHOR
+import com.acel.streamlivetool.const_value.PreferenceVariable.showAdditionalActionButton
 import com.acel.streamlivetool.net.ImageLoader
 import com.acel.streamlivetool.platform.PlatformDispatcher.getIconDrawable
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
-import com.acel.streamlivetool.const_value.PreferenceVariable.showAdditionalActionButton
 import kotlinx.android.synthetic.main.item_anchor.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_type_name.view.*
@@ -38,7 +38,7 @@ class AnchorAdapter(
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var mPosition: Int = -1
-    private val additionalActionManager = AdditionalActionManager.instance
+    private val additionalActionManager = AnchorExtensionManager.instance
     private val onlineImageSpan = ImageSpan(context, R.drawable.ic_online_hot)
 
     private var livingSectionPosition = -1
@@ -199,14 +199,14 @@ class AnchorAdapter(
         }
 
         //附加功能按钮
-        if (showAdditionalActionButton && anchor.additionalActions != null) {
-            anchor.additionalActions?.let {
+        if (showAdditionalActionButton && anchor.anchorExtensions != null) {
+            anchor.anchorExtensions?.let {
                 holder.additionBtn.apply {
                     visibility = View.VISIBLE
                     if (it.size == 1)
                         setImageDrawable(it[0].iconDrawable)
                     else
-                        setImageDrawable(AdditionalActionInterface.iconDrawableDefault)
+                        setImageDrawable(AnchorExtensionInterface.iconDrawableDefault)
                 }
             }
         } else {
@@ -223,6 +223,7 @@ class AnchorAdapter(
     }
 
     fun getNotLivingSectionPosition(): Int = notLivingSectionPosition
+    @Suppress("unused")
     fun getLivingSectionPosition(): Int = livingSectionPosition
 
     /**

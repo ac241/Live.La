@@ -3,24 +3,24 @@
  * @author acel
  */
 
-package com.acel.streamlivetool.anchor_additional
+package com.acel.streamlivetool.anchor_extension
 
 import android.content.Context
-import com.acel.streamlivetool.anchor_additional.action.AdditionalActionInterface
-import com.acel.streamlivetool.anchor_additional.action.GetLOLMatchAction
+import com.acel.streamlivetool.anchor_extension.action.AnchorExtensionInterface
+import com.acel.streamlivetool.anchor_extension.action.GetLOLMatchExtension
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.MainExecutor
 import com.acel.streamlivetool.util.ToastUtil.toast
 
-class AdditionalActionManager {
+class AnchorExtensionManager {
     companion object {
-        val instance by lazy { AdditionalActionManager() }
+        val instance by lazy { AnchorExtensionManager() }
     }
 
     private val actionList = listOf(
-        GetLOLMatchAction.instance
+        GetLOLMatchExtension.instance
     )
 
     fun match(anchor: Anchor): Boolean {
@@ -31,8 +31,8 @@ class AdditionalActionManager {
         return false
     }
 
-    fun getActions(anchor: Anchor): List<AdditionalActionInterface>? {
-        val list = mutableListOf<AdditionalActionInterface>()
+    fun getActions(anchor: Anchor): List<AnchorExtensionInterface>? {
+        val list = mutableListOf<AnchorExtensionInterface>()
         actionList.forEach {
             if (it.match(anchor))
                 list.add(it)

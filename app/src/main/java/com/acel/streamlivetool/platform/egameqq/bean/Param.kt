@@ -23,8 +23,4 @@ data class Param(
             val userUid: Int = 0
         )
     }
-
-    fun toJson(): String {
-        return Gson().toJson(this)
-    }
 }

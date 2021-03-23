@@ -66,7 +66,6 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         }
     }
 
-    //更新进度
     private val _liveDataUpdateStatus = MutableLiveData<UpdateStatus>().also {
         it.value = UpdateStatus.PREPARE
     }
@@ -132,6 +131,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         updateAnchorsTask?.cancel()
     }
 
+    /**
+     * 关注
+     */
     fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val platformImpl = anchor.platformImpl()
@@ -173,16 +175,22 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
 
     private val checkFollowedAnchors = mutableSetOf<Anchor>()
 
-    fun checkedFollowed(anchor: Anchor) {
+    fun waitToCheckFollowed(anchor: Anchor) {
         checkFollowedAnchors.add(anchor)
     }
 
+    /**
+     * 普通方式更新结束
+     */
     override fun onUpdateFinish(resultList: List<ResultSingleAnchor>) {
         updateFinish()
         notifyAnchorListChange()
         showUpdateResult(resultList)
     }
 
+    /**
+     * cookie方式更新结束
+     */
     override fun onCookieModeUpdateFinish(resultList: List<ResultCookieMode>) {
         updateFinish()
         notifyAnchorListChange()
@@ -198,6 +206,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         _liveDataUpdateStatus.postValue(UpdateStatus.FINISH)
     }
 
+    /**
+     * 显示普通方式更新结果
+     */
     private fun showUpdateResult(list: List<ResultSingleAnchor>) {
         val builder = SpannableStringBuilder()
         var failed = 0
@@ -295,6 +306,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         }
     }
 
+    /**
+     * 检查是否需要关注
+     */
     private fun checkFollowed(resultList: List<ResultCookieMode>) {
         checkFollowedAnchors.forEach check@{ anchor ->
             resultList.forEach result@{
@@ -319,6 +333,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         }
     }
 
+    /**
+     * 显示关注提示框
+     */
     fun showFollowDialog(context: Context, anchor: Anchor) {
         val builder = AlertDialogTool.newAlertDialog(context)
         anchor.platformImpl()?.let {

@@ -7,6 +7,7 @@ import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
 import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImageWhenMobileData
 
+@Suppress("unused")
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
     private var resumeTimes = 0
     private val refreshDelayTime = 20000

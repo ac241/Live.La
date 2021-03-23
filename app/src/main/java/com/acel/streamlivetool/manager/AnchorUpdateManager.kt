@@ -49,6 +49,7 @@ class AnchorUpdateManager {
             platformAnchorListMap[iPlatform] = mutableListOf()
     }
 
+    @Suppress("unused")
     fun getUpdateTimeLiveData(iPlatform: IPlatform): MutableLiveData<Long> {
         return lastUpdateTimeMap[iPlatform]!!
     }

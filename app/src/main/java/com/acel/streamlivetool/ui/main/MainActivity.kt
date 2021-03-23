@@ -79,6 +79,7 @@ class MainActivity : OverlayWindowActivity() {
         const val ACTION_PREF_CHANGES = "main_new_intent"
         const val EXTRA_KEY_PREF_CHANGES = "key_pref_changes"
         const val PREF_PLATFORMS_CHANGED = "pref_platforms_changed"
+        @Suppress("unused")
         const val PREF_SHOW_IMAGE_CHANGED = "pref_show_image_changed"
 
         //---------open fragment

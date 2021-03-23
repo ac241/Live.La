@@ -8,6 +8,7 @@ import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
 import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImageWhenMobileData
 
+@Suppress("unused")
 class CookieLifecycle(private val cookieFragment: CookieFragment) : LifecycleObserver {
     private var lastGetAnchorsTime = 0L
     private val refreshDelayTime = 20000

@@ -22,7 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.acel.streamlivetool.R
-import com.acel.streamlivetool.anchor_additional.AdditionalActionManager
+import com.acel.streamlivetool.anchor_extension.AnchorExtensionManager
 import com.acel.streamlivetool.base.BaseFragment
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
@@ -235,8 +235,8 @@ class PlayerFragment : BaseFragment() {
                         true
                     }
                     viewModel.anchor.value?.let { a ->
-                        if (AdditionalActionManager.instance.match(a)) {
-                            AdditionalActionManager.instance.getActions(a)?.forEach {
+                        if (AnchorExtensionManager.instance.match(a)) {
+                            AnchorExtensionManager.instance.getActions(a)?.forEach {
                                 add(it.actionName).setOnMenuItemClickListener { _ ->
                                     it.doAction(requireContext(), a)
                                     true

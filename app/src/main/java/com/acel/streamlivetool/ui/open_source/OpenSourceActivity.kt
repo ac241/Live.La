@@ -2,7 +2,6 @@ package com.acel.streamlivetool.ui.open_source
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
 import com.acel.streamlivetool.util.ToastUtil.toast

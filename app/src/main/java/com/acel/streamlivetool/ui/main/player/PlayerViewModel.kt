@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,7 +34,7 @@ class PlayerViewModel : ViewModel() {
         const val PLAYER_STATUS_STOP = 7
     }
 
-    var changePlayerStatusReceiver: ChangePlayerStatusReceiver? =
+    private var changePlayerStatusReceiver: ChangePlayerStatusReceiver? =
         ChangePlayerStatusReceiver().apply {
             register()
         }

@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_light"
     android:clickable="true"
-    android:focusable="true"
-    app:layoutDescription="@xml/fragment_player_scene">
+    android:focusable="true">
 
     <com.acel.streamlivetool.ui.custom.AdjustablePlayerView
         android:id="@+id/player_view"

@@ -6,6 +6,7 @@ package com.acel.streamlivetool.platform.bilibili
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+@Suppress("unused")
 object DanmuPatternUtils {
     /**
      * 读取 CMD 的
@@ -84,8 +85,8 @@ object DanmuPatternUtils {
      */
     fun unicodeToString(str: String): String {
         // 获取内部的 U 码
-        var str = str
-        val matcher: Matcher = unicodePattern.matcher(str)
+        var outStr = str
+        val matcher: Matcher = unicodePattern.matcher(outStr)
         // 字符初始化
         var ch: Char
         // 开始逐个替换
@@ -93,8 +94,8 @@ object DanmuPatternUtils {
             // 将扒出来的 Int 转换成 char 类型，因为 Java 默认是 UTF-8 编码，所以会自动转换成对应文字
             ch = matcher.group(2).toInt(16).toChar()
             // 将 Unicode 码替换成对应文字，注意后面用了一个隐式类型转换
-            str = str.replace(matcher.group(1), ch.toString() + "")
+            outStr = outStr.replace(matcher.group(1), ch.toString() + "")
         }
-        return str
+        return outStr
     }
 }

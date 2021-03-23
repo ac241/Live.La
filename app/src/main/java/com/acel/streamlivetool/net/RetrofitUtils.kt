@@ -29,20 +29,3 @@ class RetrofitUtils {
         }
     }
 }
-
-/**
- * 用于添加cookie的拦截器
- */
-private class AddCookiesInterceptor : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originRequest = chain.request()
-        val requestBuilder = originRequest.newBuilder()
-        //添加cookie
-        val cookies = originRequest.header("cookies")
-        cookies?.let {
-            requestBuilder.removeHeader("cookies")
-            requestBuilder.addHeader("Cookie", it)
-        }
-        return chain.proceed(requestBuilder.build())
-    }
-}

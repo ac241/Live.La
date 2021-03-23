@@ -11,7 +11,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -244,7 +243,6 @@ class PlayerService : Service() {
             avatar: Bitmap,
             playOrPause: Int? = null
         ) {
-            Log.d("acel_log@PlayerService#startForegroundService", "aa")
             val intent = Intent(MyApplication.application, PlayerService::class.java)
             intent.putExtra(KEY_ANCHOR, anchor)
             when (type) {

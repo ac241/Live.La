@@ -4,6 +4,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
+@Suppress("MemberVisibilityCanBePrivate")
 object PreferenceVariable {
 
     private val keySet = setOf(

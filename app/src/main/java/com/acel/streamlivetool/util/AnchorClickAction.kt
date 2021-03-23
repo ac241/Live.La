@@ -77,19 +77,26 @@ object AnchorClickAction {
                 (context as MainActivity).playStreamOverlay(anchor, list)
             }
             context.getString(R.string.string_inner_player) -> {
-                context.startActivity(Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    setAction(MainActivity.ACTION_OPEN_FRAGMENT)
-                    putExtra(
-                        MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
-                        MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
-                    )
-                    putExtra(MainActivity.EXTRA_KEY_ANCHOR, anchor)
-                })
+                startInnerPlayer(context, anchor)
             }
             else -> {
                 toast("未定义的功能，你是怎么到达这里的0_0")
             }
         }
+    }
+
+    fun startInnerPlayer(
+        context: Context,
+        anchor: Anchor
+    ) {
+        context.startActivity(Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            action = MainActivity.ACTION_OPEN_FRAGMENT
+            putExtra(
+                MainActivity.EXTRA_KEY_OPEN_FRAGMENT,
+                MainActivity.EXTRA_VALUE_OPEN_PLAYER_FRAGMENT
+            )
+            putExtra(MainActivity.EXTRA_KEY_ANCHOR, anchor)
+        })
     }
 }

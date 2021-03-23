@@ -41,6 +41,7 @@ class PlayerManager {
         listener?.onResolutionChange(resolution)
     }
 
+    @Suppress("unused")
     fun pause() {
         setStatus(PlayerStatus.PAUSE)
         player.pause()

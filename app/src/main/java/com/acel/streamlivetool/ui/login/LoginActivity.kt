@@ -15,8 +15,6 @@ import android.view.WindowManager
 import android.webkit.*
 import android.widget.Button
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity

@@ -50,5 +50,6 @@ class AnchorRepository {
 
     fun updateAnchor(anchor: Anchor) = MainExecutor.execute { anchorDao.updateAnchor(anchor) }
     private fun getAllAnchors(): LiveData<MutableList<Anchor>> = anchorDao.getAllAnchors()
+    @Suppress("unused")
     fun deleteAllAnchors() = MainExecutor.execute { anchorDao.deleteAllAnchors() }
 }

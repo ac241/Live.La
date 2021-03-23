@@ -11,9 +11,11 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.manager.PlayerManager
 import com.acel.streamlivetool.net.ImageLoader
+import com.acel.streamlivetool.platform.PlatformDispatcher.getIconDrawable
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
+import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.layout_overlay_player.view.*
 import kotlinx.android.synthetic.main.layout_overlay_player_controller_view.view.*
@@ -105,6 +107,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
         rootView.controller_include.apply {
             overlay_controller_title.text = anchor.title
             overlay_controller_nickname.text = anchor.nickname
+            btn_start_app.setImageDrawable(anchor.getIconDrawable())
         }
     }
 
@@ -191,9 +194,15 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                     resizeWindow()
                 }
 
-//                btn_start_app.setOnClickListener {
-//
-//                }
+                btn_start_app.setOnClickListener {
+                    hide()
+                    currentAnchor.value?.let { it1 ->
+                        AnchorClickAction.startInnerPlayer(
+                            MyApplication.application, it1
+                        )
+                    }
+                }
+
                 btn_previous.setOnClickListener {
                     previous()
                 }

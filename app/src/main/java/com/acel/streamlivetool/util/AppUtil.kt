@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.acel.streamlivetool.util
 
 import android.app.AlarmManager
@@ -101,16 +103,18 @@ object AppUtil {
     /**
      * 返回当前程序版本号
      */
+    @Suppress("DEPRECATION")
     fun getAppVersionCode(context: Context): String? {
         var versioncode = 0
         try {
             val pm = context.packageManager
             val pi = pm.getPackageInfo(context.packageName, 0)
             // versionName = pi.versionName;
-            versioncode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                pi.longVersionCode.toInt()
-            } else
-                pi.versionCode
+            versioncode =
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    pi.longVersionCode.toInt()
+                } else
+                    pi.versionCode
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }

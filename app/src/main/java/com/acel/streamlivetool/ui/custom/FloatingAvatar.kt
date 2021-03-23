@@ -8,16 +8,17 @@ import android.view.animation.DecelerateInterpolator
 import androidx.annotation.Keep
 import androidx.constraintlayout.utils.widget.ImageFilterView
 
+@Suppress("unused")
 class FloatingAvatar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ImageFilterView(context, attrs, defStyleAttr) {
 
-    var progress = 0f
+    private var progress = 0f
     private var animator: ObjectAnimator? = null
-    var currentLocation = Pair(0f, 0f)
-    var targetLocation = Pair(0f, 0f)
-    var currentDimens = Pair(0f, 0f)
-    var targetDimens = Pair(0f, 0f)
+    private var currentLocation = Pair(0f, 0f)
+    private var targetLocation = Pair(0f, 0f)
+    private var currentDimens = Pair(0f, 0f)
+    private var targetDimens = Pair(0f, 0f)
     private val animateValueStart = 0f
     private val animateValueEnd = 1000f
     private val decelerateInterpolator = DecelerateInterpolator()

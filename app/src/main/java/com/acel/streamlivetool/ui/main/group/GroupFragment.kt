@@ -288,7 +288,7 @@ class GroupFragment : Fragment() {
         }
     }
 
-    @Suppress("SameParameterValue")
+    @Suppress("SameParameterValue", "unused")
     private fun completeUpdateDetails(text: String) {
         showUpdateDetails(text)
         binding.includeProcessToast.textViewUpdateAnchorsDetails.apply {
@@ -314,7 +314,7 @@ class GroupFragment : Fragment() {
     }
 
     fun checkFollowed(anchor: Anchor) {
-        viewModel.checkedFollowed(anchor)
+        viewModel.waitToCheckFollowed(anchor)
     }
 
     companion object {

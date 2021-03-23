@@ -5,7 +5,7 @@
 
 @file:Suppress("UNCHECKED_CAST")
 
-package com.acel.streamlivetool.anchor_additional.action
+package com.acel.streamlivetool.anchor_extension.action
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -20,11 +20,11 @@ import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import kotlinx.android.synthetic.main.alert_browser_page.*
 
-class GetLOLMatchAction :
-    AdditionalActionInterface {
+class GetLOLMatchExtension :
+    AnchorExtensionInterface {
     companion object {
         val instance by lazy {
-            GetLOLMatchAction()
+            GetLOLMatchExtension()
         }
     }
 
