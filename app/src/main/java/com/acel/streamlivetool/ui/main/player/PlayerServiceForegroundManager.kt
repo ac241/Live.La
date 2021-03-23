@@ -150,7 +150,7 @@ class PlayerServiceForegroundManager(mainActivity: MainActivity) : LifecycleObse
             val status = intent.getIntExtra(PlayerViewModel.KEY_PLAYER_STATUS, -1)
             if (status != -1 && isForeground) {
                 when (status) {
-                    PlayerViewModel.PLAYER_STATUS_PAUSE -> {
+                    PlayerViewModel.PLAYER_STATUS_PAUSE,PlayerViewModel.PLAYER_STATUS_STOP -> {
                         updateForeground(PlayerService.ACTION_PAUSE)
                     }
                     PlayerViewModel.PLAYER_STATUS_PLAY -> {
