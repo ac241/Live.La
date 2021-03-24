@@ -47,17 +47,21 @@ class AnchorItemDecoration(private val iconDrawable: Drawable) :
                     nowFloatingView = floatingNotLivingView
             }
         }
-        c.save()
-        c.translate(parent.paddingStart.toFloat(), offsetY)
-        nowFloatingView?.draw(c)
-        c.restore()
+        if (firstVisiblePosition != 0 ||
+            (firstVisiblePosition == 0 && layoutManager.findViewByPosition(0)?.top != 0)
+        ) {
+            c.save()
+            c.translate(parent.paddingStart.toFloat(), offsetY)
+            nowFloatingView?.draw(c)
+            c.restore()
+        }
     }
 
     @Synchronized
     private fun initFloatingView(parent: RecyclerView) {
         if (floatingLivingView == null) {
             floatingLivingView = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_section_living, parent, false).apply {
+                .inflate(R.layout.item_section_living_floating, parent, false).apply {
                     floatingLivingView?.measureAndLayoutFloatingSection(parent)
                     iconDrawable.setBounds(0, 0, 40, 40)
                     findViewById<TextView>(R.id.status)?.apply {
@@ -65,7 +69,7 @@ class AnchorItemDecoration(private val iconDrawable: Drawable) :
                     }
                 }
             floatingNotLivingView = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_section_not_living, parent, false).apply {
+                .inflate(R.layout.item_section_not_living_floating, parent, false).apply {
                     floatingLivingView?.measureAndLayoutFloatingSection(parent)
                     iconDrawable.setBounds(0, 0, 40, 40)
                     findViewById<TextView>(R.id.status)?.apply {

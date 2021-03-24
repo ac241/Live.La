@@ -7,10 +7,10 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.anchor_extension.AnchorExtensionManager
@@ -25,8 +25,13 @@ import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AnchorClickAction.secondBtnClick
 import com.acel.streamlivetool.util.MainExecutor
 import kotlinx.android.synthetic.main.item_anchor.view.*
+import kotlinx.android.synthetic.main.item_section_living.view.*
 import kotlinx.android.synthetic.main.text_view_graphic_secondary_status.view.*
 import kotlinx.android.synthetic.main.text_view_type_name.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class AnchorAdapter(
@@ -36,7 +41,7 @@ class AnchorAdapter(
     var showImage: Boolean,
     private val iconDrawable: Drawable
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
     private var mPosition: Int = -1
     private val additionalActionManager = AnchorExtensionManager.instance
     private val onlineImageSpan = ImageSpan(context, R.drawable.ic_online_hot)
@@ -44,31 +49,31 @@ class AnchorAdapter(
     private var livingSectionPosition = -1
     private var notLivingSectionPosition = -1
 
+    private val filterList = mutableListOf<Anchor>()
+    private var filterKeyword = ""
+    private var useFilter = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val holder: RecyclerView.ViewHolder
         when (viewType) {
             VIEW_TYPE_SECTION_LIVING ->
-                holder = ViewHolderGroup(
+                holder = ViewHolderSection(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_section_living, parent, false)
-                        .also {
-//                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-//                                true
-                            iconDrawable.setBounds(0, 0, 40, 40)
-                            it.findViewById<TextView>(R.id.status)?.apply {
-                                setCompoundDrawables(null, null, iconDrawable, null)
-                            }
+                        .apply {
+//                            iconDrawable.setBounds(0, 0, 40, 40)
+//                            findViewById<TextView>(R.id.status)?.apply {
+//                                setCompoundDrawables(null, null, iconDrawable, null)
+//                            }
                         }
                 )
             VIEW_TYPE_SECTION_NOT_LIVING ->
-                holder = ViewHolderGroup(
+                holder = ViewHolderSection(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_section_not_living, parent, false)
-                        .also {
-//                            (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan =
-//                                true
+                        .apply {
                             iconDrawable.setBounds(0, 0, 40, 40)
-                            it.findViewById<TextView>(R.id.status)?.apply {
+                            findViewById<TextView>(R.id.status)?.apply {
                                 setCompoundDrawables(null, null, iconDrawable, null)
                             }
                         }
@@ -92,18 +97,18 @@ class AnchorAdapter(
     }
 
     override fun getItemCount(): Int {
-        return anchorList.size
+        return displayList().size
     }
 
     override fun getItemViewType(position: Int): Int {
         try {
-            return when (anchorList[position]) {
+            return when (displayList()[position]) {
                 AnchorSection.ANCHOR_SECTION_LIVING ->
                     VIEW_TYPE_SECTION_LIVING
                 AnchorSection.ANCHOR_SECTION_NOT_LIVING ->
                     VIEW_TYPE_SECTION_NOT_LIVING
                 else -> {
-                    if (anchorList[position].status && showImage)
+                    if (displayList()[position].status && showImage)
                         VIEW_TYPE_ANCHOR
                     else
                         VIEW_TYPE_ANCHOR_SIMPLIFY
@@ -121,10 +126,20 @@ class AnchorAdapter(
 
     @SuppressLint("ResourceType")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolderGroup)
-            return
+        if (holder is ViewHolderSection) {
+            holder.filterEdit.apply {
+                visibility = if (position == 0) View.VISIBLE else View.GONE
+                setText(filterKeyword)
+                if (justEditFilterKeyword) {
+                    justEditFilterKeyword = false
+                    requestFocus()
+                }
+            }
 
-        val anchor: Anchor = anchorList[position]
+            return
+        }
+
+        val anchor: Anchor = displayList()[position]
         holder as ViewHolderGraphic
 
         //主播名
@@ -214,15 +229,28 @@ class AnchorAdapter(
         }
     }
 
+    fun displayList(): List<Anchor> {
+        return if (useFilter) filterList else anchorList
+    }
+
     fun getLongClickPosition(): Int = mPosition
 
-    fun notifyAnchorsChange() {
-        livingSectionPosition = anchorList.indexOf(AnchorSection.ANCHOR_SECTION_LIVING)
-        notLivingSectionPosition = anchorList.indexOf(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
+    fun notifyAnchorsChange(resetFilter: Boolean = true) {
+        if (resetFilter) {
+            resetFilter()
+        }
+        livingSectionPosition = displayList().indexOf(AnchorSection.ANCHOR_SECTION_LIVING)
+        notLivingSectionPosition = displayList().indexOf(AnchorSection.ANCHOR_SECTION_NOT_LIVING)
         notifyDataSetChanged()
     }
 
+    private fun resetFilter() {
+        useFilter = false
+        filterKeyword = ""
+    }
+
     fun getNotLivingSectionPosition(): Int = notLivingSectionPosition
+
     @Suppress("unused")
     fun getLivingSectionPosition(): Int = livingSectionPosition
 
@@ -258,7 +286,7 @@ class AnchorAdapter(
                     menu?.add("编辑")?.apply {
                         setOnMenuItemClickListener {
                             val position = getLongClickPosition()
-                            val anchor = anchorList[position]
+                            val anchor = displayList()[position]
                             (context as MainActivity).showEditAnchorFragment(anchor)
                             true
                         }
@@ -303,12 +331,12 @@ class AnchorAdapter(
 
             secondBtn.setOnClickListener {
                 val position = absoluteAdapterPosition
-                secondBtnClick(context, anchorList[position], anchorList)
+                secondBtnClick(context, displayList()[position], displayList())
             }
             additionBtn.setOnClickListener {
                 val position = absoluteAdapterPosition
                 MainExecutor.execute {
-                    additionalActionManager.doActions(anchorList[position], context)
+                    additionalActionManager.doActions(displayList()[position], context)
                 }
             }
         }
@@ -316,8 +344,60 @@ class AnchorAdapter(
         override fun onClick(v: View?) {
             val position = absoluteAdapterPosition
             context as MainActivity
-            context.itemClick(itemView, context, anchorList[position], anchorList)
+            context.itemClick(itemView, context, displayList()[position], displayList())
+        }
+    }
+
+    /**
+     * 分组的ViewHolder
+     */
+    private var justEditFilterKeyword = false
+
+    inner class ViewHolderSection(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val filterEdit: EditText = itemView.filter_keyword
+
+        init {
+            filterEdit.addTextChangedListener {
+                if (filterEdit.hasFocus()) {
+                    filterKeyword = it.toString()
+                    justEditFilterKeyword = true
+                    startFilterJob()
+                }
+            }
+        }
+    }
+
+    private var filterJob: Job? = null
+    private fun startFilterJob() {
+        filterJob?.cancel()
+        filterJob = GlobalScope.launch {
+            delay(500)
+            this@AnchorAdapter.filter.filter(filterKeyword)
+        }
+    }
+
+
+    inner class AnchorFilter : Filter() {
+        private val tempResult = FilterResults()
+        override fun performFiltering(constraint: CharSequence): FilterResults {
+            filterList.clear()
+            anchorList.forEach {
+                if (it == AnchorSection.ANCHOR_SECTION_LIVING ||
+                    it == AnchorSection.ANCHOR_SECTION_NOT_LIVING ||
+                    it.nickname.contains(constraint, true)
+                ) {
+                    filterList.add(it)
+                }
+            }
+            return tempResult
         }
 
+        override fun publishResults(constraint: CharSequence, results: FilterResults) {
+            useFilter = constraint.isNotEmpty()
+            notifyAnchorsChange(false)
+        }
     }
+
+    private val anchorFilter = AnchorFilter()
+    override fun getFilter(): Filter = anchorFilter
 }

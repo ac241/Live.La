@@ -19,4 +19,5 @@
     <color name="type_name_background">#202A2E</color>
     <color name="type_name_text_color">#CCCCCC</color>
     <color name="additional_action_tint_color">@color/text_color_secondary</color>
+    <color name="item_drawable_color">#868F93</color>
 </resources>

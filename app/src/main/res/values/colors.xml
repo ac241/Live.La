@@ -22,4 +22,5 @@
     <color name="additional_action_tint_color">#55666666</color>
     <color name="light_dark_background">#333333</color>
     <color name="light_dark_text_color">#F3F3F3</color>
+    <color name="item_drawable_color">#171717</color>
 </resources>
