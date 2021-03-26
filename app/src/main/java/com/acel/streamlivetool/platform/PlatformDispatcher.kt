@@ -5,15 +5,16 @@ import androidx.core.content.res.ResourcesCompat
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.bilibili.BilibiliImpl
-import com.acel.streamlivetool.platform.douyu.DouyuImpl
-import com.acel.streamlivetool.platform.egameqq.EgameqqImpl
-import com.acel.streamlivetool.platform.huomao.HuomaoImpl
-import com.acel.streamlivetool.platform.huya.HuyaImpl
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
+import com.acel.streamlivetool.platform.impl.bilibili.BilibiliImpl
+import com.acel.streamlivetool.platform.impl.douyu.DouyuImpl
+import com.acel.streamlivetool.platform.impl.egameqq.EgameqqImpl
+import com.acel.streamlivetool.platform.impl.huomao.HuomaoImpl
+import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
 
 object PlatformDispatcher {
-    private val platformMap = mutableMapOf<String, IPlatform>()
-    private val platformIconDrawableMap = mutableMapOf<IPlatform, Drawable>()
+    private val platformMap = mutableMapOf<String, AbstractPlatformImpl>()
+    private val platformIconDrawableMap = mutableMapOf<AbstractPlatformImpl, Drawable>()
 
     init {
         val implMap = mapOf(
@@ -37,18 +38,18 @@ object PlatformDispatcher {
         }
     }
 
-    fun getPlatformImpl(platform: String): IPlatform? {
+    fun getPlatformImpl(platform: String): AbstractPlatformImpl? {
         return platformMap[platform]
     }
 
-    fun getPlatformImpl(anchor: Anchor): IPlatform? {
+    fun getPlatformImpl(anchor: Anchor): AbstractPlatformImpl? {
         return platformMap[anchor.platform]
     }
 
     /**
      * @return Map<platform name ,Platform Instance>
      */
-    fun getAllPlatformImpl(): Map<String, IPlatform> {
+    fun getAllPlatformImpl(): Map<String, AbstractPlatformImpl> {
         return platformMap
     }
 
@@ -69,7 +70,7 @@ object PlatformDispatcher {
         return platformIconDrawableMap[platformImpl()]
     }
 
-    fun Anchor.platformImpl(): IPlatform? {
+    fun Anchor.platformImpl(): AbstractPlatformImpl? {
         return getPlatformImpl(this)
     }
 }

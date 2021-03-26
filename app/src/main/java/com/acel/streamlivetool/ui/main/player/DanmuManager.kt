@@ -3,8 +3,8 @@ package com.acel.streamlivetool.ui.main.player
 import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.Danmu
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
+import com.acel.streamlivetool.platform.base.DanmuClient
 import com.acel.streamlivetool.util.ToastUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +21,7 @@ class DanmuManager(viewModelScope: CoroutineScope) {
     private var danmuJob: Job? = null
     private var state = State.IDLE
     private var scope: CoroutineScope? = viewModelScope
+    private var danmuClient: DanmuClient? = null
 
     private enum class State {
         IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
@@ -42,12 +43,18 @@ class DanmuManager(viewModelScope: CoroutineScope) {
                 return false
             }
             if (state == State.START)
-                stop("断开")
+                stop("加载->断开")
             this.anchor = anchor
             onConnecting(startMessage)
+            danmuClient =
+                anchor.platformImpl()?.danmuModule?.getDanmuClient(this@DanmuManager, anchor)
+            if (danmuClient == null) {
+                errorCallback("该平台暂不支持", ErrorType.NOT_SUPPORT)
+                return false
+            }
             danmuJob = scope?.launch(Dispatchers.IO) {
                 runCatching {
-                    anchor.platformImpl()?.danmuStart(anchor, this@DanmuManager)
+                    danmuClient?.start(anchor, this@DanmuManager)
                 }.onFailure {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
@@ -68,9 +75,9 @@ class DanmuManager(viewModelScope: CoroutineScope) {
         synchronized(this) {
             danmuJob?.cancel()
             anchor?.let {
-                PlatformDispatcher.getPlatformImpl(it)?.danmuStop(this)
+                danmuClient?.stop()
+                danmuClient = null
             }
-//            anchor = null
             stopCallBack(reason)
         }
     }

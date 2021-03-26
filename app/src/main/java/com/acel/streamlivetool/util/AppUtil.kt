@@ -35,7 +35,7 @@ object AppUtil {
         MainExecutor.execute {
             val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
             try {
-                platformImpl?.startApp(context, anchor)
+                platformImpl?.appModule?.startApp(context, anchor)
             } catch (e: Exception) {
                 e.printStackTrace()
                 mainThread {

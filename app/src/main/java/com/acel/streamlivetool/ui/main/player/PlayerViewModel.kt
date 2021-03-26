@@ -276,7 +276,8 @@ class PlayerViewModel : ViewModel() {
             stopPlay()
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
-                    val streamingLive = anc.platformImpl()?.getStreamingLive(anc, quality)
+                    val streamingLive =
+                        anc.platformImpl()?.streamingLiveModule?.getStreamingLive(anc, quality)
                     val url = streamingLive?.url
                     if (url != null && url.isNotEmpty()) {
                         playerManager.play(url)
@@ -369,7 +370,7 @@ class PlayerViewModel : ViewModel() {
     fun getAnchorDetails(anchor: Anchor) {
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
-                val a = anchor.platformImpl()?.getAnchor(anchor)
+                val a = anchor.platformImpl()?.anchorModule?.getAnchor(anchor)
                 if (a != null)
                     anchorDetails.postValue(a)
                 else

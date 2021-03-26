@@ -18,8 +18,8 @@ import android.widget.EditText
 import androidx.core.view.ViewCompat
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.BaseActivity
-import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.util.TimeUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : BaseActivity() {
     val cookieManager: CookieManager = CookieManager.getInstance()
-    var platformImpl: IPlatform? = null
+    var platformImpl: AbstractPlatformImpl? = null
 
     @Suppress("DEPRECATION")
     @SuppressLint("SetJavaScriptEnabled")
@@ -50,13 +50,13 @@ class LoginActivity : BaseActivity() {
         if (platformImpl == null) {
             toast("设定外的平台，终止..")
         }
-        platformImpl?.let { impl ->
-            if (impl.loginTips.isNotEmpty())
+        platformImpl?.loginModule?.apply {
+            if (!loginTips.isNullOrEmpty())
                 tips.apply {
-                    text = impl.loginTips
+                    text = loginTips
                     visibility = View.VISIBLE
                 }
-            impl.getLastLoginTime().let {
+            getLastLoginTime().let {
                 lastLoginTime.text =
                     if (it != -1L) "上次登录时间：${TimeUtil.timestampToString(it)}" else "没有登录记录"
             }
@@ -67,8 +67,8 @@ class LoginActivity : BaseActivity() {
                     val cookieStr = cookieManager.getCookie(url)
                     if (cookieStr != null) {
                         Log.d("onPageFinished", cookieStr.toString())
-                        if (impl.checkLoginOk(cookieStr)) {
-                            impl.saveCookie(cookieStr)
+                        if (checkLoginOk(cookieStr)) {
+                            platformImpl?.cookieManager?.saveCookie(cookieStr)
                             toast("添加成功")
                             finish()
                         } else {
@@ -84,7 +84,7 @@ class LoginActivity : BaseActivity() {
                 settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
-                    if (impl.loginWithPcAgent()) {
+                    if (pcAgent) {
                         setSupportMultipleWindows(true)
                         //缩放
                         setSupportZoom(true)
@@ -93,14 +93,13 @@ class LoginActivity : BaseActivity() {
                         //自适应
                         useWideViewPort = true
                         loadWithOverviewMode = true
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                            layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
+                        layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
                         userAgentString =
                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
                     }
                 }
             }
-            webView.loadUrl(impl.getLoginUrl())
+            webView.loadUrl(loginUrl)
         }
     }
 
@@ -123,7 +122,7 @@ class LoginActivity : BaseActivity() {
         alertDialog.findViewById<Button>(R.id.commit)?.setOnClickListener {
             val cookie = alertDialog.findViewById<EditText>(R.id.edit_cookie)?.text.toString()
             if (cookie.isNotEmpty()) {
-                platformImpl?.saveCookie(cookie)
+                platformImpl?.cookieManager?.saveCookie(cookie)
                 toast("保存成功")
                 alertDialog.dismiss()
                 finish()

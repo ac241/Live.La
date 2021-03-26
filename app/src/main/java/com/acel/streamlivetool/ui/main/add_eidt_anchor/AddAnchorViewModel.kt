@@ -43,7 +43,7 @@ class AddAnchorViewModel : ViewModel() {
     fun search(activity: Activity, keyword: String, platform: String) {
         MainExecutor.execute {
             val platformImpl = PlatformDispatcher.getPlatformImpl(platform)
-            val anchorList = platformImpl?.searchAnchor(keyword)
+            val anchorList = platformImpl?.anchorModule?.searchAnchor(keyword)
             if (anchorList == null)
                 mainThread { toast("该平台暂不支持搜索功能") }
             anchorList?.apply {
@@ -76,7 +76,7 @@ class AddAnchorViewModel : ViewModel() {
         override fun run() {
             val platformImpl = PlatformDispatcher.getPlatformImpl(queryAnchor.platform)
             try {
-                val anchor = platformImpl?.getAnchor(queryAnchor)
+                val anchor = platformImpl?.anchorModule?.getAnchor(queryAnchor)
                 if (anchor != null) {
                     if (anchorRepository.anchorList.value!!.indexOf(anchor) == -1) {
                         insertAnchor(anchor)

@@ -10,9 +10,9 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.manager.UpdateResultReceiver.*
-import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
-import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
+import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.ui.main.adapter.AnchorSection.isSection
 import com.acel.streamlivetool.util.AnchorListUtil.appointAdditionalActions
 import com.acel.streamlivetool.util.AnchorListUtil.insertSection
@@ -30,8 +30,8 @@ class AnchorUpdateManager {
         }
     }
 
-    private val platformAnchorListMap = mutableMapOf<IPlatform, MutableList<Anchor>>()
-    private val lastUpdateTimeMap = mutableMapOf<IPlatform, MutableLiveData<Long>>()
+    private val platformAnchorListMap = mutableMapOf<AbstractPlatformImpl, MutableList<Anchor>>()
+    private val lastUpdateTimeMap = mutableMapOf<AbstractPlatformImpl, MutableLiveData<Long>>()
 
     init {
         PlatformDispatcher.getAllPlatformImpl().also { it ->
@@ -41,7 +41,7 @@ class AnchorUpdateManager {
         }
     }
 
-    fun initPlatform(iPlatform: IPlatform) {
+    fun initPlatform(iPlatform: AbstractPlatformImpl) {
         if (lastUpdateTimeMap[iPlatform] == null)
             lastUpdateTimeMap[iPlatform] = MutableLiveData()
 
@@ -50,31 +50,33 @@ class AnchorUpdateManager {
     }
 
     @Suppress("unused")
-    fun getUpdateTimeLiveData(iPlatform: IPlatform): MutableLiveData<Long> {
+    fun getUpdateTimeLiveData(iPlatform: AbstractPlatformImpl): MutableLiveData<Long> {
         return lastUpdateTimeMap[iPlatform]!!
     }
 
-    fun getAnchorList(iPlatform: IPlatform): List<Anchor> {
+    fun getAnchorList(iPlatform: AbstractPlatformImpl): List<Anchor> {
         return platformAnchorListMap[iPlatform]!!
     }
 
     /**
      * 获取单个平台的关注列表
      */
-    fun getAnchorsByCookie(iPlatform: IPlatform): ResultGetAnchorListByCookieMode? {
-        var result: ResultGetAnchorListByCookieMode? = null
+    fun getAnchorsByCookie(iPlatform: AbstractPlatformImpl): ApiResult<List<Anchor>>? {
+        var result: ApiResult<List<Anchor>>? = null
         runBlocking {
             val res = async(Dispatchers.IO) {
-                val res = iPlatform.getAnchorsByCookieMode()
-                if (res.isCookieValid)
-                    res.anchorList?.let {
-                        platformAnchorListMap[iPlatform]?.apply {
-                            clear()
-                            addAll(it)
-                            insertSection(this)
-                            appointAdditionalActions(this)
+                val res = iPlatform.anchorCookieModule?.getAnchorsByCookieMode()
+                if (res != null) {
+                    if (res.cookieValid)
+                        res.data?.let {
+                            platformAnchorListMap[iPlatform]?.apply {
+                                clear()
+                                addAll(it)
+                                insertSection(this)
+                                appointAdditionalActions(this)
+                            }
                         }
-                    }
+                }
                 res
             }
             result = res.await()
@@ -121,10 +123,10 @@ class AnchorUpdateManager {
         runCatching {
             val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
             platformImpl?.let {
-                val result = platformImpl.updateAnchorData(anchor)
+                val result = platformImpl.anchorModule?.updateAnchorData(anchor)
                 updateResult = ResultSingleAnchor(
-                    result, anchor,
-                    if (result) ResultType.SUCCESS else ResultType.FAILED
+                    result ?: false, anchor,
+                    if (result != null && result) ResultType.SUCCESS else ResultType.FAILED
                 )
             }
         }.onFailure {
@@ -166,7 +168,7 @@ class AnchorUpdateManager {
                             samePlatformAnchorList.add(it)
                     }
                     if (samePlatformAnchorList.size > 0) {
-                        if (platformEntry.value.supportCookieMode()) {
+                        if (platformEntry.value.anchorCookieModule != null) {
                             //支持cookie方式
                             val task = async {
                                 updateAnchorsForSinglePlatform(
@@ -194,7 +196,7 @@ class AnchorUpdateManager {
      * @param iPlatform 平台impl
      */
     private fun updateAnchorsForSinglePlatform(
-        iPlatform: IPlatform,
+        iPlatform: AbstractPlatformImpl,
         anchorList: MutableList<Anchor>
     ): ResultCookieMode {
         var updateResult: ResultCookieMode? = null
@@ -202,7 +204,7 @@ class AnchorUpdateManager {
             //更新平台anchor list
             val result = getAnchorsByCookie(iPlatform)
             result?.apply {
-                updateResult = if (success && isCookieValid) {
+                updateResult = if (success && cookieValid) {
                     val targetList = getAnchorList(iPlatform)
                     anchorList.forEach {
                         val index = targetList.indexOf(it)

@@ -18,9 +18,10 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.manager.AnchorUpdateManager
 import com.acel.streamlivetool.manager.UpdateResultReceiver
 import com.acel.streamlivetool.manager.UpdateResultReceiver.*
-import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.base.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
-import com.acel.streamlivetool.platform.huya.HuyaImpl
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
+import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.util.AnchorListUtil
@@ -137,7 +138,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val platformImpl = anchor.platformImpl()
-            val result = platformImpl?.follow(anchor)
+            val result = platformImpl?.anchorCookieModule?.follow(anchor)
             result?.let {
                 withContext(Dispatchers.Main) {
                     if (it.success) {
@@ -153,11 +154,13 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                         when (platformImpl.platform) {
                             "huya" -> {
                                 if (it.code == -10003) {
-                                    toast(it.msg)
-                                    (platformImpl as HuyaImpl)
-                                        .showVerifyCodeWindow(context, it.data) {
-                                            followAnchor(context, anchor, actionOnEnd)
-                                        }
+                                    it.msg?.let { it1 -> toast(it1) }
+                                    it.data?.let { it1 ->
+                                        (platformImpl as HuyaImpl).anchorCookieModule
+                                            .showVerifyCodeWindow(context, it1) {
+                                                followAnchor(context, anchor, actionOnEnd)
+                                            }
+                                    }
                                     return@withContext
                                 } else {
                                     toast("关注失败：${it.msg}，如多次失败请自行关注。")
@@ -290,7 +293,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     /**
      *  snack bar 登录提示
      */
-    private class LoginClickSpan(val platform: IPlatform) : ClickableSpan() {
+    private class LoginClickSpan(val platform: AbstractPlatformImpl) : ClickableSpan() {
         @SuppressLint("ResourceType")
         override fun updateDrawState(ds: TextPaint) {
             super.updateDrawState(ds)
@@ -339,7 +342,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     fun showFollowDialog(context: Context, anchor: Anchor) {
         val builder = AlertDialogTool.newAlertDialog(context)
         anchor.platformImpl()?.let {
-            if (it.supportFollow) {
+            if (it.anchorCookieModule != null && it.anchorCookieModule!!.supportFollow) {
                 builder.apply {
                     setMessage("您还未关注${anchor.nickname}，是否关注？")
                     setPositiveButton("是") { _, _ ->
@@ -359,7 +362,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                     setMessage("您还未关注${anchor.nickname}，${it.platformName}暂不支持直接关注，是否打开${it.platformName}app关注？")
                     setPositiveButton("是") { _, _ ->
                         viewModelScope.launch(Dispatchers.IO) {
-                            it.startApp(MyApplication.application, anchor)
+                            it.appModule?.startApp(MyApplication.application, anchor)
                             checkFollowedAnchors.remove(anchor)
                         }
                     }

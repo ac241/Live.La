@@ -2,10 +2,12 @@ package com.acel.streamlivetool.util
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.AppUtil.startApp
@@ -61,10 +63,9 @@ object AnchorClickAction {
                 startApp(context, anchor)
             }
             context.getString(R.string.string_outer_player) -> {
-                val platformImpl = PlatformDispatcher.getPlatformImpl(anchor.platform)
                 MainExecutor.execute {
                     try {
-                        platformImpl?.callOuterPlayer(context, anchor)
+                        callOuterPlayer(context, anchor)
                     } catch (e: Exception) {
                         mainThread {
                             toast(context.getString(R.string.get_streaming_failed))
@@ -99,4 +100,22 @@ object AnchorClickAction {
             putExtra(MainActivity.EXTRA_KEY_ANCHOR, anchor)
         })
     }
+
+    /**
+     * 调用第三方播放器
+     */
+    private fun callOuterPlayer(context: Context, anchor: Anchor) {
+        val streamingLive = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
+        if (streamingLive?.url != null) {
+            val uri = Uri.parse(streamingLive.url)
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "video/*")
+            context.startActivity(intent)
+        } else {
+            mainThread {
+                toast(context.getString(R.string.streaming_url_is_null))
+            }
+        }
+    }
+
 }

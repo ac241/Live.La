@@ -6,9 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.IPlatform
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.manager.AnchorUpdateManager
+import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 
 class CookieViewModel : ViewModel() {
-    private lateinit var iPlatform: IPlatform
+    private lateinit var iPlatform: AbstractPlatformImpl
     private val anchorListManager = AnchorUpdateManager.instance
     lateinit var anchorList: List<Anchor>
     lateinit var platform: String
@@ -80,19 +80,19 @@ class CookieViewModel : ViewModel() {
                 val result =
                     anchorListManager.getAnchorsByCookie(iPlatform)
                 if (result != null) {
-                    if (!result.success && !result.isCookieValid) {
+                    if (!result.success && !result.cookieValid) {
                         _liveDataShowLoginText.postValue(true)
                         notifyDataChange()
                         mainThread {
-                            toast("${iPlatform.platformName} " + if (result.message.isEmpty()) "请先登录" else result.message)
+                            toast("${iPlatform.platformName} " + if (result.msg.isNullOrEmpty()) "请先登录" else result.msg)
                         }
                     } else {
-                        with(result.anchorList) {
+                        with(result.data) {
                             if (this != null) {
                                 if (this.isEmpty()) {
                                     _liveDataUpdateAnchorResultMsg.update(
                                         true,
-                                        if (result.message.isEmpty()) "无数据" else result.message
+                                        if (result.msg.isNullOrEmpty()) "无数据" else result.msg
                                     )
                                 } else
                                     _liveDataUpdateAnchorResultMsg.update(

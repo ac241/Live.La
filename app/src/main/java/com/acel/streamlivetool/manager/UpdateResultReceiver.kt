@@ -1,7 +1,8 @@
 package com.acel.streamlivetool.manager
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
+import com.acel.streamlivetool.platform.base.IPlatform
 
 interface UpdateResultReceiver {
 
@@ -37,7 +38,7 @@ interface UpdateResultReceiver {
     data class ResultCookieMode(
         val isSuccess: Boolean,
         val resultType: ResultType,
-        val iPlatform: IPlatform
+        val iPlatform: AbstractPlatformImpl
     )
 
     fun onUpdateFinish(resultList: List<ResultSingleAnchor>)

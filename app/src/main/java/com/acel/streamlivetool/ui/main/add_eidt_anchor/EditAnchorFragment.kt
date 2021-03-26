@@ -47,7 +47,7 @@ class EditAnchorFragment : BottomSheetDialogFragment() {
             binding.getNewestAnchorData.setOnClickListener {
                 lifecycleScope.launch(Dispatchers.IO) {
                     runCatching {
-                        val newData = platformImpl?.getAnchor(this@apply)
+                        val newData = platformImpl?.anchorModule?.getAnchor(this@apply)
                         newData?.let {
                             withContext(Dispatchers.Main) {
                                 binding.nickname.setText(it.nickname)

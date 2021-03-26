@@ -25,8 +25,8 @@ import com.acel.streamlivetool.base.OverlayWindowActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.databinding.ActivityMainBinding
-import com.acel.streamlivetool.platform.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.custom.FloatingAvatar
 import com.acel.streamlivetool.ui.main.add_eidt_anchor.AddAnchorFragment
@@ -50,7 +50,7 @@ class MainActivity : OverlayWindowActivity() {
     private val mainFragment = GroupFragment.newInstance()
     private val addAnchorFragment by lazy { AddAnchorFragment.instance }
     private val displayPlatformPage by lazy {
-        val platforms = mutableListOf<IPlatform>()
+        val platforms = mutableListOf<AbstractPlatformImpl>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val displayablePlatformSet = defaultSharedPreferences.getStringSet(
             MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
@@ -62,7 +62,7 @@ class MainActivity : OverlayWindowActivity() {
                     return@forEach
                 val platform = PlatformDispatcher.getPlatformImpl(it)
                 if (platform != null) {
-                    if (platform.supportCookieMode)
+                    if (platform.anchorCookieModule != null)
                         platforms.add(platform)
                 }
             }
@@ -79,6 +79,7 @@ class MainActivity : OverlayWindowActivity() {
         const val ACTION_PREF_CHANGES = "main_new_intent"
         const val EXTRA_KEY_PREF_CHANGES = "key_pref_changes"
         const val PREF_PLATFORMS_CHANGED = "pref_platforms_changed"
+
         @Suppress("unused")
         const val PREF_SHOW_IMAGE_CHANGED = "pref_show_image_changed"
 
@@ -93,8 +94,8 @@ class MainActivity : OverlayWindowActivity() {
         initPlatforms()
     }
 
-    private fun initPlatforms(): MutableList<IPlatform> {
-        val platforms = mutableListOf<IPlatform>()
+    private fun initPlatforms(): MutableList<AbstractPlatformImpl> {
+        val platforms = mutableListOf<AbstractPlatformImpl>()
         val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
         val showSet = defaultSharedPreferences.getStringSet(
             MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
@@ -107,7 +108,7 @@ class MainActivity : OverlayWindowActivity() {
                     return@forEach
                 val platform = PlatformDispatcher.getPlatformImpl(it)
                 if (platform != null) {
-                    if (platform.supportCookieMode)
+                    if (platform.anchorCookieModule != null)
                         platforms.add(platform)
                 }
             }
@@ -118,8 +119,8 @@ class MainActivity : OverlayWindowActivity() {
         initPlatformFragments()
     }
 
-    private fun initPlatformFragments(): MutableMap<IPlatform, CookieFragment> {
-        val map = mutableMapOf<IPlatform, CookieFragment>()
+    private fun initPlatformFragments(): MutableMap<AbstractPlatformImpl, CookieFragment> {
+        val map = mutableMapOf<AbstractPlatformImpl, CookieFragment>()
         platforms.forEach { platform ->
             map[platform] = CookieFragment.newInstance(platform.platform)
         }
@@ -229,7 +230,7 @@ class MainActivity : OverlayWindowActivity() {
                 )
             )
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                platforms[position - 1].clearCookie()
+                platforms[position - 1].cookieManager.clearCookie()
                 platformFragments[platforms[position - 1]]?.viewModel?.updateAnchorList()
             }
             .setNegativeButton(getString(R.string.no), null)

@@ -14,13 +14,13 @@ import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.forEach
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.platform.IPlatform
+import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.platform.PlatformDispatcher
+import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.open_source.OpenSourceActivity
 import com.acel.streamlivetool.util.AppUtil.getAppName
 import com.acel.streamlivetool.util.AppUtil.getAppVersionName
-import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
@@ -165,14 +165,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
         builder
             ?.setTitle(getString(R.string.clear_all_cookie_alert))
             ?.setPositiveButton(getString(R.string.yes)) { _, _ ->
-                val platforms = mutableListOf<IPlatform>().also {
+                val platforms = mutableListOf<AbstractPlatformImpl>().also {
                     for (entry in PlatformDispatcher.getAllPlatformImpl()) {
-                        if (entry.value.supportCookieMode)
+                        if (entry.value.anchorCookieModule != null)
                             it.add(entry.value)
                     }
                 }
                 platforms.forEach {
-                    it.clearCookie()
+                    it.cookieManager.clearCookie()
                 }
                 toast(getString(R.string.clear_all_cookie_ok))
             }

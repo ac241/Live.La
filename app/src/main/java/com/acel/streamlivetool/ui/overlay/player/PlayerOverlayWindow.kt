@@ -125,7 +125,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
 
     private fun getStreamingLiveAndPlay(anchor: Anchor) {
         GlobalScope.launch(Dispatchers.IO) {
-            val url = anchor.platformImpl()?.getStreamingLive(anchor) ?: return@launch
+            val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor) ?: return@launch
             playUrl(url.url)
         }
     }
