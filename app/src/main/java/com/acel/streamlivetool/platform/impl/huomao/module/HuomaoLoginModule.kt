@@ -7,6 +7,7 @@ class HuomaoLoginModule(platform: String, cookieManager: CookieManager) :
     AbstractLoginImpl(platform, cookieManager) {
     override val pcAgent: Boolean = true
     override val loginUrl: String = "https://www.huomao.com/channel/all"
+    override val javascriptOnPageLoaded = "$('#login-btn').click()"
     override fun checkLoginOk(cookie: String): Boolean {
         return cookie.contains("user_")
     }

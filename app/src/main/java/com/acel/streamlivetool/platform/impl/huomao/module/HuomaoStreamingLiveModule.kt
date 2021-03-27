@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.platform.impl.huomao.module
 
+import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
 import com.acel.streamlivetool.platform.base.IStreamingLive
@@ -35,9 +36,8 @@ object HuomaoStreamingLiveModule : IStreamingLive {
             formMap["from"] = tagFrom
             formMap["token"] = token
             val liveData = HuomaoImpl.huomaoService.getLiveData(formMap).execute().body()
-            liveData?.streamList?.get(0)?.list?.forEach {
-                if (it.type == "BD")
-                    return StreamingLive(url = it.url, null, null)
+            liveData?.streamList?.get(0)?.listHls?.get(0)?.let {
+                return StreamingLive(url = it.url, null, null)
             }
         }
         return null

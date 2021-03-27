@@ -12,7 +12,6 @@ interface HuomaoApi {
     fun getRoomInfo(@Path("id") id: String): Call<String>
 
     @FormUrlEncoded
-//    @Multipart
     @POST("https://www.huomao.com/swf/live_data")
     fun getLiveData(
         @FieldMap map: MutableMap<String, String>

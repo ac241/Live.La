@@ -10,14 +10,19 @@ import com.acel.streamlivetool.util.UnicodeUtil
 
 class HuomaoAnchorModule(private val platform: String) : IAnchor {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
-//        return getAnchorFromHtml()
         val roomInfo = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {
             Anchor(
                 platform,
                 UnicodeUtil.decodeUnicode(roomInfo.nickname),
                 roomInfo.roomNumber,
-                roomInfo.id
+                roomInfo.id,
+                status = roomInfo.isLive == 1,
+                title = UnicodeUtil.decodeUnicode(roomInfo.channel),
+                avatar = roomInfo.headimg.big,
+                keyFrame = roomInfo.image,
+                typeName = roomInfo.gameCname,
+                online = AnchorUtil.formatOnlineNumber(roomInfo.views)
             )
         } else {
             null
@@ -41,7 +46,8 @@ class HuomaoAnchorModule(private val platform: String) : IAnchor {
 
     override fun searchAnchor(keyword: String): List<Anchor>? {
         val result =
-            UnicodeUtil.cnToUnicode(keyword)?.let { HuomaoImpl.huomaoService.search(it).execute().body() }
+            UnicodeUtil.cnToUnicode(keyword)
+                ?.let { HuomaoImpl.huomaoService.search(it).execute().body() }
         val list = mutableListOf<Anchor>()
         result?.apply {
             val resultList = result.data.anchor.list
