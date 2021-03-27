@@ -631,11 +631,11 @@ class PlayerFragment : BaseFragment() {
             binding.playerView.findViewById<TextView>(R.id.controller_nickname).text = nickname
             binding.includeType.typeName.text = typeName
             secondaryStatus.let {
-                if (it != null && it.isNotEmpty()) {
+                if (!it.isNullOrEmpty()) {
                     binding.includeSecondaryStatus.secondaryStatus.visibility = View.VISIBLE
                     binding.includeSecondaryStatus.secondaryStatus.text = secondaryStatus
                 } else {
-                    if (binding.includeSecondaryStatus.secondaryStatus.text.isEmpty())
+                    if (viewModel.anchor.value?.secondaryStatus.isNullOrEmpty())
                         binding.includeSecondaryStatus.secondaryStatus.visibility = View.GONE
                 }
             }
