@@ -1,7 +1,5 @@
 package com.acel.streamlivetool.platform.base
 
-import com.acel.streamlivetool.util.defaultSharedPreferences
-
 interface ILogin {
     /**
      *  WebView 使用PC Agent
@@ -19,6 +17,12 @@ interface ILogin {
      * 登录页面
      */
     val loginUrl: String
+
+    /**
+     *
+     */
+    val javascriptOnPageLoaded: String?
+        get() = null
 
     /**
      * 检查登录是否成功

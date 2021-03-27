@@ -72,7 +72,9 @@ class LoginActivity : BaseActivity() {
                             toast("添加成功")
                             finish()
                         } else {
-                            webView.loadUrl("javascript:$('#nav-login').click()")
+                            platformImpl?.loginModule?.javascriptOnPageLoaded?.let {
+                                webView.loadUrl("javascript:$it")
+                            }
                         }
                     }
                 }
