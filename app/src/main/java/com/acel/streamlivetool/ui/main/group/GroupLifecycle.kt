@@ -3,9 +3,6 @@ package com.acel.streamlivetool.ui.main.group
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
-import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImageWhenMobileData
 
 @Suppress("unused")
 class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserver {
@@ -25,25 +22,5 @@ class GroupLifecycle(private val groupFragment: GroupFragment) : LifecycleObserv
             }
         }
         resumeTimes++
-        //切换显示图片
-        if (showAnchorImage) {
-            //如果显示图片
-            if (AppUtil.isWifiConnected()) {
-                //如果wifi连接
-                groupFragment.setShowImage(true)
-            } else {
-                //如果wifi未连接
-                if (showAnchorImageWhenMobileData) {
-                    //如果流量时显示图片
-                    groupFragment.setShowImage(true)
-                } else {
-                    //如果流量时不显示图片
-                    groupFragment.setShowImage(false)
-                }
-            }
-        } else {
-            //如果不显示图片
-            groupFragment.setShowImage(false)
-        }
     }
 }

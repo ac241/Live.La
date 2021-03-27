@@ -34,7 +34,7 @@ class PlayerServiceForegroundManager(mainActivity: MainActivity) : LifecycleObse
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun resume() {
         mainActivity?.apply {
-            if (!isPlayerOverlayShown() && isPlayerFragmentShown())
+            if (!isPlayerOverlayShown() && isPlayerFragmentShown)
                 stopForeground()
         }
     }
@@ -42,7 +42,7 @@ class PlayerServiceForegroundManager(mainActivity: MainActivity) : LifecycleObse
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun stop() {
         mainActivity?.apply {
-            if (!isPlayerOverlayShown() && isPlayerFragmentShown())
+            if (!isPlayerOverlayShown() && isPlayerFragmentShown)
                 startForeground()
         }
     }

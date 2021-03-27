@@ -24,6 +24,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.const_value.ConstValue
+import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
@@ -32,6 +33,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
+import com.acel.streamlivetool.util.AppUtil
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -164,6 +166,38 @@ class GroupFragment : Fragment() {
                 }
             })
         }
+        /**
+         * 显示图片observer
+         */
+        PreferenceVariable.showAnchorImage.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
+        PreferenceVariable.showAnchorImageWhenMobileData.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
+    }
+
+    private fun checkShowImage() {
+        //切换显示图片
+        if (PreferenceVariable.showAnchorImage.value!!) {
+            //如果显示图片
+            if (AppUtil.isWifiConnected()) {
+                //如果wifi连接
+                setShowImage(true)
+            } else {
+                //如果wifi未连接
+                if (PreferenceVariable.showAnchorImageWhenMobileData.value!!) {
+                    //如果流量时显示图片
+                    setShowImage(true)
+                } else {
+                    //如果流量时不显示图片
+                    setShowImage(false)
+                }
+            }
+        } else {
+            //如果不显示图片
+            setShowImage(false)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -191,7 +225,7 @@ class GroupFragment : Fragment() {
         }
     }
 
-    fun setShowImage(boolean: Boolean) {
+    private fun setShowImage(boolean: Boolean) {
         anchorAdapter.apply {
             if (boolean != showImage) {
                 showImage = boolean

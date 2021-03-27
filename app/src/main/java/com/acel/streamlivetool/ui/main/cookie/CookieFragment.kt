@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -32,7 +33,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
-import com.acel.streamlivetool.const_value.PreferenceVariable.showAnchorImage
+import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -56,7 +57,7 @@ class CookieFragment : Fragment() {
         AnchorAdapter(requireContext(), viewModel.anchorList, MODE_COOKIE, true, iconDrawable!!)
     }
 
-    fun setShowImage(boolean: Boolean) {
+    private fun setShowImage(boolean: Boolean) {
         anchorAdapter.apply {
             if (boolean != showImage) {
                 showImage = boolean
@@ -77,29 +78,27 @@ class CookieFragment : Fragment() {
             viewModel.bindPlatform(it.getString(PLATFORM_KEY)!!)
         }
         setHasOptionsMenu(true)
+    }
 
-        viewModel.apply {
-            liveDataUpdateState.observe(this@CookieFragment, {
-                if (it == null)
-                    return@observe
-                when (it) {
-                    CookieViewModel.UpdateStatus.IDLE, CookieViewModel.UpdateStatus.FINISH ->
-                        updateFinish()
-                    CookieViewModel.UpdateStatus.UPDATING ->
-                        updating()
+    private fun checkShowImage() {
+        if (PreferenceVariable.showAnchorImage.value!!) {
+            //如果显示图片
+            if (AppUtil.isWifiConnected()) {
+                //如果wifi连接
+                setShowImage(true)
+            } else {
+                //如果wifi未连接
+                if (PreferenceVariable.showAnchorImageWhenMobileData.value!!) {
+                    //如果流量时显示图片
+                    setShowImage(true)
+                } else {
+                    //如果流量时不显示图片
+                    setShowImage(false)
                 }
-            })
-            liveDataDataChanged.observe(this@CookieFragment, {
-                anchorAdapter.notifyAnchorsChange()
-            })
-            liveDataShowLoginText.observe(this@CookieFragment, {
-                if (it) showLoginTextView()
-                else hideLoginTextView()
-            })
-            liveDataUpdateAnchorMsg.observe(this@CookieFragment, {
-                if (it.show) it.msg?.let { it1 -> showListMsg(it1) }
-                else hideListMsg()
-            })
+            }
+        } else {
+            //如果不显示图片
+            setShowImage(false)
         }
     }
 
@@ -124,7 +123,39 @@ class CookieFragment : Fragment() {
         binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)
         }
-
+        //observe live data
+        viewModel.apply {
+            liveDataUpdateState.observe(viewLifecycleOwner, {
+                if (it == null)
+                    return@observe
+                when (it) {
+                    CookieViewModel.UpdateStatus.IDLE, CookieViewModel.UpdateStatus.FINISH ->
+                        updateFinish()
+                    CookieViewModel.UpdateStatus.UPDATING ->
+                        updating()
+                }
+            })
+            liveDataDataChanged.observe(viewLifecycleOwner, {
+                anchorAdapter.notifyAnchorsChange()
+            })
+            liveDataShowLoginText.observe(viewLifecycleOwner, {
+                if (it) showLoginTextView()
+                else hideLoginTextView()
+            })
+            liveDataUpdateAnchorMsg.observe(viewLifecycleOwner, {
+                if (it.show) it.msg?.let { it1 -> showListMsg(it1) }
+                else hideListMsg()
+            })
+        }
+        /**
+         * 显示图片observer
+         */
+        PreferenceVariable.showAnchorImage.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
+        PreferenceVariable.showAnchorImageWhenMobileData.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
     }
 
     private var updatingTime: Long = 0L
@@ -165,16 +196,12 @@ class CookieFragment : Fragment() {
             ).apply {
                 spanSizeLookup = AnchorSpanSizeLookup(anchorAdapter, this)
             }
-//            StaggeredGridLayoutManager(
-//                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3,
-//                StaggeredGridLayoutManager.VERTICAL
-//            )
     }
 
     private fun initRecyclerView() {
         iniRecyclerViewLayoutManager(resources.configuration.orientation)
         binding.includeType.recyclerView.adapter = anchorAdapter
-        anchorAdapter.showImage = (showAnchorImage)
+        anchorAdapter.showImage = PreferenceVariable.showAnchorImage.value!!
         iconDrawable?.let {
             binding.includeType.recyclerView.addItemDecoration(AnchorItemDecoration(it))
         }
@@ -254,7 +281,8 @@ class CookieFragment : Fragment() {
     }
 
     fun scrollToTop() {
-        binding.includeType.recyclerView.smoothScrollToPosition(0)
+        if (isAdded)
+            binding.includeType.recyclerView.smoothScrollToPosition(0)
     }
 
     companion object {

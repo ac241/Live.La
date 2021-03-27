@@ -18,7 +18,6 @@ import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.manager.AnchorUpdateManager
 import com.acel.streamlivetool.manager.UpdateResultReceiver
 import com.acel.streamlivetool.manager.UpdateResultReceiver.*
-import com.acel.streamlivetool.platform.base.IPlatform
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
@@ -106,7 +105,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         mainThread {
             _liveDataUpdateStatus.value = UpdateStatus.UPDATING
         }
-        if (groupUseCookie) {
+        if (groupUseCookie.value!!) {
             //使用cookie方式
             sortedAnchorList.value?.let {
                 anchorListManager.updateAllAnchorByCookie(this, it, viewModelScope)

@@ -6,7 +6,6 @@ import android.net.Uri
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.ui.main.MainActivity
 import com.acel.streamlivetool.util.AppUtil.mainThread

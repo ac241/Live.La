@@ -24,6 +24,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.OverlayWindowActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
+import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
@@ -46,42 +47,53 @@ import kotlin.properties.Delegates
 
 class MainActivity : OverlayWindowActivity() {
 
-    private var playerFragment: PlayerFragment? = null
-    private val mainFragment = GroupFragment.newInstance()
-    private val addAnchorFragment by lazy { AddAnchorFragment.instance }
-    private val displayPlatformPage by lazy {
-        val platforms = mutableListOf<AbstractPlatformImpl>()
-        val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
-        val displayablePlatformSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
-            setOf()
-        )
-        if (displayablePlatformSet != null)
-            sortPlatformArray.forEach {
-                if (!displayablePlatformSet.contains(it))
-                    return@forEach
-                val platform = PlatformDispatcher.getPlatformImpl(it)
-                if (platform != null) {
-                    if (platform.anchorCookieModule != null)
-                        platforms.add(platform)
-                }
-            }
-        platforms.size > 0
-    }
     private lateinit var binding: ActivityMainBinding
-    private var isPlayerFragmentShown = false
-    fun isPlayerFragmentShown() = isPlayerFragmentShown
+
+    private val groupFragment = GroupFragment.newInstance()
+    private val addAnchorFragment by lazy { AddAnchorFragment.instance }
+    private var playerFragment: PlayerFragment? = null
+
+    /**
+     * 播放页面是否显示
+     */
+    var isPlayerFragmentShown = false
+
+    /**
+     * 显示的platforms
+     */
+    private val displayablePlatforms = mutableListOf<AbstractPlatformImpl>()
+
+    /**
+     * 平台fragments
+     */
+    val platformFragments = mutableMapOf<AbstractPlatformImpl, CookieFragment>()
+
+    /**
+     * 初始化平台
+     */
+    private fun initDisplayablePlatforms(platformsSet: Set<String>) {
+        displayablePlatforms.clear()
+        //平台顺序
+        val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
+        sortPlatformArray.forEach {
+            if (platformsSet.contains(it))
+                PlatformDispatcher.getPlatformImpl(it)?.let { it1 -> displayablePlatforms.add(it1) }
+        }
+        initPlatformFragments()
+        binding.viewPager.adapter?.notifyDataSetChanged()
+
+    }
+
+    private fun initPlatformFragments() {
+        platformFragments.clear()
+        displayablePlatforms.forEach { platform ->
+            platformFragments[platform] = CookieFragment.newInstance(platform.platform)
+        }
+    }
+
 
     companion object OnNewIntentAction {
         private const val PLAYER_FRAGMENT_NAME = "player_fragment"
-
-        //--------pref changes
-        const val ACTION_PREF_CHANGES = "main_new_intent"
-        const val EXTRA_KEY_PREF_CHANGES = "key_pref_changes"
-        const val PREF_PLATFORMS_CHANGED = "pref_platforms_changed"
-
-        @Suppress("unused")
-        const val PREF_SHOW_IMAGE_CHANGED = "pref_show_image_changed"
 
         //---------open fragment
         const val ACTION_OPEN_FRAGMENT = "action_open_fragment"
@@ -90,65 +102,9 @@ class MainActivity : OverlayWindowActivity() {
         const val EXTRA_KEY_ANCHOR = "extra_key_anchor"
     }
 
-    val platforms by lazy {
-        initPlatforms()
-    }
-
-    private fun initPlatforms(): MutableList<AbstractPlatformImpl> {
-        val platforms = mutableListOf<AbstractPlatformImpl>()
-        val sortPlatformArray = MyApplication.application.resources.getStringArray(R.array.platform)
-        val showSet = defaultSharedPreferences.getStringSet(
-            MyApplication.application.getString(R.string.pref_key_cookie_mode_platform_displayable),
-            setOf()
-        )
-
-        if (showSet != null)
-            sortPlatformArray.forEach {
-                if (!showSet.contains(it))
-                    return@forEach
-                val platform = PlatformDispatcher.getPlatformImpl(it)
-                if (platform != null) {
-                    if (platform.anchorCookieModule != null)
-                        platforms.add(platform)
-                }
-            }
-        return platforms
-    }
-
-    val platformFragments by lazy {
-        initPlatformFragments()
-    }
-
-    private fun initPlatformFragments(): MutableMap<AbstractPlatformImpl, CookieFragment> {
-        val map = mutableMapOf<AbstractPlatformImpl, CookieFragment>()
-        platforms.forEach { platform ->
-            map[platform] = CookieFragment.newInstance(platform.platform)
-        }
-        return map
-    }
-
-    private fun updatePlatformData() {
-        platforms.clear()
-        platforms.addAll(initPlatforms())
-
-        platformFragments.clear()
-        platformFragments.putAll(initPlatformFragments())
-    }
-
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         when (intent?.action) {
-            ACTION_PREF_CHANGES -> {
-                val changes = intent.getStringArrayListExtra(EXTRA_KEY_PREF_CHANGES)
-                changes?.forEach {
-                    when (it) {
-                        PREF_PLATFORMS_CHANGED -> {
-                            updatePlatformData()
-                            (binding.viewPager.adapter as FragmentStateAdapter).notifyDataSetChanged()
-                        }
-                    }
-                }
-            }
             ACTION_OPEN_FRAGMENT -> {
                 when (intent.getStringExtra(EXTRA_KEY_OPEN_FRAGMENT)) {
                     EXTRA_VALUE_OPEN_PLAYER_FRAGMENT -> {
@@ -166,8 +122,13 @@ class MainActivity : OverlayWindowActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        init()
+
+        initView()
+        /**
+         * 后台时发出前台通知
+         */
         lifecycle.addObserver(PlayerServiceForegroundManager(this))
+
         whiteSystemBar()
         CommonColor.bindResource(resources)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -196,29 +157,62 @@ class MainActivity : OverlayWindowActivity() {
         CommonColor.unbindResource()
     }
 
-    private fun init() {
+    private fun initView() {
         setSupportActionBar(binding.toolbar)
         initViewPager()
-        if (displayPlatformPage)
-            TabLayoutMediator(
-                binding.tabLayout,
-                binding.viewPager
-            ) { tab, position ->
-                tab.text = if (position == 0) "主页" else platforms[position - 1].platformName
-                tab.view.setOnClickListener {
-                    tabViewClick = Pair(position, System.currentTimeMillis())
-                }
-
-                if (position != 0) {
-                    tab.view.setOnLongClickListener {
-                        showClearCookieAlert(position)
-                        return@setOnLongClickListener true
-                    }
-//                    tab.setIcon(platforms[position - 1].iconRes)
-                }
-            }.attach()
+        initTabLayout()
+        PreferenceVariable.apply {
+            displayablePlatformSet.observe(this@MainActivity) {
+                initDisplayablePlatforms(it)
+            }
+        }
     }
 
+    private fun initViewPager() {
+        binding.viewPager.apply {
+            adapter = object : FragmentStateAdapter(this@MainActivity) {
+                override fun getItemCount(): Int {
+                    return this@MainActivity.displayablePlatforms.size + 1
+                }
+
+                override fun createFragment(position: Int): Fragment {
+                    return when (position) {
+                        0 -> groupFragment
+                        else -> platformFragments[this@MainActivity.displayablePlatforms[position - 1]] as Fragment
+                    }
+                }
+            }.also {
+                it.stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+            }
+            offscreenPageLimit = 1
+        }
+    }
+
+
+    private fun initTabLayout() {
+        TabLayoutMediator(
+            binding.tabLayout,
+            binding.viewPager
+        ) { tab, position ->
+            tab.text =
+                if (position == 0) "主页" else this.displayablePlatforms[position - 1].platformName
+            tab.view.setOnClickListener {
+                tabViewClick = Pair(position, System.currentTimeMillis())
+            }
+
+            if (position != 0) {
+                tab.view.setOnLongClickListener {
+                    showClearCookieAlert(position)
+                    return@setOnLongClickListener true
+                }
+            }
+        }.attach()
+    }
+
+    /**
+     * 显示清除cookie对话框
+     */
     private fun showClearCookieAlert(position: Int) {
         binding.viewPager.setCurrentItem(position, true)
         //清除cookie
@@ -226,12 +220,12 @@ class MainActivity : OverlayWindowActivity() {
             .setTitle(
                 getString(
                     R.string.clear_platform_cookie_alert,
-                    platforms[position - 1].platformName
+                    this.displayablePlatforms[position - 1].platformName
                 )
             )
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                platforms[position - 1].cookieManager.clearCookie()
-                platformFragments[platforms[position - 1]]?.viewModel?.updateAnchorList()
+                this.displayablePlatforms[position - 1].cookieManager.clearCookie()
+                platformFragments[this.displayablePlatforms[position - 1]]?.viewModel?.updateAnchorList()
             }
             .setNegativeButton(getString(R.string.no), null)
         dialogBuilder.show()
@@ -245,31 +239,10 @@ class MainActivity : OverlayWindowActivity() {
         if (old.first == new.first) {
             if (new.second - old.second < 1000) {
                 if (new.first == 0)
-                    mainFragment.scrollToTop()
+                    groupFragment.scrollToTop()
                 else
-                    platformFragments[platforms[new.first - 1]]?.scrollToTop()
+                    platformFragments[this.displayablePlatforms[new.first - 1]]?.scrollToTop()
             }
-        }
-    }
-
-    private fun initViewPager() {
-        binding.viewPager.apply {
-            adapter = object : FragmentStateAdapter(this@MainActivity) {
-                override fun getItemCount(): Int {
-                    return if (displayPlatformPage) platforms.size + 1 else 1
-                }
-
-                override fun createFragment(position: Int): Fragment {
-                    return when (position) {
-                        0 -> mainFragment
-                        else -> platformFragments[platforms[position - 1]] as Fragment
-                    }
-                }
-            }.also {
-                it.stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.ALLOW
-            }
-            offscreenPageLimit = 1
         }
     }
 
@@ -297,6 +270,9 @@ class MainActivity : OverlayWindowActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    /**
+     * 显示新增/搜索窗口
+     */
     private fun showAddAnchorFragment() {
         addAnchorFragment.show(supportFragmentManager, "add_anchor_fragment")
     }
@@ -404,14 +380,14 @@ class MainActivity : OverlayWindowActivity() {
         val rootLocation = IntArray(2)
         binding.root.getLocationInWindow(rootLocation)
 
-        //复制一个drawable，防止item avatar变形
-        val drawable = avatar.drawable.toBitmap()
+        //重新生成一个bitmap，防止item avatar变形
+        val bitmap = avatar.drawable.toBitmap()
 
         if (binding.root.findViewById<ImageView>(R.id.float_avatar) == null)
             layoutInflater.inflate(R.layout.float_avatar, binding.root, true)
         val animateAvatar = binding.root.findViewById<FloatingAvatar>(R.id.float_avatar)
         animateAvatar.apply {
-            setImageBitmap(drawable)
+            setImageBitmap(bitmap)
             val targetDimens = context.resources.getDimension(R.dimen.player_fragment_avatar)
             val targetX = resources.getDimension(R.dimen.player_fragment_avatar_margin_start)
             val targetY = resources.run {
@@ -508,7 +484,7 @@ class MainActivity : OverlayWindowActivity() {
     }
 
     fun checkFollowed(anchor: Anchor) {
-        mainFragment.checkFollowed(anchor)
+        groupFragment.checkFollowed(anchor)
     }
 
     fun getPlayingAnchor(): Anchor? {

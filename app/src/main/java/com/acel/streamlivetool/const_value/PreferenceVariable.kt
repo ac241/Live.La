@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.const_value
 
+import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.util.defaultSharedPreferences
@@ -17,13 +18,13 @@ object PreferenceVariable {
         getKey(R.string.pref_key_group_mode_use_cookie)
     )
 
-    var showAnchorImage = false
-    var showAnchorImageWhenMobileData = false
-    var displayablePlatformSet: Set<String>? = null
-    var showAdditionalActionButton = false
-    var itemClickAction = ""
-    var secondaryButtonClickAction = ""
-    var groupUseCookie = false
+    var showAnchorImage = MutableLiveData(false)
+    var showAnchorImageWhenMobileData = MutableLiveData(false)
+    var displayablePlatformSet = MutableLiveData<Set<String>>()
+    var showAdditionalActionButton = MutableLiveData(false)
+    var itemClickAction = MutableLiveData("")
+    var secondaryButtonClickAction = MutableLiveData("")
+    var groupUseCookie = MutableLiveData(false)
 
     fun init() {
         for (s in keySet) {
@@ -45,19 +46,21 @@ object PreferenceVariable {
     fun update(key: String) {
         when (key) {
             getKey(R.string.pref_key_show_anchor_image) ->
-                showAnchorImage = getPreferenceBoolean(key)
+                showAnchorImage.postValue(getPreferenceBoolean(key))
             getKey(R.string.pref_key_show_anchor_image_when_mobile_data) ->
-                showAnchorImageWhenMobileData = getPreferenceBoolean(key)
+                showAnchorImageWhenMobileData.postValue(getPreferenceBoolean(key))
             getKey(R.string.pref_key_cookie_mode_platform_displayable) ->
-                displayablePlatformSet = defaultSharedPreferences.getStringSet(key, setOf())
+                displayablePlatformSet.postValue(
+                    defaultSharedPreferences.getStringSet(key, setOf())
+                )
             getKey(R.string.pref_key_additional_action_btn) ->
-                showAdditionalActionButton = getPreferenceBoolean(key)
+                showAdditionalActionButton.postValue(getPreferenceBoolean(key))
             getKey(R.string.pref_key_item_click_action) ->
-                itemClickAction = getPreferenceString(key)
+                itemClickAction.postValue(getPreferenceString(key))
             getKey(R.string.pref_key_second_button_click_action) ->
-                secondaryButtonClickAction = getPreferenceString(key)
+                secondaryButtonClickAction.postValue(getPreferenceString(key))
             getKey(R.string.pref_key_group_mode_use_cookie) ->
-                groupUseCookie = getPreferenceBoolean(key)
+                groupUseCookie.postValue(getPreferenceBoolean(key))
         }
     }
 }

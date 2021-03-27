@@ -85,13 +85,15 @@ class AnchorAdapter(
                 )
             else ->
                 //是否显示图片
-                holder = if (showImage) ViewHolderGraphic(
+//                holder = if (showImage) ViewHolderGraphic(
+                holder = ViewHolderGraphic(
                     LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_anchor, parent, false)
-                ) else ViewHolderGraphic(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_anchor_simplify, parent, false)
                 )
+//                ) else ViewHolderGraphic(
+//                    LayoutInflater.from(parent.context)
+//                        .inflate(R.layout.item_anchor_simplify, parent, false)
+//                )
         }
         return holder
     }
@@ -214,7 +216,7 @@ class AnchorAdapter(
         }
 
         //附加功能按钮
-        if (showAdditionalActionButton && anchor.anchorExtensions != null) {
+        if (showAdditionalActionButton.value!! && anchor.anchorExtensions != null) {
             anchor.anchorExtensions?.let {
                 holder.additionBtn.apply {
                     visibility = View.VISIBLE
