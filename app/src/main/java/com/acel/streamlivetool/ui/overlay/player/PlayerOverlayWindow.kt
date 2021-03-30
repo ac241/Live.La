@@ -17,6 +17,7 @@ import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.service.PlayerService
 import com.acel.streamlivetool.ui.overlay.AbsOverlayWindow
 import com.acel.streamlivetool.util.AnchorClickAction
+import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.android.synthetic.main.layout_overlay_player.view.*
 import kotlinx.android.synthetic.main.layout_overlay_player_controller_view.view.*
@@ -68,10 +69,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                     PlayerManager.PlayerStatus.PAUSE -> {
                     }
                     PlayerManager.PlayerStatus.ENDED -> {
-                        rootView.error_msg.apply {
-                            visibility = View.VISIBLE
-                            text = "播放已结束。"
-                        }
+                        errorMessage("播放已结束。")
                     }
                     PlayerManager.PlayerStatus.ERROR -> {
                         rootView.error_msg.apply {
@@ -87,6 +85,16 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                 resizeWindow()
             }
         })
+    }
+
+    private fun errorMessage(string: String) {
+        mainThread{
+            rootView.error_msg.apply {
+                visibility = View.VISIBLE
+                text = string
+            }
+            rootView.progress_bar.visibility = View.INVISIBLE
+        }
     }
 
     private fun resizeWindow() {
@@ -126,9 +134,16 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
 
     private fun getStreamingLiveAndPlay(anchor: Anchor) {
         GlobalScope.launch(Dispatchers.IO) {
-            val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
-                    ?: return@launch
-            playUrl(url.url)
+            runCatching {
+                val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
+                        ?: run {
+                            return@launch
+                        }
+                playUrl(url.url)
+            }.onFailure {
+                it.printStackTrace()
+                errorMessage("获取直播流失败。")
+            }
         }
     }
 
