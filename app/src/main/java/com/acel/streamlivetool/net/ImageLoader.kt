@@ -13,16 +13,18 @@ object ImageLoader {
     private val requestOption = RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL)
     internal fun load(context: Context, url: String, view: ImageView) {
         Glide.with(context).load(url).apply(requestOption).error(R.drawable.ic_load_img_fail)
-            .into(view)
+                .into(view)
     }
 
     fun ImageView.loadImage(url: String) {
         Glide.with(context).load(url).apply(requestOption)
-            .error(R.drawable.ic_load_img_fail)
-            .into(this)
+                .error(R.drawable.ic_load_img_fail)
+                .into(this)
     }
 
     fun getDrawable(context: Context, url: String): Drawable? {
+        if (url.isEmpty())
+            return null
         try {
             return Glide.with(context).load(url).apply(requestOption).submit().get()
         } catch (e: Exception) {

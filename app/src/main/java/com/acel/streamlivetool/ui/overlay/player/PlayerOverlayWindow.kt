@@ -60,7 +60,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                     }
                     PlayerManager.PlayerStatus.PLAYING -> {
                         rootView.progress_bar.visibility = View.INVISIBLE
-                        rootView.error_msg.visibility = View.INVISIBLE
+                        hideErrorMessage()
                         startForegroundService()
                     }
                     PlayerManager.PlayerStatus.LOADING -> {
@@ -72,10 +72,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                         errorMessage("播放已结束。")
                     }
                     PlayerManager.PlayerStatus.ERROR -> {
-                        rootView.error_msg.apply {
-                            visibility = View.VISIBLE
-                            text = message
-                        }
+                        errorMessage("$message")
                     }
                 }
             }
@@ -88,13 +85,17 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     }
 
     private fun errorMessage(string: String) {
-        mainThread{
+        mainThread {
             rootView.error_msg.apply {
                 visibility = View.VISIBLE
                 text = string
             }
             rootView.progress_bar.visibility = View.INVISIBLE
         }
+    }
+
+    private fun hideErrorMessage() {
+        rootView.error_msg.visibility = View.INVISIBLE
     }
 
     private fun resizeWindow() {
@@ -112,6 +113,8 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     }
 
     private val anchorObserver = Observer<Anchor> { anchor ->
+        playerManager.stop(true)
+        hideErrorMessage()
         getStreamingLiveAndPlay(anchor)
         rootView.controller_include.apply {
             overlay_controller_title.text = anchor.title
@@ -135,11 +138,12 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     private fun getStreamingLiveAndPlay(anchor: Anchor) {
         GlobalScope.launch(Dispatchers.IO) {
             runCatching {
-                val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
+                val streamingLive = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
                         ?: run {
+                            errorMessage("直播流为空。")
                             return@launch
                         }
-                playUrl(url.url)
+                playUrl(streamingLive.url)
             }.onFailure {
                 it.printStackTrace()
                 errorMessage("获取直播流失败。")

@@ -3,7 +3,6 @@ package com.acel.streamlivetool.manager
 import android.net.Uri
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.util.AppUtil
-import com.acel.streamlivetool.util.ToastUtil
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -128,10 +127,7 @@ class PlayerManager {
         }
         try {
             if (url.isEmpty()) {
-                AppUtil.mainThread {
-                    player.stop()
-                    ToastUtil.toast("直播流为空")
-                }
+                setStatus(PlayerStatus.ERROR,"直播流为空")
                 return
             }
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
