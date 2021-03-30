@@ -26,6 +26,7 @@ import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.util.AnchorListUtil
 import com.acel.streamlivetool.util.AnchorUtil.isFollowed
 import com.acel.streamlivetool.util.AnchorUtil.update
+import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
 import kotlinx.coroutines.Dispatchers
@@ -360,10 +361,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                 builder.apply {
                     setMessage("您还未关注${anchor.nickname}，${it.platformName}暂不支持直接关注，是否打开${it.platformName}app关注？")
                     setPositiveButton("是") { _, _ ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            it.appModule?.startApp(MyApplication.application, anchor)
-                            checkFollowedAnchors.remove(anchor)
-                        }
+                        AppUtil.startApp(context, anchor)
                     }
                     setNegativeButton("否") { _, _ ->
                         checkFollowedAnchors.remove(anchor)

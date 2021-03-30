@@ -3,6 +3,7 @@ package com.acel.streamlivetool.ui.overlay.player
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -47,8 +48,8 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     private val playerManager = PlayerManager().apply {
         setListener(object : PlayerManager.Listener {
             override fun onStatusChange(
-                playerStatus: PlayerManager.PlayerStatus,
-                message: String?
+                    playerStatus: PlayerManager.PlayerStatus,
+                    message: String?
             ) {
                 when (playerStatus) {
                     PlayerManager.PlayerStatus.BUFFERING -> {
@@ -125,7 +126,8 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
 
     private fun getStreamingLiveAndPlay(anchor: Anchor) {
         GlobalScope.launch(Dispatchers.IO) {
-            val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor) ?: return@launch
+            val url = anchor.platformImpl()?.streamingLiveModule?.getStreamingLive(anchor)
+                    ?: return@launch
             playUrl(url.url)
         }
     }
@@ -135,7 +137,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
     @SuppressLint("InflateParams")
     override fun onCreateWindow(): View {
         return LayoutInflater.from(MyApplication.application)
-            .inflate(R.layout.layout_overlay_player, null, false)
+                .inflate(R.layout.layout_overlay_player, null, false)
     }
 
     override fun onWindowHide() {
@@ -154,11 +156,13 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                 val bitmap = withContext(Dispatchers.IO) {
                     anchor.avatar?.let {
                         ImageLoader.getDrawable(MyApplication.application, it)?.toBitmap()
-                    }
+                    } ?: ResourcesCompat
+                            .getDrawable(MyApplication.application.resources, R.mipmap.ic_launcher, null)
+                            ?.toBitmap()
                 }
                 bitmap?.let {
                     PlayerService.startForegroundService(
-                        PlayerService.Companion.SourceType.PLAYER_OVERLAY, anchor, it
+                            PlayerService.Companion.SourceType.PLAYER_OVERLAY, anchor, it
                     )
                 }
             }
@@ -198,7 +202,7 @@ class PlayerOverlayWindow : AbsOverlayWindow() {
                     hide()
                     currentAnchor.value?.let { it1 ->
                         AnchorClickAction.startInnerPlayer(
-                            MyApplication.application, it1
+                                MyApplication.application, it1
                         )
                     }
                 }
