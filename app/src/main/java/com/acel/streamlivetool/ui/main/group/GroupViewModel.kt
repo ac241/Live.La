@@ -39,7 +39,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
 
     //数据库读取的主页anchorList
     private val anchorRepository =
-        AnchorRepository.getInstance()
+            AnchorRepository.getInstance()
 
     private val anchorListManager = AnchorUpdateManager.instance
 
@@ -145,9 +145,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                         toast("关注成功：${anchor.nickname}")
                         sortedAnchorList.value?.let { it1 ->
                             anchorListManager.updateAllAnchorByCookie(
-                                this@GroupViewModel,
-                                it1,
-                                viewModelScope
+                                    this@GroupViewModel,
+                                    it1,
+                                    viewModelScope
                             )
                         }
                     } else {
@@ -157,9 +157,9 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                                     it.msg?.let { it1 -> toast(it1) }
                                     it.data?.let { it1 ->
                                         (platformImpl as HuyaImpl).anchorCookieModule
-                                            .showVerifyCodeWindow(context, it1) {
-                                                followAnchor(context, anchor, actionOnEnd)
-                                            }
+                                                .showVerifyCodeWindow(context, it1) {
+                                                    followAnchor(context, anchor, actionOnEnd)
+                                                }
                                     }
                                     return@withContext
                                 } else {
@@ -222,10 +222,10 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         if (failed > 0) {
             builder.append("更新失败($failed/${list.size})")
             builder.setSpan(
-                ErrorColorSpan(),
-                0,
-                builder.length,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                    ErrorColorSpan(),
+                    0,
+                    builder.length,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE
             )
             _updateErrorMsg.postValue(builder)
         } else {
@@ -243,28 +243,28 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
             if (!result.isSuccess) {
                 if (builder == null)
                     builder =
-                        SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
+                            SpannableStringBuilder().also { it.append("主页 获取数据失败：") }
                 failed++
                 val startIndex =
-                    if (builder!!.isNotEmpty()) builder!!.length - 1 else 0
+                        if (builder!!.isNotEmpty()) builder!!.length - 1 else 0
                 val platformName = "${result.iPlatform.platformName}: "
                 val status = "${result.resultType.getValue()}"
                 builder?.append("$platformName$status；")
                 when (result.resultType) {
                     ResultType.COOKIE_INVALID -> {
                         builder?.setSpan(
-                            LoginClickSpan(result.iPlatform),
-                            startIndex + platformName.length,
-                            startIndex + platformName.length + status.length + 1,
-                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                LoginClickSpan(result.iPlatform),
+                                startIndex + platformName.length,
+                                startIndex + platformName.length + status.length + 1,
+                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                         )
                     }
                     else -> {
                         builder?.setSpan(
-                            ErrorColorSpan(),
-                            startIndex + platformName.length,
-                            startIndex + platformName.length + status.length + 1,
-                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                ErrorColorSpan(),
+                                startIndex + platformName.length,
+                                startIndex + platformName.length + status.length + 1,
+                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                         )
                     }
                 }
@@ -303,7 +303,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
 
         override fun onClick(widget: View) {
             val intent = Intent(MyApplication.application, LoginActivity::class.java)
-                .also { it.putExtra("platform", platform.platform) }
+                    .also { it.putExtra("platform", platform.platform) }
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             MyApplication.application.startActivity(intent)
         }
@@ -325,7 +325,6 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                                     mainThread {
                                         showCheckedFollowDialog.value = anchor
                                     }
-//                                checkFollowedAnchors.remove(anchor)
                                 return@check
                             }
                         }
@@ -339,6 +338,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     /**
      * 显示关注提示框
      */
+    @Suppress("DEPRECATION")
     fun showFollowDialog(context: Context, anchor: Anchor) {
         val builder = AlertDialogTool.newAlertDialog(context)
         anchor.platformImpl()?.let {
@@ -347,14 +347,14 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                     setMessage("您还未关注${anchor.nickname}，是否关注？")
                     setPositiveButton("是") { _, _ ->
                         followAnchor(context, anchor) {
-                            checkFollowedAnchors.remove(anchor)
+                            removeAnchorForChecked(anchor)
                         }
                     }
                     setNegativeButton("否") { _, _ ->
-                        checkFollowedAnchors.remove(anchor)
+                        removeAnchorForChecked(anchor)
                     }
                     setOnCancelListener {
-                        checkFollowedAnchors.remove(anchor)
+                        removeAnchorForChecked(anchor)
                     }
                 }
             } else {
@@ -364,10 +364,10 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                         AppUtil.startApp(context, anchor)
                     }
                     setNegativeButton("否") { _, _ ->
-                        checkFollowedAnchors.remove(anchor)
+                        removeAnchorForChecked(anchor)
                     }
                     setOnCancelListener {
-                        checkFollowedAnchors.remove(anchor)
+                        removeAnchorForChecked(anchor)
                     }
                 }
             }
@@ -375,6 +375,12 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         mainThread {
             builder.show()
         }
+    }
+
+    private fun removeAnchorForChecked(anchor: Anchor) {
+        checkFollowedAnchors.remove(anchor)
+        if (showCheckedFollowDialog.value == anchor)
+            showCheckedFollowDialog.postValue(null)
     }
 }
 
