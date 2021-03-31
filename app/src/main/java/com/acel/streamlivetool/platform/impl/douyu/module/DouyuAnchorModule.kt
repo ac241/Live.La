@@ -3,8 +3,7 @@ package com.acel.streamlivetool.platform.impl.douyu.module
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IAnchor
-import com.acel.streamlivetool.platform.impl.bilibili.BilibiliImpl
+import com.acel.streamlivetool.platform.base.AnchorModule
 import com.acel.streamlivetool.platform.impl.douyu.DouyuImpl.Companion.douyuService
 import com.acel.streamlivetool.platform.impl.douyu.bean.RoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
@@ -13,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-class DouyuAnchorModule(private val platform: String) : IAnchor {
+class DouyuAnchorModule(private val platform: String) : AnchorModule {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
 //        return getAnchorFromHtml()
         val msg = douyuService.getRoomInfoMsg(queryAnchor.showId).execute().body()

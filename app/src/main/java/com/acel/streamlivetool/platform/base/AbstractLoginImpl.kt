@@ -7,7 +7,7 @@ import com.acel.streamlivetool.util.defaultSharedPreferences
  * @param cookieManager -> you can use the default manager [AbstractPlatformImpl.cookieManager]
  */
 abstract class AbstractLoginImpl(platform: String, private val cookieManager: CookieManager) :
-    ILogin {
+    LoginModule {
 
     private val keyLastLoginTime = "${platform}_last_login_time"
 

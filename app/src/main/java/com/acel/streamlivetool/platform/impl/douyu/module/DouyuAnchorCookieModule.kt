@@ -73,6 +73,8 @@ class DouyuAnchorCookieModule(private val platform: String, cookieManager: Cooki
         }
     }
 
+    override val supportFollow: Boolean = true
+
     override fun follow(anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())

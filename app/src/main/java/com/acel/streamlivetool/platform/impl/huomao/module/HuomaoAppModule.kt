@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IApp
+import com.acel.streamlivetool.platform.base.AppModule
 
-object HuomaoAppModule:IApp {
+object HuomaoAppModule:AppModule {
     override fun startApp(context: Context, anchor: Anchor) {
         val intent = Intent()
         val uri = Uri.parse("sharehuomao://huomao/scheme?cid=${anchor.roomId}&type=1&screenType=0")

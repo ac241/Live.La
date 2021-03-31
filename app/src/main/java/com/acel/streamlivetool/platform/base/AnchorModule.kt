@@ -2,7 +2,7 @@ package com.acel.streamlivetool.platform.base
 
 import com.acel.streamlivetool.bean.Anchor
 
-interface IAnchor {
+interface AnchorModule {
     /**
      * 获取直播间信息
      * @param queryAnchor Anchor

@@ -2,10 +2,10 @@ package com.acel.streamlivetool.platform.impl.egameqq.module
 
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
-import com.acel.streamlivetool.platform.base.IStreamingLive
+import com.acel.streamlivetool.platform.base.StreamingLiveModule
 import com.acel.streamlivetool.platform.impl.egameqq.EgameqqImpl.Companion.egameqqService
 
-object EgameqqStreamingLiveModule : IStreamingLive {
+object EgameqqStreamingLiveModule : StreamingLiveModule {
 
     override fun getStreamingLive(queryAnchor: Anchor, queryQuality: StreamingLive.Quality?): StreamingLive? {
         val liveAndProfileInfo =

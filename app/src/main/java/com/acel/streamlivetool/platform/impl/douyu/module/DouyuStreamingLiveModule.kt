@@ -4,14 +4,14 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
-import com.acel.streamlivetool.platform.base.IStreamingLive
+import com.acel.streamlivetool.platform.base.StreamingLiveModule
 import com.acel.streamlivetool.platform.impl.douyu.DouyuImpl
 import com.acel.streamlivetool.platform.impl.douyu.bean.LiveInfo
 import com.acel.streamlivetool.platform.impl.douyu.bean.LiveInfoTestError
 import com.google.gson.Gson
 import java.util.*
 
-object DouyuStreamingLiveModule : IStreamingLive {
+object DouyuStreamingLiveModule : StreamingLiveModule {
     override fun getStreamingLive(
         queryAnchor: Anchor,
         queryQuality: StreamingLive.Quality?

@@ -68,6 +68,7 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
         return HuyaImpl.huyaService.getSubscribe(cookie, uid).execute().body()
     }
 
+    override val supportFollow: Boolean = true
 
     override fun follow(anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->

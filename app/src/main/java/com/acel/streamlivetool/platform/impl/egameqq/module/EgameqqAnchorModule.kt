@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.platform.impl.egameqq.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IAnchor
+import com.acel.streamlivetool.platform.base.AnchorModule
 import com.acel.streamlivetool.platform.impl.egameqq.EgameqqImpl.Companion.egameqqService
 import com.acel.streamlivetool.util.TimeUtil
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.jsoup.Jsoup
 
-class EgameqqAnchorModule(private val platform: String) : IAnchor {
+class EgameqqAnchorModule(private val platform: String) : AnchorModule {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val liveAndProfileInfo =
             egameqqService.getLiveAndProfileInfo(liveAndProfileInfoParam(queryAnchor.showId))

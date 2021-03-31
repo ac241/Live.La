@@ -1,7 +1,5 @@
 package com.acel.streamlivetool.platform.base
 
-import com.acel.streamlivetool.util.defaultSharedPreferences
-
 interface CookieManager {
     /**
      * 保存cookie

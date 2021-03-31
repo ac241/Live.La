@@ -3,7 +3,7 @@ package com.acel.streamlivetool.platform.base
 import android.content.Context
 import com.acel.streamlivetool.bean.Anchor
 
-interface IApp {
+interface AppModule {
     /**
      * 打开直播间
      * @param context maybe not activity context,

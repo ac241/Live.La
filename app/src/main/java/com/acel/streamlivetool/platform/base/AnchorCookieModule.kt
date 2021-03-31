@@ -4,7 +4,7 @@ import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.bean.ResultGetAnchorListByCookieMode
 
-interface IAnchorCookie {
+interface AnchorCookieModule {
     /**
      * cookie方式获取列表
      * @return AnchorsCookieMode

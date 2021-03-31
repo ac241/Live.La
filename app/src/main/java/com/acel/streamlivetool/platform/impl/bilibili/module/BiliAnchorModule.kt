@@ -1,14 +1,14 @@
 package com.acel.streamlivetool.platform.impl.bilibili.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IAnchor
+import com.acel.streamlivetool.platform.base.AnchorModule
 import com.acel.streamlivetool.platform.impl.bilibili.BilibiliImpl
 import com.acel.streamlivetool.util.AnchorUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-class BiliAnchorModule(private val platform: String) : IAnchor {
+class BiliAnchorModule(private val platform: String) : AnchorModule {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val anchor = Anchor()
         var success = true

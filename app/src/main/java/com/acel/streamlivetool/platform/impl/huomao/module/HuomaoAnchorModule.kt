@@ -1,14 +1,14 @@
 package com.acel.streamlivetool.platform.impl.huomao.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IAnchor
+import com.acel.streamlivetool.platform.base.AnchorModule
 import com.acel.streamlivetool.platform.impl.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.impl.huomao.bean.RoomInfo
 import com.acel.streamlivetool.platform.impl.huomao.module.Pub.getRoomInfo
 import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 
-class HuomaoAnchorModule(private val platform: String) : IAnchor {
+class HuomaoAnchorModule(private val platform: String) : AnchorModule {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val roomInfo = getRoomInfo(queryAnchor)
         return if (roomInfo != null) {

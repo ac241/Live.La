@@ -13,7 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 class BiliAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-    AbstractAnchorCookieImpl(cookieManager) {
+        AbstractAnchorCookieImpl(cookieManager) {
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())
@@ -35,19 +35,19 @@ class BiliAnchorCookieModule(private val platform: String, cookieManager: Cookie
                         val rooms = result.data.rooms
                         rooms.forEach {
                             list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.uname,
-                                    showId = it.roomid.toString(),
-                                    roomId = it.roomid.toString(),
-                                    status = true,
-                                    title = it.title,
-                                    avatar = it.face,
-                                    keyFrame = it.cover,
-                                    typeName = it.area_v2_name,
-                                    online = AnchorUtil.formatOnlineNumber(it.online),
-                                    liveTime = TimeUtil.timestampToString(it.live_time)
-                                )
+                                    Anchor(
+                                            platform = platform,
+                                            nickname = it.uname,
+                                            showId = it.roomid.toString(),
+                                            roomId = it.roomid.toString(),
+                                            status = true,
+                                            title = it.title,
+                                            avatar = it.face,
+                                            keyFrame = it.cover,
+                                            typeName = it.area_v2_name,
+                                            online = AnchorUtil.formatOnlineNumber(it.online),
+                                            liveTime = TimeUtil.timestampToString(it.live_time)
+                                    )
                             )
                         }
                         list
@@ -61,18 +61,18 @@ class BiliAnchorCookieModule(private val platform: String, cookieManager: Cookie
                     val rooms = result?.data?.rooms
                     rooms?.forEach {
                         list.add(
-                            Anchor(
+                                Anchor(
 
-                                platform = platform,
-                                nickname = it.uname,
-                                showId = it.roomid.toString(),
-                                roomId = it.roomid.toString(),
-                                status = false,
-                                title = "${it.live_desc} 直播了 ${it.area_v2_name}",
-                                avatar = it.face,
-                                typeName = it.area_v2_name,
-                                liveTime = it.live_desc
-                            )
+                                        platform = platform,
+                                        nickname = it.uname,
+                                        showId = it.roomid.toString(),
+                                        roomId = it.roomid.toString(),
+                                        status = false,
+                                        title = "${it.live_desc} 直播了 ${it.area_v2_name}",
+                                        avatar = it.face,
+                                        typeName = it.area_v2_name,
+                                        liveTime = it.live_desc
+                                )
                         )
                     }
                     list
@@ -84,6 +84,7 @@ class BiliAnchorCookieModule(private val platform: String, cookieManager: Cookie
         }
     }
 
+    override val supportFollow: Boolean = true
     override fun follow(anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())
@@ -95,7 +96,7 @@ class BiliAnchorCookieModule(private val platform: String, cookieManager: Cookie
                     val jct = CookieUtil.getCookieField(cookie, "bili_jct")
                     jct?.let { j ->
                         val response =
-                            BilibiliImpl.bilibiliService.follow(cookie, uid, j).execute().body()
+                                BilibiliImpl.bilibiliService.follow(cookie, uid, j).execute().body()
                         response?.apply {
                             return if (code == 0)
                                 ApiResult(success = true, msg = "关注成功")

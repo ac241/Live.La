@@ -3,7 +3,7 @@ package com.acel.streamlivetool.platform.base
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.main.player.DanmuManager
 
-abstract class BaseDanmuModule : IDanmu {
+abstract class BaseDanmuModule : DanmuModule {
     /**
      * you can use[BaseDanmuClient]
      */

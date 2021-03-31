@@ -1,6 +1,6 @@
 package com.acel.streamlivetool.platform.base
 
-interface ILogin {
+interface LoginModule {
     /**
      *  WebView 使用PC Agent
      */

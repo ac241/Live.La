@@ -22,7 +22,7 @@ class DouyuImpl : AbstractPlatformImpl() {
     override val platformName: String = MyApplication.application.getString(platformShowNameRes)
     override val iconRes: Int = R.drawable.ic_douyu
 
-    override val anchorModule: IAnchor? = DouyuAnchorModule(platform)
+    override val anchorModule: AnchorModule? = DouyuAnchorModule(platform)
     override val anchorCookieModule = DouyuAnchorCookieModule(platform, cookieManager)
     override val streamingLiveModule = DouyuStreamingLiveModule
     override val appModule = DouyuAppModule

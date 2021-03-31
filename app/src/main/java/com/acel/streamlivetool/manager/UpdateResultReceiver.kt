@@ -2,7 +2,6 @@ package com.acel.streamlivetool.manager
 
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
-import com.acel.streamlivetool.platform.base.IPlatform
 
 interface UpdateResultReceiver {
 

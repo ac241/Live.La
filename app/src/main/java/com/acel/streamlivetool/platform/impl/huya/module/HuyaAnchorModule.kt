@@ -1,14 +1,14 @@
 package com.acel.streamlivetool.platform.impl.huya.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IAnchor
+import com.acel.streamlivetool.platform.base.AnchorModule
 import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
 import com.acel.streamlivetool.platform.impl.huya.module.HuyaPatternUtil.getMatchString
 import com.acel.streamlivetool.platform.impl.huya.module.Pub.getMHtml
 import com.acel.streamlivetool.util.TextUtil
 import com.acel.streamlivetool.util.UnicodeUtil
 
-class HuyaAnchorModule(private val platform: String) : IAnchor {
+class HuyaAnchorModule(private val platform: String) : AnchorModule {
     override fun getAnchor(queryAnchor: Anchor): Anchor? {
         val html: String? = getMHtml(queryAnchor)
         html?.let {

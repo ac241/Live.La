@@ -3,7 +3,7 @@ package com.acel.streamlivetool.platform.base
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
 
-interface IStreamingLive {
+interface StreamingLiveModule {
     /**
      * 获取直播流
      * @param queryQuality 质量描述 @ [StreamingLive]

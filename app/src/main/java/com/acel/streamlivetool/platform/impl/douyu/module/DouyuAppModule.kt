@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.IApp
+import com.acel.streamlivetool.platform.base.AppModule
 
-object DouyuAppModule:IApp {
+object DouyuAppModule:AppModule {
     override fun startApp(context: Context, anchor: Anchor) {
         val intent = Intent()
         val uri = Uri.parse("douyutvtest://?type=4&room_id=${anchor.roomId}")

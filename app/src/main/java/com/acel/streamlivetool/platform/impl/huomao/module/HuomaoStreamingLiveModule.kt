@@ -1,16 +1,15 @@
 package com.acel.streamlivetool.platform.impl.huomao.module
 
-import android.util.Log
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.bean.StreamingLive
-import com.acel.streamlivetool.platform.base.IStreamingLive
+import com.acel.streamlivetool.platform.base.StreamingLiveModule
 import com.acel.streamlivetool.platform.impl.huomao.HuomaoImpl
 import com.acel.streamlivetool.platform.impl.huomao.module.Pub.getRoomInfo
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
 
-object HuomaoStreamingLiveModule : IStreamingLive {
+object HuomaoStreamingLiveModule : StreamingLiveModule {
     private const val SECRETKEY = "6FE26D855E1AEAE090E243EB1AF73685"
 
     override fun getStreamingLive(
