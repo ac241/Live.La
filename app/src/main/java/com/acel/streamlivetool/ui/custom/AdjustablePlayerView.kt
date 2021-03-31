@@ -18,7 +18,7 @@ import kotlin.math.abs
 
 
 class AdjustablePlayerView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : PlayerView(context, attrs, defStyleAttr) {
 
     companion object {
@@ -58,7 +58,7 @@ class AdjustablePlayerView @JvmOverloads constructor(
     }
 
     private val screenBrightness =
-        Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
+            Settings.System.getInt(context.contentResolver, Settings.System.SCREEN_BRIGHTNESS)
     private var maxBrightness: Int = 255
     private var currentBrightness: Float = 0f
 
@@ -72,6 +72,8 @@ class AdjustablePlayerView @JvmOverloads constructor(
     private var downY = 0f
     private var lastMoveY = 0f
     private var handleType = HANDLE_TYPE_NULL
+    private var startHandle = false
+    private val startHandlePercent = 0.05f
 
     private val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
     private val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -83,6 +85,7 @@ class AdjustablePlayerView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 downX = event.x
                 downY = event.y
+                //左区域处理亮度，右区域处理声音，中间部分不处理
                 if (downX < width * 3 / 10)
                     handleType = HANDLE_TYPE_LIGHT
                 if (downX > width * 7 / 10)
@@ -91,32 +94,42 @@ class AdjustablePlayerView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 if (handleType == HANDLE_TYPE_NULL)
                     return true
+                //和上次滑动时y移动的距离差
                 val offsetY = -(event.y - if (lastMoveY == 0f) downY else lastMoveY)
-
+                //和上次滑动时y移动的差百分比
+                var offsetPercent = offsetY / height
+                //超出[startHandlePercent]后开始处理滑动
+                if (!startHandle && abs(offsetPercent) > startHandlePercent) {
+                    startHandle = true
+                    offsetPercent =
+                            if (offsetPercent > 0) offsetPercent - startHandlePercent
+                            else offsetPercent + startHandlePercent
+                    //记录y
+                    lastMoveY = event.y
+                }
+                if (!startHandle)
+                    return true
                 when (handleType) {
+                    //处理亮度
                     HANDLE_TYPE_LIGHT -> {
-                        val offsetPercent = offsetY / height
-//                        if (abs(offsetPercent) > 0.05)
-//                            return true
                         val value = currentBrightness + offsetPercent
                         context.brightness = value
                         currentBrightness = context.brightness
                         adjustListener?.onAdjust(
-                            AdjustType.BRIGHTNESS,
-                            (currentBrightness * 100).toInt()
+                                AdjustType.BRIGHTNESS,
+                                (currentBrightness * 100).toInt()
                         )
                         justAdjust = true
-                        lastMoveY = if (lastMoveY == 0f) downY else event.y
                     }
 
+                    //处理声音
                     HANDLE_TYPE_VOLUME -> {
-                        val offsetPercent = offsetY / height
                         val nowVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                         //当前音量 + (移动差值/view高度) * 最大音量
                         var volume = (nowVolume + offsetPercent * maxVolume).toInt()
                         //如果音量差小于5不处理，即每次步进/步退5
-                        if (abs(volume - nowVolume) < 5)
-                            return true
+//                        if (abs(volume - nowVolume) < 5)
+//                            return true
                         when (volume) {
                             in (0..150) -> {
                             }
@@ -128,26 +141,28 @@ class AdjustablePlayerView @JvmOverloads constructor(
                             }
                         }
                         audioManager.setStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            volume,
-                            AudioManager.FLAG_PLAY_SOUND
+                                AudioManager.STREAM_MUSIC,
+                                volume,
+                                AudioManager.FLAG_PLAY_SOUND
                         )
 
                         adjustListener?.onAdjust(
-                            AdjustType.VOLUME,
-                            (volume.toFloat() / maxVolume * 100).toInt()
+                                AdjustType.VOLUME,
+                                (volume.toFloat() / maxVolume * 100).toInt()
                         )
                         justAdjust = true
-                        //记录上次调整时的Y
-                        lastMoveY = if (lastMoveY == 0f) downY else event.y
                     }
                 }
+                //记录上次的移动y
+                lastMoveY = if (lastMoveY == 0f) downY else event.y
             }
             MotionEvent.ACTION_UP -> {
-                if (abs(event.y - downY) < 5)
+                //如果抬起时仍未开始处理滑动，则处理点击事件
+                if (!startHandle)
                     performClick()
                 //重置参数
                 resetHandle()
+                //如果调整过亮度/音量
                 if (justAdjust)
                     adjustListener?.onCancel()
                 justAdjust = false
@@ -169,6 +184,7 @@ class AdjustablePlayerView @JvmOverloads constructor(
     private fun resetHandle() {
         lastMoveY = 0f
         handleType = HANDLE_TYPE_NULL
+        startHandle = false
     }
 
 
