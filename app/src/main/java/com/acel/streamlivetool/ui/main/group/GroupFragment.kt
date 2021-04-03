@@ -282,7 +282,7 @@ class GroupFragment : Fragment() {
                 }
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]
-                    viewModel.followAnchor(requireContext(), anchor) {}
+                    viewModel.followAnchor(requireContext(), anchor)
                 }
                 else -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]

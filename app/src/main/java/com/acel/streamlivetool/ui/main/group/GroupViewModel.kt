@@ -20,7 +20,6 @@ import com.acel.streamlivetool.manager.UpdateResultReceiver
 import com.acel.streamlivetool.manager.UpdateResultReceiver.*
 import com.acel.streamlivetool.platform.PlatformDispatcher.platformImpl
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
-import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.login.LoginActivity
 import com.acel.streamlivetool.util.AnchorListUtil
@@ -135,10 +134,10 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     /**
      * 关注
      */
-    fun followAnchor(context: Context, anchor: Anchor, actionOnEnd: () -> Unit) {
+    fun followAnchor(context: Context, anchor: Anchor) {
         viewModelScope.launch(Dispatchers.IO) {
             val platformImpl = anchor.platformImpl()
-            val result = platformImpl?.anchorCookieModule?.follow(anchor)
+            val result = platformImpl?.anchorCookieModule?.follow(context, anchor)
             result?.let {
                 withContext(Dispatchers.Main) {
                     if (it.success) {
@@ -151,26 +150,8 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                             )
                         }
                     } else {
-                        when (platformImpl.platform) {
-                            "huya" -> {
-                                if (it.code == -10003) {
-                                    it.msg?.let { it1 -> toast(it1) }
-                                    it.data?.let { it1 ->
-                                        (platformImpl as HuyaImpl).anchorCookieModule
-                                                .showVerifyCodeWindow(context, it1) {
-                                                    followAnchor(context, anchor, actionOnEnd)
-                                                }
-                                    }
-                                    return@withContext
-                                } else {
-                                    toast("关注失败：${it.msg}，如多次失败请自行关注。")
-                                }
-                            }
-                            else ->
-                                toast("关注失败：${it.msg}，如多次失败请自行关注。")
-                        }
+                        toast("关注失败：${it.msg}。")
                     }
-                    actionOnEnd.invoke()
                 }
             }
         }
@@ -346,9 +327,8 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                 builder.apply {
                     setMessage("您还未关注${anchor.nickname}，是否关注？")
                     setPositiveButton("是") { _, _ ->
-                        followAnchor(context, anchor) {
-                            removeAnchorForChecked(anchor)
-                        }
+                        followAnchor(context, anchor)
+                        removeAnchorForChecked(anchor)
                     }
                     setNegativeButton("否") { _, _ ->
                         removeAnchorForChecked(anchor)

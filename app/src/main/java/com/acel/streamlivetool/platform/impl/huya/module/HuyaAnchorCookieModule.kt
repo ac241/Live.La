@@ -3,6 +3,7 @@ package com.acel.streamlivetool.platform.impl.huya.module
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,9 +19,11 @@ import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.CookieUtil
 import com.acel.streamlivetool.util.TimeUtil
+import kotlinx.coroutines.*
+import java.util.*
 
 class HuyaAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-    AbstractAnchorCookieImpl(cookieManager) {
+        AbstractAnchorCookieImpl(cookieManager) {
 
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         cookieManager.getCookie().let { cookie ->
@@ -35,19 +38,19 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
                         val list = mutableListOf<Anchor>()
                         subscribe.result.list.forEach {
                             list.add(
-                                Anchor(
-                                    platform = platform,
-                                    nickname = it.nick,
-                                    showId = it.profileRoom.toString(),
-                                    roomId = it.uid.toString(),
-                                    status = it.isLive,
-                                    title = it.intro,
-                                    avatar = it.avatar180,
-                                    keyFrame = it.screenshot,
-                                    typeName = it.gameName,
-                                    online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
-                                    liveTime = TimeUtil.timestampToString(it.startTime)
-                                )
+                                    Anchor(
+                                            platform = platform,
+                                            nickname = it.nick,
+                                            showId = it.profileRoom.toString(),
+                                            roomId = it.uid.toString(),
+                                            status = it.isLive,
+                                            title = it.intro,
+                                            avatar = it.avatar180,
+                                            keyFrame = it.screenshot,
+                                            typeName = it.gameName,
+                                            online = AnchorUtil.formatOnlineNumber(it.totalCount.toInt()),
+                                            liveTime = TimeUtil.timestampToString(it.startTime)
+                                    )
                             )
                         }
                         ApiResult(true, data = list)
@@ -70,33 +73,35 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
 
     override val supportFollow: Boolean = true
 
-    override fun follow(anchor: Anchor): ApiResult<String> {
+    override fun follow(context: Context, anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())
                 return ApiResult(false, "未登录", cookieValid = false)
             val uid = CookieUtil.getCookieField(cookie, "yyuid")
             uid?.let { u ->
                 val response =
-                    HuyaImpl.huyaService.follow(
-                        cookie,
-                        anchor.roomId,
-                        u,
-                        System.currentTimeMillis()
-                    )
-                        .execute().body()
+                        HuyaImpl.huyaService.follow(
+                                cookie,
+                                anchor.roomId,
+                                u,
+                                System.currentTimeMillis()
+                        )
+                                .execute().body()
                 response?.apply {
                     return if (status == 1)
                         ApiResult(true, "关注成功")
                     else {
-                        if (response.status == -10003)
+                        val result = showVerifyCodeWindow(context, response.data.replace("{\"url\":\"", "")
+                                .replace("\"}", ""))
+                        if (result) {
+                            follow(context, anchor)
+                        } else {
                             ApiResult(
-                                false, "需要校验验证码",
-                                code = response.status,
-                                data = response.data.replace("{\"url\":\"", "")
-                                    .replace("\"}", "")
+                                    false, "需要校验验证码",
+                                    code = response.status,
+                                    data = response.data.replace("{\"url\":\"", "")
+                                            .replace("\"}", "")
                             )
-                        else {
-                            ApiResult(false, message, code = response.status)
                         }
                     }
                 }
@@ -107,7 +112,9 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
 
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun showVerifyCodeWindow(context: Context, url: String, doOnVerified: () -> Unit) {
+    fun showVerifyCodeWindow(context: Context, url: String): Boolean {
+        val obj = Object()
+        var result = false
         val builder = AlertDialogTool.newAlertDialog(context)
         builder.apply {
             setTitle("需要校验验证码")
@@ -115,15 +122,22 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
             setView(R.layout.verify_window)
             setPositiveButton("确认") { d, _ ->
                 d.dismiss()
-                doOnVerified.invoke()
+                result = true
+                synchronized(obj) {
+                    obj.notify()
+                }
             }
             setNegativeButton("取消") { d, _ ->
                 d.dismiss()
+                result = false
+                synchronized(obj) {
+                    obj.notify()
+                }
             }
         }
         AppUtil.mainThread {
             val cm: android.webkit.CookieManager =
-                android.webkit.CookieManager.getInstance()
+                    android.webkit.CookieManager.getInstance()
             cm.setCookie(url, cookieManager.getCookie())
             val alertDialog = builder.show()
             alertDialog.findViewById<WebView>(R.id.webView)?.apply {
@@ -140,11 +154,11 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
                     loadWithOverviewMode = true
                     layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
                     userAgentString =
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     android.webkit.CookieManager.getInstance()
-                        .setAcceptThirdPartyCookies(this, true)
+                            .setAcceptThirdPartyCookies(this, true)
                 }
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
@@ -158,6 +172,10 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
                 loadUrl(url)
             }
         }
+        synchronized(obj) {
+            obj.wait()
+        }
+        return result
     }
 
 }

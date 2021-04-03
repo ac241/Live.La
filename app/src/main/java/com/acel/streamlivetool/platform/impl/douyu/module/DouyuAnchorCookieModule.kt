@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.platform.impl.douyu.module
 
+import android.content.Context
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
@@ -75,7 +76,7 @@ class DouyuAnchorCookieModule(private val platform: String, cookieManager: Cooki
 
     override val supportFollow: Boolean = true
 
-    override fun follow(anchor: Anchor): ApiResult<String> {
+    override fun follow(context: Context, anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())
                 return ApiResult(false, "未登录")

@@ -1,5 +1,6 @@
 package com.acel.streamlivetool.platform.impl.bilibili.module
 
+import android.content.Context
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
 import com.acel.streamlivetool.platform.base.CookieManager
@@ -85,7 +86,7 @@ class BiliAnchorCookieModule(private val platform: String, cookieManager: Cookie
     }
 
     override val supportFollow: Boolean = true
-    override fun follow(anchor: Anchor): ApiResult<String> {
+    override fun follow(context: Context, anchor: Anchor): ApiResult<String> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())
                 return ApiResult(success = false, msg = "未登录", cookieValid = false)
