@@ -113,6 +113,7 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
 
     @SuppressLint("SetJavaScriptEnabled")
     fun showVerifyCodeWindow(context: Context, url: String): Boolean {
+        Thread.currentThread().suspend()
         val obj = Object()
         var result = false
         val builder = AlertDialogTool.newAlertDialog(context)

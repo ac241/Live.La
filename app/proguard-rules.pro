@@ -29,6 +29,7 @@
 # 使用Gson时需要配置Gson的解析对象及变量都不混淆。不然Gson会找不到变量。
 -keep class com.acel.streamlivetool.bean.** { *; }
 -keep class com.acel.streamlivetool.platform.**.bean.** { *; }
+-keep class com.acel.streamlivetool.platform.**.impl.**.bean { *; }
 
 # Retrofit
 -dontwarn retrofit2.**

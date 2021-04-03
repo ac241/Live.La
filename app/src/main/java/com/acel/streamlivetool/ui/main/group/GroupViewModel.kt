@@ -28,10 +28,8 @@ import com.acel.streamlivetool.util.AnchorUtil.update
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.AppUtil.mainThread
 import com.acel.streamlivetool.util.ToastUtil.toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.acel.streamlivetool.util.launchIO
+import kotlinx.coroutines.*
 import java.util.*
 
 class GroupViewModel : ViewModel(), UpdateResultReceiver {
@@ -135,7 +133,7 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
      * 关注
      */
     fun followAnchor(context: Context, anchor: Anchor) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launchIO({
             val platformImpl = anchor.platformImpl()
             val result = platformImpl?.anchorCookieModule?.follow(context, anchor)
             result?.let {
@@ -154,7 +152,11 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
                     }
                 }
             }
-        }
+        }, {
+            withContext(Dispatchers.Main) {
+                toast("关注失败，发生错误")
+            }
+        })
     }
 
     private val checkFollowedAnchors = mutableSetOf<Anchor>()
