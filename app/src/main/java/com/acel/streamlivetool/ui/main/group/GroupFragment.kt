@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
@@ -23,8 +24,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.const_value.ConstValue
-import com.acel.streamlivetool.const_value.PreferenceVariable
+import com.acel.streamlivetool.value.ConstValue
+import com.acel.streamlivetool.value.PreferenceVariable
 import com.acel.streamlivetool.databinding.FragmentGroupModeBinding
 import com.acel.streamlivetool.ui.custom.AlertDialogTool
 import com.acel.streamlivetool.ui.main.HandleContextItemSelect
@@ -33,7 +34,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
-import com.acel.streamlivetool.util.AppUtil
+import com.acel.streamlivetool.value.WifiManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -53,7 +54,7 @@ class GroupFragment : Fragment() {
     }
     private val anchorAdapter by lazy {
         AnchorAdapter(
-            requireContext(), viewModel.sortedAnchorList.value!!, MODE_GROUP, false, iconDrawable!!
+                requireContext(), viewModel.sortedAnchorList.value!!, MODE_GROUP, false, iconDrawable!!
         )
     }
     private val anchorItemDecoration by lazy { iconDrawable?.let { AnchorItemDecoration(it) } }
@@ -67,16 +68,15 @@ class GroupFragment : Fragment() {
     private val snackBar by lazy {
         Snackbar.make(requireActivity().main_container, "", 5000).apply {
             setBackgroundTint(
-                ResourcesCompat.getColor(resources, R.color.light_dark_background, null)
+                    ResourcesCompat.getColor(resources, R.color.light_dark_background, null)
             )
             setTextColor(ResourcesCompat.getColor(resources, R.color.light_dark_text_color, null))
         }
     }
 
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentGroupModeBinding.inflate(inflater, container, false)
         return binding.root
@@ -85,7 +85,11 @@ class GroupFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        lifecycle.addObserver(GroupLifecycle(this))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resumeUpdate()
     }
 
     /**
@@ -93,7 +97,7 @@ class GroupFragment : Fragment() {
      */
     private fun Snackbar.setSpanClickable() {
         val snackBarContentLayout =
-            ((view as Snackbar.SnackbarLayout).getChildAt(0) as SnackbarContentLayout)
+                ((view as Snackbar.SnackbarLayout).getChildAt(0) as SnackbarContentLayout)
         try {
             val controller = snackBarContentLayout::class.java.getDeclaredField("messageView")
             controller.isAccessible = true
@@ -122,13 +126,13 @@ class GroupFragment : Fragment() {
         processViewAlpha = binding.includeProcessToast.textViewUpdateAnchorsDetails.alpha
 
         val drawable =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                resources.getDrawable(R.drawable.ic_home_page)
-            } else {
-                resources.getDrawable(R.drawable.ic_home_page)
-            }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    resources.getDrawable(R.drawable.ic_home_page)
+                } else {
+                    resources.getDrawable(R.drawable.ic_home_page)
+                }
         drawable?.setBounds(0, 0, 40, 40)
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.section_title)?.apply {
             setCompoundDrawables(null, null, drawable, null)
         }
         /**
@@ -175,13 +179,17 @@ class GroupFragment : Fragment() {
         PreferenceVariable.showAnchorImageWhenMobileData.observe(viewLifecycleOwner) {
             checkShowImage()
         }
+        //wifi observer
+        WifiManager.isWifiConnected.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
     }
 
     private fun checkShowImage() {
         //切换显示图片
         if (PreferenceVariable.showAnchorImage.value!!) {
             //如果显示图片
-            if (AppUtil.isWifiConnected()) {
+            if (WifiManager.isWifiConnected.value!!) {
                 //如果wifi连接
                 setShowImage(true)
             } else {
@@ -207,12 +215,12 @@ class GroupFragment : Fragment() {
 
     private fun iniRecyclerViewLayoutManager(orientation: Int) {
         binding.includeType.recyclerView.layoutManager =
-            GridLayoutManager(
-                requireContext(),
-                if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
-            ).apply {
-                spanSizeLookup = AnchorSpanSizeLookup(anchorAdapter, this)
-            }
+                GridLayoutManager(
+                        requireContext(),
+                        if (orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 4
+                ).apply {
+                    spanSizeLookup = AnchorSpanSizeLookup(anchorAdapter, this)
+                }
         anchorItemDecoration?.setOrientation(orientation)
     }
 
@@ -271,14 +279,14 @@ class GroupFragment : Fragment() {
                 R.id.action_item_delete -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     AlertDialogTool.newAlertDialog(requireContext())
-                        .setTitle("是否删除${anchor.nickname}")
-                        .setPositiveButton("是") { _, _ ->
-                            viewModel.deleteAnchor(anchor)
-                        }
-                        .setNegativeButton("否") { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .show()
+                            .setTitle("是否删除${anchor.nickname}")
+                            .setPositiveButton("是") { _, _ ->
+                                viewModel.deleteAnchor(anchor)
+                            }
+                            .setNegativeButton("否") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
                 }
                 ConstValue.ITEM_ID_FOLLOW_ANCHOR -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]
@@ -287,10 +295,10 @@ class GroupFragment : Fragment() {
                 else -> {
                     val anchor = viewModel.sortedAnchorList.value!![position]
                     HandleContextItemSelect.handle(
-                        requireContext(),
-                        item.itemId,
-                        anchor,
-                        viewModel.sortedAnchorList.value!!
+                            requireContext(),
+                            item.itemId,
+                            anchor,
+                            viewModel.sortedAnchorList.value!!
                     )
                 }
             }
@@ -303,7 +311,7 @@ class GroupFragment : Fragment() {
             R.id.action_list_overlay -> {
                 if (isVisible)
                     (requireActivity() as MainActivity).showListOverlayWindowWithPermissionCheck(
-                        viewModel.sortedAnchorList.value!!
+                            viewModel.sortedAnchorList.value!!
                     )
             }
         }
@@ -327,19 +335,19 @@ class GroupFragment : Fragment() {
         showUpdateDetails(text)
         binding.includeProcessToast.textViewUpdateAnchorsDetails.apply {
             updateProcessAnimate = animate().alpha(0f).setDuration(1500)
-                .setListener(object : Animator.AnimatorListener {
-                    override fun onAnimationEnd(p0: Animator?) {
-                        visibility = View.GONE
-                        alpha = processViewAlpha
-                    }
+                    .setListener(object : Animator.AnimatorListener {
+                        override fun onAnimationEnd(p0: Animator?) {
+                            visibility = View.GONE
+                            alpha = processViewAlpha
+                        }
 
-                    override fun onAnimationCancel(p0: Animator?) {
-                        alpha = processViewAlpha
-                    }
+                        override fun onAnimationCancel(p0: Animator?) {
+                            alpha = processViewAlpha
+                        }
 
-                    override fun onAnimationRepeat(p0: Animator?) {}
-                    override fun onAnimationStart(p0: Animator?) {}
-                }).setStartDelay(1500)
+                        override fun onAnimationRepeat(p0: Animator?) {}
+                        override fun onAnimationStart(p0: Animator?) {}
+                    }).setStartDelay(1500)
         }
     }
 

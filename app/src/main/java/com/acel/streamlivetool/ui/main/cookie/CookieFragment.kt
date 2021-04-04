@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.showListOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.const_value.PreferenceVariable
 import com.acel.streamlivetool.databinding.FragmentCookieModeBinding
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.platform.PlatformDispatcher
@@ -33,8 +32,9 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
-import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.ToastUtil.toast
+import com.acel.streamlivetool.value.PreferenceVariable
+import com.acel.streamlivetool.value.WifiManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,7 +83,7 @@ class CookieFragment : Fragment() {
     private fun checkShowImage() {
         if (PreferenceVariable.showAnchorImage.value!!) {
             //如果显示图片
-            if (AppUtil.isWifiConnected()) {
+            if (WifiManager.isWifiConnected.value!!) {
                 //如果wifi连接
                 setShowImage(true)
             } else {
@@ -120,7 +120,7 @@ class CookieFragment : Fragment() {
             setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
             setColorSchemeResources(R.color.colorPrimary)
         }
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.status)?.apply {
+        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.section_title)?.apply {
             setCompoundDrawables(null, null, iconDrawable, null)
         }
         //observe live data
@@ -154,6 +154,10 @@ class CookieFragment : Fragment() {
             checkShowImage()
         }
         PreferenceVariable.showAnchorImageWhenMobileData.observe(viewLifecycleOwner) {
+            checkShowImage()
+        }
+        //wifi observer
+        WifiManager.isWifiConnected.observe(viewLifecycleOwner) {
             checkShowImage()
         }
     }
