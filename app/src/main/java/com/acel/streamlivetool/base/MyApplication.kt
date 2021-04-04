@@ -3,7 +3,7 @@ package com.acel.streamlivetool.base
 import android.app.Application
 import android.content.Context
 import androidx.multidex.MultiDex
-import com.acel.streamlivetool.const_value.PreferenceVariable
+import com.acel.streamlivetool.value.PreferenceVariable
 
 class MyApplication : Application() {
     companion object {
