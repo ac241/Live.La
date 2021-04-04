@@ -1,10 +1,10 @@
 package com.acel.streamlivetool.platform.impl.huya.module
 
-import com.acel.streamlivetool.platform.base.AbstractLoginImpl
+import com.acel.streamlivetool.platform.base.LoginModule
 import com.acel.streamlivetool.platform.base.CookieManager
 
 class HuyaLoginModule(platform: String, cookieManager: CookieManager) :
-    AbstractLoginImpl(platform, cookieManager) {
+    LoginModule(platform, cookieManager) {
 
     override val pcAgent: Boolean = true
     override val loginUrl: String = "https://www.huya.com/333003"

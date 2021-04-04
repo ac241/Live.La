@@ -1,10 +1,10 @@
 package com.acel.streamlivetool.platform.impl.bilibili.module
 
-import com.acel.streamlivetool.platform.base.AbstractLoginImpl
+import com.acel.streamlivetool.platform.base.LoginModule
 import com.acel.streamlivetool.platform.base.CookieManager
 
 class BiliLoginModule(platform: String, cookieManager: CookieManager) :
-    AbstractLoginImpl(platform, cookieManager) {
+    LoginModule(platform, cookieManager) {
 
     override val loginUrl: String = "https://passport.bilibili.com/login"
 

@@ -4,7 +4,7 @@ import android.content.Context
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
+import com.acel.streamlivetool.platform.base.AnchorCookieModule
 import com.acel.streamlivetool.platform.base.CookieManager
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.impl.douyu.DouyuImpl
@@ -16,7 +16,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 class DouyuAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-    AbstractAnchorCookieImpl(cookieManager) {
+    AnchorCookieModule(cookieManager) {
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         fun addToList(list: MutableList<Anchor>, followed: Followed) {
             followed.data.list.forEach {

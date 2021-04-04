@@ -1,38 +1,30 @@
 package com.acel.streamlivetool.platform.base
 
-interface LoginModule {
-    /**
-     *  WebView 使用PC Agent
-     */
-    val pcAgent: Boolean
-        get() = false
+import com.acel.streamlivetool.util.defaultSharedPreferences
 
-    /**
-     * 登录提示
-     */
-    val loginTips: String?
-        get() = null
+/**
+ * @param platform ->the platform [AbstractPlatformImpl.platform]
+ * @param cookieManager -> you can use the default manager [AbstractPlatformImpl.cookieManager]
+ */
+abstract class LoginModule(platform: String, private val cookieManager: CookieManager) :
+    LoginModuleInterface {
 
-    /**
-     * 登录页面
-     */
-    val loginUrl: String
+    private val keyLastLoginTime = "${platform}_last_login_time"
 
-    /**
-     *
-     */
-    val javascriptOnPageLoaded: String?
-        get() = null
+    final override fun tryLogin(cookie: String): Boolean {
+        return if (checkLoginOk(cookie)) {
+            cookieManager.saveCookie(cookie)
+            saveLoginTime()
+            true
+        } else
+            false
+    }
 
-    /**
-     * 检查登录是否成功
-     */
-    fun checkLoginOk(cookie: String): Boolean
+    private fun saveLoginTime() {
+        defaultSharedPreferences.edit()
+            .putLong(keyLastLoginTime, System.currentTimeMillis())
+            .apply()
+    }
 
-    /**
-     * 尝试登录
-     * @return success or not
-     */
-    fun tryLogin(cookie: String): Boolean
-
+    fun getLastLoginTime(): Long = defaultSharedPreferences.getLong(keyLastLoginTime, -1)
 }

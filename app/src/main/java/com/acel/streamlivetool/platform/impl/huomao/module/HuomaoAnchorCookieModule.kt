@@ -1,13 +1,13 @@
 package com.acel.streamlivetool.platform.impl.huomao.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
+import com.acel.streamlivetool.platform.base.AnchorCookieModule
 import com.acel.streamlivetool.platform.base.CookieManager
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.impl.huomao.HuomaoImpl
 
 class HuomaoAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-    AbstractAnchorCookieImpl(cookieManager) {
+    AnchorCookieModule(cookieManager) {
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         val cookie = cookieManager.getCookie()
         if (cookie.isEmpty())

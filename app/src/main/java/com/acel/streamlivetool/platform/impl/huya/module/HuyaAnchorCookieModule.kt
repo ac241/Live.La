@@ -3,13 +3,12 @@ package com.acel.streamlivetool.platform.impl.huya.module
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
+import com.acel.streamlivetool.platform.base.AnchorCookieModule
 import com.acel.streamlivetool.platform.base.CookieManager
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.impl.huya.HuyaImpl
@@ -19,11 +18,9 @@ import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.AppUtil
 import com.acel.streamlivetool.util.CookieUtil
 import com.acel.streamlivetool.util.TimeUtil
-import kotlinx.coroutines.*
-import java.util.*
 
 class HuyaAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-        AbstractAnchorCookieImpl(cookieManager) {
+        AnchorCookieModule(cookieManager) {
 
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         cookieManager.getCookie().let { cookie ->
@@ -113,7 +110,6 @@ class HuyaAnchorCookieModule(private val platform: String, cookieManager: Cookie
 
     @SuppressLint("SetJavaScriptEnabled")
     fun showVerifyCodeWindow(context: Context, url: String): Boolean {
-        Thread.currentThread().suspend()
         val obj = Object()
         var result = false
         val builder = AlertDialogTool.newAlertDialog(context)

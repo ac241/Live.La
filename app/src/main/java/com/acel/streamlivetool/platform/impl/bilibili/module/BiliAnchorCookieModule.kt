@@ -2,7 +2,7 @@ package com.acel.streamlivetool.platform.impl.bilibili.module
 
 import android.content.Context
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
+import com.acel.streamlivetool.platform.base.AnchorCookieModule
 import com.acel.streamlivetool.platform.base.CookieManager
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.impl.bilibili.BilibiliImpl
@@ -14,7 +14,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 class BiliAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-        AbstractAnchorCookieImpl(cookieManager) {
+        AnchorCookieModule(cookieManager) {
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         cookieManager.getCookie().let { cookie ->
             if (cookie.isEmpty())

@@ -4,7 +4,7 @@ import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.net.RetrofitUtils
 import com.acel.streamlivetool.platform.base.BaseDanmuModule
-import com.acel.streamlivetool.platform.base.AbstractLoginImpl
+import com.acel.streamlivetool.platform.base.LoginModule
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.platform.base.AppModule
 import com.acel.streamlivetool.platform.impl.bilibili.module.*
@@ -26,7 +26,7 @@ class BilibiliImpl : AbstractPlatformImpl() {
     override val anchorCookieModule = BiliAnchorCookieModule(platform, cookieManager)
     override val streamingLiveModule = BiliStreamingLiveModule
     override val appModule: AppModule = BiliAppModule
-    override val loginModule: AbstractLoginImpl = BiliLoginModule(platform, cookieManager)
+    override val loginModule: LoginModule = BiliLoginModule(platform, cookieManager)
     override val danmuModule: BaseDanmuModule = BiliDanmuModule(cookieManager)
 
 }
