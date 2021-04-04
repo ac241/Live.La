@@ -32,7 +32,7 @@ class DouyuDanmuClient(
             Request.Builder().get().url("wss://danmuproxy.douyu.com:8504")
                 .header("Cookie", cookie).build()
         webSocket =
-            WebSocketClient.newWebSocket(request, DouyuWebsocketListener())
+            WebSocketClient.newWebSocket(request, DouyuWebsocketListener(anchor))
     }
 
     override fun stop() {
@@ -43,7 +43,7 @@ class DouyuDanmuClient(
         heartbeatJob = null
     }
 
-    inner class DouyuWebsocketListener : WebSocketListener() {
+    inner class DouyuWebsocketListener(val anchor: Anchor) : WebSocketListener() {
 
         override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
             val result = messageDecoder(bytes.toByteArray())
@@ -87,7 +87,7 @@ class DouyuDanmuClient(
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             if (isRunning)
-                danmuManager?.errorCallback("${t.message}")
+                danmuManager?.errorCallback("${t.message}",this@DouyuDanmuClient, anchor)
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

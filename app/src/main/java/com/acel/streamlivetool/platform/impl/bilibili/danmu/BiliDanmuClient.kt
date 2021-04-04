@@ -18,16 +18,16 @@ import java.nio.ByteBuffer
 import java.util.regex.Matcher
 
 class BiliDanmuClient(
-    cookieManager: CookieManager,
-    danmuManager: DanmuManager,
-    anchor: Anchor
+        cookieManager: CookieManager,
+        danmuManager: DanmuManager,
+        anchor: Anchor
 ) :
-    ReusableDanmuClient(cookieManager, danmuManager, anchor) {
+        ReusableDanmuClient(cookieManager, danmuManager, anchor) {
     private val bilibiliService: BilibiliApi =
-        RetrofitUtils.retrofit.create(BilibiliApi::class.java)
+            RetrofitUtils.retrofit.create(BilibiliApi::class.java)
     private var webSocket: WebSocket? = null
     private var heartbeatJob: Job? = null
-    private var websocketListener: BiliWebsocketListener = BiliWebsocketListener()
+    private var websocketListener: BiliWebsocketListener = BiliWebsocketListener(anchor)
     private var uid: String? = null
     private var token: String? = null
 
@@ -36,7 +36,7 @@ class BiliDanmuClient(
         val cookie = cookieManager?.getCookie()
         cookie ?: throw IllegalArgumentException("cookie manager null?")
         if (cookie.isEmpty()) {
-            danmuManager.errorCallback("该平台登录后才能接收弹幕。", DanmuManager.ErrorType.COOKIE_INVALID)
+            danmuManager.errorCallback("该平台登录后才能接收弹幕。", this, anchor, DanmuManager.ErrorType.COOKIE_INVALID)
             return
         }
         val info = bilibiliService.getDanmuInfo(cookie, anchor.roomId).execute().body()
@@ -46,36 +46,36 @@ class BiliDanmuClient(
             val host = info.data.host_list[0]
             val wsUrl = "wss://${host.host}:${host.wss_port}/sub"
             val request =
-                Request.Builder().get().url(wsUrl).headers(
-                    Headers.of(
-                        "Accept-Encoding",
-                        " gzip, deflate, br",
-                        "User-Agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36",
-                        "Accept-Language",
-                        "zh-CN,zh;q=0.9",
-                        "Host",
-                        " ${host.host}",
-                        "Upgrade",
-                        "websocket",
-                        "Origin",
-                        "https://live.bilibili.com",
-                        "Referer",
-                        "https://live.bilibili.com/",
-                        "Sec-WebSocket-Extensions",
-                        "permessage-deflate; client_max_window_bits",
-                        "Sec-WebSocket-Key",
-                        "xU+WLiKvC2xpGIbANhvzFg==",
-                        "Sec-WebSocket-Version",
-                        "13",
-                        "Connection",
-                        "Upgrade",
+                    Request.Builder().get().url(wsUrl).headers(
+                            Headers.of(
+                                    "Accept-Encoding",
+                                    " gzip, deflate, br",
+                                    "User-Agent",
+                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36",
+                                    "Accept-Language",
+                                    "zh-CN,zh;q=0.9",
+                                    "Host",
+                                    " ${host.host}",
+                                    "Upgrade",
+                                    "websocket",
+                                    "Origin",
+                                    "https://live.bilibili.com",
+                                    "Referer",
+                                    "https://live.bilibili.com/",
+                                    "Sec-WebSocket-Extensions",
+                                    "permessage-deflate; client_max_window_bits",
+                                    "Sec-WebSocket-Key",
+                                    "xU+WLiKvC2xpGIbANhvzFg==",
+                                    "Sec-WebSocket-Version",
+                                    "13",
+                                    "Connection",
+                                    "Upgrade",
+                            )
                     )
-                )
-                    .header("Cookie", cookie)
-                    .build()
+                            .header("Cookie", cookie)
+                            .build()
             webSocket =
-                WebSocketClient.newWebSocket(request, websocketListener)
+                    WebSocketClient.newWebSocket(request, websocketListener)
             joinRoom()
 
             //循环心跳包
@@ -83,18 +83,18 @@ class BiliDanmuClient(
                 runCatching {
                     while (true) {
                         webSocket?.send(
-                            ByteString.of(
-                                heartbeatHeadPack,
-                                0,
-                                heartbeatHeadPack.size
-                            )
+                                ByteString.of(
+                                        heartbeatHeadPack,
+                                        0,
+                                        heartbeatHeadPack.size
+                                )
                         )
                         delay(30000)
                     }
                 }.onFailure {
                     Log.d(
-                        "acel_log@heartBeat",
-                        "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消"
+                            "acel_log@heartBeat",
+                            "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消"
                     )
                     it.printStackTrace()
                 }
@@ -110,7 +110,7 @@ class BiliDanmuClient(
         heartbeatJob = null
     }
 
-    inner class BiliWebsocketListener : WebSocketListener() {
+    inner class BiliWebsocketListener(val anchor: Anchor) : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             super.onOpen(webSocket, response)
             danmuManager?.startCallback()
@@ -137,7 +137,7 @@ class BiliDanmuClient(
             super.onFailure(webSocket, t, response)
             t.printStackTrace()
             if (isRunning)
-                danmuManager?.errorCallback("${t.message}")
+                danmuManager?.errorCallback("${t.message}", this@BiliDanmuClient, anchor)
         }
     }
 
@@ -146,12 +146,12 @@ class BiliDanmuClient(
      */
     private fun joinRoom() {
         val msg =
-            "{\"uid\":$uid,\"roomid\":${anchor?.roomId},\"protover\":1,\"platform\":\"web\",\"clientver\":\"2.6.25\",\"type\":2,\"key\":\"$token\"}"
+                "{\"uid\":$uid,\"roomid\":${anchor?.roomId},\"protover\":1,\"platform\":\"web\",\"clientver\":\"2.6.25\",\"type\":2,\"key\":\"$token\"}"
         val msgByteS = msg.encodeToByteArray()
         val length = 16 + msgByteS.size
         val array =
-            ByteBuffer.allocate(length).putInt(length).put(joinHeadPack)
-                .put(msg.encodeToByteArray()).array()
+                ByteBuffer.allocate(length).putInt(length).put(joinHeadPack)
+                        .put(msg.encodeToByteArray()).array()
         webSocket?.send(ByteString.of(array, 0, array.size))
     }
 
@@ -181,11 +181,11 @@ class BiliDanmuClient(
                     // int sequence = byteBuffer.getInt();
                     val contentBytes = ByteArray(length - 16)
                     System.arraycopy(
-                        sourceArray,
-                        lengthSum + 16,
-                        contentBytes,
-                        0,
-                        contentBytes.size
+                            sourceArray,
+                            lengthSum + 16,
+                            contentBytes,
+                            0,
+                            contentBytes.size
                     )
                     when (operation) {
                         //Int 32 Big Endian	心跳回应 Body 内容为房间人气值
@@ -204,7 +204,7 @@ class BiliDanmuClient(
                             //zlib压缩过的 Buffer
                             2 -> {
                                 ZlibUtil.decompress(contentBytes)
-                                    ?.let { analyze(danmuManager, it) }
+                                        ?.let { analyze(danmuManager, it) }
                             }
                         }
                         //进房回应
@@ -251,10 +251,10 @@ class BiliDanmuClient(
                 if (!(mMsg.find() && mUid.find() && mNickname.find() && mSendTime.find()))
                     return null
                 return Danmu(
-                    mMsg.group(1),
-                    mUid.group(1),
-                    mNickname.group(1),
-                    mSendTime.group(1)
+                        mMsg.group(1),
+                        mUid.group(1),
+                        mNickname.group(1),
+                        mSendTime.group(1)
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -265,37 +265,37 @@ class BiliDanmuClient(
 
     companion object {
         val joinHeadPack = byteArrayOf(
-            0x00,
-            0x10,
-            0x00,
-            0x01,
-            0x00,
-            0x00,
-            0x00,
-            0x07,
-            0x00,
-            0x00,
-            0x00,
-            0x01
+                0x00,
+                0x10,
+                0x00,
+                0x01,
+                0x00,
+                0x00,
+                0x00,
+                0x07,
+                0x00,
+                0x00,
+                0x00,
+                0x01
         )
 
         val heartbeatHeadPack = byteArrayOf(
-            0x00,
-            0x00,
-            0x00,
-            0x10,
-            0x00,
-            0x10,
-            0x00,
-            0x01,
-            0x00,
-            0x00,
-            0x00,
-            0x02,
-            0x00,
-            0x00,
-            0x00,
-            0x01
+                0x00,
+                0x00,
+                0x00,
+                0x10,
+                0x00,
+                0x10,
+                0x00,
+                0x01,
+                0x00,
+                0x00,
+                0x00,
+                0x02,
+                0x00,
+                0x00,
+                0x00,
+                0x01
         )
     }
 

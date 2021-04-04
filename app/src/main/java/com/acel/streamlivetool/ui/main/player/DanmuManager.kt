@@ -12,7 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * 弹幕客户端，用于接收弹幕并推送给danmu view进行显示
+ * 弹幕客户端，用于接收弹幕并推送给danmu view显示
  */
 class DanmuManager(viewModelScope: CoroutineScope) {
 
@@ -24,11 +24,22 @@ class DanmuManager(viewModelScope: CoroutineScope) {
     private var danmuClient: DanmuClient? = null
 
     private enum class State {
-        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
+        IDLE, CONNECTING, START, STOP, ERROR, RELEASE
     }
 
     enum class ErrorType {
-        NORMAL, NOT_SUPPORT, COOKIE_INVALID, HUYA_DANMU_DATA_INVALID
+
+        //一般错误类型
+        NORMAL,
+
+        //不支持错误类型
+        NOT_SUPPORT,
+
+        //cookie不合法错误类型
+        COOKIE_INVALID,
+
+        //特殊错误类型，一般用于特殊情况，比如需要配置弹幕参数。
+        SPECIAL
     }
 
     private fun isStarting() = state == State.START
@@ -47,7 +58,7 @@ class DanmuManager(viewModelScope: CoroutineScope) {
             this.anchor = anchor
             onConnecting(startMessage)
             danmuClient =
-                anchor.platformImpl()?.danmuModule?.getDanmuClient(this@DanmuManager, anchor)
+                    anchor.platformImpl()?.danmuModule?.getDanmuClient(this@DanmuManager, anchor)
             if (danmuClient == null) {
                 errorCallback("该平台暂不支持", ErrorType.NOT_SUPPORT)
                 return false
@@ -59,7 +70,7 @@ class DanmuManager(viewModelScope: CoroutineScope) {
                     if (it is IllegalArgumentException) {
                         it.message?.let { it1 -> ToastUtil.toastOnMainThread(it1) }
                     } else {
-                        errorCallback("${it.message}")
+                        errorCallback("${it.message}", ErrorType.NORMAL)
                     }
                     it.printStackTrace()
                 }
@@ -127,16 +138,32 @@ class DanmuManager(viewModelScope: CoroutineScope) {
     /**
      * 发生错误 回调
      * 调用这个函数后，[stop]将被调用
-     * @param errorType 错误类型，一般不填用默认值。
+     * @param errorType 错误类型，一般不填使用默认值[ErrorType.NORMAL]
+     * [ErrorType.COOKIE_INVALID]cookie非法时使用,
+     * [ErrorType.SPECIAL]用于处理特殊情况，比如需要需要配置弹幕信息,
+     * [ErrorType.NOT_SUPPORT]为未实现弹幕功能的值，一般不主动使用。
+     *
      */
-    fun errorCallback(reason: String, errorType: ErrorType = ErrorType.NORMAL) {
+    fun errorCallback(reason: String, client: DanmuClient, anchor: Anchor, errorType: ErrorType = ErrorType.NORMAL) {
+        if (client == danmuClient && this.anchor == anchor) {
+            stop()
+            mListener?.onError(reason, errorType)
+            state = State.ERROR
+        }
+    }
+
+    /**
+     *  发生错误 回调 内部使用
+     */
+    private fun errorCallback(reason: String, errorType: ErrorType) {
         stop()
         mListener?.onError(reason, errorType)
         state = State.ERROR
     }
 
     /**
-     * 开始推送回调，告知客户端已经可以接收弹幕，一般是在socket连接后调用。
+     * 开始推送回调，告知客户端已经可以接收弹幕。
+     * 一般是在socket连接后调用
      * 在开始推送弹幕前，你必须调用此函数，否则客户端不能接收弹幕信息
      */
     fun startCallback() {

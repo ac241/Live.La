@@ -20,11 +20,11 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 
 class HuyaDanmuClient(
-    cookieManager: CookieManager,
-    danmuManager: DanmuManager,
-    anchor: Anchor
+        cookieManager: CookieManager,
+        danmuManager: DanmuManager,
+        anchor: Anchor
 ) :
-    ReusableDanmuClient(cookieManager, danmuManager, anchor) {
+        ReusableDanmuClient(cookieManager, danmuManager, anchor) {
 
     private var webSocket: WebSocket? = null
     private val gson = Gson()
@@ -35,17 +35,19 @@ class HuyaDanmuClient(
         val cookie = cookieManager?.getCookie()
         cookie ?: throw IllegalArgumentException("cookie manager null?")
         val appId = defaultSharedPreferences.getString(
-            MyApplication.application.getString(R.string.key_huya_danmu_app_id),
-            ""
+                MyApplication.application.getString(R.string.key_huya_danmu_app_id),
+                ""
         )
         val secret = defaultSharedPreferences.getString(
-            MyApplication.application.getString(R.string.key_huya_danmu_secret),
-            ""
+                MyApplication.application.getString(R.string.key_huya_danmu_secret),
+                ""
         )
         if (appId.isNullOrEmpty() || secret.isNullOrEmpty()) {
             danmuManager.errorCallback(
-                "需要先在[设置-虎牙弹幕数据]填写数据",
-                DanmuManager.ErrorType.HUYA_DANMU_DATA_INVALID
+                    "需要先在[设置-虎牙弹幕数据]填写数据",
+                    this,
+                    anchor,
+                    DanmuManager.ErrorType.SPECIAL
             )
             return
         }
@@ -64,8 +66,8 @@ class HuyaDanmuClient(
                         }
                     }.onFailure {
                         Log.d(
-                            "acel_log@heartBeat",
-                            "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消"
+                                "acel_log@heartBeat",
+                                "${anchor.platform} ${anchor.nickname}的弹幕心跳包被取消"
                         )
                         it.printStackTrace()
                     }
@@ -75,8 +77,10 @@ class HuyaDanmuClient(
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
-                if (isRunning)
-                    danmuManager.errorCallback("error")
+                t.printStackTrace()
+                if (isRunning) {
+                    danmuManager.errorCallback("error", this@HuyaDanmuClient, anchor)
+                }
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
@@ -92,8 +96,8 @@ class HuyaDanmuClient(
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                 super.onMessage(webSocket, bytes)
                 Log.d(
-                    "HuyaDanmuReceiver",
-                    "5${bytes.toByteArray().decodeToString()}"
+                        "HuyaDanmuReceiver",
+                        "5${bytes.toByteArray().decodeToString()}"
                 )
             }
         })
@@ -112,12 +116,12 @@ class HuyaDanmuClient(
             val data = gson.fromJson(text, WebSocketData::class.java)
             data.data.apply {
                 danmuManager?.newDanmuCallback(
-                    Danmu(
-                        content,
-                        roomId.toString(),
-                        sendNick,
-                        null
-                    )
+                        Danmu(
+                                content,
+                                roomId.toString(),
+                                sendNick,
+                                null
+                        )
                 )
             }
         } catch (e: Exception) {

@@ -3,6 +3,9 @@ package com.acel.streamlivetool.platform.base
 import com.acel.streamlivetool.bean.Anchor
 import com.acel.streamlivetool.ui.main.player.DanmuManager
 
+/**
+ * danmu client可复用的DanmuModule
+ */
 abstract class ReusableDanmuModule :
     BaseDanmuModule() {
 
