@@ -11,7 +11,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
 @Suppress("unused")
-class OrientationEventListener(playerFragment: PlayerFragment) :
+class AutoChangeOrientation(playerFragment: PlayerFragment) :
     OrientationEventListener(playerFragment.requireActivity()),
     LifecycleObserver {
     private var playerFragment: PlayerFragment? = playerFragment

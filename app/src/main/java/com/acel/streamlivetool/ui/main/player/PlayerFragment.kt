@@ -52,7 +52,7 @@ class PlayerFragment : BaseFragment() {
 
     internal var fullScreen = MutableLiveData(false)
     internal var landscape = false
-    private val orientationEventListener by lazy { OrientationEventListener(this) }
+    private val orientationEventListener by lazy { AutoChangeOrientation(this) }
 
     private var emitDanmuJob: Job? = null
 

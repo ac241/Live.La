@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
@@ -74,16 +75,6 @@ object AppUtil {
         exitProcess(0)
     }
 
-    /**
-     * 判断Wifi是否连接
-     */
-    @Suppress("DEPRECATION")
-    fun isWifiConnected(): Boolean {
-        val connectivityManager =
-            MyApplication.application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetInfo = connectivityManager.activeNetworkInfo
-        return activeNetInfo != null && activeNetInfo.type == ConnectivityManager.TYPE_WIFI
-    }
 
     /**
      * 返回当前程序版本号

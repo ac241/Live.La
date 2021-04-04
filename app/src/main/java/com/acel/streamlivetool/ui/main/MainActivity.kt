@@ -24,7 +24,7 @@ import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.base.OverlayWindowActivity
 import com.acel.streamlivetool.base.showPlayerOverlayWindowWithPermissionCheck
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.const_value.PreferenceVariable
+import com.acel.streamlivetool.value.PreferenceVariable
 import com.acel.streamlivetool.databinding.ActivityMainBinding
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
@@ -41,6 +41,7 @@ import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.CommonColor
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
+import com.acel.streamlivetool.value.WifiManager
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlin.collections.set
 import kotlin.properties.Delegates
@@ -81,7 +82,6 @@ class MainActivity : OverlayWindowActivity() {
         }
         initPlatformFragments()
         binding.viewPager.adapter?.notifyDataSetChanged()
-
     }
 
     private fun initPlatformFragments() {
@@ -120,6 +120,8 @@ class MainActivity : OverlayWindowActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WifiManager.startListen()
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -155,6 +157,7 @@ class MainActivity : OverlayWindowActivity() {
     override fun onDestroy() {
         super.onDestroy()
         CommonColor.unbindResource()
+        WifiManager.stopListen()
     }
 
     private fun initView() {

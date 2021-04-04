@@ -139,13 +139,13 @@ class PlayerViewModel : ViewModel() {
      * 弹幕状态
      */
     enum class DanmuState {
-        IDLE, CONNECTING, RECONNECTING, START, STOP, ERROR, RELEASE
+        IDLE, CONNECTING, START, STOP, ERROR
     }
 
     /**
      * 弹幕客户端
      */
-    private val danmuClient = DanmuManager(viewModelScope).apply {
+    private val danmuManager = DanmuManager(viewModelScope).apply {
         setListener(object : DanmuManager.DanmuListener {
             override fun onNewDanmu(danmu: Danmu) {
                 addDanmu(danmu)
@@ -313,7 +313,7 @@ class PlayerViewModel : ViewModel() {
     override fun onCleared() {
         playerManager.stop()
         playerManager.release()
-        danmuClient.release()
+        danmuManager.release()
         changePlayerStatusReceiver?.unregister()
         changePlayerStatusReceiver = null
         super.onCleared()
@@ -338,7 +338,7 @@ class PlayerViewModel : ViewModel() {
      * 开启弹幕
      */
     private fun startDanmu(anchor: Anchor) {
-        val result = danmuClient.start(anchor)
+        val result = danmuManager.start(anchor)
         if (result)
             clearDanmuList()
     }
@@ -347,7 +347,7 @@ class PlayerViewModel : ViewModel() {
      *  结束弹幕
      */
     fun stopDanmu(reason: String) {
-        danmuClient.stop(reason)
+        danmuManager.stop(reason)
     }
 
     /**
@@ -361,7 +361,7 @@ class PlayerViewModel : ViewModel() {
      * 重启弹幕
      */
     fun restartDanmu(message: String) {
-        danmuClient.restart(message)
+        danmuManager.restart(message)
     }
 
     /**

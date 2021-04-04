@@ -14,7 +14,7 @@ import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.forEach
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
-import com.acel.streamlivetool.const_value.PreferenceVariable
+import com.acel.streamlivetool.value.PreferenceVariable
 import com.acel.streamlivetool.platform.PlatformDispatcher
 import com.acel.streamlivetool.platform.base.AbstractPlatformImpl
 import com.acel.streamlivetool.ui.custom.AlertDialogTool

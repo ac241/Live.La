@@ -1,21 +1,20 @@
-package com.acel.streamlivetool.const_value
+package com.acel.streamlivetool.value
 
 import androidx.lifecycle.MutableLiveData
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.util.defaultSharedPreferences
 
-@Suppress("MemberVisibilityCanBePrivate")
 object PreferenceVariable {
 
     private val keySet = setOf(
-        getKey(R.string.pref_key_show_anchor_image),
-        getKey(R.string.pref_key_show_anchor_image_when_mobile_data),
-        getKey(R.string.pref_key_cookie_mode_platform_displayable),
-        getKey(R.string.pref_key_additional_action_btn),
-        getKey(R.string.pref_key_item_click_action),
-        getKey(R.string.pref_key_second_button_click_action),
-        getKey(R.string.pref_key_group_mode_use_cookie)
+            getKey(R.string.pref_key_show_anchor_image),
+            getKey(R.string.pref_key_show_anchor_image_when_mobile_data),
+            getKey(R.string.pref_key_cookie_mode_platform_displayable),
+            getKey(R.string.pref_key_additional_action_btn),
+            getKey(R.string.pref_key_item_click_action),
+            getKey(R.string.pref_key_second_button_click_action),
+            getKey(R.string.pref_key_group_mode_use_cookie)
     )
 
     var showAnchorImage = MutableLiveData(false)
@@ -51,7 +50,7 @@ object PreferenceVariable {
                 showAnchorImageWhenMobileData.postValue(getPreferenceBoolean(key))
             getKey(R.string.pref_key_cookie_mode_platform_displayable) ->
                 displayablePlatformSet.postValue(
-                    defaultSharedPreferences.getStringSet(key, setOf())
+                        defaultSharedPreferences.getStringSet(key, setOf())
                 )
             getKey(R.string.pref_key_additional_action_btn) ->
                 showAdditionalActionButton.postValue(getPreferenceBoolean(key))

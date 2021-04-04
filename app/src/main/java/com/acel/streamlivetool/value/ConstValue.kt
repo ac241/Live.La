@@ -3,7 +3,7 @@
  * @author acel
  */
 
-package com.acel.streamlivetool.const_value
+package com.acel.streamlivetool.value
 
 object ConstValue {
     const val ITEM_ID_FOLLOW_ANCHOR = 336699

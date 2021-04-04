@@ -64,7 +64,7 @@ class AnchorItemDecoration(private val iconDrawable: Drawable) :
                 .inflate(R.layout.item_section_living_floating, parent, false).apply {
                     floatingLivingView?.measureAndLayoutFloatingSection(parent)
                     iconDrawable.setBounds(0, 0, 40, 40)
-                    findViewById<TextView>(R.id.status)?.apply {
+                    findViewById<TextView>(R.id.section_title)?.apply {
                         setCompoundDrawables(null, null, iconDrawable, null)
                     }
                 }
@@ -72,7 +72,7 @@ class AnchorItemDecoration(private val iconDrawable: Drawable) :
                 .inflate(R.layout.item_section_not_living_floating, parent, false).apply {
                     floatingLivingView?.measureAndLayoutFloatingSection(parent)
                     iconDrawable.setBounds(0, 0, 40, 40)
-                    findViewById<TextView>(R.id.status)?.apply {
+                    findViewById<TextView>(R.id.section_title)?.apply {
                         setCompoundDrawables(null, null, iconDrawable, null)
                     }
                 }

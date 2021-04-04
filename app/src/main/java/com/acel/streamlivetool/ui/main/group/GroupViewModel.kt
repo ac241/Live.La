@@ -13,7 +13,7 @@ import androidx.lifecycle.*
 import com.acel.streamlivetool.R
 import com.acel.streamlivetool.base.MyApplication
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.const_value.PreferenceVariable.groupUseCookie
+import com.acel.streamlivetool.value.PreferenceVariable.groupUseCookie
 import com.acel.streamlivetool.db.AnchorRepository
 import com.acel.streamlivetool.manager.AnchorUpdateManager
 import com.acel.streamlivetool.manager.UpdateResultReceiver
@@ -82,7 +82,11 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
     private val _updateSuccess = MutableLiveData<Boolean>()
     val updateSuccess
         get() = _updateSuccess
+
     var lastUpdateTime = 0L
+    private var lastResumeTimes = 0
+    private val autoRefreshDelayTime = 20000
+
     private var updateAnchorsTask: Job? = null
 
     val showCheckedFollowDialog = MutableLiveData<Anchor?>()
@@ -363,6 +367,19 @@ class GroupViewModel : ViewModel(), UpdateResultReceiver {
         checkFollowedAnchors.remove(anchor)
         if (showCheckedFollowDialog.value == anchor)
             showCheckedFollowDialog.postValue(null)
+    }
+
+    fun resumeUpdate() {
+        //获取数据
+        if (lastResumeTimes != 0) {
+            System.currentTimeMillis().apply {
+                lastUpdateTime.let {
+                    if (it == 0L || this - it > autoRefreshDelayTime)
+                        updateAllAnchor()
+                }
+            }
+        }
+        lastResumeTimes++
     }
 }
 
