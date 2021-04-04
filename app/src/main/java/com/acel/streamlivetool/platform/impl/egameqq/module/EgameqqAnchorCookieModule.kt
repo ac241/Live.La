@@ -1,7 +1,7 @@
 package com.acel.streamlivetool.platform.impl.egameqq.module
 
 import com.acel.streamlivetool.bean.Anchor
-import com.acel.streamlivetool.platform.base.AbstractAnchorCookieImpl
+import com.acel.streamlivetool.platform.base.AnchorCookieModule
 import com.acel.streamlivetool.platform.base.CookieManager
 import com.acel.streamlivetool.platform.bean.ApiResult
 import com.acel.streamlivetool.platform.impl.egameqq.EgameqqImpl
@@ -9,7 +9,7 @@ import com.acel.streamlivetool.util.AnchorUtil
 import com.acel.streamlivetool.util.TimeUtil
 
 class EgameqqAnchorCookieModule(private val platform: String, cookieManager: CookieManager) :
-    AbstractAnchorCookieImpl(cookieManager) {
+    AnchorCookieModule(cookieManager) {
     override fun getAnchorsByCookieMode(): ApiResult<List<Anchor>> {
         val cookie = cookieManager.getCookie()
         if (cookie.isEmpty())
