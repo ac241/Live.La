@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
@@ -34,7 +33,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorAdapter
 import com.acel.streamlivetool.ui.main.adapter.AnchorItemDecoration
 import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_GROUP
-import com.acel.streamlivetool.value.WifiManager
+import com.acel.streamlivetool.manager.WifiManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.android.synthetic.main.activity_main.*

@@ -34,7 +34,7 @@ import com.acel.streamlivetool.ui.main.adapter.AnchorSpanSizeLookup
 import com.acel.streamlivetool.ui.main.adapter.MODE_COOKIE
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.value.PreferenceVariable
-import com.acel.streamlivetool.value.WifiManager
+import com.acel.streamlivetool.manager.WifiManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

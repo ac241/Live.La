@@ -1,4 +1,4 @@
-package com.acel.streamlivetool.value
+package com.acel.streamlivetool.manager
 
 import android.content.Context
 import android.net.ConnectivityManager

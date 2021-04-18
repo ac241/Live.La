@@ -10,9 +10,9 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 115,
-      "versionName": "1.2.8",
-      "outputFile": "com.acel.streamlivetool_v1.2.8.115_release_20210403.apk"
+      "versionCode": 120,
+      "versionName": "1.3.0",
+      "outputFile": "com.acel.streamlivetool_v1.3.0.120_release_20210418.apk"
     }
   ]
 }

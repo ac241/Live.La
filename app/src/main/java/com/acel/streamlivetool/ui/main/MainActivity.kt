@@ -41,7 +41,7 @@ import com.acel.streamlivetool.util.AnchorClickAction
 import com.acel.streamlivetool.util.CommonColor
 import com.acel.streamlivetool.util.ToastUtil.toast
 import com.acel.streamlivetool.util.defaultSharedPreferences
-import com.acel.streamlivetool.value.WifiManager
+import com.acel.streamlivetool.manager.WifiManager
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlin.collections.set
 import kotlin.properties.Delegates
