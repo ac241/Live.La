@@ -590,7 +590,6 @@ class PlayerFragment : BaseFragment() {
                 viewModel.getPreEmitDanmu()?.let {
                     emitDanma(it.msg)
                 }
-                delay(20)
             }
         }
     }

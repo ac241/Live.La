@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 import kotlin.properties.Delegates
 
 class PlayerViewModel : ViewModel() {
@@ -35,9 +36,9 @@ class PlayerViewModel : ViewModel() {
     }
 
     private var changePlayerStatusReceiver: ChangePlayerStatusReceiver? =
-        ChangePlayerStatusReceiver().apply {
-            register()
-        }
+            ChangePlayerStatusReceiver().apply {
+                register()
+            }
 
     //----------主播相关------------
     val anchor = MutableLiveData<Anchor?>()
@@ -59,8 +60,8 @@ class PlayerViewModel : ViewModel() {
     private val playerManager = PlayerManager().apply {
         setListener(object : PlayerManager.Listener {
             override fun onStatusChange(
-                playerStatus: PlayerManager.PlayerStatus,
-                message: String?
+                    playerStatus: PlayerManager.PlayerStatus,
+                    message: String?
             ) {
                 when (playerStatus) {
                     PlayerManager.PlayerStatus.BUFFERING -> {
@@ -184,8 +185,7 @@ class PlayerViewModel : ViewModel() {
     val danmuStatus = MutableLiveData(Pair(DanmuState.IDLE, ""))
 
     //待发送的弹幕
-    private val preEmitDanmuList: MutableList<Danmu> =
-        Collections.synchronizedList(mutableListOf<Danmu>())
+    private val preEmitDanmuList = LinkedBlockingQueue<Danmu>(50)
 
     //连接弹幕失败次数
     private var danmuErrorTimes: Int by Delegates.observable(0) { _, _, new ->
@@ -277,7 +277,7 @@ class PlayerViewModel : ViewModel() {
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
                     val streamingLive =
-                        anc.platformImpl()?.streamingLiveModule?.getStreamingLive(anc, quality)
+                            anc.platformImpl()?.streamingLiveModule?.getStreamingLive(anc, quality)
                     val url = streamingLive?.url
                     if (url != null && url.isNotEmpty()) {
                         playerManager.play(url)
@@ -406,12 +406,7 @@ class PlayerViewModel : ViewModel() {
      */
     @Synchronized
     fun getPreEmitDanmu(): Danmu? {
-        return if (preEmitDanmuList.size > 0) {
-            val danmu = preEmitDanmuList[0]
-            preEmitDanmuList.removeAt(0)
-            danmu
-        } else
-            null
+        return preEmitDanmuList.take()
     }
 
     inner class ChangePlayerStatusReceiver : BroadcastReceiver() {
@@ -438,8 +433,8 @@ class PlayerViewModel : ViewModel() {
         fun register() {
             if (!isRegistered) {
                 MyApplication.application.registerReceiver(
-                    this,
-                    IntentFilter(BROADCAST_CHANGE_PLAYER_STATUS)
+                        this,
+                        IntentFilter(BROADCAST_CHANGE_PLAYER_STATUS)
                 )
                 isRegistered = true
             }
