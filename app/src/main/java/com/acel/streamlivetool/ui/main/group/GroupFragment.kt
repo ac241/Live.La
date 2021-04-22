@@ -44,7 +44,7 @@ import kotlinx.coroutines.withContext
 
 class GroupFragment : Fragment() {
 
-    val viewModel by viewModels<GroupViewModel>()
+    private val viewModel by viewModels<GroupViewModel>()
 
     private val iconDrawable by lazy {
         ResourcesCompat.getDrawable(resources, R.drawable.ic_home_page, null)?.apply {
@@ -124,16 +124,16 @@ class GroupFragment : Fragment() {
         }
         processViewAlpha = binding.includeProcessToast.textViewUpdateAnchorsDetails.alpha
 
-        val drawable =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    resources.getDrawable(R.drawable.ic_home_page)
-                } else {
-                    resources.getDrawable(R.drawable.ic_home_page)
-                }
-        drawable?.setBounds(0, 0, 40, 40)
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.section_title)?.apply {
-            setCompoundDrawables(null, null, drawable, null)
-        }
+//        val drawable =
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                    resources.getDrawable(R.drawable.ic_home_page)
+//                } else {
+//                    resources.getDrawable(R.drawable.ic_home_page)
+//                }
+//        drawable?.setBounds(0, 0, 40, 40)
+//        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.section_title)?.apply {
+//            setCompoundDrawables(null, null, drawable, null)
+//        }
         /**
          * observe liveData
          */
@@ -329,7 +329,7 @@ class GroupFragment : Fragment() {
         }
     }
 
-    @Suppress("SameParameterValue", "unused")
+    @Suppress( "unused")
     private fun completeUpdateDetails(text: String) {
         showUpdateDetails(text)
         binding.includeProcessToast.textViewUpdateAnchorsDetails.apply {

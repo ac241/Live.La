@@ -120,9 +120,6 @@ class CookieFragment : Fragment() {
             setProgressBackgroundColorSchemeResource(R.color.swipe_refresh)
             setColorSchemeResources(R.color.colorPrimary)
         }
-        binding.includeType.groupTitleWrapper.findViewById<TextView>(R.id.section_title)?.apply {
-            setCompoundDrawables(null, null, iconDrawable, null)
-        }
         //observe live data
         viewModel.apply {
             liveDataUpdateState.observe(viewLifecycleOwner, {
